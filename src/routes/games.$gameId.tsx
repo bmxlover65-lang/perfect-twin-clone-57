@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Aviator } from "@/components/Aviator";
+import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
 
 import {
   BallByBallBoard,
