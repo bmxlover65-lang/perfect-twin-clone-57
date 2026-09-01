@@ -1246,7 +1246,9 @@ function NumberPanel({
       )}`}
     >
       <span className="text-[1.1rem] font-extrabold leading-none">{t.label}</span>
-      <span className="mt-1 text-[0.72rem] font-bold leading-none">{fmtOdds(t.price)}</span>
+      <span className="mt-1 text-[0.72rem] font-bold leading-none">
+        {t.price ? t.price.toFixed(2) : "—"}
+      </span>
       <span className="mt-[3px] text-[0.66rem] font-semibold leading-none opacity-60">
         {t.size ? Math.round(t.size) : ""}
       </span>
@@ -1643,7 +1645,7 @@ function GamePage() {
           />
         ) : null}
 
-        <RecentStrip results={results} />
+        {gameId !== "88.0023" ? <RecentStrip results={results} /> : null}
       </div>
     );
   }
