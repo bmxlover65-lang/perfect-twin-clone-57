@@ -1552,6 +1552,8 @@ function GamePage() {
     };
   }, [load]);
 
+  const roundKey = state?.data?.roundId ? String(state.data.roundId) : "";
+
   useEffect(() => {
     let alive = true;
     const run = () =>
@@ -1559,12 +1561,13 @@ function GamePage() {
         .then((r) => alive && setResults(r.data ?? []))
         .catch(() => undefined);
     void run();
-    const t = setInterval(run, 5000);
+    const t = setInterval(run, 3000);
     return () => {
       alive = false;
       clearInterval(t);
     };
-  }, [gameId]);
+  }, [gameId, roundKey]);
+
 
   useEffect(() => {
     fetchCasinoStream(gameId)
@@ -1662,14 +1665,23 @@ function GamePage() {
           <DreamWheel spinning={false} />
         ) : gameId === "88.0021" ? (
           <CoinStageImage
-            side={
-              (results[0]?.winner ?? "").toString().toUpperCase().startsWith("T")
-                ? "TAILS"
-                : "HEADS"
-            }
+            winner={(() => {
+              const w = (
+                (d as unknown as { gameResult?: string })?.gameResult ??
+                results[0]?.winner ??
+                ""
+              )
+                .toString()
+                .toUpperCase();
+              if (w.startsWith("T")) return "TAILS";
+              if (w.startsWith("H")) return "HEADS";
+              return null;
+            })()}
             roundId={d?.roundId ? String(d.roundId) : undefined}
-            spinning={!suspended}
+            suspended={suspended}
+            leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
           />
+
         ) : (
           <BalloonStage multiplier={raw.multiplier ?? "1.00"} />
         )}

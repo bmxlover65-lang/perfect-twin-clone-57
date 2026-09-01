@@ -29,17 +29,22 @@ const CHIPS = [
 export type CoinSide = "HEADS" | "TAILS";
 
 export function CoinStageImage({
-  side,
+  winner,
   roundId,
-  spinning,
+  suspended,
+  leftSec,
 }: {
-  side: CoinSide;
+  winner: CoinSide | null;
   roundId?: string | undefined;
-  spinning: boolean;
+  suspended: boolean;
+  leftSec?: number | undefined;
 }) {
-  const [flip, setFlip] = useState(false);
-  const prevRound = useRef<string | undefined>(undefined);
-  const prevSide = useRef<CoinSide | undefined>(undefined);
+  // phase: betting -> flipping (result locked, coin spins ~8s) -> reveal
+  const [flipping, setFlipping] = useState(false);
+  const [shown, setShown] = useState<CoinSide>("HEADS");
+  const [face, setFace] = useState<CoinSide>("HEADS");
+  const flipKey = useRef<string | null>(null);
+  const timers = useRef<number[]>([]);
 
   const play = (url: string) => {
     try {
@@ -51,43 +56,65 @@ export function CoinStageImage({
     }
   };
 
+  // Start the flip the moment the round is suspended (result is being drawn).
   useEffect(() => {
-    if (!roundId) return;
-    if (prevRound.current && prevRound.current !== roundId) {
-      setFlip(true);
-      play(coinSound.url);
-      const t = setTimeout(() => setFlip(false), 1800);
-      prevRound.current = roundId;
-      return () => clearTimeout(t);
-    }
-    prevRound.current = roundId;
-    return undefined;
-  }, [roundId]);
+    if (!suspended || !winner || !roundId) return;
+    if (flipKey.current === roundId) return;
+    flipKey.current = roundId;
+    setFlipping(true);
+    play(coinSound.url);
+    const stop = window.setTimeout(() => {
+      setFlipping(false);
+      setShown(winner);
+      play(winner === "HEADS" ? headWinSound.url : tailWinSound.url);
+    }, 8000);
+    timers.current.push(stop);
+    return () => window.clearTimeout(stop);
+  }, [suspended, winner, roundId]);
 
   useEffect(() => {
-    if (prevSide.current && prevSide.current !== side) {
-      play(side === "HEADS" ? headWinSound.url : tailWinSound.url);
-    }
-    prevSide.current = side;
-  }, [side]);
+    if (!flipping && winner && !suspended) setShown(winner);
+  }, [flipping, winner, suspended]);
 
-  const animate = flip || spinning;
+  // Alternate faces quickly while flipping so it reads as a real toss.
+  useEffect(() => {
+    if (!flipping) {
+      setFace(shown);
+      return undefined;
+    }
+    const i = window.setInterval(
+      () => setFace((f) => (f === "HEADS" ? "TAILS" : "HEADS")),
+      140,
+    );
+    return () => window.clearInterval(i);
+  }, [flipping, shown]);
 
   return (
-    <div className="flex w-full items-center justify-center bg-black py-6">
+    <div className="relative flex w-full items-center justify-center bg-black py-6">
       <img
-        src={side === "HEADS" ? headsCoin.url : tailsCoin.url}
-        alt={`${side} coin`}
+        src={face === "HEADS" ? headsCoin.url : tailsCoin.url}
+        alt={`${face} coin`}
         width={240}
         height={240}
         className="h-[230px] w-[230px] select-none object-contain drop-shadow-[0_8px_20px_rgba(0,0,0,0.6)]"
         draggable={false}
-        style={animate ? { animation: "uapi-coin-flip 0.55s linear infinite" } : undefined}
+        style={flipping ? { animation: "uapi-coin-flip 0.28s linear infinite" } : undefined}
       />
-      <style>{`@keyframes uapi-coin-flip{0%{transform:rotateY(0deg) translateY(0)}50%{transform:rotateY(180deg) translateY(-24px)}100%{transform:rotateY(360deg) translateY(0)}}`}</style>
+      {!flipping && !suspended && leftSec != null ? (
+        <span className="absolute bottom-3 right-4 flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#F2C500] text-[1.05rem] font-extrabold text-[#F2C500]">
+          {leftSec}
+        </span>
+      ) : null}
+      {!flipping && suspended && winner ? (
+        <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-[#F2C500] px-4 py-1 text-[0.8rem] font-extrabold uppercase text-black">
+          {winner} wins
+        </span>
+      ) : null}
+      <style>{`@keyframes uapi-coin-flip{0%{transform:rotateY(0deg) translateY(0) scale(1)}50%{transform:rotateY(180deg) translateY(-34px) scale(1.06)}100%{transform:rotateY(360deg) translateY(0) scale(1)}}`}</style>
     </div>
   );
 }
+
 
 export type CoinRunner = {
   id: string;
