@@ -1,4 +1,7 @@
+import { useEffect, useRef, useState } from "react";
 import neonCity from "@/assets/games/neon-city.jpg";
+import wheelBg from "@/assets/dream/wheelbg.png.asset.json";
+
 
 /* ---------- Lucky 0 to 9 wheel ---------- */
 
