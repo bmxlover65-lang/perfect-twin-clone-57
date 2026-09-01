@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Block, Code, Endpoint, H2, H3, Note, P, Table } from "@/components/docs-kit";
+import { Block, Code, Endpoint, H2, H3, Note, P, Step, Table } from "@/components/docs-kit";
 import { LiveApiDemo } from "@/components/LiveApiDemo";
 
 export const Route = createFileRoute("/sports-docs")({
