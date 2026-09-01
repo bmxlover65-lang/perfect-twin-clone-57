@@ -11,6 +11,9 @@ import dragonTiger1DayImg from "@/assets/games/1_Day_Dragon_tiger.webp.asset.jso
 import muflisTeenpattiImg from "@/assets/games/muflisteenpatti-01.webp.asset.json";
 import cardRaceImg from "@/assets/games/CardRace.webp.asset.json";
 import teenpatti2020Img from "@/assets/games/20-20_teenpatti.webp.asset.json";
+import balloonImg from "@/assets/games/Balloon.webp.asset.json";
+import headsTailsImg from "@/assets/games/Head_n_Tails.webp.asset.json";
+import lucky09Img from "@/assets/games/Lucky_0_to_9.webp.asset.json";
 
 export type GameKind =
   | "teenpatti"
@@ -403,6 +406,9 @@ const GAME_IMAGES: Record<string, string> = {
   "99.0021": dragonTiger1DayImg.url,
   "99.0001": baccaratImg.url,
   "99.0025": andarBaharImg.url,
+  "88.0023": balloonImg.url,
+  "88.0021": headsTailsImg.url,
+  "88.0019": lucky09Img.url,
 };
 
 const seeds: Seed[] = [
