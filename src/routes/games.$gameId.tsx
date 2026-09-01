@@ -1552,6 +1552,8 @@ function GamePage() {
     };
   }, [load]);
 
+  const roundKey = state?.data?.roundId ? String(state.data.roundId) : "";
+
   useEffect(() => {
     let alive = true;
     const run = () =>
@@ -1559,12 +1561,13 @@ function GamePage() {
         .then((r) => alive && setResults(r.data ?? []))
         .catch(() => undefined);
     void run();
-    const t = setInterval(run, 5000);
+    const t = setInterval(run, 3000);
     return () => {
       alive = false;
       clearInterval(t);
     };
-  }, [gameId]);
+  }, [gameId, roundKey]);
+
 
   useEffect(() => {
     fetchCasinoStream(gameId)
