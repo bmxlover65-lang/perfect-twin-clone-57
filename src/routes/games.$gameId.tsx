@@ -165,68 +165,66 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
   const cell = (
     p: { price?: number | null; size?: number | null } | undefined,
     side: "back" | "lay",
+    runnerOpen: boolean,
   ) => {
-    const open = Boolean(p?.price) && !suspended;
-    if (!open) {
-      return (
-        <div className="m-[3px] flex h-[46px] items-center justify-center border border-[#e0403f] bg-white">
-          <span className="text-[0.68rem] font-semibold uppercase tracking-wide text-[#e0403f]">
-            Suspended
-          </span>
-        </div>
-      );
-    }
+    const locked = !runnerOpen || !p?.price;
     return (
       <div
-        className={`m-[3px] flex h-[46px] flex-col items-center justify-center ${
-          side === "back" ? "bg-[#A7D8F0]" : "bg-[#F3C0CB]"
+        className={`relative m-[3px] flex h-[46px] flex-col items-center justify-center ${
+          side === "back" ? "bg-[#72BBEF]" : "bg-[#F9C9D4]"
         }`}
       >
         <span className="text-sm font-bold leading-none text-[#111]">{fmtOdds(p?.price)}</span>
         <span className="mt-0.5 text-[0.66rem] font-semibold text-[#111]/70">
           {fmtSize(p?.size)}
         </span>
+        {locked ? (
+          <span className="absolute inset-0 flex items-center justify-center bg-white/45 text-sm">
+            🔒
+          </span>
+        ) : null}
       </div>
     );
   };
 
   return (
     <div className="mt-3 overflow-hidden border border-[#d9d9d9] bg-white">
-      <header className="flex items-center justify-between bg-black px-2 py-1">
+      <header className="bg-black px-2 py-1">
         <h3 className="text-[0.78rem] font-extrabold uppercase tracking-[0.04em] text-white">
           {market.marketName}
         </h3>
-        <span className="text-[0.7rem] font-bold text-white">
-          Min/Max: {market.min ?? 0} - {market.max ?? 0}
-        </span>
       </header>
       <div className="relative">
-        {hasLay ? (
-          <div className={`grid ${cols} bg-white`}>
-            <span />
-            <span className="m-[3px] bg-[#A7D8F0] py-1 text-center text-[0.75rem] font-semibold text-[#111]/55">
-              Back
+        <div className={`grid ${cols} items-center bg-white`}>
+          <span className="px-2 py-1 text-[0.75rem] font-bold text-[#1f4b66]">
+            Min/Max{" "}
+            <span className="font-semibold text-[#8a9199]">
+              {market.min ?? 0} - {market.max ?? 0}
             </span>
-            <span className="m-[3px] bg-[#F3C0CB] py-1 text-center text-[0.75rem] font-semibold text-[#111]/55">
-              Lay
-            </span>
-          </div>
-        ) : null}
-        {runners.map((r) => (
-          <div
-            key={String(r.selectionId)}
-            className={`grid items-center border-t border-[#e6e6e6] ${cols}`}
-          >
-            <span className="truncate px-2 py-2 text-[0.82rem] font-bold uppercase text-[#3a6a8c]">
-              {names[String(r.selectionId)] ?? String(r.selectionId)}
-            </span>
-            {cell(r.price?.back?.[0], "back")}
-            {hasLay ? cell(r.price?.lay?.[0], "lay") : null}
-          </div>
-        ))}
+          </span>
+          <span className="py-1 text-center text-[0.75rem] font-bold text-[#1f4b66]">Back</span>
+          {hasLay ? (
+            <span className="py-1 text-center text-[0.75rem] font-bold text-[#1f4b66]">Lay</span>
+          ) : null}
+        </div>
+        {runners.map((r) => {
+          const runnerOpen = !suspended && (r.status ?? "ACTIVE").toUpperCase() === "ACTIVE";
+          return (
+            <div
+              key={String(r.selectionId)}
+              className={`grid items-center border-t border-[#e6e6e6] ${cols}`}
+            >
+              <span className="truncate px-2 py-2 text-[0.82rem] font-bold uppercase text-[#1f4b66]">
+                {names[String(r.selectionId)] ?? String(r.selectionId)}
+              </span>
+              {cell(r.price?.back?.[0], "back", runnerOpen)}
+              {hasLay ? cell(r.price?.lay?.[0], "lay", runnerOpen) : null}
+            </div>
+          );
+        })}
         {suspended ? (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <span className="text-2xl font-extrabold uppercase tracking-wide text-[#8a9199]">
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white/55">
+            <span className="text-2xl font-extrabold uppercase tracking-wide text-[#5b6670]">
               Suspended
             </span>
           </div>
@@ -235,6 +233,7 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
     </div>
   );
 }
+
 
 type ABRunner = {
   id: string;
