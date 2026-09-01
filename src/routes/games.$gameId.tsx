@@ -346,6 +346,127 @@ type ABRunner = {
   open: boolean;
 };
 
+function DTLPanel({
+  markets,
+  suspended,
+  resultDeclared,
+}: {
+  markets: CasinoMarket[];
+  suspended: boolean;
+  resultDeclared: boolean;
+}) {
+  const [tab, setTab] = useState<"DRAGON" | "TIGER" | "LION">("DRAGON");
+  const byName = (n: string) => markets.find((m) => (m.marketName ?? "").toUpperCase() === n);
+  type Row = { id: string; label: string; price?: number | null; open: boolean };
+  const list = (m?: CasinoMarket): Row[] =>
+    (m?.runners ?? []).map((r) => ({
+      id: String(r.selectionId),
+      label: ((m?.runnersName ?? {})[String(r.selectionId)] ?? "").toUpperCase(),
+      price: r.price?.back?.[0]?.price,
+      open: !suspended && isOpenStatus(r.status),
+    }));
+
+  const winner = list(byName("WINNER")).find((r) => r.label === tab);
+  const color = list(byName(`${tab} CARD COLOR`));
+  const oddEven = list(byName(`${tab} ODD/EVEN`));
+  const cards = list(byName(`${tab} CARD`));
+  const red = color.find((r) => r.label.endsWith("RED"));
+  const black = color.find((r) => r.label.endsWith("BLACK"));
+  const odd = oddEven.find((r) => r.label.endsWith("ODD"));
+  const even = oddEven.find((r) => r.label.endsWith("EVEN"));
+
+  const PriceBox = ({ r }: { r?: Row }) =>
+    r ? (
+      <div className="relative flex h-[52px] w-[112px] items-center justify-center border border-[#4A7FB5] bg-[#1F2B3A] text-[0.95rem] font-bold text-white">
+        <span className={r.open ? "" : "opacity-50"}>{fmtOdds(r.price)}</span>
+        {!r.open ? <span className="absolute text-base">🔒</span> : null}
+      </div>
+    ) : (
+      <div className="h-[52px] w-[112px]" />
+    );
+
+  const RowLine = ({ label, r }: { label: React.ReactNode; r?: Row }) => (
+    <div className="flex items-center justify-between border-b border-[#2B2F35] bg-[#33383F] px-4 py-2">
+      <span className="text-[0.95rem] font-semibold text-white/85">{label}</span>
+      <div className="pr-[110px]">
+        <PriceBox r={r} />
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="mt-1 bg-[#2A2E33]">
+      <div className="grid grid-cols-3 bg-[#3B4149]">
+        {(["DRAGON", "TIGER", "LION"] as const).map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => setTab(t)}
+            className={`py-3 text-[0.95rem] font-bold capitalize ${
+              tab === t
+                ? "border-b-[3px] border-[#E8C33A] text-white"
+                : "border-b-[3px] border-transparent text-white/75"
+            }`}
+          >
+            {t.toLowerCase()}
+          </button>
+        ))}
+      </div>
+
+      {resultDeclared ? (
+        <div className="mx-2 mt-2 bg-[#3B4149] px-3 py-1.5 text-[0.82rem] font-extrabold uppercase tracking-wide text-[#E8C33A]">
+          Result Declared
+        </div>
+      ) : null}
+
+      <div className="mt-2">
+        <RowLine label="Winner" r={winner} />
+        <RowLine
+          label={
+            <span className="flex gap-2 text-xl leading-none text-[#E0393B]">
+              <span>♥</span>
+              <span>♦</span>
+            </span>
+          }
+          r={red}
+        />
+        <RowLine
+          label={
+            <span className="flex gap-2 text-xl leading-none text-white">
+              <span>♣</span>
+              <span>♠</span>
+            </span>
+          }
+          r={black}
+        />
+        <RowLine label="Odd" r={odd} />
+        <RowLine label="Even" r={even} />
+      </div>
+
+      <div className="flex flex-wrap justify-center gap-1 px-3 py-5">
+        {cards.map((r) => {
+          const rank = r.label.replace(`${tab} `, "");
+          return (
+            <div key={r.id} className="w-[48px] text-center">
+              <div className="relative flex h-[52px] flex-col items-center justify-center rounded-[2px] bg-gradient-to-b from-[#d9d9d9] to-[#a8a8a8] text-[1.15rem] font-extrabold text-[#111]">
+                {rank}
+                <span className="absolute bottom-0.5 left-0.5 text-[0.6rem] text-[#111]">♣ ♠</span>
+                <span className="absolute bottom-0.5 right-0.5 text-[0.6rem] text-[#E0393B]">♥ ♦</span>
+                {!r.open ? (
+                  <span className="absolute inset-0 flex items-center justify-center text-base">🔒</span>
+                ) : null}
+              </div>
+              <p className="bg-[#2A2E33] py-0.5 text-[0.72rem] font-bold text-[#3FA36B]">
+                {fmtOdds(r.price)}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function AndarBaharPanel({
   markets,
   suspended,
@@ -591,7 +712,9 @@ function GamePage() {
         </span>
       </div>
 
-      {gameId === "99.0025" && markets.length ? (
+      {gameId === "99.0041" && markets.length ? (
+        <DTLPanel markets={markets} suspended={suspended} resultDeclared={suspended} />
+      ) : gameId === "99.0025" && markets.length ? (
         <AndarBaharPanel markets={markets} suspended={suspended} />
       ) : gameId === "99.0001" && markets.length ? (
         <BaccaratPanel markets={markets} suspended={suspended} />
