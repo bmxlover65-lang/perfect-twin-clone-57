@@ -33,8 +33,8 @@ const TOC = [
   ["polling-guide", "Polling guide"],
   ["errors", "Errors"],
   ["examples", "Examples"],
-  ["b2b-integration", "B2B integration"],
 ] as const;
+
 
 function SportsDocs() {
   return (
