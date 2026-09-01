@@ -1019,22 +1019,18 @@ function MuflisPanel({
         <Side letter="A" />
         <Side letter="B" />
       </div>
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
         {chips.map((c) => (
-          <span
+          <img
             key={c.v}
-            className="flex h-[58px] w-[58px] items-center justify-center rounded-full shadow-[0_0_0_2px_rgba(224,140,40,0.6)]"
-            style={{ background: c.ring }}
-          >
-            <span
-              className="flex h-[40px] w-[40px] items-center justify-center rounded-full text-[0.8rem] font-extrabold text-[#111]"
-              style={{ background: c.face }}
-            >
-              {c.v}
-            </span>
-          </span>
+            src={c.src}
+            alt={`${c.v} chip`}
+            className="h-[58px] w-auto select-none"
+            draggable={false}
+          />
         ))}
       </div>
+
     </div>
   );
 }
