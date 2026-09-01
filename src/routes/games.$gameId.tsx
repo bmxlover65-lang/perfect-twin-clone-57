@@ -1753,7 +1753,12 @@ function GamePage() {
           />
 
         ) : (
-          <BalloonStage multiplier={raw.multiplier ?? "1.00"} />
+          <BalloonStage
+            multiplier={raw.multiplier ?? "1.00"}
+            roundId={d?.roundId ? String(d.roundId) : undefined}
+            suspended={suspended}
+            leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
+          />
         )}
 
         {gameId === "88.0021" ? (
