@@ -466,9 +466,26 @@ export function Aviator() {
     for (const p of [p1, p2]) {
       if (p.active) rows.push({ round, amount: p.amount, cashedAt: p.cashedAt, crash: multiplier });
     }
-    if (rows.length) setMyBets((m) => [...rows, ...m].slice(0, 40));
+    if (rows.length) {
+      setMyBets((m) => [...rows, ...m].slice(0, 40));
+      for (const r of rows) {
+        logBet({
+          ts: Date.now(),
+          gameId: "88.0030",
+          gameName: "Aviator",
+          round: String(r.round),
+          stake: r.amount,
+          multiplier: r.cashedAt,
+          payout: r.cashedAt ? Math.round(r.amount * r.cashedAt * 100) / 100 : 0,
+        });
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
+
+  useEffect(() => {
+    saveBalance(balance);
+  }, [balance]);
 
   // chatter from other players
   useEffect(() => {
