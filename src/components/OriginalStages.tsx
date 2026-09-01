@@ -423,7 +423,8 @@ export function BalloonStage({
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
       if (ph === "flying") {
-        v = v + v * dt * 0.16;
+        // real crash-curve pacing: gentle at first, faster the higher it goes
+        v = v + dt * (0.09 + (v - 1) * 0.14);
         if (v >= target) {
           v = target;
           setShown(target);
@@ -438,12 +439,13 @@ export function BalloonStage({
           if (ph === "crashed") {
             ph = "waiting";
             setPhase("waiting");
-            t = 5;
+            t = 3;
           } else {
             startRound();
           }
         }
       }
+
       raf = window.requestAnimationFrame(tick);
     };
     raf = window.requestAnimationFrame(tick);
