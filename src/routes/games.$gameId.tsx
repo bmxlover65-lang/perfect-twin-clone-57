@@ -718,6 +718,233 @@ function CardRacePanel({
   );
 }
 
+function AAAPanel({
+  markets,
+  suspended,
+}: {
+  markets: CasinoMarket[];
+  suspended: boolean;
+}) {
+  const find = (n: string) =>
+    markets.find((m) => (m.marketName ?? "").toUpperCase() === n);
+  const winner = find("WINNER");
+  const card = find("CARD");
+  const sides = ["ODD/EVEN", "COLOR", "UNDER/OVER"]
+    .map((n) => find(n))
+    .filter(Boolean) as CasinoMarket[];
+
+  const MinMax = ({ m }: { m: CasinoMarket }) => (
+    <div className="flex h-[22px] items-center justify-center bg-[#dbe9f2] text-[0.7rem] font-bold text-[#9fb6c4]">
+      Min/Max: {m.min ?? 100} - {m.max ?? 100000}
+    </div>
+  );
+
+  const Watermark = () => (
+    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+      <span className="text-[1.6rem] font-extrabold uppercase tracking-wide text-[#9aa0a6]/85">
+        Suspended
+      </span>
+    </div>
+  );
+
+  const Header = ({ name }: { name: string }) => (
+    <div className="bg-black px-2 py-[5px] text-[0.85rem] font-extrabold uppercase tracking-wide text-white">
+      {name}
+    </div>
+  );
+
+  const SuspCell = () => (
+    <div className="flex h-[38px] w-full items-center justify-center border-2 border-[#E01B24] bg-white">
+      <span className="text-[0.78rem] font-bold uppercase text-[#E01B24]">Suspended</span>
+    </div>
+  );
+
+  const PriceCell = ({
+    price,
+    size,
+    tone,
+  }: {
+    price?: number | null;
+    size?: number | null;
+    tone: "back" | "lay";
+  }) => (
+    <div
+      className="flex h-[38px] w-full flex-col items-center justify-center leading-none"
+      style={{ background: tone === "back" ? "#72BBEF" : "#F9C9D4" }}
+    >
+      <span className="text-[0.92rem] font-bold text-[#111]">{fmtOdds(price)}</span>
+      <span className="text-[0.66rem] text-[#111]">{size ?? ""}</span>
+    </div>
+  );
+
+  return (
+    <div className="mt-3 space-y-2 rounded-[4px] bg-white p-2">
+      {winner ? (
+        <div className="border border-[#d9d9d9]">
+          <Header name="WINNER" />
+          <div className="flex items-stretch bg-white">
+            <div className="flex-1 p-1">
+              <div className="flex h-[22px] items-center justify-center bg-[#dbe9f2] text-[0.7rem] font-bold text-[#9fb6c4]">
+                Min/Max: {winner.min ?? 100} - {winner.max ?? 100000}
+              </div>
+            </div>
+            <div className="flex w-[124px] items-center justify-center bg-[#72BBEF] text-[0.85rem] font-semibold text-white/80">
+              Back
+            </div>
+            <div className="flex w-[124px] items-center justify-center bg-[#F9C9D4] text-[0.85rem] font-semibold text-white">
+              Lay
+            </div>
+          </div>
+          <div className="relative">
+            {(winner.runners ?? []).map((r, i) => {
+              const open = !suspended && isOpenStatus(r.status);
+              const label = (winner.runnersName ?? {})[String(r.selectionId)] ?? "";
+              return (
+                <div key={`${r.selectionId}-${i}`} className="flex items-stretch border-t border-[#eee]">
+                  <div className="flex min-h-[44px] flex-1 items-center px-2 text-[0.92rem] font-bold text-[#444]">
+                    {label}
+                  </div>
+                  <div className="w-[124px] p-1">
+                    {open ? (
+                      <PriceCell
+                        price={r.price?.back?.[0]?.price}
+                        size={r.price?.back?.[0]?.size}
+                        tone="back"
+                      />
+                    ) : (
+                      <SuspCell />
+                    )}
+                  </div>
+                  <div className="w-[124px] p-1">
+                    {open ? (
+                      <PriceCell
+                        price={r.price?.lay?.[0]?.price}
+                        size={r.price?.lay?.[0]?.size}
+                        tone="lay"
+                      />
+                    ) : (
+                      <SuspCell />
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+            {suspended ? (
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center pr-[248px]">
+                <span className="text-[1.5rem] font-extrabold uppercase tracking-wide text-[#9aa0a6]/85">
+                  Suspended
+                </span>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        {sides.map((m, mi) => {
+          const runners = m.runners ?? [];
+          const closed = runners.every((r) => suspended || !isOpenStatus(r.status));
+          return (
+            <div key={`${m.marketId}-${mi}`} className="border border-[#d9d9d9]">
+              <Header name={m.marketName ?? ""} />
+              <div className="p-1">
+                <MinMax m={m} />
+              </div>
+              <div className="relative">
+                {runners.map((r, i) => {
+                  const label = ((m.runnersName ?? {})[String(r.selectionId)] ?? "").toUpperCase();
+                  const isRed = label === "RED";
+                  const isBlack = label === "BLACK";
+                  return (
+                    <div
+                      key={`${r.selectionId}-${i}`}
+                      className="flex h-[72px] flex-col items-center justify-center leading-tight"
+                      style={{ background: i === 0 ? "#D9A0A8" : "#78AEDB" }}
+                    >
+                      <span className="text-[0.95rem] font-bold text-white">
+                        {isRed ? (
+                          <span className="text-[#E01B24]">♥ ♦</span>
+                        ) : isBlack ? (
+                          <span className="text-[#111]">♠ ♣</span>
+                        ) : (
+                          label
+                        )}
+                      </span>
+                      <span className="text-[0.95rem] font-bold text-white">
+                        {fmtOdds(r.price?.back?.[0]?.price)}
+                      </span>
+                      <span className="text-[0.78rem] text-white">
+                        {r.price?.back?.[0]?.size ?? ""}
+                      </span>
+                    </div>
+                  );
+                })}
+                {closed ? <Watermark /> : null}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {card ? (
+        <div className="border border-[#d9d9d9]">
+          <Header name="CARD" />
+          <div className="flex items-stretch">
+            <div className="flex-1 p-1">
+              <MinMax m={card} />
+            </div>
+            <div className="flex w-[248px] items-center justify-center bg-[#9ED2F0] text-[0.85rem] font-semibold text-white/85">
+              Back
+            </div>
+          </div>
+          <div className="relative">
+            {(card.runners ?? []).map((r, i) => {
+              const open = !suspended && isOpenStatus(r.status);
+              const rank = ((card.runnersName ?? {})[String(r.selectionId)] ?? "").toUpperCase();
+              return (
+                <div key={`${r.selectionId}-${i}`} className="flex items-stretch border-t border-[#eee]">
+                  <div className="flex min-h-[52px] flex-1 items-center px-2">
+                    <span className="inline-flex h-[42px] w-[34px] flex-col items-center justify-center rounded-[3px] border border-[#E3C96B] bg-white leading-none">
+                      <span className="text-[1rem] font-bold text-[#333]">{rank}</span>
+                      <span className="mt-[1px] text-[0.5rem] leading-none">
+                        <span className="text-[#111]">♠</span>
+                        <span className="text-[#E01B24]">♦</span>
+                      </span>
+                      <span className="text-[0.5rem] leading-none">
+                        <span className="text-[#111]">♣</span>
+                        <span className="text-[#E01B24]">♥</span>
+                      </span>
+                    </span>
+                  </div>
+                  <div className="w-[248px] p-1">
+                    {open ? (
+                      <PriceCell
+                        price={r.price?.back?.[0]?.price}
+                        size={r.price?.back?.[0]?.size}
+                        tone="back"
+                      />
+                    ) : (
+                      <SuspCell />
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+            {suspended ? (
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center pr-[248px]">
+                <span className="text-[1.5rem] font-extrabold uppercase tracking-wide text-[#9aa0a6]/85">
+                  Suspended
+                </span>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+
 
 function MuflisPanel({
   markets,
