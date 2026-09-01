@@ -199,9 +199,10 @@ function SportsPage() {
             {error ? "Degraded" : "Operational"}
           </span>
         </header>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
           {[
             ["API status", error ? "error" : "200 OK"],
+            ["Auth mode", health ? (health.keyConfigured ? "B2B API key" : "public session") : "—"],
             ["Last poll", lastPoll ? lastPoll.toLocaleTimeString() : "—"],
             ["Latency", `${latency} ms`],
             ["Live (in-play)", String(inplay.length)],
@@ -213,6 +214,7 @@ function SportsPage() {
             </div>
           ))}
         </div>
+
         <div className="mt-3 rounded-lg bg-muted p-3">
           <p className="text-[0.68rem] uppercase tracking-wide text-muted-foreground">Error log</p>
           {errorLog.length ? (
