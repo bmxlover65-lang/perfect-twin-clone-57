@@ -1161,6 +1161,127 @@ function MuflisPanel({
   );
 }
 
+const PANEL_CHIPS: { v: string; src: string }[] = [
+  { v: "1k", src: chip1k.url },
+  { v: "5k", src: chip5.url },
+  { v: "10k", src: chip10.url },
+  { v: "25k", src: chip20.url },
+  { v: "50k", src: chip50.url },
+  { v: "100k", src: chip100.url },
+  { v: "200k", src: chip200.url },
+  { v: "500k", src: chip500.url },
+];
+
+function ChipRow() {
+  return (
+    <div className="mt-3 flex flex-nowrap items-center gap-3 overflow-x-auto rounded-b-[6px] bg-[#1F1F1F] px-3 py-2">
+      {PANEL_CHIPS.map((c) => (
+        <span key={c.v} className="relative inline-flex flex-col items-center gap-1 shrink-0">
+          <span className="relative inline-flex h-[46px] w-[46px] items-center justify-center">
+            <img
+              src={c.src}
+              alt={`${c.v} chip`}
+              className="absolute inset-0 h-full w-full select-none object-contain"
+              draggable={false}
+            />
+          </span>
+          <span className="text-[0.68rem] font-bold text-white">{c.v}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+export function tileTone(label: string): string {
+  const l = label.trim().toUpperCase();
+  if (l === "0" || l === "GREEN") return "bg-[#12563A] text-[#DFF6E9]";
+  if (l === "RED" || l === "HEADS") return "bg-[#6B2B24] text-[#F0C7C1]";
+  if (/^\d+$/.test(l)) {
+    return Number(l) % 2 === 1
+      ? "bg-[#6B2B24] text-[#F0C7C1]"
+      : "bg-[#232323] text-[#D8D8D8]";
+  }
+  return "bg-[#232323] text-[#D8D8D8]";
+}
+
+function NumberPanel({
+  markets,
+  suspended,
+  perRow,
+}: {
+  markets: CasinoMarket[];
+  suspended: boolean;
+  perRow: number;
+}) {
+  const winner =
+    markets.find((m) => (m.marketName ?? "").toUpperCase() === "WINNER") ?? markets[0];
+  const side = markets.filter((m) => m !== winner);
+
+  type Tile = { id: string; label: string; price?: number; size?: number; open: boolean };
+  const toTiles = (m?: CasinoMarket): Tile[] => {
+    const names = m?.runnersName ?? {};
+    return (m?.runners ?? []).map((r) => ({
+      id: String(r.selectionId),
+      label: names[String(r.selectionId)] ?? String(r.selectionId),
+      price: r.price?.back?.[0]?.price,
+      size: r.price?.back?.[0]?.size,
+      open: !suspended && isOpenStatus(r.status),
+    }));
+  };
+
+  const Tile = ({ t }: { t: Tile }) => (
+    <div
+      className={`relative flex h-[68px] flex-col items-center justify-center rounded-[6px] border border-white/10 ${tileTone(
+        t.label,
+      )}`}
+    >
+      <span className="text-[1.1rem] font-extrabold leading-none">{t.label}</span>
+      <span className="mt-1 text-[0.72rem] font-bold leading-none">{fmtOdds(t.price)}</span>
+      <span className="mt-[3px] text-[0.66rem] font-semibold leading-none opacity-60">
+        {t.size ? Math.round(t.size) : ""}
+      </span>
+      {!t.open ? (
+        <div className="absolute inset-0 flex items-center justify-center rounded-[6px] bg-black/70">
+          <span className="text-[0.72rem] font-extrabold uppercase tracking-wide text-[#e0201c]">
+            Suspended
+          </span>
+        </div>
+      ) : null}
+    </div>
+  );
+
+  const main = toTiles(winner);
+  const extras = side.flatMap((m) => toTiles(m));
+
+  return (
+    <div className="mt-3 rounded-[6px] bg-[#141414] p-3">
+      <p className="mb-2 text-right text-[0.68rem] font-semibold text-white/50">
+        Min:{winner?.min ?? 100} Max:{winner?.max ?? 100000}
+      </p>
+      <div
+        className="grid gap-2"
+        style={{ gridTemplateColumns: `repeat(${perRow}, minmax(0, 1fr))` }}
+      >
+        {main.map((t) => (
+          <Tile key={t.id} t={t} />
+        ))}
+      </div>
+      {extras.length ? (
+        <div
+          className="mt-2 grid gap-2"
+          style={{ gridTemplateColumns: `repeat(${Math.min(extras.length, 4)}, minmax(0, 1fr))` }}
+        >
+          {extras.map((t) => (
+            <Tile key={t.id} t={t} />
+          ))}
+        </div>
+      ) : null}
+      <ChipRow />
+    </div>
+  );
+}
+
+
 function DragonTigerPanel({
 
   markets,
