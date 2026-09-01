@@ -1,6 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 
+import {
+  BallByBallBoard,
+  BalloonStage,
+  CoinStage,
+  DreamWheel,
+  LuckyWheel,
+  type BbbRunner,
+} from "@/components/OriginalStages";
+import ballByBallBanner from "@/assets/games/ballbyball.gif.asset.json";
 import chip1k from "@/assets/chips/chips1k.svg.asset.json";
 import chip5 from "@/assets/chips/chips5.svg.asset.json";
 import chip10 from "@/assets/chips/chips10.svg.asset.json";
@@ -1195,7 +1204,8 @@ function ChipRow() {
 export function tileTone(label: string): string {
   const l = label.trim().toUpperCase();
   if (l === "0" || l === "GREEN") return "bg-[#12563A] text-[#DFF6E9]";
-  if (l === "RED" || l === "HEADS") return "bg-[#6B2B24] text-[#F0C7C1]";
+  if (l === "HEADS") return "bg-[#12563A] text-[#DFF6E9]";
+  if (l === "RED" || l === "TAILS") return "bg-[#6B2B24] text-[#F0C7C1]";
   if (/^\d+$/.test(l)) {
     return Number(l) % 2 === 1
       ? "bg-[#6B2B24] text-[#F0C7C1]"
@@ -1241,11 +1251,7 @@ function NumberPanel({
         {t.size ? Math.round(t.size) : ""}
       </span>
       {!t.open ? (
-        <div className="absolute inset-0 flex items-center justify-center rounded-[6px] bg-black/85">
-          <span className="text-[0.72rem] font-extrabold uppercase tracking-wide text-[#e0201c]">
-            Suspended
-          </span>
-        </div>
+        <div className="absolute inset-0 rounded-[6px] bg-black/45" />
       ) : null}
     </div>
   );
@@ -1558,6 +1564,90 @@ function GamePage() {
   const markets = d?.marketArr ?? [];
   const cards = (d?.cardsArr ?? {}) as Record<string, Record<string, string>>;
 
+  const isOriginal = gameId.startsWith("88.");
+  const isBbb = gameId === "4.3544687543453";
+  const raw = (d ?? {}) as unknown as {
+    multiplier?: string;
+    runners?: BbbRunner[];
+    news?: string;
+    min?: number;
+    max?: number;
+  };
+
+  if (isBbb) {
+    return (
+      <div className="mx-auto max-w-[900px] px-4 py-5">
+        <div className="bg-[#EDEDED] px-3 py-2">
+          <Link to="/" className="text-sm text-[#2563EB] hover:underline">
+            ← Back to lobby
+          </Link>
+        </div>
+        <div className="flex items-center justify-between bg-[#2E4B5C] px-3 py-2">
+          <span className="text-[0.95rem] font-bold uppercase text-white">
+            {d?.eventName ?? "Ball By Ball"}
+          </span>
+          <span className="text-[0.85rem] font-bold text-white">{d?.roundId ?? "—"}</span>
+        </div>
+        <img
+          src={ballByBallBanner.url}
+          alt="Ball by Ball"
+          loading="lazy"
+          className="block w-full"
+        />
+        <BallByBallBoard
+          runners={raw.runners ?? []}
+          min={raw.min ?? 100}
+          max={raw.max ?? 100000}
+          news={raw.news}
+        />
+        <RecentStrip results={results} />
+      </div>
+    );
+  }
+
+  if (isOriginal) {
+    return (
+      <div className="mx-auto max-w-[900px] px-4 py-5">
+        <Link to="/" className="text-sm text-[#2563EB] hover:underline">
+          ← Back to lobby
+        </Link>
+        <p className="mt-2 text-[0.7rem] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+          Live · Universe Original
+        </p>
+        <h1 className="text-[1.35rem] font-extrabold uppercase text-foreground">
+          {d?.eventName ?? "Loading game…"}
+        </h1>
+        <p className="mt-1 text-[0.8rem] font-bold text-foreground/80">
+          RID: {d?.roundId ?? "—"}
+        </p>
+
+        {error ? <p className="mt-3 text-sm text-live-lose">{error}</p> : null}
+
+        {gameId === "88.0019" ? (
+          <div className="mt-2">
+            <LuckyWheel spinning={false} />
+          </div>
+        ) : gameId === "88.0020" ? (
+          <DreamWheel spinning={false} />
+        ) : gameId === "88.0021" ? (
+          <CoinStage side={suspended ? "TAILS" : "HEADS"} />
+        ) : (
+          <BalloonStage multiplier={raw.multiplier ?? "1.00"} />
+        )}
+
+        {gameId !== "88.0023" && markets.length ? (
+          <NumberPanel
+            markets={markets}
+            suspended={suspended}
+            perRow={gameId === "88.0019" ? 5 : gameId === "88.0020" ? 3 : 2}
+          />
+        ) : null}
+
+        <RecentStrip results={results} />
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-[900px] px-4 py-5">
       <div className="flex items-start justify-between gap-3">
@@ -1625,12 +1715,6 @@ function GamePage() {
         <CardRacePanel markets={markets} suspended={suspended} />
       ) : gameId === "99.0005" && markets.length ? (
         <AAAPanel markets={markets} suspended={suspended} />
-      ) : gameId === "88.0019" && markets.length ? (
-        <NumberPanel markets={markets} suspended={suspended} perRow={5} />
-      ) : gameId === "88.0020" && markets.length ? (
-        <NumberPanel markets={markets} suspended={suspended} perRow={6} />
-      ) : gameId === "88.0021" && markets.length ? (
-        <NumberPanel markets={markets} suspended={suspended} perRow={2} />
 
 
 
@@ -1646,10 +1730,25 @@ function GamePage() {
         <p className="mt-3 text-sm text-muted-foreground">Loading live markets…</p>
       ) : null}
 
+      <RecentStrip results={results} />
+
+    </div>
+  );
+}
+
+
+function RecentStrip({ results }: { results: CasinoResult[] }) {
+  return (
       <div className="mt-4 flex flex-wrap items-center gap-2 rounded-md bg-ex-panel px-3 py-2">
         <span className="mr-1 text-base font-bold text-ex-text">Recent Result</span>
-        {results.slice(0, 10).map((r) => {
-          const w = (r.winner ?? "-").toString().trim();
+        {results.slice(0, 10).map((r, idx) => {
+          const rr = r as CasinoResult & { result?: string; selectionName?: string };
+          const raw = (rr.winner ?? rr.result ?? rr.selectionName ?? "-").toString().trim();
+          const w = /^EXTRA/i.test(raw)
+            ? "EX"
+            : /^WICKET/i.test(raw)
+              ? "W"
+              : (raw.match(/^\d+/)?.[0] ?? raw);
           const lower = w.toLowerCase();
           const isTie = lower.startsWith("tie") || lower.startsWith("draw");
           const isNum = /^\d+$/.test(w);
@@ -1670,7 +1769,7 @@ function GamePage() {
 
           return (
             <span
-              key={r.roundId}
+              key={`${r.roundId ?? ""}-${idx}`}
               title={`Round ${r.roundId}`}
               className={`flex h-9 min-w-9 items-center justify-center rounded-full px-2 text-sm font-bold ${tone}`}
             >
@@ -1679,7 +1778,5 @@ function GamePage() {
           );
         })}
       </div>
-
-    </div>
   );
 }
