@@ -1665,14 +1665,23 @@ function GamePage() {
           <DreamWheel spinning={false} />
         ) : gameId === "88.0021" ? (
           <CoinStageImage
-            side={
-              (results[0]?.winner ?? "").toString().toUpperCase().startsWith("T")
-                ? "TAILS"
-                : "HEADS"
-            }
+            winner={(() => {
+              const w = (
+                (d as unknown as { gameResult?: string })?.gameResult ??
+                results[0]?.winner ??
+                ""
+              )
+                .toString()
+                .toUpperCase();
+              if (w.startsWith("T")) return "TAILS";
+              if (w.startsWith("H")) return "HEADS";
+              return null;
+            })()}
             roundId={d?.roundId ? String(d.roundId) : undefined}
-            spinning={!suspended}
+            suspended={suspended}
+            leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
           />
+
         ) : (
           <BalloonStage multiplier={raw.multiplier ?? "1.00"} />
         )}
