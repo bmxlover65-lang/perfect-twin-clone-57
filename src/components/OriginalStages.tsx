@@ -350,11 +350,15 @@ export function BalloonStage({
   const [shown, setShown] = useState(1);
   const [history, setHistory] = useState<number[]>([]);
   const [autos, setAutos] = useState<[boolean, boolean]>([false, false]);
+  const [balance, setBalance] = useState(10000);
+  const [bets, setBets] = useState<(null | { entry: number; stake: number })[]>([null, null]);
+  const [flash, setFlash] = useState<(null | { text: string; win: boolean })[]>([null, null]);
   const airRef = useRef<HTMLAudioElement | null>(null);
   const doneFor = useRef<string | null>(null);
   const target = Number(multiplier) || 1;
 
-  // live count-up towards the API multiplier while the round is flying
+  // live exponential count-up towards the API multiplier (1.01, 1.02, ...) —
+  // pops exactly at the crash point when the target is reached
   useEffect(() => {
     if (popped) return;
     let raf = 0;
@@ -362,12 +366,31 @@ export function BalloonStage({
     const tick = (now: number) => {
       const dt = (now - last) / 1000;
       last = now;
-      setShown((v) => Math.min(target, v + dt * 0.06));
+      setShown((v) => Math.min(target, v + v * dt * 0.09));
       raf = window.requestAnimationFrame(tick);
     };
     raf = window.requestAnimationFrame(tick);
     return () => window.cancelAnimationFrame(raf);
   }, [target, popped]);
+
+  // multiplier reached the crash point → burst right there
+  useEffect(() => {
+    if (!popped && flying && shown >= target && target > 1) {
+      setPopped(true);
+      setFlying(false);
+      setHistory((h) => [target, ...h].slice(0, 9));
+      airRef.current?.pause();
+      if (!muted) {
+        try {
+          const a = new Audio(bonusSfx.url);
+          a.volume = 0.7;
+          void a.play().catch(() => undefined);
+        } catch {
+          // audio unavailable
+        }
+      }
+    }
+  }, [shown, target, popped, flying, muted]);
 
   // new round → reset + air sound
   useEffect(() => {
@@ -376,6 +399,8 @@ export function BalloonStage({
     setPopped(false);
     setFlying(true);
     setShown(1);
+    setBets([null, null]);
+    setFlash([null, null]);
     if (!muted) {
       try {
         const a = new Audio("/balloon-air.mp3");
@@ -406,6 +431,52 @@ export function BalloonStage({
       }
     }
   }, [suspended, popped, target, muted]);
+
+  // balloon burst → any active HEAT bet is lost
+  useEffect(() => {
+    if (!popped) return;
+    setBets((prev) => {
+      prev.forEach((b, i) => {
+        if (b) {
+          setFlash((f) => {
+            const n = [...f];
+            n[i] = { text: `-${b.stake.toLocaleString("en-IN")}`, win: false };
+            return n;
+          });
+        }
+      });
+      return [null, null];
+    });
+  }, [popped]);
+
+  // HEAT button: press to place a bet, press again to cash out before the burst
+  const pressHeat = (i: 0 | 1) => {
+    if (popped) return;
+    setBets((prev) => {
+      const next = [...prev];
+      const b = next[i];
+      if (b) {
+        const payout = Math.round(b.stake * shown);
+        setBalance((bal) => bal + payout);
+        setFlash((f) => {
+          const n = [...f];
+          n[i] = { text: `+${payout.toLocaleString("en-IN")}`, win: true };
+          return n;
+        });
+        next[i] = null;
+      } else {
+        if (!flying || stake <= 0) return prev;
+        setBalance((bal) => Math.max(0, bal - stake));
+        next[i] = { entry: shown, stake };
+        setFlash((f) => {
+          const n = [...f];
+          n[i] = null;
+          return n;
+        });
+      }
+      return next;
+    });
+  };
 
   const grow = Math.min(1, Math.log(Math.max(1, shown)) / Math.log(20));
 
@@ -517,10 +588,13 @@ export function BalloonStage({
           </span>
         </div>
 
-        {/* profile pill */}
-        <div className="absolute left-0 top-[18%] flex items-center rounded-r-[6px] bg-[#8E9BA6]/80 py-1 pl-3 pr-1">
+        {/* profile pill + balance */}
+        <div className="absolute left-0 top-[18%] flex items-center gap-2 rounded-r-[6px] bg-[#8E9BA6]/80 py-1 pl-3 pr-1.5">
           <img src={profileIcon.url} alt="" className="h-5 w-5" />
-          <span className="ml-2 flex h-7 w-7 items-center justify-center rounded-full bg-[#1B6FE0]">
+          <span className="text-[0.8rem] font-extrabold text-white">
+            {balance.toLocaleString("en-IN")}
+          </span>
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1B6FE0]">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
               <path d="M6 15l6-6 6 6" />
             </svg>
@@ -610,20 +684,45 @@ export function BalloonStage({
             </button>
           </div>
 
-          {/* heat buttons */}
+          {/* heat buttons — press to bet, press again to cash out before burst */}
           <div className="ml-auto grid w-[26%] min-w-[150px] gap-2">
-            {[0, 1].map((i) => (
-              <button
-                key={i}
-                type="button"
-                disabled={false}
-                className="flex h-[52px] items-center justify-center gap-3 rounded-[8px] border-2 border-white bg-[linear-gradient(180deg,#22C93A_0%,#0FA524_100%)] text-[1.35rem] font-extrabold tracking-wide text-white shadow-[0_3px_0_#0B6B18]"
-
-              >
-                <img src={heatIcon.url} alt="" className="h-7 w-7" />
-                HEAT
-              </button>
-            ))}
+            {([0, 1] as const).map((i) => {
+              const bet = bets[i];
+              const fl = flash[i];
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => pressHeat(i)}
+                  className={`relative flex h-[52px] items-center justify-center gap-3 rounded-[8px] border-2 border-white text-[1.15rem] font-extrabold tracking-wide text-white ${
+                    bet
+                      ? "bg-[linear-gradient(180deg,#F0A500_0%,#D98200_100%)] shadow-[0_3px_0_#8A5600]"
+                      : "bg-[linear-gradient(180deg,#22C93A_0%,#0FA524_100%)] shadow-[0_3px_0_#0B6B18]"
+                  }`}
+                >
+                  {bet ? (
+                    <span className="flex flex-col leading-tight">
+                      <span className="text-[0.68rem] font-bold uppercase opacity-90">Cash out</span>
+                      <span>{Math.round(bet.stake * shown).toLocaleString("en-IN")}</span>
+                    </span>
+                  ) : (
+                    <>
+                      <img src={heatIcon.url} alt="" className="h-7 w-7" />
+                      HEAT
+                    </>
+                  )}
+                  {fl ? (
+                    <span
+                      className={`absolute -top-3 right-1 rounded-full px-2 py-0.5 text-[0.7rem] font-extrabold ${
+                        fl.win ? "bg-[#1F6B33] text-white" : "bg-[#C01818] text-white"
+                      }`}
+                    >
+                      {fl.text}
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
