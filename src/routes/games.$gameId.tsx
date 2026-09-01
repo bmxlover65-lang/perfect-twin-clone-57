@@ -599,7 +599,9 @@ function GamePage() {
         <PokerPanel markets={markets} suspended={suspended} />
 
       ) : (
-        markets.map((m) => <MarketBoard key={m.marketId} market={m} suspended={suspended} />)
+        markets.map((m, i) => (
+          <MarketBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
+        ))
       )}
 
 
