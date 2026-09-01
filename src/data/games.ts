@@ -4,7 +4,7 @@ import dtlImg from "@/assets/games/DTL.webp.asset.json";
 import lucky7Img from "@/assets/games/Lucky-7.webp.asset.json";
 import teenpatti1DayImg from "@/assets/games/1_Day_teenpatti.webp.asset.json";
 import jokerTeenpattiImg from "@/assets/games/Joker_teenpatti.webp.asset.json";
-import dragonTigerImg from "@/assets/games/Dragontiger.webp.asset.json";
+import dragonTigerImg from "@/assets/games/dragon_tiger-01.webp.asset.json";
 import baccaratImg from "@/assets/games/Baccarat.webp.asset.json";
 import andarBaharImg from "@/assets/games/Andar_Bahar.webp.asset.json";
 import dragonTiger1DayImg from "@/assets/games/1_Day_Dragon_tiger.webp.asset.json";
