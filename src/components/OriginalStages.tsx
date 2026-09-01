@@ -382,7 +382,7 @@ export function BalloonStage({
     let raf = 0;
     let last = performance.now();
     let ph: "waiting" | "flying" | "crashed" = "waiting";
-    let t = 3; // seconds left in the current phase
+    let t = 1; // seconds left in the current phase
     let v = 1;
     let target = 2;
 
@@ -416,14 +416,15 @@ export function BalloonStage({
       setHistory((h) => [target, ...h].slice(0, 10));
       airRef.current?.pause();
       play(bonusSfx.url, 0.7);
-      t = 3;
+      t = 1.8;
     };
 
     const tick = (now: number) => {
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
       if (ph === "flying") {
-        v = v + v * dt * 0.16;
+        // real crash-curve pacing: gentle at first, faster the higher it goes
+        v = v + dt * (0.09 + (v - 1) * 0.14);
         if (v >= target) {
           v = target;
           setShown(target);
@@ -438,12 +439,13 @@ export function BalloonStage({
           if (ph === "crashed") {
             ph = "waiting";
             setPhase("waiting");
-            t = 5;
+            t = 3;
           } else {
             startRound();
           }
         }
       }
+
       raf = window.requestAnimationFrame(tick);
     };
     raf = window.requestAnimationFrame(tick);
@@ -515,40 +517,26 @@ export function BalloonStage({
 
   return (
     <div className="w-full rounded-[14px] bg-black p-1.5">
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[10px] bg-[linear-gradient(180deg,#7FD3D8_0%,#BDE7E0_45%,#F3E7C8_100%)]">
-        {/* sky artwork — parallax scroll as the balloon climbs */}
-        <img
-          src={LOCATIONS[bgIndex]!.url}
-          alt=""
-          className="absolute inset-x-0 bottom-0 h-[58%] w-full object-cover object-top"
-          style={{
-            transform: `translateY(${grow * 100}%)`,
-            transition: "transform 400ms linear",
-          }}
-        />
-
-        {/* balloon — flies up while the round runs, bursts at the crash point,
-            then sits big in the middle while the next round counts down */}
-        {flying ? (
-          <div
-            className="absolute left-1/2"
+      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[10px] bg-[linear-gradient(180deg,#5EC8DE_0%,#9BDCD9_45%,#F3E7C8_100%)]">
+        {/* sky artwork — parallax: the ground drops away as the balloon climbs */}
+        <div className="absolute inset-0 overflow-hidden">
+          <img
+            src={LOCATIONS[bgIndex]!.url}
+            alt=""
+            className="absolute inset-x-0 bottom-0 h-[190%] w-full object-cover object-bottom"
             style={{
-              bottom: `${-4 + grow * 96}%`,
-              width: `${Math.max(12, 26 - grow * 13)}%`,
-              opacity: grow > 0.9 ? 0 : 1,
-              transform: "translateX(-50%)",
-              transition: "bottom 220ms linear, width 220ms linear, opacity 300ms linear",
+              transform: `translateY(${grow * 78}%)`,
+              transition: "transform 240ms linear",
             }}
+          />
+        </div>
+
+        {/* balloon — climbs while the round runs and bursts at the crash point */}
+        {popped ? (
+          <div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center"
+            style={{ animation: "scale-in 200ms ease-out" }}
           >
-            <img
-              src={balloonImg.url}
-              alt="Balloon"
-              className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
-              style={{ filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))" }}
-            />
-          </div>
-        ) : popped ? (
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
             <p className="text-[clamp(1.6rem,5vw,3.6rem)] font-extrabold leading-none text-[#C81E1E] drop-shadow-[0_3px_6px_rgba(0,0,0,0.35)]">
               {crashAt.toFixed(2)}x
             </p>
@@ -557,27 +545,44 @@ export function BalloonStage({
             </p>
           </div>
         ) : (
-          <div className="absolute left-1/2 top-1/2 w-[30%] min-w-[150px] -translate-x-1/2 -translate-y-1/2">
+          <div
+            className="absolute left-1/2"
+            style={
+              flying
+                ? {
+                    bottom: `${2 + grow * 52}%`,
+                    width: `${Math.max(15, 27 - grow * 12)}%`,
+                    transform: "translateX(-50%)",
+                    transition: "bottom 220ms linear, width 220ms linear",
+                  }
+                : {
+                    bottom: "18%",
+                    width: "27%",
+                    minWidth: 150,
+                    transform: "translateX(-50%)",
+                  }
+            }
+          >
             <img
               src={balloonImg.url}
               alt="Balloon"
               className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
               style={{ filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))" }}
             />
-            <p className="absolute left-1/2 top-[40%] w-[150%] -translate-x-1/2 text-center text-[clamp(0.75rem,1.5vw,1.15rem)] font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)]">
-              Next round in {wait}s
-            </p>
+            {flying ? (
+              <p className="absolute left-1/2 top-[34%] w-[220%] -translate-x-1/2 text-center text-[clamp(1.1rem,3.2vw,2.4rem)] font-extrabold leading-none text-[#2B2B2B] drop-shadow-[0_2px_4px_rgba(255,255,255,0.5)]">
+                {shown.toFixed(2)}
+                <span className="text-[0.62em]">x</span>
+              </p>
+            ) : (
+              <p className="absolute left-1/2 top-[40%] w-[150%] -translate-x-1/2 text-center text-[clamp(0.75rem,1.5vw,1.15rem)] font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)]">
+                Next round in {wait}s
+              </p>
+            )}
           </div>
         )}
 
 
-        {/* live multiplier — plain dark text in the middle of the sky */}
-        {flying && !popped ? (
-          <p className="absolute left-[58%] top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[clamp(1.6rem,4.4vw,3.4rem)] font-extrabold leading-none text-[#2B2B2B]">
-            {shown.toFixed(2)}
-            <span className="text-[0.62em]">x</span>
-          </p>
-        ) : null}
 
 
         {/* top bar: mute + history + collapse */}
