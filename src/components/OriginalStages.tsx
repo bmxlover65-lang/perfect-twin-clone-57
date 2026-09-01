@@ -373,6 +373,7 @@ export function BalloonStage({
     setPopped(true);
     setFlying(false);
     setShown(target);
+    setHistory((h) => [target, ...h].slice(0, 9));
     airRef.current?.pause();
     if (!muted) {
       try {
