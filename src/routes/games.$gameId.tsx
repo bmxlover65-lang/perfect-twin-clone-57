@@ -1030,17 +1030,18 @@ function MuflisPanel({
         <Side letter="A" />
         <Side letter="B" />
       </div>
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+      <div className="mt-4 flex flex-nowrap items-center justify-center gap-2 overflow-x-auto">
         {chips.map((c) => (
           <img
             key={c.v}
             src={c.src}
             alt={`${c.v} chip`}
-            className="h-[58px] w-auto select-none"
+            className="h-[54px] w-[54px] shrink-0 select-none object-contain"
             draggable={false}
           />
         ))}
       </div>
+
 
     </div>
   );
