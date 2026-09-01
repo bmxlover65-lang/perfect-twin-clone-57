@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Aviator } from "@/components/Aviator";
+import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
 
 import {
   BallByBallBoard,
   BalloonStage,
-  CoinStage,
   DreamWheel,
   LuckyWheel,
   type BbbRunner,
@@ -1661,12 +1661,35 @@ function GamePage() {
         ) : gameId === "88.0020" ? (
           <DreamWheel spinning={false} />
         ) : gameId === "88.0021" ? (
-          <CoinStage side={suspended ? "TAILS" : "HEADS"} />
+          <CoinStageImage
+            side={
+              (results[0]?.winner ?? "").toString().toUpperCase().startsWith("T")
+                ? "TAILS"
+                : "HEADS"
+            }
+            roundId={d?.roundId ? String(d.roundId) : undefined}
+            spinning={!suspended}
+          />
         ) : (
           <BalloonStage multiplier={raw.multiplier ?? "1.00"} />
         )}
 
-        {gameId !== "88.0023" && markets.length ? (
+        {gameId === "88.0021" ? (
+          <div className="mt-2">
+            <HeadsTailsPanel
+              runners={(markets[0]?.runners ?? []).map((r) => ({
+                id: String(r.selectionId),
+                label:
+                  markets[0]?.runnersName?.[String(r.selectionId)] ?? String(r.selectionId),
+                price: r.price?.back?.[0]?.price,
+                size: r.price?.back?.[0]?.size,
+                open: !suspended && isOpenStatus(r.status),
+              }))}
+              min={markets[0]?.min ?? 100}
+              max={markets[0]?.max ?? 100000}
+            />
+          </div>
+        ) : gameId !== "88.0023" && markets.length ? (
           <NumberPanel
             markets={markets}
             suspended={suspended}
@@ -1674,6 +1697,7 @@ function GamePage() {
             dream={gameId === "88.0020"}
           />
         ) : null}
+
 
         {gameId !== "88.0023" ? (
           <RecentStrip results={results} dream={gameId === "88.0020"} />
