@@ -350,11 +350,15 @@ export function BalloonStage({
   const [shown, setShown] = useState(1);
   const [history, setHistory] = useState<number[]>([]);
   const [autos, setAutos] = useState<[boolean, boolean]>([false, false]);
+  const [balance, setBalance] = useState(10000);
+  const [bets, setBets] = useState<(null | { entry: number; stake: number })[]>([null, null]);
+  const [flash, setFlash] = useState<(null | { text: string; win: boolean })[]>([null, null]);
   const airRef = useRef<HTMLAudioElement | null>(null);
   const doneFor = useRef<string | null>(null);
   const target = Number(multiplier) || 1;
 
-  // live count-up towards the API multiplier while the round is flying
+  // live exponential count-up towards the API multiplier (1.01, 1.02, ...) —
+  // pops exactly at the crash point when the target is reached
   useEffect(() => {
     if (popped) return;
     let raf = 0;
@@ -362,12 +366,31 @@ export function BalloonStage({
     const tick = (now: number) => {
       const dt = (now - last) / 1000;
       last = now;
-      setShown((v) => Math.min(target, v + dt * 0.06));
+      setShown((v) => Math.min(target, v + v * dt * 0.09));
       raf = window.requestAnimationFrame(tick);
     };
     raf = window.requestAnimationFrame(tick);
     return () => window.cancelAnimationFrame(raf);
   }, [target, popped]);
+
+  // multiplier reached the crash point → burst right there
+  useEffect(() => {
+    if (!popped && flying && shown >= target && target > 1) {
+      setPopped(true);
+      setFlying(false);
+      setHistory((h) => [target, ...h].slice(0, 9));
+      airRef.current?.pause();
+      if (!muted) {
+        try {
+          const a = new Audio(bonusSfx.url);
+          a.volume = 0.7;
+          void a.play().catch(() => undefined);
+        } catch {
+          // audio unavailable
+        }
+      }
+    }
+  }, [shown, target, popped, flying, muted]);
 
   // new round → reset + air sound
   useEffect(() => {
