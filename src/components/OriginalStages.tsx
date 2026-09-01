@@ -684,20 +684,45 @@ export function BalloonStage({
             </button>
           </div>
 
-          {/* heat buttons */}
+          {/* heat buttons — press to bet, press again to cash out before burst */}
           <div className="ml-auto grid w-[26%] min-w-[150px] gap-2">
-            {[0, 1].map((i) => (
-              <button
-                key={i}
-                type="button"
-                disabled={false}
-                className="flex h-[52px] items-center justify-center gap-3 rounded-[8px] border-2 border-white bg-[linear-gradient(180deg,#22C93A_0%,#0FA524_100%)] text-[1.35rem] font-extrabold tracking-wide text-white shadow-[0_3px_0_#0B6B18]"
-
-              >
-                <img src={heatIcon.url} alt="" className="h-7 w-7" />
-                HEAT
-              </button>
-            ))}
+            {([0, 1] as const).map((i) => {
+              const bet = bets[i];
+              const fl = flash[i];
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => pressHeat(i)}
+                  className={`relative flex h-[52px] items-center justify-center gap-3 rounded-[8px] border-2 border-white text-[1.15rem] font-extrabold tracking-wide text-white ${
+                    bet
+                      ? "bg-[linear-gradient(180deg,#F0A500_0%,#D98200_100%)] shadow-[0_3px_0_#8A5600]"
+                      : "bg-[linear-gradient(180deg,#22C93A_0%,#0FA524_100%)] shadow-[0_3px_0_#0B6B18]"
+                  }`}
+                >
+                  {bet ? (
+                    <span className="flex flex-col leading-tight">
+                      <span className="text-[0.68rem] font-bold uppercase opacity-90">Cash out</span>
+                      <span>{Math.round(bet.stake * shown).toLocaleString("en-IN")}</span>
+                    </span>
+                  ) : (
+                    <>
+                      <img src={heatIcon.url} alt="" className="h-7 w-7" />
+                      HEAT
+                    </>
+                  )}
+                  {fl ? (
+                    <span
+                      className={`absolute -top-3 right-1 rounded-full px-2 py-0.5 text-[0.7rem] font-extrabold ${
+                        fl.win ? "bg-[#1F6B33] text-white" : "bg-[#C01818] text-white"
+                      }`}
+                    >
+                      {fl.text}
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
