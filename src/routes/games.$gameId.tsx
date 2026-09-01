@@ -1251,7 +1251,15 @@ function NumberPanel({
   );
 
   const main = toTiles(winner);
-  const extras = side.flatMap((m) => toTiles(m));
+  const order = ["EVEN", "RED", "BLACK", "ODD"];
+  const extras = side
+    .flatMap((m) => toTiles(m))
+    .sort((a, b) => {
+      const ai = order.indexOf(a.label.toUpperCase());
+      const bi = order.indexOf(b.label.toUpperCase());
+      return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+    });
+
 
   return (
     <div className="mt-3 rounded-[6px] bg-[#141414] p-3">
