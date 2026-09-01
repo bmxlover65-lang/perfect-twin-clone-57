@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 import {
   fetchCasinoResults,
@@ -357,7 +357,7 @@ function DTLPanel({
 }) {
   const [tab, setTab] = useState<"DRAGON" | "TIGER" | "LION">("DRAGON");
   const byName = (n: string) => markets.find((m) => (m.marketName ?? "").toUpperCase() === n);
-  type Row = { id: string; label: string; price?: number | null; open: boolean };
+  type Row = { id: string; label: string; price?: number | null | undefined; open: boolean };
   const list = (m?: CasinoMarket): Row[] =>
     (m?.runners ?? []).map((r) => ({
       id: String(r.selectionId),
@@ -375,7 +375,7 @@ function DTLPanel({
   const odd = oddEven.find((r) => r.label.endsWith("ODD"));
   const even = oddEven.find((r) => r.label.endsWith("EVEN"));
 
-  const PriceBox = ({ r }: { r?: Row }) =>
+  const PriceBox = ({ r }: { r?: Row | undefined }) =>
     r ? (
       <div className="relative flex h-[52px] w-[112px] items-center justify-center border border-[#4A7FB5] bg-[#1F2B3A] text-[0.95rem] font-bold text-white">
         <span className={r.open ? "" : "opacity-50"}>{fmtOdds(r.price)}</span>
@@ -385,7 +385,7 @@ function DTLPanel({
       <div className="h-[52px] w-[112px]" />
     );
 
-  const RowLine = ({ label, r }: { label: React.ReactNode; r?: Row }) => (
+  const RowLine = ({ label, r }: { label: ReactNode; r?: Row | undefined }) => (
     <div className="flex items-center justify-between border-b border-[#2B2F35] bg-[#33383F] px-4 py-2">
       <span className="text-[0.95rem] font-semibold text-white/85">{label}</span>
       <div className="pr-[110px]">
