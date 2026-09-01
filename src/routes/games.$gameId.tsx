@@ -621,6 +621,117 @@ function AndarBaharPanel({
   );
 }
 
+function DT20Panel({
+  markets,
+  suspended,
+}: {
+  markets: CasinoMarket[];
+  suspended: boolean;
+}) {
+  const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+  const red = (s: string) => s === "♥" || s === "♦";
+
+  const Suits = ({ list }: { list: string[] }) => (
+    <>
+      {list.map((s) => (
+        <span
+          key={s}
+          className="text-[0.72rem] leading-none"
+          style={{ color: red(s) ? "#E01B24" : "#111" }}
+        >
+          {s}
+        </span>
+      ))}
+    </>
+  );
+
+  const CardTile = ({ rank }: { rank: string }) => (
+    <span className="inline-flex h-[46px] w-[34px] flex-col items-center justify-center rounded-[2px] border border-[#E3C96B] bg-white leading-none">
+      <span className="text-[0.85rem] font-bold text-[#555]">{rank}</span>
+      <span className="mt-[2px] flex gap-[2px]">
+        <Suits list={["♣", "♦"]} />
+      </span>
+      <span className="flex gap-[2px]">
+        <Suits list={["♠", "♥"]} />
+      </span>
+    </span>
+  );
+
+  const Label = ({ text }: { text: string }) => {
+    const up = text.toUpperCase().trim();
+    const rankOnly = RANKS.find((r) => up === r || up === `CARD ${r}`);
+    if (rankOnly) return <CardTile rank={rankOnly} />;
+
+    const base = up.replace(/[♥♦♠♣]/g, "").trim();
+    const suits =
+      base === "ODD" || base === "BLACK"
+        ? ["♠", "♣"]
+        : base === "EVEN" || base === "RED"
+          ? ["♥", "♦"]
+          : [];
+    return (
+      <span className="inline-flex items-center gap-[3px] text-[0.85rem] font-bold uppercase text-[#6E88A0]">
+        {base}
+        <span className="ml-[2px] flex gap-[3px]">
+          <Suits list={suits} />
+        </span>
+      </span>
+    );
+  };
+
+  return (
+    <div className="mt-3 space-y-2 bg-white p-1">
+      {markets.map((m, mi) => {
+        const names = m.runnersName ?? {};
+        const runners = m.runners ?? [];
+        const allClosed =
+          runners.length > 0 && runners.every((r) => suspended || !isOpenStatus(r.status));
+        return (
+          <div key={`${m.marketId}-${mi}`} className="border border-[#d9d9d9]">
+            <div className="flex items-center justify-between bg-black px-2 py-[4px]">
+              <span className="text-[0.8rem] font-extrabold uppercase tracking-wide text-white">
+                {m.marketName}
+              </span>
+              <span className="text-[0.78rem] font-bold text-white">
+                Min/Max: {m.min ?? 100} - {m.max ?? 100000}
+              </span>
+            </div>
+            <div className="relative">
+              {runners.map((r, i) => (
+                <div
+                  key={`${r.selectionId}-${i}`}
+                  className={`flex items-stretch ${i ? "border-t border-[#ededed]" : ""}`}
+                >
+                  <div className="flex min-h-[44px] flex-1 items-center px-2 py-1">
+                    <Label text={names[String(r.selectionId)] ?? String(r.selectionId)} />
+                  </div>
+                  <div className="flex w-[105px] flex-col items-center justify-center bg-[#B7DBF5] leading-tight">
+                    <span className="text-[0.85rem] text-[#111]">
+                      {fmtOdds(r.price?.back?.[0]?.price)}
+                    </span>
+                    <span className="text-[0.75rem] text-[#111]">
+                      {fmtSize(r.price?.back?.[0]?.size)}
+                    </span>
+                  </div>
+                  <div className="w-[105px] border-l border-[#ededed] bg-white" />
+                </div>
+              ))}
+              {allClosed ? (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center pr-[210px]">
+                  <span className="text-[1.7rem] font-bold uppercase tracking-wide text-[#9aa0a6]">
+                    Suspended
+                  </span>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+
 function CardRacePanel({
   markets,
   suspended,
@@ -1366,6 +1477,9 @@ function GamePage() {
 
       {gameId === "99.0014" && markets.length ? (
         <MuflisPanel markets={markets} suspended={suspended} />
+      ) : (gameId === "99.0018" || gameId === "99.0019") && markets.length ? (
+        <DT20Panel markets={markets} suspended={suspended} />
+
       ) : gameId === "99.0021" && markets.length ? (
 
         <DragonTigerPanel markets={markets} suspended={suspended} />
