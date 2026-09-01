@@ -127,6 +127,30 @@ const NAV = [
   { to: "/sports-docs", label: "Sports Docs" },
 ] as const;
 
+function SunIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+      <circle cx="12" cy="12" r="4" />
+      <path
+        strokeLinecap="round"
+        d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
+      />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"
+      />
+    </svg>
+  );
+}
+
 function ThemeToggle() {
   const [dark, setDark] = useState(false);
 
@@ -137,20 +161,27 @@ function ThemeToggle() {
     document.documentElement.classList.toggle("dark", isDark);
   }, []);
 
+  const label = dark ? "Light mode" : "Dark mode";
+
   return (
-    <button
-      type="button"
-      aria-label="Toggle theme"
-      onClick={() => {
-        const next = !dark;
-        setDark(next);
-        document.documentElement.classList.toggle("dark", next);
-        localStorage.setItem("ua-theme", next ? "dark" : "light");
-      }}
-      className="flex h-8 w-8 items-center justify-center rounded-full text-nav-foreground/80 transition-colors hover:bg-white/10 hover:text-nav-foreground"
-    >
-      {dark ? "🌙" : "☀"}
-    </button>
+    <div className="group relative">
+      <button
+        type="button"
+        aria-label={label}
+        onClick={() => {
+          const next = !dark;
+          setDark(next);
+          document.documentElement.classList.toggle("dark", next);
+          localStorage.setItem("ua-theme", next ? "dark" : "light");
+        }}
+        className="flex h-9 w-9 items-center justify-center rounded-full text-nav-foreground/85 transition-colors hover:bg-nav-foreground/10 hover:text-nav-foreground"
+      >
+        {dark ? <MoonIcon /> : <SunIcon />}
+      </button>
+      <span className="pointer-events-none absolute right-0 top-full mt-1 whitespace-nowrap rounded bg-nav px-2 py-1 text-xs text-nav-foreground opacity-0 shadow-md transition-opacity group-hover:opacity-100">
+        {label}
+      </span>
+    </div>
   );
 }
 
@@ -159,17 +190,21 @@ function SiteHeader() {
     <header className="sticky top-0 z-40 bg-nav">
       <div className="mx-auto flex h-[60px] max-w-[1600px] items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-3">
-          <img src="/favicon.svg" alt="Universal API logo" className="h-8 w-8 rounded-md" />
-          <span className="text-lg font-bold text-nav-foreground">Universal API</span>
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-mark text-sm font-bold tracking-tight text-white">
+            R<span className="text-brand-accent">I</span>
+          </span>
+          <span className="text-xl font-bold tracking-tight text-nav-foreground">
+            Universal AP<span className="text-brand-accent">I</span>
+          </span>
         </Link>
-        <nav className="flex items-center gap-4">
+        <nav className="flex items-center gap-5">
           {NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
               activeOptions={{ exact: item.to === "/" }}
-              className="hidden text-sm text-nav-foreground/75 transition-colors hover:text-nav-foreground sm:block"
-              activeProps={{ className: "!text-nav-foreground font-semibold" }}
+              className="hidden text-[0.95rem] font-semibold text-nav-foreground transition-colors hover:text-nav-active sm:block"
+              activeProps={{ className: "!text-nav-active" }}
             >
               {item.label}
             </Link>
