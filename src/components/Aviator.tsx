@@ -4,6 +4,7 @@ import plane1 from "@/assets/aviator/plane-1.svg";
 import plane2 from "@/assets/aviator/plane-2.svg";
 import plane3 from "@/assets/aviator/plane-3.svg";
 import aviatorText from "@/assets/aviator/aviator.svg";
+import { type AviatorControl, useAdminConfig } from "@/lib/admin";
 
 const PLANE_FRAMES = [plane0, plane1, plane2, plane3];
 
@@ -330,7 +331,26 @@ function FlightStage({
 
 /* ---------------- main ---------------- */
 
+type MyBet = { round: number; amount: number; cashedAt: number | null; crash: number };
+type ChatMsg = { id: number; user: string; text: string; mine?: boolean };
+
+const SEED_CHAT: ChatMsg[] = [
+  { id: 1, user: "d***5", text: "gg 12x 🔥" },
+  { id: 2, user: "R***a", text: "auto cashout 1.60 best" },
+  { id: 3, user: "k***9", text: "cashed 2.4x finally" },
+  { id: 4, user: "S***h", text: "next one big 🚀" },
+];
+
 export function Aviator() {
+  const { admin, cfg } = useAdminConfig();
+  const avRef = useRef<AviatorControl | null>(null);
+  avRef.current = admin ? cfg.aviator : null;
+
+  const [tab, setTab] = useState<"all" | "my" | "top">("all");
+  const [myBets, setMyBets] = useState<MyBet[]>([]);
+  const [chat, setChat] = useState<ChatMsg[]>(SEED_CHAT);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [draft, setDraft] = useState("");
   const [phase, setPhase] = useState<Phase>("betting");
   const [multiplier, setMultiplier] = useState(1);
   const [countdown, setCountdown] = useState(BET_MS);
@@ -355,7 +375,13 @@ export function Aviator() {
     let mounted = true;
 
     const beginBetting = () => {
-      crashRef.current = randomCrash();
+      const ctl = avRef.current;
+      crashRef.current =
+        ctl && ctl.mode === "never"
+          ? 1
+          : ctl && ctl.mode === "forced"
+            ? Math.max(1, ctl.crash)
+            : randomCrash();
       startRef.current = performance.now();
       setPhase("betting");
       setMultiplier(1);
