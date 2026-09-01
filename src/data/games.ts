@@ -33,6 +33,8 @@ export interface GameDef {
   /** Two hue stops used for the generated artwork */
   hues: [number, number];
   glyph: string;
+  /** Optional cover artwork URL */
+  image?: string | undefined;
   markets: GameMarketTemplate[];
   /** Result chip labels used in the Recent Result strip */
   results: string[];
