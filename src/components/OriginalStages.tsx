@@ -357,8 +357,11 @@ export function BalloonStage({
   useEffect(() => {
     if (popped) return;
     let raf = 0;
-    const tick = () => {
-      setShown((v) => v + Math.max(0.0015, (target - v) * 0.02));
+    let last = performance.now();
+    const tick = (now: number) => {
+      const dt = (now - last) / 1000;
+      last = now;
+      setShown((v) => Math.min(target, v + dt * 0.06));
       raf = window.requestAnimationFrame(tick);
     };
     raf = window.requestAnimationFrame(tick);
