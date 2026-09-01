@@ -70,11 +70,80 @@ function Cards({ hand, title }: { hand: Record<string, string>; title: string })
   );
 }
 
+function BaccaratBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
+  const names = market.runnersName ?? {};
+  const runners = market.runners ?? [];
+  const label = (r: (typeof runners)[number]) =>
+    (names[String(r.selectionId)] ?? String(r.selectionId)).toUpperCase();
+  const tone = (l: string) =>
+    l.includes("BANKER") ? "bg-[#C3213A]" : l.includes("TIE") ? "bg-[#118A46]" : "bg-[#1272CE]";
+  const tie = runners.find((r) => label(r).includes("TIE"));
+  const sides = runners.filter((r) => !label(r).includes("TIE"));
+
+  const Body = ({ r }: { r: (typeof runners)[number] }) => {
+    const p = r.price?.back?.[0];
+    return (
+      <div className="text-center text-white">
+        <p className="text-[0.82rem] font-extrabold uppercase tracking-wide">{label(r)}</p>
+        <p className="text-sm font-bold">{fmtOdds(p?.price)}</p>
+        <p className="text-[0.7rem] opacity-85">{fmtSize(p?.size)}</p>
+      </div>
+    );
+  };
+
+  return (
+    <div className="mt-3">
+      <p className="mb-1 text-right text-[0.72rem] font-semibold text-ex-muted">
+        Min/Max: {market.min ?? 0} - {market.max ?? 0}
+      </p>
+      <div className="relative flex items-stretch gap-2 overflow-hidden rounded-xl">
+        {sides.map((r) => (
+          <div
+            key={String(r.selectionId)}
+            className={`flex flex-1 items-center justify-center py-5 ${tone(label(r))} ${
+              tie ? "first:rounded-l-xl last:rounded-r-xl" : "rounded-xl"
+            }`}
+          >
+            <Body r={r} />
+          </div>
+        ))}
+        {tie ? (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <div className="flex h-[92px] w-[92px] items-center justify-center rounded-full border-2 border-black/40 bg-[#118A46]">
+              <Body r={tie} />
+            </div>
+          </div>
+        ) : null}
+        {suspended ? (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/55">
+            <span className="text-xl font-extrabold uppercase tracking-[0.14em] text-white">
+              Suspended
+            </span>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
   const hasLay = runners.some((r) => Boolean(r.price?.lay?.[0]?.price));
   const cols = hasLay ? "grid-cols-[1fr_130px_130px]" : "grid-cols-[1fr_130px]";
+  const labels = runners.map((r) =>
+    (names[String(r.selectionId)] ?? "").toString().toUpperCase(),
+  );
+  if (
+    !hasLay &&
+    runners.length >= 2 &&
+    runners.length <= 3 &&
+    labels.some((l) => l.includes("PLAYER")) &&
+    labels.some((l) => l.includes("BANKER"))
+  ) {
+    return <BaccaratBoard market={market} suspended={suspended} />;
+  }
+
 
   const cell = (
     p: { price?: number | null; size?: number | null } | undefined,
