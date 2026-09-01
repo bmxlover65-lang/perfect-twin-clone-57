@@ -59,7 +59,29 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-nav: var(--nav);
+  --color-nav-foreground: var(--nav-foreground);
+  --color-lobby: var(--lobby);
+  --color-board-header: var(--board-header);
+  --color-board-header-foreground: var(--board-header-foreground);
+  --color-board-body: var(--board-body);
+  --color-board-body-foreground: var(--board-body-foreground);
+  --color-back-odds: var(--back-odds);
+  --color-back-odds-hover: var(--back-odds-hover);
+  --color-back-odds-foreground: var(--back-odds-foreground);
+  --color-live-badge: var(--live-badge);
+  --color-live-badge-foreground: var(--live-badge-foreground);
+  --color-live-pill: var(--live-pill);
+  --color-live-pill-foreground: var(--live-pill-foreground);
+  --color-live-win: var(--live-win);
+  --color-live-lose: var(--live-lose);
+  --color-table-felt: var(--table-felt);
+  --color-card-red: var(--card-red);
+  --color-card-black: var(--card-black);
+  --color-code-surface: var(--code-surface);
+  --color-code-foreground: var(--code-foreground);
 }
+
 
 :root {
   --radius: 0.625rem;
