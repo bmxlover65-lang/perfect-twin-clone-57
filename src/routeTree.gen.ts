@@ -42,9 +42,9 @@ const SportsIndexRoute = SportsIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const SportsSportIdEventIdRoute = SportsSportIdEventIdRouteImport.update({
-  id: '/sports/$sportId/$eventId',
-  path: '/sports/$sportId/$eventId',
-  getParentRoute: () => rootRouteImport,
+  id: '/$sportId/$eventId',
+  path: '/$sportId/$eventId',
+  getParentRoute: () => SportsRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -105,7 +105,6 @@ export interface RootRouteChildren {
   SportsDocsRoute: typeof SportsDocsRoute
   GamesGameIdRoute: typeof GamesGameIdRoute
   SportsIndexRoute: typeof SportsIndexRoute
-  SportsSportIdEventIdRoute: typeof SportsSportIdEventIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -147,10 +146,10 @@ declare module '@tanstack/react-router' {
     }
     '/sports/$sportId/$eventId': {
       id: '/sports/$sportId/$eventId'
-      path: '/sports/$sportId/$eventId'
+      path: '/$sportId/$eventId'
       fullPath: '/sports/$sportId/$eventId'
       preLoaderRoute: typeof SportsSportIdEventIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof SportsRoute
     }
   }
 }
@@ -161,7 +160,6 @@ const rootRouteChildren: RootRouteChildren = {
   SportsDocsRoute: SportsDocsRoute,
   GamesGameIdRoute: GamesGameIdRoute,
   SportsIndexRoute: SportsIndexRoute,
-  SportsSportIdEventIdRoute: SportsSportIdEventIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
