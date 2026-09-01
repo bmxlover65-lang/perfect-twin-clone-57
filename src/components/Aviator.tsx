@@ -236,15 +236,17 @@ function FlightStage({
   const hoverScale = phase === "flying" ? Math.max(0, Math.min(1, multiplier - 2)) : 0;
   const hoverY = Math.sin(t / 1000) * 16 * hoverScale;
   const hoverX = Math.cos(t / 1500) * 34 * hoverScale;
-  const x = 40 + p * (W - 190) + hoverX;
-  const y = H - 40 - Math.sin(p * 1.35) * (H - 110) + hoverY;
+  const x = 40 + p * (W - 200) + hoverX;
+  const y = H - 40 - Math.sin(p * 1.35) * (H - 120) + hoverY;
   const flewT = phase === "crashed" ? 1 : 0;
-  const px = x + flewT * 340;
-  const py = y - flewT * 190;
+  const px = x + flewT * 360;
+  const py = y - flewT * 200;
   const path = `M40,${H - 40} Q ${40 + (x - 40) * 0.62},${H - 40} ${x},${y}`;
   const area = `${path} L ${x},${H - 40} Z`;
-  const planeW = 108;
+  const planeW = 96;
   const planeH = planeW * (74 / 150);
+  const tick = (t / 22) % 60;
+
 
   return (
     <div className="relative overflow-hidden rounded-[14px] bg-black">
