@@ -325,23 +325,8 @@ function EventPage() {
 
       {error ? <p className="mt-3 text-sm text-live-lose">{error}</p> : null}
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-[1.6fr_1fr]">
-        <div className="overflow-hidden rounded-lg bg-ex-panel">
-          <header className="bg-ex-header px-4 py-2.5 text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-ex-text">
-            Live TV
-          </header>
-          {token ? (
-            <iframe
-              title="Live TV"
-              src={embedUrl("player", sportId, eventId, token)}
-              allow="autoplay; fullscreen; encrypted-media"
-              allowFullScreen
-              className="aspect-video w-full border-0 bg-black"
-            />
-          ) : (
-            <div className="aspect-video w-full bg-black" />
-          )}
-        </div>
+      <div className="mt-5 grid gap-4">
+
         <div className="overflow-hidden rounded-lg bg-ex-panel">
           <header className="bg-ex-header px-4 py-2.5 text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-ex-text">
             Scoreboard
