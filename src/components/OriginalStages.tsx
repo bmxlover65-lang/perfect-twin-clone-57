@@ -588,10 +588,13 @@ export function BalloonStage({
           </span>
         </div>
 
-        {/* profile pill */}
-        <div className="absolute left-0 top-[18%] flex items-center rounded-r-[6px] bg-[#8E9BA6]/80 py-1 pl-3 pr-1">
+        {/* profile pill + balance */}
+        <div className="absolute left-0 top-[18%] flex items-center gap-2 rounded-r-[6px] bg-[#8E9BA6]/80 py-1 pl-3 pr-1.5">
           <img src={profileIcon.url} alt="" className="h-5 w-5" />
-          <span className="ml-2 flex h-7 w-7 items-center justify-center rounded-full bg-[#1B6FE0]">
+          <span className="text-[0.8rem] font-extrabold text-white">
+            {balance.toLocaleString("en-IN")}
+          </span>
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1B6FE0]">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
               <path d="M6 15l6-6 6 6" />
             </svg>
