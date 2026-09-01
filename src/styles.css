@@ -250,6 +250,22 @@
   --ex-cell-foreground: oklch(0.17 0.025 250);
 }
 
+/* Sports exchange page theme override (reference screenshots) */
+.sports-theme {
+  --ex-panel: #24485D;
+  --ex-header: #24485D;
+  --ex-row: #152733;
+  --ex-board: #152733;
+  --ex-line: #294454;
+  --ex-text: #FFFFFF;
+  --ex-muted: #8FA3B0;
+  --ex-back: #67B5E5;
+  --ex-back-dim: #4C7892;
+  --ex-lay: #EF9BB2;
+  --ex-lay-dim: #956A76;
+  --ex-cell-foreground: #0F172A;
+}
+
 
 @layer base {
   * {

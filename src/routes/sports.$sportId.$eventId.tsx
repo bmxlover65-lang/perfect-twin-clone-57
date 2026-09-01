@@ -83,7 +83,7 @@ function BoardHeader({
   dim: boolean;
 }) {
   return (
-    <header className="flex items-center justify-between border-b border-ex-line/60 bg-ex-panel/60 px-4 py-3">
+    <header className="flex items-center justify-between border-b border-ex-line/60 bg-ex-row px-4 py-3">
       <span className={`text-[0.95rem] font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}>{name}</span>
       <span className={`flex items-center gap-4 text-[0.78rem] ${dim ? "text-ex-muted/70" : "text-ex-muted"}`}>
         <span>Matched {fmtInt(matched)}</span>
@@ -261,7 +261,7 @@ function EventPage() {
   const sportsbook = data?.sportsbook ?? [];
 
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-6">
+    <div className="sports-theme mx-auto max-w-[1200px] px-4 py-6">
       <Link to="/sports" className="text-sm text-muted-foreground hover:text-foreground">
         ← Sports list
       </Link>
