@@ -1270,18 +1270,21 @@ function NumberPanel({
     const note = dream ? DREAM_NOTE[t.label.trim()] : undefined;
     if (note) {
       return (
-        <div className="relative flex flex-col items-center">
+        <div className="relative flex flex-col items-center rounded-[10px] border border-white/5 bg-[#1E3D2B] px-2 py-3">
           <img
             src={note}
             alt={`${t.label}x`}
-            className="h-[72px] w-full select-none rounded-[6px] object-cover"
+            className="h-[58px] w-auto select-none object-contain"
             draggable={false}
           />
-          <span className="mt-1 text-[0.78rem] font-extrabold leading-none text-white">
-            {t.price ? t.price.toFixed(2) : "—"}
+          <span className="mt-2 text-[1.5rem] font-extrabold leading-none text-white">
+            {t.price ? t.price.toFixed(0) : "—"}
+          </span>
+          <span className="mt-1 text-[1.05rem] font-bold leading-none text-white/90">
+            {t.size ? Math.round(t.size) : "—"}
           </span>
           {!t.open ? (
-            <div className="absolute inset-x-0 top-0 h-[72px] rounded-[6px] bg-black/55" />
+            <div className="absolute inset-0 rounded-[10px] bg-black/55" />
           ) : null}
         </div>
       );
