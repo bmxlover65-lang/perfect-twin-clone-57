@@ -17,20 +17,60 @@ function polar(cx: number, cy: number, r: number, deg: number) {
   return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)] as const;
 }
 
-export function LuckyWheel({ spinning }: { spinning: boolean }) {
+export function LuckyWheel({
+  winner,
+  roundId,
+  suspended,
+  leftSec,
+}: {
+  winner?: string | null;
+  roundId?: string | undefined;
+  suspended?: boolean;
+  leftSec?: number | undefined;
+}) {
   const cx = 200;
   const cy = 200;
   const r = 190;
   const step = 360 / LUCKY_ORDER.length;
+  const [rot, setRot] = useState(0);
+  const [spin, setSpin] = useState(false);
+  const [showWin, setShowWin] = useState(false);
+  const spunFor = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!suspended || winner == null || winner === "" || !roundId) return;
+    if (spunFor.current === roundId) return;
+    spunFor.current = roundId;
+    const num = Number(String(winner).replace(/[^0-9]/g, ""));
+    const idx = LUCKY_ORDER.indexOf(Number.isFinite(num) ? num : 0);
+    const seg = (idx < 0 ? 0 : idx) * step + step / 2;
+    const base = Math.ceil(rot / 360) * 360;
+    setShowWin(false);
+    setSpin(true);
+    setRot(base + 360 * 6 - seg);
+    try {
+      const audio = new Audio("/wheel-spin.mp3");
+      audio.volume = 0.6;
+      void audio.play().catch(() => undefined);
+    } catch {
+      // audio unavailable
+    }
+    const t = window.setTimeout(() => {
+      setSpin(false);
+      setShowWin(true);
+    }, 6200);
+    return () => window.clearTimeout(t);
+  }, [suspended, winner, roundId, rot, step]);
+
+  useEffect(() => {
+    if (!suspended) setShowWin(false);
+  }, [suspended]);
 
   return (
     <div className="relative w-full overflow-hidden rounded-[4px] bg-black">
       <img
-        src={neonCity}
+        src={luckyBg.url}
         alt=""
-        width={1280}
-        height={720}
-        loading="lazy"
         className="h-[430px] w-full object-cover opacity-90"
       />
       <div className="absolute inset-0 flex items-center justify-center">
@@ -39,7 +79,8 @@ export function LuckyWheel({ spinning }: { spinning: boolean }) {
             viewBox="0 0 400 400"
             className="h-[400px] w-[400px] max-w-full drop-shadow-[0_0_18px_rgba(0,0,0,0.6)]"
             style={{
-              animation: spinning ? "uapi-spin 3.2s linear infinite" : undefined,
+              transform: `rotate(${rot}deg)`,
+              transition: spin ? "transform 6s cubic-bezier(0.12,0.7,0.12,1)" : "none",
             }}
           >
             {LUCKY_ORDER.map((n, i) => {
@@ -64,6 +105,7 @@ export function LuckyWheel({ spinning }: { spinning: boolean }) {
                     fontWeight={800}
                     textAnchor="middle"
                     dominantBaseline="central"
+                    transform={`rotate(${a0 + step / 2} ${tx} ${ty})`}
                   >
                     {n}
                   </text>
@@ -75,9 +117,18 @@ export function LuckyWheel({ spinning }: { spinning: boolean }) {
           <span className="pointer-events-none absolute left-1/2 top-[-4px] -translate-x-1/2 text-[1.4rem] leading-none text-[#F2C500]">
             ▼
           </span>
+          {!suspended && leftSec != null ? (
+            <span className="pointer-events-none absolute bottom-2 right-2 flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#F2C500] text-[1.05rem] font-extrabold text-[#F2C500]">
+              {leftSec}
+            </span>
+          ) : null}
+          {showWin && winner ? (
+            <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-[#F2C500] px-4 py-1 text-[0.8rem] font-extrabold uppercase text-black">
+              {winner} wins
+            </span>
+          ) : null}
         </div>
       </div>
-      <style>{`@keyframes uapi-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 }
