@@ -287,6 +287,11 @@ function FlightStage({
           </>
         ) : null}
       </svg>
+      <img
+        src={aviatorText}
+        alt="Aviator"
+        className="pointer-events-none absolute left-3 top-3 h-[22px] w-auto opacity-90"
+      />
 
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         {phase === "betting" ? (
