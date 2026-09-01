@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   embedUrl,
@@ -301,6 +301,27 @@ function EventPage() {
         {fmtInt(data?.totalMatched)} · age {age}s · betDelay {data?.betDelay ?? 0}s
         {data?.stale ? " · stale" : ""}
       </p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Source: Universal API <code className="font-mono">GET /sports/{sportId}/{eventId}/odds</code>{" "}
+        via server proxy, polled every 2s · TV &amp; scoreboard iframes minted with a live session
+        token
+      </p>
+
+      <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        {[
+          ["Sport", SPORT_NAMES[sportId] ?? sportId],
+          ["State", data?.inPlay ? "In-play" : "Pre-match"],
+          ["Matched", fmtInt(data?.totalMatched)],
+          ["Markets", String(matchOdds.length + bookmakers.length + fancy.length + sportsbook.length)],
+          ["TV", data?.tv ? "Yes" : "No"],
+          ["Scoreboard", data?.isScore ? "Yes" : "No"],
+        ].map(([k, v]) => (
+          <div key={k} className="rounded-lg bg-ex-panel px-3 py-2">
+            <p className="text-[0.68rem] uppercase tracking-wide text-ex-muted">{k}</p>
+            <p className="text-sm font-bold text-ex-text">{v}</p>
+          </div>
+        ))}
+      </div>
 
       {error ? <p className="mt-3 text-sm text-live-lose">{error}</p> : null}
 
@@ -377,6 +398,28 @@ function EventPage() {
         {!data && !error ? (
           <p className="text-sm text-muted-foreground">Loading live markets…</p>
         ) : null}
+      </div>
+
+      <p className="mt-8 text-base font-bold text-foreground">
+        Result &amp; settlement history{" "}
+        <span className="text-sm font-normal text-muted-foreground">
+          · market status changes and settled runners observed live
+        </span>
+      </p>
+      <div className="mt-3 rounded-lg bg-ex-panel p-3">
+        {history.length ? (
+          <ul className="space-y-1">
+            {history.map((h, i) => (
+              <li key={`${h.at}-${i}`} className="font-mono text-xs text-ex-text">
+                [{h.at}] {h.text}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="font-mono text-xs text-ex-muted">
+            Watching markets… settlement and suspend/open transitions will appear here.
+          </p>
+        )}
       </div>
     </div>
   );
