@@ -97,7 +97,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
     ],
   }),
   shellComponent: RootShell,
@@ -159,9 +159,7 @@ function SiteHeader() {
     <header className="sticky top-0 z-40 bg-nav">
       <div className="mx-auto flex h-[60px] max-w-[1600px] items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[oklch(0.55_0.19_262)] text-xs font-bold text-white">
-            RI
-          </span>
+          <img src="/favicon.svg" alt="Universal API logo" className="h-8 w-8 rounded-md" />
           <span className="text-lg font-bold text-nav-foreground">Universal API</span>
         </Link>
         <nav className="flex items-center gap-4">
