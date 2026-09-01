@@ -1,8 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { EVENTS, SPORTS } from "@/data/sports";
-import { drift, fmtOdds } from "@/lib/sports-engine";
+import {
+  fetchEvents,
+  fetchSports,
+  fmtInt,
+  fmtOdds,
+  runnerName,
+  type Sport,
+  type UEvent,
+} from "@/lib/uapi";
 
 export const Route = createFileRoute("/sports/")({
   head: () => ({
@@ -23,37 +30,70 @@ export const Route = createFileRoute("/sports/")({
   component: SportsPage,
 });
 
-function useTick(ms = 1000) {
-  const [tick, setTick] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setTick((v) => v + 1), ms);
-    return () => clearInterval(t);
-  }, [ms]);
-  return tick;
-}
-
 type Filter = "all" | "inplay" | "pre";
 
+const FALLBACK_SPORTS: Sport[] = [
+  { sportId: "4", sportName: "Cricket" },
+  { sportId: "1", sportName: "Soccer" },
+  { sportId: "2", sportName: "Tennis" },
+  { sportId: "7", sportName: "Horse Racing" },
+  { sportId: "4339", sportName: "Greyhound Racing" },
+];
+
+const ORDER = ["4", "1", "2", "7", "4339"];
+
 function SportsPage() {
-  const tick = useTick();
+  const [sports, setSports] = useState<Sport[]>(FALLBACK_SPORTS);
   const [sportId, setSportId] = useState("4");
   const [filter, setFilter] = useState<Filter>("all");
-  const [refreshedAt, setRefreshedAt] = useState<string>("");
+  const [events, setEvents] = useState<UEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [refreshedAt, setRefreshedAt] = useState("");
 
   useEffect(() => {
-    setRefreshedAt(new Date().toLocaleTimeString());
-  }, [sportId]);
+    fetchSports()
+      .then((r) => {
+        if (r.sports?.length) {
+          const list = [...r.sports].sort(
+            (a, b) => ORDER.indexOf(a.sportId) - ORDER.indexOf(b.sportId),
+          );
+          setSports(list);
+        }
+      })
+      .catch(() => undefined);
+  }, []);
 
-  const all = useMemo(() => EVENTS.filter((e) => e.sportId === sportId), [sportId]);
-  const inplay = all.filter((e) => e.inPlay);
-  const pre = all.filter((e) => !e.inPlay);
-  const list = filter === "inplay" ? inplay : filter === "pre" ? pre : all;
+  const load = useCallback(
+    async (id: string, silent = false) => {
+      if (!silent) setLoading(true);
+      try {
+        const data = await fetchEvents(id);
+        setEvents(data.events ?? []);
+        setError(null);
+        setRefreshedAt(new Date(data.refreshedAt ?? Date.now()).toLocaleTimeString());
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to load events");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    void load(sportId);
+    const t = setInterval(() => void load(sportId, true), 15000);
+    return () => clearInterval(t);
+  }, [sportId, load]);
+
+  const inplay = useMemo(() => events.filter((e) => e.inPlay), [events]);
+  const pre = useMemo(() => events.filter((e) => !e.inPlay), [events]);
+  const list = filter === "inplay" ? inplay : filter === "pre" ? pre : events;
 
   const pill = (active: boolean) =>
     `rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-      active
-        ? "bg-nav-active text-background"
-        : "bg-muted text-foreground hover:bg-accent"
+      active ? "bg-nav-active text-background" : "bg-muted text-foreground hover:bg-accent"
     }`;
 
   return (
@@ -66,12 +106,14 @@ function SportsPage() {
             scoreboard.
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            List refreshed {refreshedAt} · {inplay.length} in-play · {pre.length} pre-match
+            {loading
+              ? "Loading live events…"
+              : `List refreshed ${refreshedAt} · ${inplay.length} in-play · ${pre.length} pre-match`}
           </p>
         </div>
         <button
           type="button"
-          onClick={() => setRefreshedAt(new Date().toLocaleTimeString())}
+          onClick={() => void load(sportId)}
           className="rounded-full bg-muted px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
         >
           Refresh
@@ -79,24 +121,24 @@ function SportsPage() {
       </div>
 
       <div className="mt-6 flex flex-wrap gap-3">
-        {SPORTS.map((s) => (
+        {sports.map((s) => (
           <button
-            key={s.id}
+            key={s.sportId}
             type="button"
             onClick={() => {
-              setSportId(s.id);
+              setSportId(s.sportId);
               setFilter("all");
             }}
-            className={pill(s.id === sportId)}
+            className={pill(s.sportId === sportId)}
           >
-            {s.name}
+            {s.sportName.replace(" Racing", "")}
           </button>
         ))}
       </div>
 
       <div className="mt-3 flex flex-wrap gap-3">
         <button type="button" onClick={() => setFilter("all")} className={pill(filter === "all")}>
-          All ({all.length})
+          All ({events.length})
         </button>
         <button
           type="button"
@@ -110,10 +152,20 @@ function SportsPage() {
         </button>
       </div>
 
+      {error ? (
+        <p className="mt-6 rounded-xl border border-border/60 bg-ex-panel p-4 text-sm text-live-lose">
+          {error}
+        </p>
+      ) : null}
+
       <section className="mt-6 rounded-2xl border border-border/60 bg-ex-panel p-4">
         <header className="flex items-center justify-between px-1 pb-3">
           <h2 className="text-sm font-bold text-foreground">
-            {filter === "inplay" ? "In-play events" : filter === "pre" ? "Pre-match events" : "All events"}
+            {filter === "inplay"
+              ? "In-play events"
+              : filter === "pre"
+                ? "Pre-match events"
+                : "All events"}
           </h2>
           <span className="text-sm text-muted-foreground">{list.length}</span>
         </header>
@@ -121,43 +173,41 @@ function SportsPage() {
         <div className="space-y-3">
           {list.map((e) => (
             <Link
-              key={e.eventId}
+              key={e.exEventId}
               to="/sports/$sportId/$eventId"
-              params={{ sportId: e.sportId, eventId: e.eventId }}
+              params={{ sportId: e.sportId, eventId: e.exEventId }}
               className="flex items-center justify-between gap-4 rounded-xl bg-ex-row px-4 py-3 transition-colors hover:bg-accent/40"
             >
               <div className="min-w-0">
-                <h3 className="truncate text-base font-bold text-foreground">{e.name}</h3>
+                <h3 className="truncate text-base font-bold text-foreground">{e.eventName}</h3>
                 <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-                  {e.inPlay ? (
-                    <span className="h-2 w-2 shrink-0 rounded-full bg-live-lose" />
-                  ) : null}
+                  {e.inPlay ? <span className="h-2 w-2 shrink-0 rounded-full bg-live-lose" /> : null}
                   <span>
                     {e.inPlay ? "In-play" : "Pre-match"}
-                    {e.score ? " · Score" : ""} · matched{" "}
-                    {e.matched + (e.inPlay ? Math.floor(tick * 13) : 0)}
+                    {e.isScore ? " · Score" : ""}
+                    {e.tv ? " · TV" : ""} · matched {fmtInt(e.totalMatched)}
                   </span>
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {e.runners.map((r, i) => {
-                    const p = drift(e.base[i] ?? 0, tick, i * 7 + 3);
-                    return (
-                      <span
-                        key={r}
-                        className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground"
-                      >
-                        {r}{" "}
-                        <span className="font-bold text-foreground">
-                          {fmtOdds(p)}/{fmtOdds(p ? p * 1.02 : 0)}
-                        </span>
+                  {(e.runners ?? []).slice(0, 4).map((r) => (
+                    <span
+                      key={String(r.selectionId)}
+                      className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground"
+                    >
+                      {runnerName(e, r.selectionId)}{" "}
+                      <span className="font-bold text-foreground">
+                        {fmtOdds(r.backPrice)}/{fmtOdds(r.layPrice)}
                       </span>
-                    );
-                  })}
+                    </span>
+                  ))}
                 </div>
               </div>
               <span className="shrink-0 text-sm text-muted-foreground">Odds →</span>
             </Link>
           ))}
+          {!loading && !list.length ? (
+            <p className="px-1 py-6 text-sm text-muted-foreground">No events right now.</p>
+          ) : null}
         </div>
       </section>
     </div>
