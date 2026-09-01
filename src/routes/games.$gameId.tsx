@@ -1645,6 +1645,15 @@ function GamePage() {
     };
   }, [gameId, roundKey]);
 
+  // auto settlement — every finished round settles my open bets
+  useEffect(() => {
+    results.slice(0, 6).forEach((r) => {
+      const rr = r as CasinoResult & { result?: string; selectionName?: string };
+      const winner = (rr.winner ?? rr.result ?? rr.selectionName ?? "").toString().trim();
+      settleRound(gameId, String(r.roundId ?? ""), winner);
+    });
+  }, [results, gameId]);
+
 
   useEffect(() => {
     fetchCasinoStream(gameId)
