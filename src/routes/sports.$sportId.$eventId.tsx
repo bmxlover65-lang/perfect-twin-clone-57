@@ -131,15 +131,19 @@ function Board({ market }: { market: Market }) {
         dim={dim}
       />
       <BackLayHead />
-      <div className="relative space-y-1 p-3 pt-1">
+      <div className="relative">
         {runners.map((r) => {
           const back = [...(r.price?.back ?? [])].slice(0, 3).reverse();
           const lay = (r.price?.lay ?? []).slice(0, 3);
           return (
-            <div key={String(r.selectionId)} className={GRID}>
+            <div
+              key={String(r.selectionId)}
+              className={`${GRID} border-b border-ex-line/30 px-4 py-2 last:border-b-0`}
+            >
               <span
-                className={`truncate pr-2 text-sm font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}
+                className={`truncate pr-2 text-[0.95rem] font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}
               >
+
                 {runnerName(market, r.selectionId)}
               </span>
               {[0, 1, 2].map((i) => (
