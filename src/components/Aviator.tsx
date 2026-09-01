@@ -335,10 +335,10 @@ type MyBet = { round: number; amount: number; cashedAt: number | null; crash: nu
 type ChatMsg = { id: number; user: string; text: string; mine?: boolean };
 
 const SEED_CHAT: ChatMsg[] = [
-  { id: 1, user: "d***5", text: "gg 12x 🔥" },
+  { id: 1, user: "d***5", text: "gg 12x!" },
   { id: 2, user: "R***a", text: "auto cashout 1.60 best" },
   { id: 3, user: "k***9", text: "cashed 2.4x finally" },
-  { id: 4, user: "S***h", text: "next one big 🚀" },
+  { id: 4, user: "S***h", text: "next one big" },
 ];
 
 export function Aviator() {
@@ -472,7 +472,7 @@ export function Aviator() {
 
   // chatter from other players
   useEffect(() => {
-    const lines = ["nice one", "1.5x safe", "big red again 😭", "cash early bro", "🚀🚀", "auto 2x on"];
+    const lines = ["nice one", "1.5x safe", "big red again", "cash early bro", "lets go", "auto 2x on"];
     const id = window.setInterval(() => {
       setChat((c) =>
         [
