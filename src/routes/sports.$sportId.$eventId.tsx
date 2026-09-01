@@ -309,7 +309,7 @@ function EventPage() {
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
         Source: Universal API <code className="font-mono">GET /sports/{sportId}/{eventId}/odds</code>{" "}
-        via server proxy, polled every 2s · TV &amp; scoreboard iframes minted with a live session
+        via server proxy, polled every 1s · TV &amp; scoreboard iframes minted with a live session
         token
       </p>
 

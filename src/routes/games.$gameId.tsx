@@ -193,7 +193,7 @@ function GamePage() {
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             Source: Universal API <code className="font-mono">GET /games/{gameId}/state</code> ·{" "}
-            <code className="font-mono">/games/{gameId}/results</code> · polled every 2s
+            <code className="font-mono">/games/{gameId}/results</code> · polled every 1s
           </p>
         </div>
         <span className="flex items-center gap-2 rounded-full bg-live-pill px-3 py-1 text-sm font-semibold text-live-pill-foreground">
