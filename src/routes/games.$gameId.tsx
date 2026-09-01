@@ -308,28 +308,32 @@ function GamePage() {
         <p className="mt-3 text-sm text-muted-foreground">Loading live markets…</p>
       ) : null}
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        <span className="mr-1 text-base font-bold text-foreground">Recent Result</span>
+      <div className="mt-4 flex flex-wrap items-center gap-2 rounded-md bg-ex-panel px-3 py-2">
+        <span className="mr-1 text-base font-bold text-ex-text">Recent Result</span>
         {results.slice(0, 10).map((r) => {
-          const w = (r.winner ?? "-").toString();
-          const first = w.trim().slice(0, 1).toUpperCase();
-          const tone =
-            first === "A"
-              ? "bg-ex-back text-ex-cell-foreground"
-              : first === "B"
+          const w = (r.winner ?? "-").toString().trim();
+          const lower = w.toLowerCase();
+          const isTie = lower.startsWith("tie") || lower.startsWith("draw");
+          const first = isTie ? "Tie" : w.slice(0, 1).toUpperCase();
+          const tone = isTie
+            ? "bg-[#8CD9B5] text-[#0F172A]"
+            : first === "L"
+              ? "bg-[#8E44C7] text-white"
+              : ["B", "T"].includes(first)
                 ? "bg-ex-lay text-ex-cell-foreground"
-                : "bg-ex-panel text-ex-text";
+                : "bg-ex-back text-ex-cell-foreground";
           return (
             <span
               key={r.roundId}
               title={`Round ${r.roundId}`}
-              className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ${tone}`}
+              className={`flex h-9 min-w-9 items-center justify-center rounded-full px-2 text-sm font-bold ${tone}`}
             >
               {first || "-"}
             </span>
           );
         })}
       </div>
+
     </div>
   );
 }
