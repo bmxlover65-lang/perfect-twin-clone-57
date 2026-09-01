@@ -54,6 +54,15 @@ function SportsPage() {
   const [latency, setLatency] = useState(0);
   const [pollCount, setPollCount] = useState(0);
   const [errorLog, setErrorLog] = useState<{ at: string; message: string }[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("admin");
+    if (q === "1") localStorage.setItem("uapi_admin", "1");
+    if (q === "0") localStorage.removeItem("uapi_admin");
+    setIsAdmin(localStorage.getItem("uapi_admin") === "1");
+  }, []);
+
 
   useEffect(() => {
     fetchSports()
