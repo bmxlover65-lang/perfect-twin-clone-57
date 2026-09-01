@@ -8,9 +8,10 @@ import profileIcon from "@/assets/balloon/Profile.webp.asset.json";
 import loc1 from "@/assets/balloon/locationLt.png.asset.json";
 import loc2 from "@/assets/balloon/locationLt2.png.asset.json";
 import loc3 from "@/assets/balloon/locationLt3.png.asset.json";
+import skyBg from "@/assets/balloon/sky-bg-1.jpg.asset.json";
 import bonusSfx from "@/assets/balloon/balloon_achieve_bonus.mp3.asset.json";
 
-const LOCATIONS = [loc1, loc2, loc3];
+const LOCATIONS = [skyBg, skyBg, loc1, loc2, loc3];
 
 function hashStr(s: string) {
   let h = 0;
