@@ -2,6 +2,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Aviator } from "@/components/Aviator";
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
+import dream1x from "@/assets/dream/dream1x.png.asset.json";
+import dream2x from "@/assets/dream/dream2x.png.asset.json";
+import dream5x from "@/assets/dream/dream5x.png.asset.json";
+import dream10x from "@/assets/dream/dream10x.png.asset.json";
+import dream20x from "@/assets/dream/dream20x.png.asset.json";
+import dream40x from "@/assets/dream/dream40x.png.asset.json";
 
 import {
   BallByBallBoard,
