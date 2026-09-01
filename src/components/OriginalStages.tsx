@@ -382,7 +382,7 @@ export function BalloonStage({
     let raf = 0;
     let last = performance.now();
     let ph: "waiting" | "flying" | "crashed" = "waiting";
-    let t = 3; // seconds left in the current phase
+    let t = 1; // seconds left in the current phase
     let v = 1;
     let target = 2;
 
@@ -416,7 +416,7 @@ export function BalloonStage({
       setHistory((h) => [target, ...h].slice(0, 10));
       airRef.current?.pause();
       play(bonusSfx.url, 0.7);
-      t = 3;
+      t = 1.8;
     };
 
     const tick = (now: number) => {
