@@ -77,14 +77,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Universal API — Live Casino & Sports Feeds" },
+      {
+        name: "description",
+        content:
+          "Universal API delivers live casino table games and sports markets with real-time odds, results and developer docs.",
+      },
+      { name: "author", content: "Universal API" },
+      { property: "og:title", content: "Universal API — Live Casino & Sports Feeds" },
+      {
+        property: "og:description",
+        content: "Live casino table games and sports markets via the Universal API.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
@@ -114,13 +120,80 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+const NAV = [
+  { to: "/", label: "Games" },
+  { to: "/sports", label: "Sports" },
+  { to: "/casino-docs", label: "Casino Docs" },
+  { to: "/sports-docs", label: "Sports Docs" },
+] as const;
+
+function ThemeToggle() {
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("ua-theme");
+    const isDark = stored === "dark";
+    setDark(isDark);
+    document.documentElement.classList.toggle("dark", isDark);
+  }, []);
+
+  return (
+    <button
+      type="button"
+      aria-label="Toggle theme"
+      onClick={() => {
+        const next = !dark;
+        setDark(next);
+        document.documentElement.classList.toggle("dark", next);
+        localStorage.setItem("ua-theme", next ? "dark" : "light");
+      }}
+      className="flex h-8 w-8 items-center justify-center rounded-full text-nav-foreground/80 transition-colors hover:bg-white/10 hover:text-nav-foreground"
+    >
+      {dark ? "🌙" : "☀"}
+    </button>
+  );
+}
+
+function SiteHeader() {
+  return (
+    <header className="sticky top-0 z-40 bg-nav">
+      <div className="mx-auto flex h-[60px] max-w-[1600px] items-center justify-between px-4">
+        <Link to="/" className="flex items-center gap-3">
+          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[oklch(0.55_0.19_262)] text-xs font-bold text-white">
+            RI
+          </span>
+          <span className="text-lg font-bold text-nav-foreground">Universal API</span>
+        </Link>
+        <nav className="flex items-center gap-4">
+          {NAV.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              activeOptions={{ exact: item.to === "/" }}
+              className="hidden text-sm text-nav-foreground/75 transition-colors hover:text-nav-foreground sm:block"
+              activeProps={{ className: "!text-nav-foreground font-semibold" }}
+            >
+              {item.label}
+            </Link>
+          ))}
+          <ThemeToggle />
+        </nav>
+      </div>
+    </header>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <div className="min-h-screen bg-background">
+        <SiteHeader />
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+      </div>
     </QueryClientProvider>
   );
 }
+
