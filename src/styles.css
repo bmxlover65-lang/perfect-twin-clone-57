@@ -290,3 +290,8 @@
     display: none;
   }
 }
+
+@keyframes balloonSway {
+  0%, 100% { transform: translateX(-4px) rotate(-1.5deg); }
+  50% { transform: translateX(4px) rotate(1.5deg); }
+}
