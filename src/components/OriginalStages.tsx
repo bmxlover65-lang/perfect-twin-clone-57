@@ -455,7 +455,17 @@ export function BalloonStage({
           </p>
         </div>
 
-
+        {/* burst flash on pop */}
+        {popped ? (
+          <div className="absolute inset-x-0 top-[30%] flex flex-col items-center">
+            <span className="animate-[scale-in_0.25s_ease-out] text-[clamp(1.8rem,5vw,3.5rem)] font-extrabold text-[#E01E1E] drop-shadow-[0_3px_6px_rgba(0,0,0,0.4)]">
+              BURST
+            </span>
+            <span className="text-[clamp(1.1rem,3vw,2rem)] font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
+              {target.toFixed(2)}x
+            </span>
+          </div>
+        ) : null}
 
         {/* top bar: mute + history + collapse */}
         <div className="absolute inset-x-0 top-0 flex items-start gap-2 px-3 py-2.5">
