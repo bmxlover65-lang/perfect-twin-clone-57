@@ -962,16 +962,17 @@ function MuflisPanel({
       (names[String(r.selectionId)] ?? "").toUpperCase().trim().endsWith(letter),
     );
 
-  const chips: { v: string; ring: string; face: string }[] = [
-    { v: "1k", ring: "#1b3a6b", face: "#f2f4f8" },
-    { v: "5k", ring: "#d63a75", face: "#f2f4f8" },
-    { v: "10k", ring: "#2b2b7a", face: "#f2f4f8" },
-    { v: "25k", ring: "#e0a400", face: "#f2f4f8" },
-    { v: "50k", ring: "#1b3a6b", face: "#f2f4f8" },
-    { v: "100k", ring: "#1b3a6b", face: "#f2f4f8" },
-    { v: "200k", ring: "#1b3a6b", face: "#f2f4f8" },
-    { v: "500k", ring: "#1b3a6b", face: "#f2f4f8" },
+  const chips: { v: string; src: string }[] = [
+    { v: "1k", src: chip1k.url },
+    { v: "5k", src: chip5.url },
+    { v: "10k", src: chip10.url },
+    { v: "25k", src: chip20.url },
+    { v: "50k", src: chip50.url },
+    { v: "100k", src: chip100.url },
+    { v: "200k", src: chip200.url },
+    { v: "500k", src: chip500.url },
   ];
+
 
   const Side = ({ letter }: { letter: "A" | "B" }) => {
     const r = pick(letter);
