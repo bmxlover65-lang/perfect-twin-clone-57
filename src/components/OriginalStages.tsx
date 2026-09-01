@@ -402,10 +402,12 @@ export function BalloonStage({
       ph = "flying";
       setPhase("flying");
       play("/balloon-air.mp3", 0.35, true);
-      // auto bets
+      // pending (queued) bets go live; auto bets are debited now
       setBets((prev) =>
         prev.map((b, i) => {
-          if (b || !autoRef.current[i]) return null;
+          if (b?.pending) return { entry: 1, stake: b.stake };
+          if (b) return b;
+          if (!autoRef.current[i]) return null;
           if (!debit(stakeRef.current)) return null;
           return { entry: 1, stake: stakeRef.current };
         }),
