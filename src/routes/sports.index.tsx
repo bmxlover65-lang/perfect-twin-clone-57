@@ -223,14 +223,14 @@ function SportsPage() {
 
       <section className="mt-6 rounded-2xl border border-border/60 bg-ex-panel p-4">
         <header className="flex items-center justify-between px-1 pb-3">
-          <h2 className="text-sm font-bold text-foreground">
+          <h2 className="text-sm font-bold text-ex-text">
             {filter === "inplay"
               ? "In-play events"
               : filter === "pre"
                 ? "Pre-match events"
                 : "All events"}
           </h2>
-          <span className="text-sm text-muted-foreground">{list.length}</span>
+          <span className="text-sm text-ex-muted">{list.length}</span>
         </header>
 
         <div className="space-y-3">
@@ -242,8 +242,8 @@ function SportsPage() {
               className="flex items-center justify-between gap-4 rounded-xl bg-ex-row px-4 py-3 transition-colors hover:bg-accent/40"
             >
               <div className="min-w-0">
-                <h3 className="truncate text-base font-bold text-foreground">{e.eventName}</h3>
-                <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                <h3 className="truncate text-base font-bold text-ex-text">{e.eventName}</h3>
+                <p className="mt-1 flex items-center gap-2 text-sm text-ex-muted">
                   {e.inPlay ? <span className="h-2 w-2 shrink-0 rounded-full bg-live-lose" /> : null}
                   <span>
                     {e.inPlay ? "In-play" : "Pre-match"}
@@ -255,17 +255,17 @@ function SportsPage() {
                   {(e.runners ?? []).slice(0, 4).map((r) => (
                     <span
                       key={String(r.selectionId)}
-                      className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground"
+                      className="rounded-md bg-ex-panel px-2 py-1 text-xs text-ex-muted"
                     >
                       {runnerName(e, r.selectionId)}{" "}
-                      <span className="font-bold text-foreground">
+                      <span className="font-bold text-ex-text">
                         {fmtOdds(r.backPrice)}/{fmtOdds(r.layPrice)}
                       </span>
                     </span>
                   ))}
                 </div>
               </div>
-              <span className="shrink-0 text-sm text-muted-foreground">Odds →</span>
+              <span className="shrink-0 text-sm text-ex-muted">Odds →</span>
             </Link>
           ))}
           {!loading && !list.length ? (
