@@ -1608,6 +1608,27 @@ function GamePage() {
   const roundKey = state?.data?.roundId ? String(state.data.roundId) : "";
 
   useEffect(() => {
+    if (!roundKey) return;
+    const dd = state?.data as unknown as
+      | { gameResult?: string; multiplier?: string; eventName?: string }
+      | undefined;
+    const real = String(dd?.gameResult ?? dd?.multiplier ?? "");
+    if (!real) return;
+    const shown = applyOverride(cfg, admin, gameId, real) ?? real;
+    logResult({
+      ts: Date.now(),
+      gameId,
+      gameName: dd?.eventName ?? gameId,
+      round: roundKey,
+      real,
+      shown,
+      forced: shown !== real,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roundKey, gameId, admin, cfg]);
+
+
+  useEffect(() => {
     let alive = true;
     const run = () =>
       fetchCasinoResults(gameId)
