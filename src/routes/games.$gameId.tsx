@@ -761,7 +761,14 @@ function DragonTigerPanel({
                 {r.label}
                 <span className="absolute bottom-1 left-1 text-[0.58rem] text-black/80">♣ ♠</span>
                 <span className="absolute bottom-1 right-1 text-[0.58rem] text-[#E0393B]">♥ ♦</span>
-                {!r.open ? <Lock /> : null}
+                {!r.open ? (
+                  <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2">
+                    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-white" fill="currentColor" aria-hidden="true">
+                      <path d="M12 2a5 5 0 0 0-5 5v3H6a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-1V7a5 5 0 0 0-5-5Zm-3 8V7a3 3 0 1 1 6 0v3H9Z" />
+                    </svg>
+                  </span>
+                ) : null}
+
               </div>
               <p className="mt-0.5 text-[0.72rem] font-bold text-[#1B8A5F]">{fmtOdds(r.back)}</p>
             </div>
