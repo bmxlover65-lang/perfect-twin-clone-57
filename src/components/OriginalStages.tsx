@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { creditWin, debit, useWallet } from "@/lib/wallet";
 import luckyBg from "@/assets/lucky-bg.gif.asset.json";
 import balloonImg from "@/assets/balloon/balloon.png.asset.json";
 import heatIcon from "@/assets/balloon/heat-icon.webp.asset.json";
@@ -635,7 +636,7 @@ export function BalloonStage({
         <div className="absolute left-0 top-[18%] flex items-center gap-2 rounded-r-[6px] bg-[#8E9BA6]/80 py-1 pl-3 pr-1.5">
           <img src={profileIcon.url} alt="" className="h-5 w-5" />
           <span className="text-[0.8rem] font-extrabold text-white">
-            {balance.toLocaleString("en-IN")}
+            {Math.round(balance).toLocaleString("en-IN")}
           </span>
           <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1B6FE0]">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
@@ -645,9 +646,9 @@ export function BalloonStage({
         </div>
 
         {/* countdown */}
-        {!suspended && leftSec != null ? (
+        {!flying ? (
           <span className="absolute right-3 top-[18%] flex h-9 w-9 items-center justify-center rounded-full border-2 border-white/80 text-[0.9rem] font-extrabold text-white">
-            {leftSec}
+            {wait}
           </span>
         ) : null}
 
