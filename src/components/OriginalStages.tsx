@@ -429,8 +429,8 @@ export function BalloonStage({
         <div
           className="absolute left-1/2 transition-all duration-300 ease-out"
           style={{
-            bottom: `${8 + grow * 26}%`,
-            width: `${14 + grow * 10}%`,
+            bottom: `${16 + grow * 22}%`,
+            width: `${21 + grow * 5}%`,
             opacity: popped ? 0 : 1,
             transform: `translateX(-50%) scale(${popped ? 1.4 : 1})`,
           }}
@@ -441,8 +441,9 @@ export function BalloonStage({
             className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
             style={{ filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))" }}
           />
-          <p className="absolute left-1/2 top-[30%] -translate-x-1/2 text-[clamp(1.1rem,3.2vw,2.6rem)] font-extrabold leading-none text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]">
-            {shown.toFixed(2)}x
+          <p className="absolute left-1/2 top-[36%] -translate-x-1/2 whitespace-nowrap text-[clamp(1.3rem,3.4vw,2.9rem)] font-extrabold leading-none text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]">
+            {shown.toFixed(2)}
+            <span className="text-[0.7em]">x</span>
           </p>
         </div>
 
@@ -456,6 +457,7 @@ export function BalloonStage({
             </p>
           </div>
         ) : null}
+
 
         {/* top bar: mute + history + collapse */}
         <div className="absolute inset-x-0 top-0 flex items-start gap-2 px-3 py-2.5">
