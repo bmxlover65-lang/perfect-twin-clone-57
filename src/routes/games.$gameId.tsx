@@ -1,6 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 
+import chip1k from "@/assets/chips/chips1k.svg.asset.json";
+import chip5 from "@/assets/chips/chips5.svg.asset.json";
+import chip10 from "@/assets/chips/chips10.svg.asset.json";
+import chip20 from "@/assets/chips/chips20.svg.asset.json";
+import chip50 from "@/assets/chips/chips50.svg.asset.json";
+import chip100 from "@/assets/chips/chips100.svg.asset.json";
+import chip200 from "@/assets/chips/chips200.svg.asset.json";
+import chip500 from "@/assets/chips/chips500.svg.asset.json";
+
+
+
 import {
   fetchCasinoResults,
   fetchCasinoState,
@@ -962,16 +973,17 @@ function MuflisPanel({
       (names[String(r.selectionId)] ?? "").toUpperCase().trim().endsWith(letter),
     );
 
-  const chips: { v: string; ring: string; face: string }[] = [
-    { v: "1k", ring: "#1b3a6b", face: "#f2f4f8" },
-    { v: "5k", ring: "#d63a75", face: "#f2f4f8" },
-    { v: "10k", ring: "#2b2b7a", face: "#f2f4f8" },
-    { v: "25k", ring: "#e0a400", face: "#f2f4f8" },
-    { v: "50k", ring: "#1b3a6b", face: "#f2f4f8" },
-    { v: "100k", ring: "#1b3a6b", face: "#f2f4f8" },
-    { v: "200k", ring: "#1b3a6b", face: "#f2f4f8" },
-    { v: "500k", ring: "#1b3a6b", face: "#f2f4f8" },
+  const chips: { v: string; src: string }[] = [
+    { v: "1k", src: chip1k.url },
+    { v: "5k", src: chip5.url },
+    { v: "10k", src: chip10.url },
+    { v: "25k", src: chip20.url },
+    { v: "50k", src: chip50.url },
+    { v: "100k", src: chip100.url },
+    { v: "200k", src: chip200.url },
+    { v: "500k", src: chip500.url },
   ];
+
 
   const Side = ({ letter }: { letter: "A" | "B" }) => {
     const r = pick(letter);
@@ -1018,22 +1030,18 @@ function MuflisPanel({
         <Side letter="A" />
         <Side letter="B" />
       </div>
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
         {chips.map((c) => (
-          <span
+          <img
             key={c.v}
-            className="flex h-[58px] w-[58px] items-center justify-center rounded-full shadow-[0_0_0_2px_rgba(224,140,40,0.6)]"
-            style={{ background: c.ring }}
-          >
-            <span
-              className="flex h-[40px] w-[40px] items-center justify-center rounded-full text-[0.8rem] font-extrabold text-[#111]"
-              style={{ background: c.face }}
-            >
-              {c.v}
-            </span>
-          </span>
+            src={c.src}
+            alt={`${c.v} chip`}
+            className="h-[58px] w-auto select-none"
+            draggable={false}
+          />
         ))}
       </div>
+
     </div>
   );
 }
