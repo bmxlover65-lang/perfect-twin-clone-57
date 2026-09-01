@@ -77,7 +77,10 @@ function Lobby() {
     return () => clearInterval(t);
   }, [load]);
 
-  const list = games.length ? games.map(toDef) : GAMES;
+  const BBB = "4.3544687543453";
+  const raw = games.length ? games.map(toDef) : GAMES;
+  const list = [...raw].sort((a, b) => (a.id === BBB ? -1 : b.id === BBB ? 1 : 0));
+
 
   return (
     <div className="mx-auto max-w-[1200px] px-4 py-6">
