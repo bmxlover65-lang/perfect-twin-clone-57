@@ -1887,36 +1887,38 @@ function GamePage() {
         </span>
       </div>
 
-      {gameId === "99.0014" && markets.length ? (
-        <MuflisPanel markets={markets} suspended={suspended} />
-      ) : (gameId === "99.0018" || gameId === "99.0019") && markets.length ? (
-        <DT20Panel markets={markets} suspended={suspended} />
+      <BetLayer
+        gameId={gameId}
+        gameName={d?.eventName ?? gameId}
+        round={String(d?.roundId ?? "")}
+        disabled={suspended}
+      >
+        {gameId === "99.0014" && markets.length ? (
+          <MuflisPanel markets={markets} suspended={suspended} />
+        ) : (gameId === "99.0018" || gameId === "99.0019") && markets.length ? (
+          <DT20Panel markets={markets} suspended={suspended} />
+        ) : gameId === "99.0021" && markets.length ? (
+          <DragonTigerPanel markets={markets} suspended={suspended} />
+        ) : gameId === "99.0041" && markets.length ? (
+          <DTLPanel markets={markets} suspended={suspended} resultDeclared={suspended} />
+        ) : gameId === "99.0025" && markets.length ? (
+          <AndarBaharPanel markets={markets} suspended={suspended} />
+        ) : gameId === "99.0001" && markets.length ? (
+          <BaccaratPanel markets={markets} suspended={suspended} />
+        ) : gameId === "99.0007" && markets.length ? (
+          <PokerPanel markets={markets} suspended={suspended} />
+        ) : gameId === "99.0046" && markets.length ? (
+          <CardRacePanel markets={markets} suspended={suspended} />
+        ) : gameId === "99.0005" && markets.length ? (
+          <AAAPanel markets={markets} suspended={suspended} />
+        ) : (
+          markets.map((m, i) => (
+            <MarketBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
+          ))
+        )}
+      </BetLayer>
+      <MyBets gameId={gameId} />
 
-      ) : gameId === "99.0021" && markets.length ? (
-
-        <DragonTigerPanel markets={markets} suspended={suspended} />
-      ) : gameId === "99.0041" && markets.length ? (
-        <DTLPanel markets={markets} suspended={suspended} resultDeclared={suspended} />
-
-      ) : gameId === "99.0025" && markets.length ? (
-        <AndarBaharPanel markets={markets} suspended={suspended} />
-      ) : gameId === "99.0001" && markets.length ? (
-        <BaccaratPanel markets={markets} suspended={suspended} />
-      ) : gameId === "99.0007" && markets.length ? (
-        <PokerPanel markets={markets} suspended={suspended} />
-      ) : gameId === "99.0046" && markets.length ? (
-        <CardRacePanel markets={markets} suspended={suspended} />
-      ) : gameId === "99.0005" && markets.length ? (
-        <AAAPanel markets={markets} suspended={suspended} />
-
-
-
-
-      ) : (
-        markets.map((m, i) => (
-          <MarketBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
-        ))
-      )}
 
 
       {!markets.length ? (
