@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import neonCity from "@/assets/games/neon-city.jpg";
-import wheelBg from "@/assets/dream/wheelbg.png.asset.json";
+
 
 
 /* ---------- Lucky 0 to 9 wheel ---------- */
@@ -192,12 +192,6 @@ export function DreamWheel({
           })}
           <circle cx={cx} cy={cy} r={58} fill="#0B0B0B" stroke="#F2C500" strokeWidth={2} />
         </svg>
-        <img
-          src={wheelBg.url}
-          alt=""
-          className="pointer-events-none absolute left-1/2 top-1/2 h-[92px] w-[92px] -translate-x-1/2 -translate-y-1/2 rounded-full object-contain"
-          draggable={false}
-        />
         <span className="pointer-events-none absolute left-1/2 top-[-6px] -translate-x-1/2 text-[1.4rem] leading-none text-[#F2C500]">
           ▼
         </span>
