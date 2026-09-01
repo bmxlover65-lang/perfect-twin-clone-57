@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import {
   embedUrl,
@@ -227,40 +227,10 @@ function EventPage() {
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [age, setAge] = useState(0);
-  const [history, setHistory] = useState<{ at: string; text: string }[]>([]);
-  const prev = useRef<Record<string, string>>({});
 
   const load = useCallback(async () => {
     try {
       const odds = await fetchOdds(sportId, eventId);
-      const all = [
-        ...(odds.matchOdds ?? []),
-        ...(odds.bookmakers ?? []),
-        ...(odds.fancy ?? []),
-        ...(odds.sportsbook ?? []),
-      ];
-      const events: string[] = [];
-      for (const m of all) {
-        const status = (m.oddsData?.status ?? "").toUpperCase();
-        const before = prev.current[m.marketId];
-        if (before && before !== status) {
-          events.push(`${m.marketName}: ${before} → ${status}`);
-        }
-        prev.current[m.marketId] = status;
-        for (const r of m.oddsData?.runners ?? []) {
-          const rs = (r.status ?? "").toUpperCase();
-          const key = `${m.marketId}:${r.selectionId}`;
-          const rBefore = prev.current[key];
-          if (rBefore && rBefore !== rs && (rs === "WINNER" || rs === "LOSER" || rs === "REMOVED")) {
-            events.push(`${m.marketName} · ${runnerName(m, r.selectionId)} settled ${rs}`);
-          }
-          prev.current[key] = rs;
-        }
-      }
-      if (events.length) {
-        const at = new Date().toLocaleTimeString();
-        setHistory((h) => [...events.map((text) => ({ at, text })), ...h].slice(0, 20));
-      }
       setData(odds);
       setAge(0);
       setError(null);
@@ -391,27 +361,6 @@ function EventPage() {
         ) : null}
       </div>
 
-      <p className="mt-8 text-base font-bold text-foreground">
-        Result &amp; settlement history{" "}
-        <span className="text-sm font-normal text-muted-foreground">
-          · market status changes and settled runners observed live
-        </span>
-      </p>
-      <div className="mt-3 rounded-lg bg-ex-panel p-3">
-        {history.length ? (
-          <ul className="space-y-1">
-            {history.map((h, i) => (
-              <li key={`${h.at}-${i}`} className="font-mono text-xs text-ex-text">
-                [{h.at}] {h.text}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="font-mono text-xs text-ex-muted">
-            Watching markets… settlement and suspend/open transitions will appear here.
-          </p>
-        )}
-      </div>
     </div>
   );
 }
