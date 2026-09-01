@@ -70,60 +70,82 @@ function Cards({ hand, title }: { hand: Record<string, string>; title: string })
   );
 }
 
-function BaccaratBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
-  const names = market.runnersName ?? {};
-  const runners = market.runners ?? [];
-  const label = (r: (typeof runners)[number]) =>
-    (names[String(r.selectionId)] ?? String(r.selectionId)).toUpperCase();
-  const tone = (l: string) =>
-    l.includes("BANKER") ? "bg-[#C3213A]" : l.includes("TIE") ? "bg-[#118A46]" : "bg-[#1272CE]";
-  const tie = runners.find((r) => label(r).includes("TIE"));
-  const sides = runners.filter((r) => !label(r).includes("TIE"));
+function BaccaratPanel({
+  markets,
+  suspended,
+}: {
+  markets: CasinoMarket[];
+  suspended: boolean;
+}) {
+  type R = { id: string; label: string; price?: number | null | undefined; size?: number | null | undefined; open: boolean };
+  const byName = (n: string) => markets.find((m) => (m.marketName ?? "").toUpperCase() === n);
+  const list = (m?: CasinoMarket): R[] =>
+    (m?.runners ?? []).map((r) => ({
+      id: String(r.selectionId),
+      label: ((m?.runnersName ?? {})[String(r.selectionId)] ?? String(r.selectionId)).toUpperCase(),
+      price: r.price?.back?.[0]?.price,
+      size: r.price?.back?.[0]?.size,
+      open: !suspended && (r.status ?? "").toUpperCase() === "ACTIVE",
+    }));
 
-  const Body = ({ r }: { r: (typeof runners)[number] }) => {
-    const p = r.price?.back?.[0];
-    return (
-      <div className="text-center text-white">
-        <p className="text-[0.82rem] font-extrabold uppercase tracking-wide">{label(r)}</p>
-        <p className="text-sm font-bold">{fmtOdds(p?.price)}</p>
-        <p className="text-[0.7rem] opacity-85">{fmtSize(p?.size)}</p>
-      </div>
-    );
-  };
+  const winner = list(byName("WINNER"));
+  const tie = list(byName("TIE"))[0];
+  const pair = list(byName("PAIR"));
+  const mm = byName("WINNER");
+
+  const Body = ({ r }: { r: R }) => (
+    <div className="text-center text-white">
+      <p className="text-[0.95rem] font-extrabold uppercase tracking-wide">{r.label}</p>
+      <p className="relative text-[0.95rem] font-bold">
+        {fmtOdds(r.price)}
+        {!r.open ? <span className="ml-1 text-xs">🔒</span> : null}
+      </p>
+      <p className="text-[0.72rem] opacity-90">{fmtSize(r.size)}</p>
+    </div>
+  );
+
+  const tone = (l: string) => (l.includes("BANKER") ? "bg-[#C22539]" : "bg-[#1173CE]");
 
   return (
-    <div className="mt-3">
-      <p className="mb-1 text-right text-[0.72rem] font-semibold text-ex-muted">
-        Min/Max: {market.min ?? 0} - {market.max ?? 0}
+    <div className="mt-3 space-y-3">
+      <p className="text-right text-[0.72rem] font-semibold text-ex-muted">
+        Min/Max: {mm?.min ?? 0} - {mm?.max ?? 0}
       </p>
-      <div className="relative flex items-stretch gap-2 overflow-hidden rounded-xl">
-        {sides.map((r) => (
+      <div className="relative flex items-stretch overflow-hidden rounded-xl">
+        {winner.map((r, i) => (
           <div
-            key={String(r.selectionId)}
-            className={`flex flex-1 items-center justify-center py-5 ${tone(label(r))} ${
-              tie ? "first:rounded-l-xl last:rounded-r-xl" : "rounded-xl"
-            }`}
+            key={r.id}
+            className={`flex flex-1 items-center justify-center py-7 ${tone(r.label)} ${
+              i === 0 ? "rounded-l-xl" : "rounded-r-xl"
+            } ${r.open ? "" : "opacity-90"}`}
           >
             <Body r={r} />
           </div>
         ))}
         {tie ? (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <div className="flex h-[92px] w-[92px] items-center justify-center rounded-full border-2 border-black/40 bg-[#118A46]">
+            <div className="flex h-[104px] w-[104px] items-center justify-center rounded-full border-[3px] border-black/45 bg-[#128A46]">
               <Body r={tie} />
             </div>
           </div>
         ) : null}
-        {suspended ? (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/55">
-            <span className="text-xl font-extrabold uppercase tracking-[0.14em] text-white">
-              Suspended
-            </span>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        {pair.map((r) => (
+          <div
+            key={r.id}
+            className={`flex items-center justify-center rounded-xl py-4 ${tone(r.label)} ${
+              r.open ? "" : "opacity-90"
+            }`}
+          >
+            <Body r={r} />
           </div>
-        ) : null}
+        ))}
       </div>
     </div>
   );
+}
+
 }
 
 function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
