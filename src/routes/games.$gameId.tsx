@@ -1015,7 +1015,10 @@ function GamePage() {
         </span>
       </div>
 
-      {gameId === "99.0021" && markets.length ? (
+      {gameId === "99.0014" && markets.length ? (
+        <MuflisPanel markets={markets} suspended={suspended} />
+      ) : gameId === "99.0021" && markets.length ? (
+
         <DragonTigerPanel markets={markets} suspended={suspended} />
       ) : gameId === "99.0041" && markets.length ? (
         <DTLPanel markets={markets} suspended={suspended} resultDeclared={suspended} />
