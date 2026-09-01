@@ -726,13 +726,13 @@ export function BalloonStage({
                 </button>
               ))}
             </div>
-            <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+            <div className="grid grid-cols-2 gap-x-1.5 gap-y-1 sm:gap-x-2 sm:gap-y-1.5">
               {BALLOON_STAKES.map((s) => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => setStake(s)}
-                  className={`h-7 rounded-[5px] bg-[#123A73] text-[0.82rem] font-extrabold text-white ${
+                  className={`h-6 rounded-[5px] bg-[#123A73] text-[0.7rem] font-extrabold text-white transition-transform active:scale-95 sm:h-7 sm:text-[0.82rem] ${
                     stake === s ? "ring-2 ring-[#F0A500]" : ""
                   }`}
                 >
@@ -741,6 +741,7 @@ export function BalloonStage({
               ))}
             </div>
           </div>
+
 
           {/* edits / clear / min / max */}
           <div className="grid w-[16%] min-w-[100px] gap-1.5">
