@@ -500,43 +500,47 @@ export function BalloonStage({
           style={{ bottom: 0, transform: `translateY(${grow * 55}%)` }}
         />
 
-        {/* balloon — rises and recedes as the multiplier climbs; bursts on pop */}
-        <div
-          className={`absolute left-1/2 ${
-            popped ? "transition-all duration-200 ease-in" : "transition-all duration-500 ease-out"
-          }`}
-          style={{
-            bottom: popped ? "72%" : `${8 + grow * 52}%`,
-            width: `${Math.max(12, 23 - grow * 9)}%`,
-            opacity: popped ? 0 : 1,
-            transform: popped
-              ? "translateX(-50%) scale(1.55)"
-              : "translateX(-50%) scale(1)",
-          }}
-        >
-          <img
-            src={balloonImg.url}
-            alt="Balloon"
-            className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
-            style={{ filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))" }}
-          />
-          <p className="absolute left-1/2 top-[36%] -translate-x-1/2 whitespace-nowrap text-[clamp(1.3rem,3.4vw,2.9rem)] font-extrabold leading-none text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]">
-            {shown.toFixed(2)}
-            <span className="text-[0.7em]">x</span>
-          </p>
-        </div>
-
-        {/* burst flash on pop */}
-        {popped ? (
-          <div className="absolute inset-x-0 top-[30%] flex flex-col items-center">
-            <span className="animate-[scale-in_0.25s_ease-out] text-[clamp(1.8rem,5vw,3.5rem)] font-extrabold text-[#E01E1E] drop-shadow-[0_3px_6px_rgba(0,0,0,0.4)]">
-              BURST
-            </span>
-            <span className="text-[clamp(1.1rem,3vw,2rem)] font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
-              {target.toFixed(2)}x
-            </span>
+        {/* balloon — flies up and out of view while the round runs;
+            between rounds it sits big in the middle with the waiting label */}
+        {flying && !popped ? (
+          <div
+            className="absolute left-1/2 transition-all duration-500 ease-out"
+            style={{
+              bottom: `${-6 + grow * 108}%`,
+              width: `${Math.max(13, 26 - grow * 12)}%`,
+              opacity: grow > 0.82 ? 0 : 1,
+              transform: "translateX(-50%)",
+            }}
+          >
+            <img
+              src={balloonImg.url}
+              alt="Balloon"
+              className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
+              style={{ filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))" }}
+            />
           </div>
+        ) : (
+          <div className="absolute left-1/2 top-1/2 w-[30%] min-w-[150px] -translate-x-1/2 -translate-y-1/2">
+            <img
+              src={balloonImg.url}
+              alt="Balloon"
+              className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
+              style={{ filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))" }}
+            />
+            <p className="absolute left-1/2 top-[40%] w-[150%] -translate-x-1/2 text-center text-[clamp(0.75rem,1.5vw,1.15rem)] font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)]">
+              Waiting For Next Round
+            </p>
+          </div>
+        )}
+
+        {/* live multiplier — plain dark text in the middle of the sky */}
+        {flying && !popped ? (
+          <p className="absolute left-[58%] top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[clamp(1.6rem,4.4vw,3.4rem)] font-extrabold leading-none text-[#2B2B2B]">
+            {shown.toFixed(2)}
+            <span className="text-[0.62em]">x</span>
+          </p>
         ) : null}
+
 
         {/* top bar: mute + history + collapse */}
         <div className="absolute inset-x-0 top-0 flex items-start gap-2 px-3 py-2.5">
