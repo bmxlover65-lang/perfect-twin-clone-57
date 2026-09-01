@@ -567,7 +567,11 @@ export function BalloonStage({
 
           {/* edits / clear / min / max */}
           <div className="grid w-[16%] min-w-[100px] gap-1.5">
-            <button type="button" className="h-7 rounded-[5px] bg-[#E8871E] text-[0.82rem] font-bold text-white">
+            <button
+              type="button"
+              onClick={() => setStake(100)}
+              className="h-7 rounded-[5px] bg-[#E8871E] text-[0.82rem] font-bold text-white"
+            >
               Edits
             </button>
             <button
