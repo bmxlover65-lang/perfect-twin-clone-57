@@ -661,12 +661,13 @@ function MuflisPanel({
             </p>
           </div>
           {!open ? (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60">
-              <span className="text-[1.1rem] font-extrabold uppercase tracking-wide text-[#e0201c]">
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0B0B0D]">
+              <span className="text-[1.15rem] font-extrabold uppercase tracking-wide text-[#e0201c]">
                 Suspended
               </span>
             </div>
           ) : null}
+
         </div>
       </div>
     );
