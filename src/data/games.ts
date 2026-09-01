@@ -400,7 +400,7 @@ const GAME_IMAGES: Record<string, string> = {
   "99.0016": jokerTeenpattiImg.url,
   "99.0018": dragonTigerImg.url,
   "99.0019": dragonTigerImg.url,
-  "99.0021": dragonTigerImg.url,
+  "99.0021": dragonTiger1DayImg.url,
   "99.0001": baccaratImg.url,
   "99.0025": andarBaharImg.url,
 };
