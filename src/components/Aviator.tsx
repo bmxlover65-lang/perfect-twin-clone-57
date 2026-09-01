@@ -248,7 +248,7 @@ function FlightStage({
   return (
     <div className="relative overflow-hidden rounded-[14px] bg-[#0E0F10]">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_120%,rgba(120,20,20,0.55),transparent_60%)]" />
-      <svg viewBox={`0 0 ${W} ${H}`} className="relative block h-[300px] w-full">
+      <svg viewBox={`0 0 ${W} ${H}`} className="relative block h-[210px] w-full sm:h-[300px]">
         <defs>
           <linearGradient id="av-area" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#E01E1E" stopOpacity="0.55" />
@@ -315,12 +315,12 @@ function FlightStage({
             <p className="text-[1.15rem] font-extrabold uppercase tracking-[0.18em] text-[#E01E1E]">
               Flew Away!
             </p>
-            <p className="text-[3.2rem] font-extrabold leading-none text-white">
+            <p className="text-[2.3rem] font-extrabold leading-none text-white sm:text-[3.2rem]">
               {fmt(multiplier)}x
             </p>
           </>
         ) : (
-          <p className="text-[3.6rem] font-extrabold leading-none text-white drop-shadow-[0_4px_14px_rgba(0,0,0,.6)]">
+          <p className="text-[2.6rem] font-extrabold leading-none text-white drop-shadow sm:text-[3.6rem]-[0_4px_14px_rgba(0,0,0,.6)]">
             {fmt(multiplier)}x
           </p>
         )}
@@ -510,7 +510,7 @@ export function Aviator() {
 
       <div className="grid gap-2 lg:grid-cols-[240px_1fr]">
         {/* bets + chat */}
-        <div className="rounded-[14px] bg-[#1B1C1D] p-2">
+        <div className="order-2 min-w-0 rounded-[14px] bg-[#1B1C1D] p-2 lg:order-1">
           <div className="flex rounded-full bg-[#101112] p-[3px] text-[0.68rem] font-bold text-white/55">
             {([["all", "All Bets"], ["my", "My Bets"], ["top", "Top"]] as const).map(([k, l]) => (
               <button
@@ -624,8 +624,8 @@ export function Aviator() {
         </div>
 
         {/* stage + panels */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between rounded-[12px] bg-[#1B1C1D] px-3 py-1 text-[0.72rem] font-bold text-white/70">
+        <div className="order-1 min-w-0 space-y-2 lg:order-2">
+          <div className="flex flex-wrap items-center justify-between gap-x-2 rounded-[12px] bg-[#1B1C1D] px-3 py-1 text-[0.66rem] font-bold text-white/70 sm:text-[0.72rem]">
             <span>ROUND #{round}</span>
             <span className={toneFor(multiplier)}>
               {phase === "flying" ? "IN FLIGHT" : phase === "crashed" ? "FLEW AWAY" : "PLACE YOUR BETS"}
@@ -635,7 +635,7 @@ export function Aviator() {
 
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} />
 
-          <div className="grid gap-2 md:grid-cols-2">
+          <div className="grid gap-2 sm:grid-cols-2">
             <BetPanel
               state={p1}
               setState={setP1}
