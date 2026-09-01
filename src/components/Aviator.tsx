@@ -459,7 +459,7 @@ export function Aviator() {
       const tick = () => {
         if (!mounted) return;
         const t = (performance.now() - startRef.current) / 1000;
-        const m = Math.max(1, Math.round(Math.pow(Math.E, 0.11 * t * (1 + t * 0.06)) * 100) / 100);
+        const m = Math.max(1, Math.round(Math.pow(Math.E, 0.065 * t * (1 + t * 0.035)) * 100) / 100);
         if (m >= crashRef.current) {
           setMultiplier(crashRef.current);
           setPhase("crashed");
