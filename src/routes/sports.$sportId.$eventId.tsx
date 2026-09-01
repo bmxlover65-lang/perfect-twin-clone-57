@@ -175,13 +175,13 @@ function FancyRow({ market }: { market: Market }) {
         {market.marketName.trim()}
       </span>
       <div className="flex shrink-0 gap-1">
-        <div className="w-[78px]">
+        <div className="w-[96px]">
           <div className="pb-1 text-center text-[0.62rem] font-bold uppercase tracking-[0.12em] text-ex-muted">
             No
           </div>
           <Cell price={no?.price} size={no?.size} side="lay" dim={dim} />
         </div>
-        <div className="w-[78px]">
+        <div className="w-[96px]">
           <div className="pb-1 text-center text-[0.62rem] font-bold uppercase tracking-[0.12em] text-ex-muted">
             Yes
           </div>
