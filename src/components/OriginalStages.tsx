@@ -526,13 +526,27 @@ export function BalloonStage({
           {/* auto toggles + stakes */}
           <div className="w-[46%] max-w-[430px]">
             <div className="mb-1.5 grid grid-cols-2 gap-2">
-              {[0, 1].map((i) => (
-                <label key={i} className="flex items-center gap-2 text-[0.82rem] font-bold text-[#2B2B2B]">
+              {([0, 1] as const).map((i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setAutos((a) => (i === 0 ? [!a[0], a[1]] : [a[0], !a[1]]))}
+                  className="flex items-center gap-2 text-[0.82rem] font-bold text-[#2B2B2B]"
+                  aria-pressed={autos[i]}
+                >
                   Auto
-                  <span className="relative inline-flex h-5 w-10 items-center rounded-full bg-[#D9D9D9]">
-                    <span className="absolute left-0.5 h-4 w-4 rounded-full bg-white shadow" />
+                  <span
+                    className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors ${
+                      autos[i] ? "bg-[#2FA84F]" : "bg-[#D9D9D9]"
+                    }`}
+                  >
+                    <span
+                      className={`absolute h-4 w-4 rounded-full bg-white shadow transition-all ${
+                        autos[i] ? "left-[1.35rem]" : "left-0.5"
+                      }`}
+                    />
                   </span>
-                </label>
+                </button>
               ))}
             </div>
             <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
