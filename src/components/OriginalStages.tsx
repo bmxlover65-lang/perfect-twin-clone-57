@@ -461,28 +461,35 @@ export function BalloonStage({
     };
   }, []);
 
-  // balloon burst → any active HEAT bet is lost
+  // balloon burst → any active HEAT bet is lost (queued bets stay for next round)
   useEffect(() => {
     if (phase !== "crashed") return;
-    setBets((prev) => {
-      prev.forEach((b, i) => {
-        if (b) {
+    setBets((prev) =>
+      prev.map((b, i) => {
+        if (b && !b.pending) {
           setFlash((f) => {
             const n = [...f];
             n[i] = { text: `-${b.stake.toLocaleString("en-IN")}`, win: false };
             return n;
           });
+          return null;
         }
-      });
-      return [null, null];
-    });
+        return b;
+      }),
+    );
   }, [phase]);
 
-  // HEAT button: press to place a bet, press again to cash out before the burst
+  // HEAT button: bet (or queue for the next round), press again to cash out
   const pressHeat = (i: 0 | 1) => {
     setBets((prev) => {
       const next = [...prev];
       const b = next[i];
+      if (b?.pending) {
+        // cancel a queued bet
+        creditWin(b.stake);
+        next[i] = null;
+        return next;
+      }
       if (b) {
         if (phase !== "flying") return prev;
         const payout = Math.round(b.stake * shown);
@@ -494,9 +501,10 @@ export function BalloonStage({
         });
         next[i] = null;
       } else {
-        if (phase !== "flying" || stake <= 0) return prev;
+        if (stake <= 0) return prev;
         if (!debit(stake)) return prev;
-        next[i] = { entry: shown, stake };
+        next[i] =
+          phase === "flying" ? { entry: shown, stake } : { entry: 1, stake, pending: true };
         setFlash((f) => {
           const n = [...f];
           n[i] = null;
@@ -510,14 +518,20 @@ export function BalloonStage({
   const flying = phase === "flying";
   const popped = phase === "crashed";
   const grow = Math.min(1, Math.log(Math.max(1, shown)) / Math.log(12));
+  const drift = flying ? Math.sin(shown * 2.2) * 6 : 0;
 
   const bgIndex = Math.abs(hashStr(roundId ?? "0")) % LOCATIONS.length;
 
   const histColor2 = (v: number) =>
-    v >= 2 ? "bg-[#E8871E] text-white" : "bg-[#123A73] text-white";
+    v >= 10
+      ? "bg-[#7B2FF2] text-white"
+      : v >= 2
+        ? "bg-[#E8871E] text-white"
+        : "bg-[#123A73] text-white";
 
   const seedHist = [1.81, 5.68, 2.58, 1.12, 1.15, 3.88, 2.59, 1.3, 1.25, 1.03];
   const histList = [...history, ...seedHist].slice(0, 10);
+
 
 
 
