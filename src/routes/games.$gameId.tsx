@@ -1,6 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 
+import chip1k from "@/assets/chips/chips1k.svg.asset.json";
+import chip5 from "@/assets/chips/chips5.svg.asset.json";
+import chip10 from "@/assets/chips/chips10.svg.asset.json";
+import chip20 from "@/assets/chips/chips20.svg.asset.json";
+import chip50 from "@/assets/chips/chips50.svg.asset.json";
+import chip100 from "@/assets/chips/chips100.svg.asset.json";
+import chip200 from "@/assets/chips/chips200.svg.asset.json";
+import chip500 from "@/assets/chips/chips500.svg.asset.json";
+
+
+
 import {
   fetchCasinoResults,
   fetchCasinoState,
