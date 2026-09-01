@@ -1617,6 +1617,13 @@ function GamePage() {
         <CardRacePanel markets={markets} suspended={suspended} />
       ) : gameId === "99.0005" && markets.length ? (
         <AAAPanel markets={markets} suspended={suspended} />
+      ) : gameId === "88.0019" && markets.length ? (
+        <NumberPanel markets={markets} suspended={suspended} perRow={5} />
+      ) : gameId === "88.0020" && markets.length ? (
+        <NumberPanel markets={markets} suspended={suspended} perRow={6} />
+      ) : gameId === "88.0021" && markets.length ? (
+        <NumberPanel markets={markets} suspended={suspended} perRow={2} />
+
 
 
 
