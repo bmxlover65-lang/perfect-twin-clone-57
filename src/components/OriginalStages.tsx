@@ -412,90 +412,26 @@ export function BalloonStage({
 
   const bgIndex = Math.abs(hashStr(roundId ?? "0")) % LOCATIONS.length;
 
+  const histColor2 = (v: number) =>
+    v >= 2 ? "bg-[#E8871E] text-white" : "bg-[#123A73] text-white";
+
   return (
-    <div className="w-full overflow-hidden rounded-[10px] bg-[#12212B]">
-      {/* history strip */}
-      <div className="flex items-center gap-1.5 overflow-x-auto bg-[#1B2E3A] px-2 py-1.5">
-        {history.length === 0 ? (
-          <span className="rounded bg-[#2E86DE] px-2.5 py-0.5 text-[0.72rem] font-extrabold text-white">
-            {target.toFixed(2)}x
-          </span>
-        ) : (
-          history.map((v, i) => (
-            <span
-              key={i}
-              className={`shrink-0 rounded px-2.5 py-0.5 text-[0.72rem] font-extrabold ${histColor(v)}`}
-            >
-              {v.toFixed(2)}x
-            </span>
-          ))
-        )}
-        <img src={arrowDown.url} alt="" className="ml-auto h-3.5 w-3.5 shrink-0 invert" />
-      </div>
-
-      {/* mute + avatar row */}
-      <div className="flex items-center gap-2 bg-[#16303E] px-3 py-2">
-        <button
-          type="button"
-          onClick={() => {
-            setMuted((m) => !m);
-            airRef.current?.pause();
-          }}
-          className="text-white/90"
-          aria-label={muted ? "Unmute" : "Mute"}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 9v6h4l5 5V4L7 9H3z" />
-            {muted ? (
-              <path d="M16 9l5 6m0-6l-5 6" stroke="currentColor" strokeWidth="2" fill="none" />
-            ) : (
-              <path d="M16 8a5 5 0 010 8" stroke="currentColor" strokeWidth="2" fill="none" />
-            )}
-          </svg>
-        </button>
-        <span className="flex items-center gap-1 rounded bg-[#27475A] px-2 py-1">
-          <img src={profileIcon.url} alt="" className="h-4 w-4" />
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" strokeWidth="3">
-            <path d="M6 15l6-6 6 6" />
-          </svg>
-        </span>
-        {!suspended && leftSec != null ? (
-          <span className="ml-auto flex h-8 w-8 items-center justify-center rounded-full border-2 border-white/70 text-[0.85rem] font-extrabold text-white">
-            {leftSec}
-          </span>
-        ) : null}
-      </div>
-
-      {/* sky stage */}
-      <div className="relative h-[380px] overflow-hidden sm:h-[430px]">
-        {/* parallax background artwork — scrolls down as balloon climbs */}
+    <div className="w-full rounded-[14px] bg-black p-1.5">
+      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[10px]">
+        {/* sky artwork — parallax scroll as the balloon climbs */}
         <img
           src={LOCATIONS[bgIndex]!.url}
           alt=""
-          className="absolute left-0 w-full transition-transform duration-500 ease-out"
-          style={{
-            bottom: 0,
-            height: "165%",
-            objectFit: "cover",
-            transform: `translateY(${grow * 38}%)`,
-          }}
+          className="absolute left-0 h-[170%] w-full object-cover transition-transform duration-500 ease-out"
+          style={{ bottom: 0, transform: `translateY(${grow * 40}%)` }}
         />
-
-        {/* clouds */}
-        {[12, 62, 84].map((l, i) => (
-          <span
-            key={i}
-            className="absolute h-[10px] w-[52px] rounded-full bg-white/60 blur-[2px]"
-            style={{ left: `${l}%`, top: `${16 + i * 11}%` }}
-          />
-        ))}
 
         {/* balloon */}
         <div
           className="absolute left-1/2 transition-all duration-300 ease-out"
           style={{
-            bottom: `${bottom}px`,
-            width: `${size}px`,
+            bottom: `${8 + grow * 26}%`,
+            width: `${14 + grow * 10}%`,
             opacity: popped ? 0 : 1,
             transform: `translateX(-50%) scale(${popped ? 1.4 : 1})`,
           }}
@@ -504,94 +440,144 @@ export function BalloonStage({
             src={balloonImg.url}
             alt="Balloon"
             className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
-            style={{ filter: "drop-shadow(0 8px 12px rgba(0,0,0,0.25))" }}
+            style={{ filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))" }}
           />
-          <p className="absolute left-1/2 top-[26%] -translate-x-1/2 text-[1.5rem] font-extrabold text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)]">
+          <p className="absolute left-1/2 top-[30%] -translate-x-1/2 text-[clamp(1.1rem,3.2vw,2.6rem)] font-extrabold leading-none text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]">
             {shown.toFixed(2)}x
           </p>
         </div>
 
         {popped ? (
-          <div className="absolute left-1/2 top-[38%] -translate-x-1/2 text-center">
-            <p className="text-[0.95rem] font-extrabold uppercase tracking-[0.2em] text-[#B81D5B]">
+          <div className="absolute left-1/2 top-[34%] -translate-x-1/2 text-center">
+            <p className="text-[0.9rem] font-extrabold uppercase tracking-[0.2em] text-[#B81D5B]">
               Balloon burst
             </p>
-            <p className="text-[2.6rem] font-extrabold leading-none text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+            <p className="text-[2.4rem] font-extrabold leading-none text-white drop-shadow-[0_2px_5px_rgba(0,0,0,0.45)]">
               {target.toFixed(2)}x
             </p>
           </div>
         ) : null}
-      </div>
 
-
-      {/* betting panel */}
-      <div className="grid grid-cols-[1fr_auto_1.15fr] gap-2 bg-[#12212B] p-3">
-        {/* stakes */}
-        <div>
-          <label className="mb-1 flex items-center gap-1.5 text-[0.72rem] font-bold text-white/80">
-            Auto
-            <span className={`relative inline-flex h-4 w-7 items-center rounded-full ${flying ? "bg-[#2E86DE]" : "bg-[#3A4B57]"}`}>
-              <span className={`absolute h-3 w-3 rounded-full bg-white transition-all ${flying ? "left-3.5" : "left-0.5"}`} />
-            </span>
-          </label>
-          <div className="grid grid-cols-2 gap-1.5">
-            {BALLOON_STAKES.map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setStake(s)}
-                className={`h-8 rounded bg-[#1E3A4C] text-[0.75rem] font-bold text-white/90 ${
-                  stake === s ? "ring-2 ring-[#F0A500]" : ""
-                }`}
+        {/* top bar: mute + history + collapse */}
+        <div className="absolute inset-x-0 top-0 flex items-start gap-2 px-3 py-2.5">
+          <button
+            type="button"
+            onClick={() => {
+              setMuted((m) => !m);
+              airRef.current?.pause();
+            }}
+            className="shrink-0 text-[#2B2B2B]"
+            aria-label={muted ? "Unmute" : "Mute"}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 9v6h4l5 5V4L7 9H3z" />
+              <path d="M16.5 9.5l5 5m0-5l-5 5" stroke="currentColor" strokeWidth="2" fill="none" />
+            </svg>
+          </button>
+          <div className="mx-auto flex max-w-[70%] flex-wrap items-center justify-center gap-1.5">
+            {(history.length ? history : [target]).slice(0, 10).map((v, i) => (
+              <span
+                key={i}
+                className={`rounded-[5px] px-2.5 py-[3px] text-[0.78rem] font-extrabold ${histColor2(v)}`}
               >
-                {s}
+                {v.toFixed(2)}x
+              </span>
+            ))}
+          </div>
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#E8A33D]">
+            <img src={arrowDown.url} alt="" className="h-3 w-3" />
+          </span>
+        </div>
+
+        {/* profile pill */}
+        <div className="absolute left-0 top-[18%] flex items-center rounded-r-[6px] bg-[#8E9BA6]/80 py-1 pl-3 pr-1">
+          <img src={profileIcon.url} alt="" className="h-5 w-5" />
+          <span className="ml-2 flex h-7 w-7 items-center justify-center rounded-full bg-[#1B6FE0]">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
+              <path d="M6 15l6-6 6 6" />
+            </svg>
+          </span>
+        </div>
+
+        {/* countdown */}
+        {!suspended && leftSec != null ? (
+          <span className="absolute right-3 top-[18%] flex h-9 w-9 items-center justify-center rounded-full border-2 border-white/80 text-[0.9rem] font-extrabold text-white">
+            {leftSec}
+          </span>
+        ) : null}
+
+        {/* bottom overlay controls */}
+        <div className="absolute inset-x-0 bottom-0 flex items-end gap-3 px-3 pb-3">
+          {/* auto toggles + stakes */}
+          <div className="w-[46%] max-w-[430px]">
+            <div className="mb-1.5 grid grid-cols-2 gap-2">
+              {[0, 1].map((i) => (
+                <label key={i} className="flex items-center gap-2 text-[0.82rem] font-bold text-[#2B2B2B]">
+                  Auto
+                  <span className="relative inline-flex h-5 w-10 items-center rounded-full bg-[#D9D9D9]">
+                    <span className="absolute left-0.5 h-4 w-4 rounded-full bg-white shadow" />
+                  </span>
+                </label>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+              {BALLOON_STAKES.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setStake(s)}
+                  className={`h-7 rounded-[5px] bg-[#123A73] text-[0.82rem] font-extrabold text-white ${
+                    stake === s ? "ring-2 ring-[#F0A500]" : ""
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* edits / clear / min / max */}
+          <div className="grid w-[16%] min-w-[100px] gap-1.5">
+            <button type="button" className="h-7 rounded-[5px] bg-[#E8871E] text-[0.82rem] font-bold text-white">
+              Edits
+            </button>
+            <button
+              type="button"
+              onClick={() => setStake(0)}
+              className="h-7 rounded-[5px] bg-[#E01E1E] text-[0.82rem] font-bold text-white"
+            >
+              Clear
+            </button>
+            <button
+              type="button"
+              onClick={() => setStake(10)}
+              className="h-7 rounded-[5px] bg-[#2A1330] text-[0.82rem] font-bold text-white/60"
+            >
+              Min
+            </button>
+            <button
+              type="button"
+              onClick={() => setStake(10000)}
+              className="h-7 rounded-[5px] bg-[#2A1330] text-[0.82rem] font-bold text-white/60"
+            >
+              Max
+            </button>
+          </div>
+
+          {/* heat buttons */}
+          <div className="ml-auto grid w-[26%] min-w-[150px] gap-2">
+            {[0, 1].map((i) => (
+              <button
+                key={i}
+                type="button"
+                disabled={!!suspended}
+                className="flex h-[52px] items-center justify-center gap-3 rounded-[8px] border-2 border-white bg-[linear-gradient(180deg,#3CCB4E_0%,#1E9E30_100%)] text-[1.15rem] font-extrabold tracking-wide text-white shadow-[0_3px_0_#146B21] disabled:opacity-40"
+              >
+                <img src={heatIcon.url} alt="" className="h-7 w-7" />
+                HEAT
               </button>
             ))}
           </div>
-        </div>
-        {/* edit/clear/min/max */}
-        <div className="grid content-start gap-1.5 pt-5">
-          <button type="button" className="h-8 rounded bg-[#F0A500] px-3 text-[0.72rem] font-extrabold text-black">
-            Edits
-          </button>
-          <button
-            type="button"
-            onClick={() => setStake(0)}
-            className="h-8 rounded bg-[#D64545] px-3 text-[0.72rem] font-extrabold text-white"
-          >
-            Clear
-          </button>
-          <button
-            type="button"
-            onClick={() => setStake(10)}
-            className="h-8 rounded bg-[#7A4BC2] px-3 text-[0.72rem] font-extrabold text-white"
-          >
-            Min
-          </button>
-          <button
-            type="button"
-            onClick={() => setStake(10000)}
-            className="h-8 rounded bg-[#3A4BC2] px-3 text-[0.72rem] font-extrabold text-white"
-          >
-            Max
-          </button>
-        </div>
-        {/* heat buttons */}
-        <div className="grid content-start gap-2 pt-5">
-          {[0, 1].map((i) => (
-            <button
-              key={i}
-              type="button"
-              disabled={!!suspended}
-              className="flex h-12 items-center justify-center gap-2 rounded-[8px] bg-[linear-gradient(180deg,#3CCB4E_0%,#1E9E30_100%)] text-[1.05rem] font-extrabold text-white shadow-[inset_0_2px_0_rgba(255,255,255,0.35),0_3px_0_#146B21] disabled:opacity-40"
-            >
-<img src={heatIcon.url} alt="" className="h-[22px] w-[20px]" />
-              HEAT
-            </button>
-          ))}
-          <span className="text-center text-[0.7rem] font-bold text-white/60">
-            Stake: {stake || 0}
-          </span>
         </div>
       </div>
     </div>
