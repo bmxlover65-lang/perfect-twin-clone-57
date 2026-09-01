@@ -238,14 +238,15 @@ function PokerPanel({
                   size={b?.price?.back?.[0]?.size}
                   locked={isSusp}
                 />
+                {isSusp ? (
+                  <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+                    <span className="text-[1.35rem] font-extrabold uppercase leading-none text-[#e0201c]">
+                      Suspended
+                    </span>
+                  </div>
+                ) : null}
               </div>
-              {isSusp ? (
-                <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-                  <span className="text-[1.35rem] font-extrabold uppercase text-[#e0201c]">
-                    Suspended
-                  </span>
-                </div>
-              ) : null}
+
             </div>
           );
         })}
