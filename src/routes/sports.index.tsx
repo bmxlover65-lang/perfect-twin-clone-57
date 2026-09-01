@@ -172,14 +172,14 @@ function SportsPage() {
       </div>
 
       {error ? (
-        <p className="mt-6 rounded-xl border border-border/60 bg-ex-panel p-4 text-sm text-live-lose">
+        <p className="mt-6 rounded-xl border border-border/60 bg-card p-4 text-sm text-live-lose">
           {error}
         </p>
       ) : null}
 
-      <section className="mt-6 rounded-2xl border border-border/60 bg-ex-panel p-4">
+      <section className="mt-6 rounded-2xl border border-border/60 bg-card p-4">
         <header className="flex items-center justify-between px-1 pb-3">
-          <h2 className="text-sm font-bold text-ex-text">Feed health</h2>
+          <h2 className="text-sm font-bold text-foreground">Feed health</h2>
           <span
             className={`flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold ${
               error ? "bg-live-lose/20 text-live-lose" : "bg-live-pill text-live-pill-foreground"
@@ -198,13 +198,13 @@ function SportsPage() {
             ["Polls / errors", `${pollCount} / ${errorLog.length}`],
           ].map(([k, v]) => (
             <div key={k} className="rounded-lg bg-ex-row px-3 py-2">
-              <p className="text-[0.68rem] uppercase tracking-wide text-ex-muted">{k}</p>
-              <p className="text-sm font-bold text-ex-text">{v}</p>
+              <p className="text-[0.68rem] uppercase tracking-wide text-muted-foreground">{k}</p>
+              <p className="text-sm font-bold text-foreground">{v}</p>
             </div>
           ))}
         </div>
         <div className="mt-3 rounded-lg bg-ex-row p-3">
-          <p className="text-[0.68rem] uppercase tracking-wide text-ex-muted">Error log</p>
+          <p className="text-[0.68rem] uppercase tracking-wide text-muted-foreground">Error log</p>
           {errorLog.length ? (
             <ul className="mt-1 space-y-1">
               {errorLog.map((l, i) => (
@@ -214,23 +214,23 @@ function SportsPage() {
               ))}
             </ul>
           ) : (
-            <p className="mt-1 font-mono text-xs text-ex-muted">
+            <p className="mt-1 font-mono text-xs text-muted-foreground">
               No errors recorded in this session.
             </p>
           )}
         </div>
       </section>
 
-      <section className="mt-6 rounded-2xl border border-border/60 bg-ex-panel p-4">
+      <section className="mt-6 rounded-2xl border border-border/60 bg-card p-4">
         <header className="flex items-center justify-between px-1 pb-3">
-          <h2 className="text-sm font-bold text-ex-text">
+          <h2 className="text-sm font-bold text-foreground">
             {filter === "inplay"
               ? "In-play events"
               : filter === "pre"
                 ? "Pre-match events"
                 : "All events"}
           </h2>
-          <span className="text-sm text-ex-muted">{list.length}</span>
+          <span className="text-sm text-muted-foreground">{list.length}</span>
         </header>
 
         <div className="space-y-3">
@@ -242,8 +242,8 @@ function SportsPage() {
               className="flex items-center justify-between gap-4 rounded-xl bg-ex-row px-4 py-3 transition-colors hover:bg-accent/40"
             >
               <div className="min-w-0">
-                <h3 className="truncate text-base font-bold text-ex-text">{e.eventName}</h3>
-                <p className="mt-1 flex items-center gap-2 text-sm text-ex-muted">
+                <h3 className="truncate text-base font-bold text-foreground">{e.eventName}</h3>
+                <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
                   {e.inPlay ? <span className="h-2 w-2 shrink-0 rounded-full bg-live-lose" /> : null}
                   <span>
                     {e.inPlay ? "In-play" : "Pre-match"}
@@ -255,17 +255,17 @@ function SportsPage() {
                   {(e.runners ?? []).slice(0, 4).map((r) => (
                     <span
                       key={String(r.selectionId)}
-                      className="rounded-md bg-ex-panel px-2 py-1 text-xs text-ex-muted"
+                      className="rounded-md bg-card px-2 py-1 text-xs text-muted-foreground"
                     >
                       {runnerName(e, r.selectionId)}{" "}
-                      <span className="font-bold text-ex-text">
+                      <span className="font-bold text-foreground">
                         {fmtOdds(r.backPrice)}/{fmtOdds(r.layPrice)}
                       </span>
                     </span>
                   ))}
                 </div>
               </div>
-              <span className="shrink-0 text-sm text-ex-muted">Odds →</span>
+              <span className="shrink-0 text-sm text-muted-foreground">Odds →</span>
             </Link>
           ))}
           {!loading && !list.length ? (
