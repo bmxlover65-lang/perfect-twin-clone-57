@@ -222,7 +222,8 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
 type ABRunner = {
   id: string;
   label: string;
-  price?: number | null;
+  price?: number | null | undefined;
+
   open: boolean;
 };
 
