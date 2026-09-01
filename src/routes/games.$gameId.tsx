@@ -256,7 +256,7 @@ function GamePage() {
   const cards = (d?.cardsArr ?? {}) as Record<string, Record<string, string>>;
 
   return (
-    <div className="sports-theme mx-auto max-w-[900px] px-4 py-5">
+    <div className="mx-auto max-w-[900px] px-4 py-5">
       <div className="flex items-start justify-between gap-3">
         <div>
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
