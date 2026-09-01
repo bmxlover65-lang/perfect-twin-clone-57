@@ -6,7 +6,6 @@ import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
 import {
   BallByBallBoard,
   BalloonStage,
-  CoinStage,
   DreamWheel,
   LuckyWheel,
   type BbbRunner,
