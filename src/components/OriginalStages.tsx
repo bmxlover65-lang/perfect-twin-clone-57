@@ -394,7 +394,7 @@ export function BalloonStage({
     airRef.current?.pause();
     if (!muted) {
       try {
-        const a = new Audio("/balloon-pop.mp3");
+        const a = new Audio(bonusSfx.url);
         a.volume = 0.7;
         void a.play().catch(() => undefined);
       } catch {
@@ -585,10 +585,7 @@ export function BalloonStage({
               disabled={!!suspended}
               className="flex h-12 items-center justify-center gap-2 rounded-[8px] bg-[linear-gradient(180deg,#3CCB4E_0%,#1E9E30_100%)] text-[1.05rem] font-extrabold text-white shadow-[inset_0_2px_0_rgba(255,255,255,0.35),0_3px_0_#146B21] disabled:opacity-40"
             >
-              <svg width="20" height="22" viewBox="0 0 24 26" fill="none">
-                <path d="M12 1 C14 6 20 8 20 15 A8 8 0 1 1 4 15 C4 10 8 8 9 4 C10 7 12 8 12 8 C11 5 11 3 12 1 Z" fill="#FF6B1A" stroke="#B33A00" strokeWidth="1.2" />
-                <path d="M12 12 C13.5 15 16 16 16 19 A4 4 0 1 1 8 19 C8 16.5 10.5 15.5 12 12 Z" fill="#FFD23E" />
-              </svg>
+<img src={heatIcon.url} alt="" className="h-[22px] w-[20px]" />
               HEAT
             </button>
           ))}
