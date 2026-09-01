@@ -96,15 +96,22 @@ function BaccaratPanel({
   const Body = ({ r }: { r: R }) => (
     <div className="text-center text-white">
       <p className="text-[0.95rem] font-extrabold uppercase tracking-wide">{r.label}</p>
-      <p className="relative text-[0.95rem] font-bold">
-        {fmtOdds(r.price)}
-        {!r.open ? <span className="ml-1 text-xs">🔒</span> : null}
-      </p>
+      <p className="text-[0.95rem] font-bold">{fmtOdds(r.price)}</p>
       <p className="text-[0.72rem] opacity-90">{fmtSize(r.size)}</p>
     </div>
   );
 
   const tone = (l: string) => (l.includes("BANKER") ? "bg-[#C22539]" : "bg-[#1173CE]");
+  const groupSuspended = (rs: R[]) => rs.length > 0 && rs.every((r) => !r.open);
+
+  const Overlay = () => (
+    <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-black/65">
+      <span className="text-lg font-extrabold uppercase tracking-wide text-white">Suspended</span>
+    </div>
+  );
+
+  const winnerSusp = groupSuspended([...winner, ...(tie ? [tie] : [])]);
+  const pairSusp = groupSuspended(pair);
 
   return (
     <div className="mt-3 space-y-3">
@@ -117,7 +124,7 @@ function BaccaratPanel({
             key={r.id}
             className={`flex flex-1 items-center justify-center py-7 ${tone(r.label)} ${
               i === 0 ? "rounded-l-xl" : "rounded-r-xl"
-            } ${r.open ? "" : "opacity-90"}`}
+            }`}
           >
             <Body r={r} />
           </div>
@@ -129,22 +136,23 @@ function BaccaratPanel({
             </div>
           </div>
         ) : null}
+        {winnerSusp ? <Overlay /> : null}
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="relative grid grid-cols-2 gap-4">
         {pair.map((r) => (
           <div
             key={r.id}
-            className={`flex items-center justify-center rounded-xl py-4 ${tone(r.label)} ${
-              r.open ? "" : "opacity-90"
-            }`}
+            className={`flex items-center justify-center rounded-xl py-4 ${tone(r.label)}`}
           >
             <Body r={r} />
           </div>
         ))}
+        {pairSusp ? <Overlay /> : null}
       </div>
     </div>
   );
 }
+
 
 function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
