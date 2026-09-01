@@ -139,7 +139,7 @@ function GamePage() {
 
   useEffect(() => {
     void load();
-    const t = setInterval(() => void load(), 2000);
+    const t = setInterval(() => void load(), 1000);
     const a = setInterval(() => setAge((v) => v + 1), 1000);
     return () => {
       clearInterval(t);
@@ -154,7 +154,7 @@ function GamePage() {
         .then((r) => alive && setResults(r.data ?? []))
         .catch(() => undefined);
     void run();
-    const t = setInterval(run, 10000);
+    const t = setInterval(run, 5000);
     return () => {
       alive = false;
       clearInterval(t);
@@ -193,7 +193,7 @@ function GamePage() {
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             Source: Universal API <code className="font-mono">GET /games/{gameId}/state</code> ·{" "}
-            <code className="font-mono">/games/{gameId}/results</code> · polled every 2s
+            <code className="font-mono">/games/{gameId}/results</code> · polled every 1s
           </p>
         </div>
         <span className="flex items-center gap-2 rounded-full bg-live-pill px-3 py-1 text-sm font-semibold text-live-pill-foreground">

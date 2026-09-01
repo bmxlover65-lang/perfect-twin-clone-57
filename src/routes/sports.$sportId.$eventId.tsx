@@ -271,7 +271,7 @@ function EventPage() {
 
   useEffect(() => {
     void load();
-    const t = setInterval(() => void load(), 2000);
+    const t = setInterval(() => void load(), 1000);
     const a = setInterval(() => setAge((v) => v + 1), 1000);
     return () => {
       clearInterval(t);
@@ -309,7 +309,7 @@ function EventPage() {
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
         Source: Universal API <code className="font-mono">GET /sports/{sportId}/{eventId}/odds</code>{" "}
-        via server proxy, polled every 2s · TV &amp; scoreboard iframes minted with a live session
+        via server proxy, polled every 1s · TV &amp; scoreboard iframes minted with a live session
         token
       </p>
 
