@@ -186,9 +186,10 @@ function SportsPage() {
         </p>
       ) : null}
 
+      {isAdmin ? (
       <section className="mt-6 rounded-2xl border border-border/60 bg-card p-4">
         <header className="flex items-center justify-between px-1 pb-3">
-          <h2 className="text-sm font-bold text-foreground">Feed health</h2>
+          <h2 className="text-sm font-bold text-foreground">Feed health (admin)</h2>
           <span
             className={`flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold ${
               error ? "bg-live-lose/20 text-live-lose" : "bg-live-pill text-live-pill-foreground"
