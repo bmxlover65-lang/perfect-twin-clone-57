@@ -345,96 +345,118 @@ export function BalloonStage({
 }) {
   const [muted, setMuted] = useState(false);
   const [stake, setStake] = useState(100);
-  const [flying, setFlying] = useState(false);
-  const [popped, setPopped] = useState(false);
+  const [phase, setPhase] = useState<"waiting" | "flying" | "crashed">("waiting");
   const [shown, setShown] = useState(1);
+  const [wait, setWait] = useState(5);
+  const [crashAt, setCrashAt] = useState(2);
   const [history, setHistory] = useState<number[]>([]);
   const [autos, setAutos] = useState<[boolean, boolean]>([false, false]);
-  const [balance, setBalance] = useState(10000);
+  const wallet = useWallet();
+  const balance = wallet.balance;
   const [bets, setBets] = useState<(null | { entry: number; stake: number })[]>([null, null]);
   const [flash, setFlash] = useState<(null | { text: string; win: boolean })[]>([null, null]);
   const airRef = useRef<HTMLAudioElement | null>(null);
-  const doneFor = useRef<string | null>(null);
-  const target = Number(multiplier) || 1;
+  const apiTarget = Number(multiplier) || 0;
+  const apiRef = useRef(apiTarget);
+  apiRef.current = apiTarget;
+  const stakeRef = useRef(stake);
+  stakeRef.current = stake;
+  const autoRef = useRef(autos);
+  autoRef.current = autos;
+  const mutedRef = useRef(muted);
+  mutedRef.current = muted;
 
-  // live exponential count-up towards the API multiplier (1.01, 1.02, ...) —
-  // pops exactly at the crash point when the target is reached
+  const play = (src: string, vol: number, keep?: boolean) => {
+    if (mutedRef.current) return;
+    try {
+      const a = new Audio(src);
+      a.volume = vol;
+      if (keep) airRef.current = a;
+      void a.play().catch(() => undefined);
+    } catch {
+      // audio unavailable
+    }
+  };
+
+  // continuous local round engine — never sits on "waiting" forever
   useEffect(() => {
-    if (popped) return;
     let raf = 0;
     let last = performance.now();
+    let ph: "waiting" | "flying" | "crashed" = "waiting";
+    let t = 3; // seconds left in the current phase
+    let v = 1;
+    let target = 2;
+
+    const startRound = () => {
+      const api = apiRef.current;
+      target =
+        api > 1.05
+          ? api
+          : Math.min(28, Math.max(1.02, 0.92 / Math.max(0.03, 1 - Math.random())));
+      setCrashAt(target);
+      v = 1;
+      setShown(1);
+      ph = "flying";
+      setPhase("flying");
+      play("/balloon-air.mp3", 0.35, true);
+      // auto bets
+      setBets((prev) =>
+        prev.map((b, i) => {
+          if (b || !autoRef.current[i]) return null;
+          if (!debit(stakeRef.current)) return null;
+          return { entry: 1, stake: stakeRef.current };
+        }),
+      );
+      setFlash([null, null]);
+    };
+
+    const burst = () => {
+      ph = "crashed";
+      setPhase("crashed");
+      setShown(target);
+      setHistory((h) => [target, ...h].slice(0, 10));
+      airRef.current?.pause();
+      play(bonusSfx.url, 0.7);
+      t = 3;
+    };
+
     const tick = (now: number) => {
-      const dt = (now - last) / 1000;
+      const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
-      setShown((v) => Math.min(target, v + v * dt * 0.09));
+      if (ph === "flying") {
+        v = v + v * dt * 0.16;
+        if (v >= target) {
+          v = target;
+          setShown(target);
+          burst();
+        } else {
+          setShown(v);
+        }
+      } else {
+        t -= dt;
+        setWait(Math.max(0, Math.ceil(t)));
+        if (t <= 0) {
+          if (ph === "crashed") {
+            ph = "waiting";
+            setPhase("waiting");
+            t = 5;
+          } else {
+            startRound();
+          }
+        }
+      }
       raf = window.requestAnimationFrame(tick);
     };
     raf = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(raf);
-  }, [target, popped]);
-
-  // multiplier reached the crash point → burst right there
-  useEffect(() => {
-    if (!popped && flying && shown >= target && target > 1) {
-      setPopped(true);
-      setFlying(false);
-      setHistory((h) => [target, ...h].slice(0, 9));
+    return () => {
+      window.cancelAnimationFrame(raf);
       airRef.current?.pause();
-      if (!muted) {
-        try {
-          const a = new Audio(bonusSfx.url);
-          a.volume = 0.7;
-          void a.play().catch(() => undefined);
-        } catch {
-          // audio unavailable
-        }
-      }
-    }
-  }, [shown, target, popped, flying, muted]);
-
-  // new round → reset + air sound
-  useEffect(() => {
-    if (!roundId || doneFor.current === roundId) return;
-    doneFor.current = roundId;
-    setPopped(false);
-    setFlying(true);
-    setShown(1);
-    setBets([null, null]);
-    setFlash([null, null]);
-    if (!muted) {
-      try {
-        const a = new Audio("/balloon-air.mp3");
-        a.volume = 0.35;
-        airRef.current = a;
-        void a.play().catch(() => undefined);
-      } catch {
-        // audio unavailable
-      }
-    }
-  }, [roundId, muted]);
-
-  // round ends → pop
-  useEffect(() => {
-    if (!suspended || popped) return;
-    setPopped(true);
-    setFlying(false);
-    setShown(target);
-    setHistory((h) => [target, ...h].slice(0, 9));
-    airRef.current?.pause();
-    if (!muted) {
-      try {
-        const a = new Audio(bonusSfx.url);
-        a.volume = 0.7;
-        void a.play().catch(() => undefined);
-      } catch {
-        // audio unavailable
-      }
-    }
-  }, [suspended, popped, target, muted]);
+    };
+  }, []);
 
   // balloon burst → any active HEAT bet is lost
   useEffect(() => {
-    if (!popped) return;
+    if (phase !== "crashed") return;
     setBets((prev) => {
       prev.forEach((b, i) => {
         if (b) {
@@ -447,17 +469,17 @@ export function BalloonStage({
       });
       return [null, null];
     });
-  }, [popped]);
+  }, [phase]);
 
   // HEAT button: press to place a bet, press again to cash out before the burst
   const pressHeat = (i: 0 | 1) => {
-    if (popped) return;
     setBets((prev) => {
       const next = [...prev];
       const b = next[i];
       if (b) {
+        if (phase !== "flying") return prev;
         const payout = Math.round(b.stake * shown);
-        setBalance((bal) => bal + payout);
+        creditWin(payout);
         setFlash((f) => {
           const n = [...f];
           n[i] = { text: `+${payout.toLocaleString("en-IN")}`, win: true };
@@ -465,8 +487,8 @@ export function BalloonStage({
         });
         next[i] = null;
       } else {
-        if (!flying || stake <= 0) return prev;
-        setBalance((bal) => Math.max(0, bal - stake));
+        if (phase !== "flying" || stake <= 0) return prev;
+        if (!debit(stake)) return prev;
         next[i] = { entry: shown, stake };
         setFlash((f) => {
           const n = [...f];
@@ -478,7 +500,9 @@ export function BalloonStage({
     });
   };
 
-  const grow = Math.min(1, Math.log(Math.max(1, shown)) / Math.log(20));
+  const flying = phase === "flying";
+  const popped = phase === "crashed";
+  const grow = Math.min(1, Math.log(Math.max(1, shown)) / Math.log(12));
 
   const bgIndex = Math.abs(hashStr(roundId ?? "0")) % LOCATIONS.length;
 
@@ -487,6 +511,7 @@ export function BalloonStage({
 
   const seedHist = [1.81, 5.68, 2.58, 1.12, 1.15, 3.88, 2.59, 1.3, 1.25, 1.03];
   const histList = [...history, ...seedHist].slice(0, 10);
+
 
 
   return (
