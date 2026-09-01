@@ -399,6 +399,8 @@ export function BalloonStage({
     setPopped(false);
     setFlying(true);
     setShown(1);
+    setBets([null, null]);
+    setFlash([null, null]);
     if (!muted) {
       try {
         const a = new Audio("/balloon-air.mp3");
