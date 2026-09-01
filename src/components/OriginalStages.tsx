@@ -537,13 +537,13 @@ export function BalloonStage({
 
   return (
     <div className="w-full rounded-[14px] bg-black p-1.5">
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[10px] bg-[linear-gradient(180deg,#5EC8DE_0%,#9BDCD9_45%,#F3E7C8_100%)]">
+      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[10px] bg-[linear-gradient(180deg,#59BFD4_0%,#6EC8DA_60%,#8FD2DC_100%)]">
         {/* sky artwork — parallax: the ground drops away as the balloon climbs */}
         <div className="absolute inset-0 overflow-hidden">
           <img
             src={LOCATIONS[bgIndex]!.url}
             alt=""
-            className="absolute inset-x-0 bottom-0 h-[190%] w-full object-cover object-bottom"
+            className="absolute inset-x-0 bottom-0 h-[190%] w-full object-cover object-bottom opacity-35"
             style={{
               transform: `translateY(${grow * 78}%)`,
               transition: "transform 240ms linear",
