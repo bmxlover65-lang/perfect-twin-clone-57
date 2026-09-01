@@ -1189,21 +1189,34 @@ const PANEL_CHIPS: { v: string; src: string }[] = [
 ];
 
 function ChipRow() {
+  const [sel, setSel] = useState("1k");
   return (
     <div className="mt-3 flex flex-nowrap items-center gap-3 overflow-x-auto rounded-b-[6px] bg-[#1F1F1F] px-3 py-2">
-      {PANEL_CHIPS.map((c) => (
-        <span key={c.v} className="relative inline-flex flex-col items-center gap-1 shrink-0">
-          <span className="relative inline-flex h-[46px] w-[46px] items-center justify-center">
-            <img
-              src={c.src}
-              alt={`${c.v} chip`}
-              className="absolute inset-0 h-full w-full select-none object-contain"
-              draggable={false}
-            />
-          </span>
-          <span className="text-[0.68rem] font-bold text-white">{c.v}</span>
-        </span>
-      ))}
+      {PANEL_CHIPS.map((c) => {
+        const active = sel === c.v;
+        return (
+          <button
+            key={c.v}
+            type="button"
+            onClick={() => setSel(c.v)}
+            className="relative inline-flex shrink-0 flex-col items-center gap-1"
+          >
+            <span
+              className={`relative inline-flex h-[52px] w-[52px] items-center justify-center rounded-full transition-all ${
+                active ? "ring-[3px] ring-[#D4AF1F]" : "ring-2 ring-transparent"
+              }`}
+            >
+              <img
+                src={c.src}
+                alt={`${c.v} chip`}
+                className="absolute inset-0 h-full w-full select-none object-contain"
+                draggable={false}
+              />
+            </span>
+            <span className="text-[0.8rem] font-bold text-white">{c.v}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }
