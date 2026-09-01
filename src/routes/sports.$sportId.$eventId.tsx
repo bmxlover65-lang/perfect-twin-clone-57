@@ -261,7 +261,7 @@ function EventPage() {
   const sportsbook = data?.sportsbook ?? [];
 
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-6">
+    <div className="sports-theme mx-auto max-w-[1200px] px-4 py-6">
       <Link to="/sports" className="text-sm text-muted-foreground hover:text-foreground">
         ← Sports list
       </Link>
