@@ -1,3 +1,13 @@
+import cards32Img from "@/assets/games/32_cards.webp.asset.json";
+import pokerImg from "@/assets/games/Poker.webp.asset.json";
+import dtlImg from "@/assets/games/DTL.webp.asset.json";
+import lucky7Img from "@/assets/games/Lucky-7.webp.asset.json";
+import teenpatti1DayImg from "@/assets/games/1_Day_teenpatti.webp.asset.json";
+import jokerTeenpattiImg from "@/assets/games/Joker_teenpatti.webp.asset.json";
+import dragonTigerImg from "@/assets/games/Dragontiger.webp.asset.json";
+import baccaratImg from "@/assets/games/Baccarat.webp.asset.json";
+import andarBaharImg from "@/assets/games/Andar_Bahar.webp.asset.json";
+
 export type GameKind =
   | "teenpatti"
   | "dragontiger"
