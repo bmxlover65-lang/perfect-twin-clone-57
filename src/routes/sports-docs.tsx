@@ -56,21 +56,14 @@ function SportsDocs() {
                   </a>
                 </li>
               ))}
-              <li>
-                <Link
-                  to="/casino-docs"
-                  className="block rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                >
-                  Casino API docs →
-                </Link>
-              </li>
             </ul>
           </nav>
         </aside>
 
         <main className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-            Client integration
+            B2B integration
+
           </p>
           <h1 className="mt-2 text-4xl font-bold tracking-tight text-foreground">
             Universal API — Sports
