@@ -70,6 +70,11 @@ function Cards({ hand, title }: { hand: Record<string, string>; title: string })
   );
 }
 
+const OPEN_STATUSES = new Set(["ONLINE", "ACTIVE", "OPEN", "IN_PLAY"]);
+function isOpenStatus(status?: string | null) {
+  return OPEN_STATUSES.has((status ?? "").toUpperCase());
+}
+
 function BaccaratPanel({
   markets,
   suspended,
@@ -85,7 +90,7 @@ function BaccaratPanel({
       label: ((m?.runnersName ?? {})[String(r.selectionId)] ?? String(r.selectionId)).toUpperCase(),
       price: r.price?.back?.[0]?.price,
       size: r.price?.back?.[0]?.size,
-      open: !suspended && (r.status ?? "").toUpperCase() === "ACTIVE",
+      open: !suspended && isOpenStatus(r.status),
     }));
 
   const winner = list(byName("WINNER"));
@@ -206,7 +211,7 @@ function PokerPanel({
           const b = runners.find((r) => (names[String(r.selectionId)] ?? "").toUpperCase().includes("B"));
           const isSusp =
             suspended ||
-            runners.every((r) => (r.status ?? "").toUpperCase() !== "ACTIVE");
+            runners.every((r) => !isOpenStatus(r.status));
           return (
             <div
               key={m.marketId}
@@ -233,14 +238,15 @@ function PokerPanel({
                   size={b?.price?.back?.[0]?.size}
                   locked={isSusp}
                 />
+                {isSusp ? (
+                  <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+                    <span className="text-[1.35rem] font-extrabold uppercase leading-none text-[#e0201c]">
+                      Suspended
+                    </span>
+                  </div>
+                ) : null}
               </div>
-              {isSusp ? (
-                <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-                  <span className="text-[1.35rem] font-extrabold uppercase text-[#e0201c]">
-                    Suspended
-                  </span>
-                </div>
-              ) : null}
+
             </div>
           );
         })}
@@ -305,7 +311,7 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
           ) : null}
         </div>
         {runners.map((r) => {
-          const runnerOpen = !suspended && (r.status ?? "ACTIVE").toUpperCase() === "ACTIVE";
+          const runnerOpen = !suspended && isOpenStatus(r.status ?? "ONLINE");
           return (
             <div
               key={String(r.selectionId)}
@@ -353,7 +359,7 @@ function AndarBaharPanel({
       id: String(r.selectionId),
       label: (m?.runnersName ?? {})[String(r.selectionId)] ?? String(r.selectionId),
       price: r.price?.back?.[0]?.price,
-      open: !suspended && (r.status ?? "").toUpperCase() === "ACTIVE",
+      open: !suspended && isOpenStatus(r.status),
     }));
 
   const winner = list(byName("WINNER"));
@@ -535,7 +541,7 @@ function GamePage() {
 
   const d = state?.data ?? null;
   const status = (d?.status ?? "").toUpperCase();
-  const suspended = status !== "ONLINE";
+  const suspended = status ? !isOpenStatus(status) : false;
   const markets = d?.marketArr ?? [];
   const cards = (d?.cardsArr ?? {}) as Record<string, Record<string, string>>;
 
@@ -593,7 +599,9 @@ function GamePage() {
         <PokerPanel markets={markets} suspended={suspended} />
 
       ) : (
-        markets.map((m) => <MarketBoard key={m.marketId} market={m} suspended={suspended} />)
+        markets.map((m, i) => (
+          <MarketBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
+        ))
       )}
 
 
