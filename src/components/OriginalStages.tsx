@@ -431,8 +431,9 @@ export function BalloonStage({
           style={{
             bottom: `${16 + grow * 22}%`,
             width: `${21 + grow * 5}%`,
-            opacity: popped ? 0 : 1,
-            transform: `translateX(-50%) scale(${popped ? 1.4 : 1})`,
+            opacity: 1,
+            transform: `translateX(-50%) scale(1)`,
+
           }}
         >
           <img
