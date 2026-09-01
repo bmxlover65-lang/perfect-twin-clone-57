@@ -146,25 +146,12 @@ function BaccaratPanel({
   );
 }
 
-}
-
 function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
   const hasLay = runners.some((r) => Boolean(r.price?.lay?.[0]?.price));
   const cols = hasLay ? "grid-cols-[1fr_130px_130px]" : "grid-cols-[1fr_130px]";
-  const labels = runners.map((r) =>
-    (names[String(r.selectionId)] ?? "").toString().toUpperCase(),
-  );
-  if (
-    !hasLay &&
-    runners.length >= 2 &&
-    runners.length <= 3 &&
-    labels.some((l) => l.includes("PLAYER")) &&
-    labels.some((l) => l.includes("BANKER"))
-  ) {
-    return <BaccaratBoard market={market} suspended={suspended} />;
-  }
+
 
 
   const cell = (
