@@ -165,8 +165,8 @@ function PokerPanel({
     size,
     locked,
   }: {
-    price?: number | null;
-    size?: number | null;
+    price?: number | null | undefined;
+    size?: number | null | undefined;
     locked: boolean;
   }) => (
     <div
