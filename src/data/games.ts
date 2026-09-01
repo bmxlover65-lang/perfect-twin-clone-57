@@ -425,6 +425,7 @@ const seeds: Seed[] = [
 
 export const GAMES: GameDef[] = seeds.map((s) => ({
   ...s,
+  image: GAME_IMAGES[s.id],
   markets: marketsFor(s.kind),
 }));
 
