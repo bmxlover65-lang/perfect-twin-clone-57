@@ -572,8 +572,9 @@ export function BalloonStage({
               <button
                 key={i}
                 type="button"
-                disabled={!!suspended}
-                className="flex h-[52px] items-center justify-center gap-3 rounded-[8px] border-2 border-white bg-[linear-gradient(180deg,#3CCB4E_0%,#1E9E30_100%)] text-[1.15rem] font-extrabold tracking-wide text-white shadow-[0_3px_0_#146B21] disabled:opacity-40"
+                disabled={false}
+                className="flex h-[52px] items-center justify-center gap-3 rounded-[8px] border-2 border-white bg-[linear-gradient(180deg,#22C93A_0%,#0FA524_100%)] text-[1.35rem] font-extrabold tracking-wide text-white shadow-[0_3px_0_#0B6B18]"
+
               >
                 <img src={heatIcon.url} alt="" className="h-7 w-7" />
                 HEAT
