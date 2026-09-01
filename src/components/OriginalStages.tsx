@@ -353,7 +353,10 @@ export function BalloonStage({
   const [autos, setAutos] = useState<[boolean, boolean]>([false, false]);
   const wallet = useWallet();
   const balance = wallet.balance;
-  const [bets, setBets] = useState<(null | { entry: number; stake: number })[]>([null, null]);
+  const [bets, setBets] = useState<(null | { entry: number; stake: number; pending?: boolean })[]>([
+    null,
+    null,
+  ]);
   const [flash, setFlash] = useState<(null | { text: string; win: boolean })[]>([null, null]);
   const airRef = useRef<HTMLAudioElement | null>(null);
   const apiTarget = Number(multiplier) || 0;
@@ -399,10 +402,12 @@ export function BalloonStage({
       ph = "flying";
       setPhase("flying");
       play("/balloon-air.mp3", 0.35, true);
-      // auto bets
+      // pending (queued) bets go live; auto bets are debited now
       setBets((prev) =>
         prev.map((b, i) => {
-          if (b || !autoRef.current[i]) return null;
+          if (b?.pending) return { entry: 1, stake: b.stake };
+          if (b) return b;
+          if (!autoRef.current[i]) return null;
           if (!debit(stakeRef.current)) return null;
           return { entry: 1, stake: stakeRef.current };
         }),
@@ -456,28 +461,35 @@ export function BalloonStage({
     };
   }, []);
 
-  // balloon burst → any active HEAT bet is lost
+  // balloon burst → any active HEAT bet is lost (queued bets stay for next round)
   useEffect(() => {
     if (phase !== "crashed") return;
-    setBets((prev) => {
-      prev.forEach((b, i) => {
-        if (b) {
+    setBets((prev) =>
+      prev.map((b, i) => {
+        if (b && !b.pending) {
           setFlash((f) => {
             const n = [...f];
             n[i] = { text: `-${b.stake.toLocaleString("en-IN")}`, win: false };
             return n;
           });
+          return null;
         }
-      });
-      return [null, null];
-    });
+        return b;
+      }),
+    );
   }, [phase]);
 
-  // HEAT button: press to place a bet, press again to cash out before the burst
+  // HEAT button: bet (or queue for the next round), press again to cash out
   const pressHeat = (i: 0 | 1) => {
     setBets((prev) => {
       const next = [...prev];
       const b = next[i];
+      if (b?.pending) {
+        // cancel a queued bet
+        creditWin(b.stake);
+        next[i] = null;
+        return next;
+      }
       if (b) {
         if (phase !== "flying") return prev;
         const payout = Math.round(b.stake * shown);
@@ -489,9 +501,10 @@ export function BalloonStage({
         });
         next[i] = null;
       } else {
-        if (phase !== "flying" || stake <= 0) return prev;
+        if (stake <= 0) return prev;
         if (!debit(stake)) return prev;
-        next[i] = { entry: shown, stake };
+        next[i] =
+          phase === "flying" ? { entry: shown, stake } : { entry: 1, stake, pending: true };
         setFlash((f) => {
           const n = [...f];
           n[i] = null;
@@ -505,14 +518,20 @@ export function BalloonStage({
   const flying = phase === "flying";
   const popped = phase === "crashed";
   const grow = Math.min(1, Math.log(Math.max(1, shown)) / Math.log(12));
+  const drift = flying ? Math.sin(shown * 2.2) * 6 : 0;
 
   const bgIndex = Math.abs(hashStr(roundId ?? "0")) % LOCATIONS.length;
 
   const histColor2 = (v: number) =>
-    v >= 2 ? "bg-[#E8871E] text-white" : "bg-[#123A73] text-white";
+    v >= 10
+      ? "bg-[#7B2FF2] text-white"
+      : v >= 2
+        ? "bg-[#E8871E] text-white"
+        : "bg-[#123A73] text-white";
 
   const seedHist = [1.81, 5.68, 2.58, 1.12, 1.15, 3.88, 2.59, 1.3, 1.25, 1.03];
   const histList = [...history, ...seedHist].slice(0, 10);
+
 
 
 
@@ -536,12 +555,25 @@ export function BalloonStage({
         {popped ? (
           <div
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center"
-            style={{ animation: "scale-in 200ms ease-out" }}
+            style={{ animation: "scale-in 220ms cubic-bezier(.2,1.4,.4,1)" }}
           >
-            <p className="text-[clamp(1.6rem,5vw,3.6rem)] font-extrabold leading-none text-[#C81E1E] drop-shadow-[0_3px_6px_rgba(0,0,0,0.35)]">
-              {crashAt.toFixed(2)}x
-            </p>
-            <p className="mt-1 text-[clamp(0.8rem,1.8vw,1.2rem)] font-extrabold uppercase tracking-[0.2em] text-[#C81E1E]">
+            <div className="relative">
+              {[...Array(10)].map((_, i) => (
+                <span
+                  key={i}
+                  className="absolute left-1/2 top-1/2 h-2 w-2 rounded-full bg-[#E8384F]"
+                  style={{
+                    transform: `rotate(${i * 36}deg) translateY(-58px)`,
+                    opacity: 0.85,
+                    animation: `fade-out 700ms ${i * 12}ms ease-out forwards`,
+                  }}
+                />
+              ))}
+              <p className="text-[clamp(1.8rem,5.6vw,3.9rem)] font-extrabold leading-none text-[#C81E1E] drop-shadow-[0_3px_10px_rgba(255,255,255,0.55)]">
+                {crashAt.toFixed(2)}x
+              </p>
+            </div>
+            <p className="mt-1 text-[clamp(0.8rem,1.8vw,1.2rem)] font-extrabold uppercase tracking-[0.28em] text-[#C81E1E]">
               Burst
             </p>
           </div>
@@ -553,8 +585,8 @@ export function BalloonStage({
                 ? {
                     bottom: `${2 + grow * 52}%`,
                     width: `${Math.max(15, 27 - grow * 12)}%`,
-                    transform: "translateX(-50%)",
-                    transition: "bottom 220ms linear, width 220ms linear",
+                    transform: `translateX(calc(-50% + ${drift}px))`,
+                    transition: "bottom 220ms linear, width 220ms linear, transform 220ms linear",
                   }
                 : {
                     bottom: "18%",
@@ -568,10 +600,17 @@ export function BalloonStage({
               src={balloonImg.url}
               alt="Balloon"
               className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
-              style={{ filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))" }}
+              style={{
+                filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))",
+                opacity: flying ? Math.max(0.15, 1 - grow * 1.1) : 1,
+                transition: "opacity 240ms linear",
+              }}
             />
             {flying ? (
-              <p className="absolute left-1/2 top-[34%] w-[220%] -translate-x-1/2 text-center text-[clamp(1.1rem,3.2vw,2.4rem)] font-extrabold leading-none text-[#2B2B2B] drop-shadow-[0_2px_4px_rgba(255,255,255,0.5)]">
+              <p
+                className="absolute left-1/2 top-[34%] w-[240%] -translate-x-1/2 text-center text-[clamp(1.3rem,4vw,3rem)] font-extrabold leading-none drop-shadow-[0_2px_8px_rgba(255,255,255,0.55)]"
+                style={{ color: shown >= 10 ? "#7B2FF2" : shown >= 2 ? "#D9631A" : "#2B2B2B" }}
+              >
                 {shown.toFixed(2)}
                 <span className="text-[0.62em]">x</span>
               </p>
@@ -582,6 +621,7 @@ export function BalloonStage({
             )}
           </div>
         )}
+
 
 
 
@@ -657,9 +697,11 @@ export function BalloonStage({
         ) : null}
 
         {/* bottom overlay controls */}
-        <div className="absolute inset-x-0 bottom-0 flex items-end gap-3 px-3 pb-3">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[46%] bg-[linear-gradient(180deg,transparent_0%,rgba(0,0,0,0.10)_45%,rgba(0,0,0,0.28)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 flex items-end gap-2 px-2 pb-2 sm:gap-3 sm:px-3 sm:pb-3">
           {/* auto toggles + stakes */}
-          <div className="w-[46%] max-w-[430px]">
+          <div className="w-[42%] max-w-[430px] sm:w-[46%]">
+
             <div className="mb-1.5 grid grid-cols-2 gap-2">
               {([0, 1] as const).map((i) => (
                 <button
@@ -684,13 +726,13 @@ export function BalloonStage({
                 </button>
               ))}
             </div>
-            <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+            <div className="grid grid-cols-2 gap-x-1.5 gap-y-1 sm:gap-x-2 sm:gap-y-1.5">
               {BALLOON_STAKES.map((s) => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => setStake(s)}
-                  className={`h-7 rounded-[5px] bg-[#123A73] text-[0.82rem] font-extrabold text-white ${
+                  className={`h-6 rounded-[5px] bg-[#123A73] text-[0.7rem] font-extrabold text-white transition-transform active:scale-95 sm:h-7 sm:text-[0.82rem] ${
                     stake === s ? "ring-2 ring-[#F0A500]" : ""
                   }`}
                 >
@@ -700,62 +742,64 @@ export function BalloonStage({
             </div>
           </div>
 
+
           {/* edits / clear / min / max */}
-          <div className="grid w-[16%] min-w-[100px] gap-1.5">
-            <button
-              type="button"
-              onClick={() => setStake(100)}
-              className="h-7 rounded-[5px] bg-[#E8871E] text-[0.82rem] font-bold text-white"
-            >
-              Edits
-            </button>
-            <button
-              type="button"
-              onClick={() => setStake(0)}
-              className="h-7 rounded-[5px] bg-[#E01E1E] text-[0.82rem] font-bold text-white"
-            >
-              Clear
-            </button>
-            <button
-              type="button"
-              onClick={() => setStake(10)}
-              className="h-7 rounded-[5px] bg-[#2A1330] text-[0.82rem] font-bold text-white/60"
-            >
-              Min
-            </button>
-            <button
-              type="button"
-              onClick={() => setStake(10000)}
-              className="h-7 rounded-[5px] bg-[#2A1330] text-[0.82rem] font-bold text-white/60"
-            >
-              Max
-            </button>
+          <div className="grid w-[16%] min-w-[74px] gap-1 sm:min-w-[100px] sm:gap-1.5">
+            {(
+              [
+                ["Edits", 100, "bg-[#E8871E] text-white"],
+                ["Clear", 0, "bg-[#E01E1E] text-white"],
+                ["Min", 10, "bg-[#2A1330] text-white/60"],
+                ["Max", 10000, "bg-[#2A1330] text-white/60"],
+              ] as const
+            ).map(([label, val, tone]) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => setStake(val)}
+                className={`h-6 rounded-[5px] text-[0.7rem] font-bold transition-transform active:scale-95 sm:h-7 sm:text-[0.82rem] ${tone}`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
 
-          {/* heat buttons — press to bet, press again to cash out before burst */}
-          <div className="ml-auto grid w-[26%] min-w-[150px] gap-2">
+          {/* heat buttons — bet / queue for next round / cash out */}
+          <div className="ml-auto grid w-[30%] min-w-[124px] gap-1.5 sm:w-[26%] sm:min-w-[150px] sm:gap-2">
             {([0, 1] as const).map((i) => {
               const bet = bets[i];
               const fl = flash[i];
+              const live = bet && !bet.pending;
               return (
                 <button
                   key={i}
                   type="button"
                   onClick={() => pressHeat(i)}
-                  className={`relative flex h-[52px] items-center justify-center gap-3 rounded-[8px] border-2 border-white text-[1.15rem] font-extrabold tracking-wide text-white ${
-                    bet
+                  className={`relative flex h-[44px] items-center justify-center gap-2 rounded-[8px] border-2 border-white text-[0.95rem] font-extrabold tracking-wide text-white transition-transform active:translate-y-[2px] active:shadow-none sm:h-[52px] sm:gap-3 sm:text-[1.15rem] ${
+                    live
                       ? "bg-[linear-gradient(180deg,#F0A500_0%,#D98200_100%)] shadow-[0_3px_0_#8A5600]"
-                      : "bg-[linear-gradient(180deg,#22C93A_0%,#0FA524_100%)] shadow-[0_3px_0_#0B6B18]"
+                      : bet
+                        ? "bg-[linear-gradient(180deg,#8C96A3_0%,#6B7480_100%)] shadow-[0_3px_0_#454C55]"
+                        : "bg-[linear-gradient(180deg,#22C93A_0%,#0FA524_100%)] shadow-[0_3px_0_#0B6B18]"
                   }`}
                 >
-                  {bet ? (
+                  {live ? (
                     <span className="flex flex-col leading-tight">
-                      <span className="text-[0.68rem] font-bold uppercase opacity-90">Cash out</span>
-                      <span>{Math.round(bet.stake * shown).toLocaleString("en-IN")}</span>
+                      <span className="text-[0.6rem] font-bold uppercase opacity-90 sm:text-[0.68rem]">
+                        Cash out
+                      </span>
+                      <span>{Math.round(bet!.stake * shown).toLocaleString("en-IN")}</span>
+                    </span>
+                  ) : bet ? (
+                    <span className="flex flex-col leading-tight">
+                      <span className="text-[0.6rem] font-bold uppercase opacity-90 sm:text-[0.68rem]">
+                        Waiting {wait}s
+                      </span>
+                      <span>{bet.stake.toLocaleString("en-IN")}</span>
                     </span>
                   ) : (
                     <>
-                      <img src={heatIcon.url} alt="" className="h-7 w-7" />
+                      <img src={heatIcon.url} alt="" className="h-6 w-6 sm:h-7 sm:w-7" />
                       HEAT
                     </>
                   )}
@@ -764,12 +808,14 @@ export function BalloonStage({
                       className={`absolute -top-3 right-1 rounded-full px-2 py-0.5 text-[0.7rem] font-extrabold ${
                         fl.win ? "bg-[#1F6B33] text-white" : "bg-[#C01818] text-white"
                       }`}
+                      style={{ animation: "fade-out 1.6s 0.6s ease-out forwards" }}
                     >
                       {fl.text}
                     </span>
                   ) : null}
                 </button>
               );
+
             })}
           </div>
         </div>
