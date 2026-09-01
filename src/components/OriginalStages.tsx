@@ -744,61 +744,62 @@ export function BalloonStage({
 
 
           {/* edits / clear / min / max */}
-          <div className="grid w-[16%] min-w-[100px] gap-1.5">
-            <button
-              type="button"
-              onClick={() => setStake(100)}
-              className="h-7 rounded-[5px] bg-[#E8871E] text-[0.82rem] font-bold text-white"
-            >
-              Edits
-            </button>
-            <button
-              type="button"
-              onClick={() => setStake(0)}
-              className="h-7 rounded-[5px] bg-[#E01E1E] text-[0.82rem] font-bold text-white"
-            >
-              Clear
-            </button>
-            <button
-              type="button"
-              onClick={() => setStake(10)}
-              className="h-7 rounded-[5px] bg-[#2A1330] text-[0.82rem] font-bold text-white/60"
-            >
-              Min
-            </button>
-            <button
-              type="button"
-              onClick={() => setStake(10000)}
-              className="h-7 rounded-[5px] bg-[#2A1330] text-[0.82rem] font-bold text-white/60"
-            >
-              Max
-            </button>
+          <div className="grid w-[16%] min-w-[74px] gap-1 sm:min-w-[100px] sm:gap-1.5">
+            {(
+              [
+                ["Edits", 100, "bg-[#E8871E] text-white"],
+                ["Clear", 0, "bg-[#E01E1E] text-white"],
+                ["Min", 10, "bg-[#2A1330] text-white/60"],
+                ["Max", 10000, "bg-[#2A1330] text-white/60"],
+              ] as const
+            ).map(([label, val, tone]) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => setStake(val)}
+                className={`h-6 rounded-[5px] text-[0.7rem] font-bold transition-transform active:scale-95 sm:h-7 sm:text-[0.82rem] ${tone}`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
 
-          {/* heat buttons — press to bet, press again to cash out before burst */}
-          <div className="ml-auto grid w-[26%] min-w-[150px] gap-2">
+          {/* heat buttons — bet / queue for next round / cash out */}
+          <div className="ml-auto grid w-[30%] min-w-[124px] gap-1.5 sm:w-[26%] sm:min-w-[150px] sm:gap-2">
             {([0, 1] as const).map((i) => {
               const bet = bets[i];
               const fl = flash[i];
+              const live = bet && !bet.pending;
               return (
                 <button
                   key={i}
                   type="button"
                   onClick={() => pressHeat(i)}
-                  className={`relative flex h-[52px] items-center justify-center gap-3 rounded-[8px] border-2 border-white text-[1.15rem] font-extrabold tracking-wide text-white ${
-                    bet
+                  className={`relative flex h-[44px] items-center justify-center gap-2 rounded-[8px] border-2 border-white text-[0.95rem] font-extrabold tracking-wide text-white transition-transform active:translate-y-[2px] active:shadow-none sm:h-[52px] sm:gap-3 sm:text-[1.15rem] ${
+                    live
                       ? "bg-[linear-gradient(180deg,#F0A500_0%,#D98200_100%)] shadow-[0_3px_0_#8A5600]"
-                      : "bg-[linear-gradient(180deg,#22C93A_0%,#0FA524_100%)] shadow-[0_3px_0_#0B6B18]"
+                      : bet
+                        ? "bg-[linear-gradient(180deg,#8C96A3_0%,#6B7480_100%)] shadow-[0_3px_0_#454C55]"
+                        : "bg-[linear-gradient(180deg,#22C93A_0%,#0FA524_100%)] shadow-[0_3px_0_#0B6B18]"
                   }`}
                 >
-                  {bet ? (
+                  {live ? (
                     <span className="flex flex-col leading-tight">
-                      <span className="text-[0.68rem] font-bold uppercase opacity-90">Cash out</span>
-                      <span>{Math.round(bet.stake * shown).toLocaleString("en-IN")}</span>
+                      <span className="text-[0.6rem] font-bold uppercase opacity-90 sm:text-[0.68rem]">
+                        Cash out
+                      </span>
+                      <span>{Math.round(bet!.stake * shown).toLocaleString("en-IN")}</span>
+                    </span>
+                  ) : bet ? (
+                    <span className="flex flex-col leading-tight">
+                      <span className="text-[0.6rem] font-bold uppercase opacity-90 sm:text-[0.68rem]">
+                        Waiting {wait}s
+                      </span>
+                      <span>{bet.stake.toLocaleString("en-IN")}</span>
                     </span>
                   ) : (
                     <>
-                      <img src={heatIcon.url} alt="" className="h-7 w-7" />
+                      <img src={heatIcon.url} alt="" className="h-6 w-6 sm:h-7 sm:w-7" />
                       HEAT
                     </>
                   )}
@@ -807,12 +808,14 @@ export function BalloonStage({
                       className={`absolute -top-3 right-1 rounded-full px-2 py-0.5 text-[0.7rem] font-extrabold ${
                         fl.win ? "bg-[#1F6B33] text-white" : "bg-[#C01818] text-white"
                       }`}
+                      style={{ animation: "fade-out 1.6s 0.6s ease-out forwards" }}
                     >
                       {fl.text}
                     </span>
                   ) : null}
                 </button>
               );
+
             })}
           </div>
         </div>
