@@ -78,7 +78,9 @@ function Lobby() {
   }, [load]);
 
   const BBB = "4.3544687543453";
-  const raw = games.length ? games.map(toDef) : GAMES;
+  const fromApi = games.length ? games.map(toDef) : GAMES;
+  const extras = GAMES.filter((g) => !fromApi.some((x) => x.id === g.id));
+  const raw = [...fromApi, ...extras];
   const list = [...raw].sort((a, b) => (a.id === BBB ? -1 : b.id === BBB ? 1 : 0));
 
 
