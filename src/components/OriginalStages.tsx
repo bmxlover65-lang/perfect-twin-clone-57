@@ -1,4 +1,7 @@
+import { useEffect, useRef, useState } from "react";
 import neonCity from "@/assets/games/neon-city.jpg";
+import wheelBg from "@/assets/dream/wheelbg.png.asset.json";
+
 
 /* ---------- Lucky 0 to 9 wheel ---------- */
 
@@ -97,18 +100,59 @@ const DREAM_COLORS: Record<number, string> = {
   40: "#E7503C",
 };
 
-export function DreamWheel({ spinning }: { spinning: boolean }) {
+export function DreamWheel({
+  winner,
+  roundId,
+  suspended,
+  leftSec,
+}: {
+  winner?: string | null;
+  roundId?: string | undefined;
+  suspended?: boolean;
+  leftSec?: number | undefined;
+}) {
   const cx = 200;
   const cy = 200;
   const r = 190;
   const step = 360 / DREAM_SEGMENTS.length;
+  const [rot, setRot] = useState(0);
+  const [spin, setSpin] = useState(false);
+  const [showWin, setShowWin] = useState(false);
+  const spunFor = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!suspended || !winner || !roundId) return;
+    if (spunFor.current === roundId) return;
+    spunFor.current = roundId;
+    const target = Number(winner);
+    const idx = DREAM_SEGMENTS.map((v, i) => (v === target ? i : -1)).filter((i) => i >= 0);
+    const pick = idx.length ? (idx[Math.floor(Math.random() * idx.length)] as number) : 0;
+    const seg = pick * step + step / 2;
+    const base = Math.ceil(rot / 360) * 360;
+    setShowWin(false);
+    setSpin(true);
+    setRot(base + 360 * 6 - seg);
+    const t = window.setTimeout(() => {
+      setSpin(false);
+      setShowWin(true);
+    }, 6200);
+    return () => window.clearTimeout(t);
+  }, [suspended, winner, roundId, rot, step]);
+
+  useEffect(() => {
+    if (!suspended) setShowWin(false);
+  }, [suspended]);
+
   return (
     <div className="relative flex w-full items-center justify-center rounded-[4px] bg-black py-4">
       <div className="relative">
         <svg
           viewBox="0 0 400 400"
           className="h-[420px] w-[420px] max-w-full"
-          style={{ animation: spinning ? "uapi-spin 4.5s linear infinite" : undefined }}
+          style={{
+            transform: `rotate(${rot}deg)`,
+            transition: spin ? "transform 6s cubic-bezier(0.12,0.7,0.12,1)" : "none",
+          }}
         >
           {DREAM_SEGMENTS.map((v, i) => {
             const a0 = i * step;
@@ -139,16 +183,32 @@ export function DreamWheel({ spinning }: { spinning: boolean }) {
               </g>
             );
           })}
-          <circle cx={cx} cy={cy} r={58} fill="#191919" />
+          <circle cx={cx} cy={cy} r={58} fill="#0B0B0B" stroke="#F2C500" strokeWidth={2} />
         </svg>
+        <img
+          src={wheelBg.url}
+          alt=""
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[92px] w-[92px] -translate-x-1/2 -translate-y-1/2 rounded-full object-contain"
+          draggable={false}
+        />
         <span className="pointer-events-none absolute left-1/2 top-[-6px] -translate-x-1/2 text-[1.4rem] leading-none text-[#F2C500]">
           ▼
         </span>
+        {!suspended && leftSec != null ? (
+          <span className="pointer-events-none absolute bottom-2 right-2 flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#F2C500] text-[1.05rem] font-extrabold text-[#F2C500]">
+            {leftSec}
+          </span>
+        ) : null}
+        {showWin && winner ? (
+          <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-[#F2C500] px-4 py-1 text-[0.8rem] font-extrabold uppercase text-black">
+            {winner}x wins
+          </span>
+        ) : null}
       </div>
-      <style>{`@keyframes uapi-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 }
+
 
 /* ---------- Heads & Tails coin ---------- */
 

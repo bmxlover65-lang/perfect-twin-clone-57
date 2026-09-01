@@ -2,6 +2,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Aviator } from "@/components/Aviator";
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
+import dream1x from "@/assets/dream/dream1x.png.asset.json";
+import dream2x from "@/assets/dream/dream2x.png.asset.json";
+import dream5x from "@/assets/dream/dream5x.png.asset.json";
+import dream10x from "@/assets/dream/dream10x.png.asset.json";
+import dream20x from "@/assets/dream/dream20x.png.asset.json";
+import dream40x from "@/assets/dream/dream40x.png.asset.json";
 
 import {
   BallByBallBoard,
@@ -1215,6 +1221,15 @@ export function tileTone(label: string): string {
   return "bg-[#232323] text-[#D8D8D8]";
 }
 
+export const DREAM_NOTE: Record<string, string> = {
+  "1": dream1x.url,
+  "2": dream2x.url,
+  "5": dream5x.url,
+  "10": dream10x.url,
+  "20": dream20x.url,
+  "40": dream40x.url,
+};
+
 export const DREAM_TONE: Record<string, string> = {
   "1": "bg-[#C79A00] text-white",
   "2": "bg-[#2B6FA8] text-white",
@@ -1251,24 +1266,44 @@ function NumberPanel({
     }));
   };
 
-  const Tile = ({ t }: { t: Tile }) => (
-    <div
-      className={`relative flex h-[68px] flex-col items-center justify-center rounded-[6px] border border-white/10 ${
-        (dream ? DREAM_TONE[t.label.trim()] : undefined) ?? tileTone(t.label)
-      }`}
-    >
-      <span className="text-[1.1rem] font-extrabold leading-none">{t.label}</span>
-      <span className="mt-1 text-[0.72rem] font-bold leading-none">
-        {t.price ? t.price.toFixed(2) : "—"}
-      </span>
-      <span className="mt-[3px] text-[0.66rem] font-semibold leading-none opacity-60">
-        {t.size ? Math.round(t.size) : ""}
-      </span>
-      {!t.open ? (
-        <div className="absolute inset-0 rounded-[6px] bg-black/45" />
-      ) : null}
-    </div>
-  );
+  const Tile = ({ t }: { t: Tile }) => {
+    const note = dream ? DREAM_NOTE[t.label.trim()] : undefined;
+    if (note) {
+      return (
+        <div className="relative flex flex-col items-center">
+          <img
+            src={note}
+            alt={`${t.label}x`}
+            className="h-[72px] w-full select-none rounded-[6px] object-cover"
+            draggable={false}
+          />
+          <span className="mt-1 text-[0.78rem] font-extrabold leading-none text-white">
+            {t.price ? t.price.toFixed(2) : "—"}
+          </span>
+          {!t.open ? (
+            <div className="absolute inset-x-0 top-0 h-[72px] rounded-[6px] bg-black/55" />
+          ) : null}
+        </div>
+      );
+    }
+    return (
+      <div
+        className={`relative flex h-[68px] flex-col items-center justify-center rounded-[6px] border border-white/10 ${
+          (dream ? DREAM_TONE[t.label.trim()] : undefined) ?? tileTone(t.label)
+        }`}
+      >
+        <span className="text-[1.1rem] font-extrabold leading-none">{t.label}</span>
+        <span className="mt-1 text-[0.72rem] font-bold leading-none">
+          {t.price ? t.price.toFixed(2) : "—"}
+        </span>
+        <span className="mt-[3px] text-[0.66rem] font-semibold leading-none opacity-60">
+          {t.size ? Math.round(t.size) : ""}
+        </span>
+        {!t.open ? <div className="absolute inset-0 rounded-[6px] bg-black/45" /> : null}
+      </div>
+    );
+  };
+
 
   const main = toTiles(winner);
   const order = ["EVEN", "RED", "BLACK", "ODD"];
@@ -1662,7 +1697,17 @@ function GamePage() {
             <LuckyWheel spinning={false} />
           </div>
         ) : gameId === "88.0020" ? (
-          <DreamWheel spinning={false} />
+          <DreamWheel
+            winner={
+              (d as unknown as { gameResult?: string })?.gameResult ??
+              results[0]?.winner ??
+              null
+            }
+            roundId={d?.roundId ? String(d.roundId) : undefined}
+            suspended={suspended}
+            leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
+          />
+
         ) : gameId === "88.0021" ? (
           <CoinStageImage
             winner={(() => {
