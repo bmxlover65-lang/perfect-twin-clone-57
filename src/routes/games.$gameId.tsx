@@ -57,11 +57,11 @@ function Cards({ hand, title }: { hand: Record<string, string>; title: string })
   const codes = Object.values(hand).filter(Boolean);
   if (!codes.length) return null;
   return (
-    <div className="flex items-center gap-2">
-      <span className="w-28 shrink-0 text-[0.7rem] font-bold uppercase tracking-wide text-ex-muted">
+    <div>
+      <p className="text-[0.68rem] font-extrabold uppercase tracking-wide text-white drop-shadow">
         {title.replace(/_/g, " ")}
-      </span>
-      <div className="flex gap-1.5">
+      </p>
+      <div className="mt-0.5 flex gap-1">
         {codes.map((c, i) => (
           <Card key={`${c}-${i}`} code={c} />
         ))}
@@ -72,42 +72,48 @@ function Cards({ hand, title }: { hand: Record<string, string>; title: string })
 
 function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
+  const runners = market.runners ?? [];
   return (
-    <div className="overflow-hidden rounded-md bg-ex-panel">
+    <div className="mt-3 overflow-hidden rounded-md bg-ex-panel">
       <header className="flex items-center justify-between bg-ex-header px-3 py-2">
-        <h3 className="text-[0.72rem] font-extrabold uppercase tracking-[0.08em] text-ex-text">
+        <h3 className="text-[0.8rem] font-extrabold uppercase tracking-[0.06em] text-ex-text">
           {market.marketName}
         </h3>
-        <span className="text-[0.68rem] text-ex-muted">
-          min {market.min ?? 0} · max {market.max ?? 0}
+        <span className="text-[0.72rem] text-ex-muted">
+          Min/Max: {market.min ?? 0} - {market.max ?? 0}
         </span>
       </header>
-      <div className={`relative space-y-1 p-2 ${suspended ? "opacity-40" : ""}`}>
-        {(market.runners ?? []).map((r) => {
-          const back = r.price?.back?.[0];
-          return (
-            <div
-              key={String(r.selectionId)}
-              className="grid grid-cols-[1fr_92px] items-center gap-1 rounded bg-ex-row px-3 py-2"
-            >
-              <span className="truncate text-sm font-bold text-ex-text">
-                {names[String(r.selectionId)] ?? String(r.selectionId)}
-              </span>
-              <span
-                className={`flex flex-col items-center rounded py-1 text-sm font-bold ${
-                  back ? "bg-ex-back text-ex-cell-foreground" : "bg-ex-back-dim text-ex-muted"
-                }`}
-              >
-                {fmtOdds(back?.price)}
-                <span className="text-[0.62rem] font-semibold opacity-80">
-                  {fmtSize(back?.size)}
-                </span>
-              </span>
-            </div>
-          );
-        })}
+      <div className="relative p-3">
+        <div
+          className="grid gap-3"
+          style={{
+            gridTemplateColumns: `repeat(${Math.min(Math.max(runners.length, 1), 4)}, minmax(0,1fr))`,
+          }}
+        >
+          {runners.map((r) => {
+            const back = r.price?.back?.[0];
+            const open = Boolean(back?.price) && !suspended;
+            return (
+              <div key={String(r.selectionId)} className="text-center">
+                <p className="truncate text-[0.78rem] font-bold uppercase tracking-wide text-ex-text">
+                  {names[String(r.selectionId)] ?? String(r.selectionId)}
+                </p>
+                <div
+                  className={`mt-1.5 flex flex-col items-center justify-center rounded py-2 ${
+                    open ? "bg-ex-back text-ex-cell-foreground" : "bg-ex-back-dim text-ex-muted"
+                  }`}
+                >
+                  <span className="text-base font-bold leading-none">{fmtOdds(back?.price)}</span>
+                  <span className="mt-1 text-[0.68rem] font-semibold opacity-80">
+                    {fmtSize(back?.size)}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
         {suspended ? (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/55">
             <span className="text-sm font-extrabold uppercase tracking-[0.25em] text-ex-text">
               Suspended
             </span>
@@ -174,27 +180,18 @@ function GamePage() {
   const cards = (d?.cardsArr ?? {}) as Record<string, Record<string, string>>;
 
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-6">
-      <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
-        ← Lobby
-      </Link>
-
-      <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
+    <div className="sports-theme mx-auto max-w-[900px] px-4 py-5">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
-            Universe Live · {gameId}
+          <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
+            ← Back to lobby
+          </Link>
+          <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
+            Live · Universe Live
           </p>
           <h1 className="mt-1 text-2xl font-bold text-foreground">
             {d?.eventName ?? "Loading game…"}
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            RID {d?.roundId ?? "—"} · status {status || "—"} · left {d?.leftSec ?? 0}s · betDelay{" "}
-            {d?.betDelay ?? 0}s · age {age}s{state?.stale ? " · stale" : ""}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Source: Universal API <code className="font-mono">GET /games/{gameId}/state</code> ·{" "}
-            <code className="font-mono">/games/{gameId}/results</code> · polled every 1s
-          </p>
         </div>
         <span className="flex items-center gap-2 rounded-full bg-live-pill px-3 py-1 text-sm font-semibold text-live-pill-foreground">
           <span className="h-2 w-2 rounded-full bg-current" /> Live
@@ -203,62 +200,44 @@ function GamePage() {
 
       {error ? <p className="mt-3 text-sm text-live-lose">{error}</p> : null}
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-[1.6fr_1fr]">
-        <div className="overflow-hidden rounded-lg bg-ex-panel">
-          <header className="bg-ex-header px-4 py-2.5 text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-ex-text">
-            Live TV
-          </header>
-          {stream ? (
-            <iframe
-              title="Live game stream"
-              src={stream}
-              allow="autoplay; fullscreen; encrypted-media"
-              allowFullScreen
-              className="aspect-video w-full border-0 bg-black"
-            />
-          ) : (
-            <div className="aspect-video w-full bg-black" />
+      <div className="relative mt-4 overflow-hidden rounded-md bg-black">
+        {stream ? (
+          <iframe
+            title="Live game stream"
+            src={stream}
+            allow="autoplay; fullscreen; encrypted-media"
+            allowFullScreen
+            className="aspect-video w-full border-0 bg-black"
+          />
+        ) : (
+          <div className="aspect-video w-full bg-black" />
+        )}
+        <div className="pointer-events-none absolute left-2 top-2 space-y-1">
+          <p className="text-[0.72rem] font-extrabold uppercase tracking-wide text-white drop-shadow">
+            RID: {d?.roundId ?? "—"}
+          </p>
+          {Object.entries(cards).map(([k, v]) =>
+            typeof v === "object" ? <Cards key={k} title={k} hand={v} /> : null,
           )}
         </div>
-        <div className="overflow-hidden rounded-lg bg-ex-panel">
-          <header className="bg-ex-header px-4 py-2.5 text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-ex-text">
-            Round cards
-          </header>
-          <div className="space-y-3 p-4">
-            {Object.entries(cards).length ? (
-              Object.entries(cards).map(([k, v]) =>
-                typeof v === "object" ? <Cards key={k} title={k} hand={v} /> : null,
-              )
-            ) : (
-              <p className="text-sm text-ex-muted">Cards appear when the round is dealt.</p>
-            )}
-          </div>
-        </div>
+        <span className="pointer-events-none absolute right-2 top-2 rounded bg-black/60 px-2 py-1 text-[0.72rem] font-bold text-white">
+          {status || "—"} · {d?.leftSec ?? 0}s
+        </span>
       </div>
+
+      {markets.map((m) => (
+        <MarketBoard key={m.marketId} market={m} suspended={suspended} />
+      ))}
+      {!markets.length ? (
+        <p className="mt-3 text-sm text-muted-foreground">Loading live markets…</p>
+      ) : null}
 
       <p className="mt-6 text-base font-bold text-foreground">
-        Live markets{" "}
+        Last results{" "}
         <span className="text-sm font-normal text-muted-foreground">
-          · {markets.length} markets · {suspended ? "suspended" : "open"}
+          · {results.length} settled rounds
         </span>
       </p>
-
-      <div className="mt-3 grid gap-3 md:grid-cols-2">
-        {markets.map((m) => (
-          <MarketBoard key={m.marketId} market={m} suspended={suspended} />
-        ))}
-        {!markets.length ? (
-          <p className="text-sm text-muted-foreground">Loading live markets…</p>
-        ) : null}
-      </div>
-
-      <p className="mt-8 text-base font-bold text-foreground">
-        Result history{" "}
-        <span className="text-sm font-normal text-muted-foreground">
-          · last {results.length} settled rounds
-        </span>
-      </p>
-
       <div className="mt-3 flex flex-wrap gap-2">
         {results.map((r) => (
           <span
@@ -269,47 +248,6 @@ function GamePage() {
             {r.winner ?? "-"}
           </span>
         ))}
-      </div>
-
-      <div className="mt-4 overflow-x-auto rounded-lg border border-border/60">
-        <table className="w-full min-w-[640px] text-left text-sm">
-          <thead className="bg-ex-header text-ex-text">
-            <tr>
-              <th className="px-3 py-2 font-bold">Round ID</th>
-              <th className="px-3 py-2 font-bold">Winner</th>
-              <th className="px-3 py-2 font-bold">Cards</th>
-              <th className="px-3 py-2 font-bold">Settled markets</th>
-            </tr>
-          </thead>
-          <tbody>
-            {results.slice(0, 12).map((r) => (
-              <tr key={r.roundId} className="border-t border-border/50">
-                <td className="px-3 py-2 font-mono text-xs text-muted-foreground">{r.roundId}</td>
-                <td className="px-3 py-2 font-bold text-foreground">{r.winner ?? "—"}</td>
-                <td className="px-3 py-2 text-xs text-muted-foreground">
-                  {Object.entries(r.cards ?? {})
-                    .map(
-                      ([k, v]) =>
-                        `${k.replace(/_/g, " ")}: ${Object.values(v)
-                          .map((c) => c.replace(/_+$/, ""))
-                          .join(" ")}`,
-                    )
-                    .join(" · ") || "—"}
-                </td>
-                <td className="px-3 py-2 text-xs text-muted-foreground">
-                  {(r.results ?? []).length}
-                </td>
-              </tr>
-            ))}
-            {!results.length ? (
-              <tr>
-                <td className="px-3 py-4 text-sm text-muted-foreground" colSpan={4}>
-                  Loading result history…
-                </td>
-              </tr>
-            ) : null}
-          </tbody>
-        </table>
       </div>
     </div>
   );
