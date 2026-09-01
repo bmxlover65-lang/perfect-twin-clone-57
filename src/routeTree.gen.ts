@@ -14,6 +14,7 @@ import { Route as CasinoDocsRouteImport } from './routes/casino-docs'
 import { Route as SportsRouteImport } from './routes/sports'
 import { Route as SportsDocsRouteImport } from './routes/sports-docs'
 import { Route as GamesGameIdRouteImport } from './routes/games.$gameId'
+import { Route as SportsSportIdEventIdRouteImport } from './routes/sports.$sportId.$eventId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,35 +41,54 @@ const GamesGameIdRoute = GamesGameIdRouteImport.update({
   path: '/games/$gameId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SportsSportIdEventIdRoute = SportsSportIdEventIdRouteImport.update({
+  id: '/$sportId/$eventId',
+  path: '/$sportId/$eventId',
+  getParentRoute: () => SportsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/casino-docs': typeof CasinoDocsRoute
-  '/sports': typeof SportsRoute
+  '/sports': typeof SportsRouteWithChildren
   '/sports-docs': typeof SportsDocsRoute
   '/games/$gameId': typeof GamesGameIdRoute
+  '/sports/$sportId/$eventId': typeof SportsSportIdEventIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/casino-docs': typeof CasinoDocsRoute
-  '/sports': typeof SportsRoute
+  '/sports': typeof SportsRouteWithChildren
   '/sports-docs': typeof SportsDocsRoute
   '/games/$gameId': typeof GamesGameIdRoute
+  '/sports/$sportId/$eventId': typeof SportsSportIdEventIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/casino-docs': typeof CasinoDocsRoute
-  '/sports': typeof SportsRoute
+  '/sports': typeof SportsRouteWithChildren
   '/sports-docs': typeof SportsDocsRoute
   '/games/$gameId': typeof GamesGameIdRoute
+  '/sports/$sportId/$eventId': typeof SportsSportIdEventIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/casino-docs' | '/sports' | '/sports-docs' | '/games/$gameId'
+    | '/'
+    | '/casino-docs'
+    | '/sports'
+    | '/sports-docs'
+    | '/games/$gameId'
+    | '/sports/$sportId/$eventId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/casino-docs' | '/sports' | '/sports-docs' | '/games/$gameId'
+  to:
+    | '/'
+    | '/casino-docs'
+    | '/sports'
+    | '/sports-docs'
+    | '/games/$gameId'
+    | '/sports/$sportId/$eventId'
   id:
     | '__root__'
     | '/'
@@ -76,12 +96,13 @@ export interface FileRouteTypes {
     | '/sports'
     | '/sports-docs'
     | '/games/$gameId'
+    | '/sports/$sportId/$eventId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CasinoDocsRoute: typeof CasinoDocsRoute
-  SportsRoute: typeof SportsRoute
+  SportsRoute: typeof SportsRouteWithChildren
   SportsDocsRoute: typeof SportsDocsRoute
   GamesGameIdRoute: typeof GamesGameIdRoute
 }
@@ -123,13 +144,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GamesGameIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sports/$sportId/$eventId': {
+      id: '/sports/$sportId/$eventId'
+      path: '/$sportId/$eventId'
+      fullPath: '/sports/$sportId/$eventId'
+      preLoaderRoute: typeof SportsSportIdEventIdRouteImport
+      parentRoute: typeof SportsRoute
+    }
   }
 }
+
+interface SportsRouteChildren {
+  SportsSportIdEventIdRoute: typeof SportsSportIdEventIdRoute
+}
+
+const SportsRouteChildren: SportsRouteChildren = {
+  SportsSportIdEventIdRoute: SportsSportIdEventIdRoute,
+}
+
+const SportsRouteWithChildren =
+  SportsRoute._addFileChildren(SportsRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CasinoDocsRoute: CasinoDocsRoute,
-  SportsRoute: SportsRoute,
+  SportsRoute: SportsRouteWithChildren,
   SportsDocsRoute: SportsDocsRoute,
   GamesGameIdRoute: GamesGameIdRoute,
 }
