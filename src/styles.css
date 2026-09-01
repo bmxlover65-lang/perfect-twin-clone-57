@@ -86,9 +86,16 @@
   --color-ex-panel: var(--ex-panel);
   --color-ex-header: var(--ex-header);
   --color-ex-row: var(--ex-row);
+  --color-ex-board: var(--ex-board);
+  --color-ex-line: var(--ex-line);
+  --color-ex-text: var(--ex-text);
+  --color-ex-muted: var(--ex-muted);
   --color-ex-back: var(--ex-back);
+  --color-ex-back-dim: var(--ex-back-dim);
   --color-ex-lay: var(--ex-lay);
+  --color-ex-lay-dim: var(--ex-lay-dim);
   --color-ex-cell-foreground: var(--ex-cell-foreground);
+
 }
 
 
