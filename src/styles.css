@@ -83,6 +83,12 @@
   --color-card-black: var(--card-black);
   --color-code-surface: var(--code-surface);
   --color-code-foreground: var(--code-foreground);
+  --color-ex-panel: var(--ex-panel);
+  --color-ex-header: var(--ex-header);
+  --color-ex-row: var(--ex-row);
+  --color-ex-back: var(--ex-back);
+  --color-ex-lay: var(--ex-lay);
+  --color-ex-cell-foreground: var(--ex-cell-foreground);
 }
 
 
@@ -144,6 +150,12 @@
   --card-black: oklch(0.2 0.01 264);
   --code-surface: oklch(0.19 0.02 264);
   --code-foreground: oklch(0.92 0.02 150);
+  --ex-panel: oklch(0.97 0.005 250);
+  --ex-header: oklch(0.93 0.01 250);
+  --ex-row: oklch(1 0 0);
+  --ex-back: oklch(0.82 0.08 240);
+  --ex-lay: oklch(0.85 0.09 5);
+  --ex-cell-foreground: oklch(0.18 0.02 264);
 }
 
 
@@ -204,6 +216,12 @@
   --card-black: oklch(0.2 0.01 264);
   --code-surface: oklch(0.16 0.02 264);
   --code-foreground: oklch(0.92 0.02 150);
+  --ex-panel: oklch(0.19 0.02 258);
+  --ex-header: oklch(0.25 0.03 250);
+  --ex-row: oklch(0.16 0.02 258);
+  --ex-back: oklch(0.72 0.09 240);
+  --ex-lay: oklch(0.78 0.11 5);
+  --ex-cell-foreground: oklch(0.15 0.02 264);
 }
 
 

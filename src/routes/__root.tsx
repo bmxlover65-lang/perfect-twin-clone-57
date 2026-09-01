@@ -195,7 +195,7 @@ function SiteHeader() {
             alt="Universal API"
             className="h-8 w-8 rounded-lg"
           />
-          <span className="text-xl font-bold tracking-tight text-white">
+          <span className="text-xl font-bold tracking-tight text-nav-foreground">
             Universal API
           </span>
         </Link>
