@@ -27,14 +27,25 @@ export function ApiKeySetup() {
     setTesting(true);
     setResult("");
     try {
+      const h = await fetch("/api/public/uapi/health", { headers: { accept: "application/json" } });
+      const health = (await h.json()) as {
+        ok?: boolean;
+        keyConfigured?: boolean;
+        authMode?: string;
+        latencyMs?: number;
+        error?: string;
+      };
       const res = await fetch("/api/public/uapi/sports", {
         headers: { accept: "application/json" },
       });
       const json = (await res.json()) as { sports?: unknown[]; error?: string };
+      const auth = health.keyConfigured
+        ? "server key: configured (B2B)"
+        : "server key: missing (public session)";
       setResult(
         res.ok
-          ? `200 OK · ${json.sports?.length ?? 0} sports returned through your proxy`
-          : `${res.status} · ${json.error ?? "request failed"}`,
+          ? `200 OK · ${json.sports?.length ?? 0} sports · ${health.latencyMs ?? 0}ms · ${auth}`
+          : `${res.status} · ${json.error ?? health.error ?? "request failed"} · ${auth}`,
       );
     } catch (e) {
       setResult(e instanceof Error ? e.message : "network error");
@@ -42,6 +53,7 @@ export function ApiKeySetup() {
       setTesting(false);
     }
   };
+
 
   const masked = key ? `${key.slice(0, 9)}${"•".repeat(Math.max(0, key.length - 9))}` : "";
 
