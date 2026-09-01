@@ -247,25 +247,38 @@ function FlightStage({
   const planeH = planeW * (74 / 150);
 
   return (
-    <div className="relative overflow-hidden rounded-[14px] bg-[#0E0F10]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_120%,rgba(120,20,20,0.55),transparent_60%)]" />
+    <div className="relative overflow-hidden rounded-[14px] bg-black">
+      {/* spribe-style rotating sun rays */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="absolute left-[6%] top-[86%] h-[1200px] w-[1200px] -translate-x-1/2 -translate-y-1/2 opacity-70"
+          style={{
+            background:
+              "repeating-conic-gradient(from 0deg, #14171b 0deg 7deg, #05070a 7deg 14deg)",
+            borderRadius: "9999px",
+            animation: "av-spin 60s linear infinite",
+            animationPlayState: phase === "flying" ? "running" : "paused",
+          }}
+        />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_110%,rgba(180,25,25,0.35),transparent_55%)]" />
+      </div>
+      <style>{`@keyframes av-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes av-prop{to{transform:rotate(360deg)}}`}</style>
+
       <svg viewBox={`0 0 ${W} ${H}`} className="relative block h-[210px] w-full sm:h-[300px]">
         <defs>
           <linearGradient id="av-area" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#E01E1E" stopOpacity="0.55" />
+            <stop offset="0%" stopColor="#E01E1E" stopOpacity="0.5" />
             <stop offset="100%" stopColor="#E01E1E" stopOpacity="0.02" />
           </linearGradient>
-          <radialGradient id="av-stars" cx="50%" cy="50%">
-            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-          </radialGradient>
+          <filter id="av-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="b" />
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
         </defs>
-
-        {Array.from({ length: 46 }).map((_, i) => {
-          const sx = ((i * 137) % W) + ((i % 5) * 7);
-          const sy = ((i * 79) % (H - 60)) + 12;
-          return <circle key={i} cx={sx} cy={sy} r={i % 7 === 0 ? 1.6 : 1} fill="url(#av-stars)" />;
-        })}
 
         <line x1="40" y1={H - 40} x2={W - 20} y2={H - 40} stroke="#ffffff22" strokeWidth="2" />
         <line x1="40" y1="20" x2="40" y2={H - 40} stroke="#ffffff22" strokeWidth="2" />
@@ -273,7 +286,14 @@ function FlightStage({
         {phase !== "betting" ? (
           <>
             <path d={area} fill="url(#av-area)" />
-            <path d={path} fill="none" stroke="#E01E1E" strokeWidth="4" strokeLinecap="round" />
+            <path
+              d={path}
+              fill="none"
+              stroke="#E01E1E"
+              strokeWidth="5"
+              strokeLinecap="round"
+              filter="url(#av-glow)"
+            />
             <image
               href={PLANE_FRAMES[phase === "crashed" ? 0 : frame]}
               x={px - 6}
@@ -292,36 +312,40 @@ function FlightStage({
       <img
         src={aviatorText}
         alt="Aviator"
-        className="pointer-events-none absolute left-3 top-3 h-[22px] w-auto opacity-90"
+        className="pointer-events-none absolute left-3 top-3 h-[18px] w-auto opacity-90 sm:h-[22px]"
       />
 
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         {phase === "betting" ? (
           <>
-            <p className="text-[0.8rem] font-bold uppercase tracking-[0.2em] text-white/80">
+            <div
+              className="h-[54px] w-[54px] rounded-full border-[3px] border-white/10 border-t-[#E01E1E]"
+              style={{ animation: "av-prop 0.7s linear infinite" }}
+            />
+            <p className="mt-3 text-[0.72rem] font-bold uppercase tracking-[0.22em] text-white/85 sm:text-[0.8rem]">
               Waiting for next round
             </p>
-            <div className="mt-3 h-[6px] w-[220px] overflow-hidden rounded-full bg-white/15">
+            <div className="mt-2 h-[6px] w-[200px] overflow-hidden rounded-full bg-white/15 sm:w-[240px]">
               <div
                 className="h-full rounded-full bg-[#E01E1E] transition-[width] duration-100"
                 style={{ width: `${Math.max(0, Math.min(100, (countdown / BET_MS) * 100))}%` }}
               />
             </div>
-            <p className="mt-2 text-[1.6rem] font-extrabold text-white">
+            <p className="mt-2 text-[1.35rem] font-extrabold text-white sm:text-[1.6rem]">
               {(countdown / 1000).toFixed(1)}s
             </p>
           </>
         ) : phase === "crashed" ? (
           <>
-            <p className="text-[1.15rem] font-extrabold uppercase tracking-[0.18em] text-[#E01E1E]">
+            <p className="text-[1rem] font-extrabold uppercase tracking-[0.18em] text-[#E01E1E] sm:text-[1.15rem]">
               Flew Away!
             </p>
-            <p className="text-[2.3rem] font-extrabold leading-none text-white sm:text-[3.2rem]">
+            <p className="text-[2.6rem] font-extrabold leading-none text-[#E01E1E] drop-shadow-[0_4px_14px_rgba(0,0,0,.7)] sm:text-[3.4rem]">
               {fmt(multiplier)}x
             </p>
           </>
         ) : (
-          <p className="text-[2.6rem] font-extrabold leading-none text-white drop-shadow sm:text-[3.6rem]-[0_4px_14px_rgba(0,0,0,.6)]">
+          <p className="text-[2.7rem] font-extrabold leading-none text-white drop-shadow-[0_4px_14px_rgba(0,0,0,.6)] sm:text-[3.6rem]">
             {fmt(multiplier)}x
           </p>
         )}
@@ -329,6 +353,7 @@ function FlightStage({
     </div>
   );
 }
+
 
 /* ---------------- main ---------------- */
 
