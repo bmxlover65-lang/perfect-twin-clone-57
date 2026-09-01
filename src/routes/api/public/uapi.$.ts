@@ -5,10 +5,19 @@ const UPSTREAM = "https://universeapi.shop/public";
 let cachedToken: string | null = null;
 let cachedAt = 0;
 
+function apiKey(): string | undefined {
+  return process.env["UAPI_KEY"] || undefined;
+}
+
+function authHeaders(): Record<string, string> {
+  const key = apiKey();
+  return key ? { "X-API-Key": key, "x-api-key": key } : {};
+}
+
 async function mintToken(): Promise<string> {
   const res = await fetch(`${UPSTREAM}/session`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: "{}",
   });
   const json = (await res.json().catch(() => ({}))) as { sessionToken?: string; error?: string };
@@ -31,18 +40,41 @@ async function upstream(path: string, search: string, token: string, body?: stri
     headers: {
       "x-session-token": token,
       accept: "application/json",
+      ...authHeaders(),
       ...(body === undefined ? {} : { "content-type": "application/json" }),
     },
     ...(body === undefined ? {} : { body }),
   });
 }
 
+
 async function proxy(splat: string, search: string, body?: string) {
   try {
+    if (splat === "health") {
+      const t0 = Date.now();
+      let ok = true;
+      let message = "";
+      try {
+        await getToken(true);
+      } catch (e) {
+        ok = false;
+        message = e instanceof Error ? e.message : "session failed";
+      }
+      return Response.json({
+        ok,
+        keyConfigured: Boolean(apiKey()),
+        authMode: apiKey() ? "b2b-api-key" : "public-session",
+        latencyMs: Date.now() - t0,
+        upstream: UPSTREAM,
+        checkedAt: new Date().toISOString(),
+        error: message || undefined,
+      });
+    }
     if (splat === "session") {
       const token = await getToken();
       return Response.json({ sessionToken: token });
     }
+
     let token = await getToken();
     let res = await upstream(splat, search, token, body);
     if (res.status === 401 || res.status === 403) {

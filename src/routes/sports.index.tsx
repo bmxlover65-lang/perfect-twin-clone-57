@@ -3,13 +3,16 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   fetchEvents,
+  fetchProxyHealth,
   fetchSports,
   fmtInt,
   fmtOdds,
   runnerName,
+  type ProxyHealth,
   type Sport,
   type UEvent,
 } from "@/lib/uapi";
+
 
 export const Route = createFileRoute("/sports/")({
   head: () => ({
@@ -55,6 +58,7 @@ function SportsPage() {
   const [pollCount, setPollCount] = useState(0);
   const [errorLog, setErrorLog] = useState<{ at: string; message: string }[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [health, setHealth] = useState<ProxyHealth | null>(null);
 
   useEffect(() => {
     const q = new URLSearchParams(window.location.search).get("admin");
@@ -62,6 +66,18 @@ function SportsPage() {
     if (q === "0") localStorage.removeItem("uapi_admin");
     setIsAdmin(localStorage.getItem("uapi_admin") === "1");
   }, []);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    const run = () =>
+      fetchProxyHealth()
+        .then(setHealth)
+        .catch(() => undefined);
+    void run();
+    const t = setInterval(run, 60000);
+    return () => clearInterval(t);
+  }, [isAdmin]);
+
 
 
   useEffect(() => {
@@ -199,9 +215,10 @@ function SportsPage() {
             {error ? "Degraded" : "Operational"}
           </span>
         </header>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
           {[
             ["API status", error ? "error" : "200 OK"],
+            ["Auth mode", health ? (health.keyConfigured ? "B2B API key" : "public session") : "—"],
             ["Last poll", lastPoll ? lastPoll.toLocaleTimeString() : "—"],
             ["Latency", `${latency} ms`],
             ["Live (in-play)", String(inplay.length)],
@@ -213,6 +230,7 @@ function SportsPage() {
             </div>
           ))}
         </div>
+
         <div className="mt-3 rounded-lg bg-muted p-3">
           <p className="text-[0.68rem] uppercase tracking-wide text-muted-foreground">Error log</p>
           {errorLog.length ? (

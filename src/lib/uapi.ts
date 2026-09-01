@@ -110,6 +110,21 @@ export function fetchSessionToken() {
   return get<{ sessionToken: string }>("session");
 }
 
+export type ProxyHealth = {
+  ok: boolean;
+  keyConfigured: boolean;
+  authMode: "b2b-api-key" | "public-session";
+  latencyMs: number;
+  upstream: string;
+  checkedAt: string;
+  error?: string;
+};
+
+export function fetchProxyHealth() {
+  return get<ProxyHealth>("health");
+}
+
+
 export function embedUrl(kind: "tv" | "player" | "scoreboard", sportId: string, exEventId: string, token: string) {
   const q = new URLSearchParams({ sportId, exEventId, tv: "true", sessionToken: token });
   return `https://universeapi.shop/public/tv/sports/${kind}?${q.toString()}`;
