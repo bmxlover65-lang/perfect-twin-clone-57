@@ -95,7 +95,7 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
           const back = r.price?.back?.[0];
           const lay = r.price?.lay?.[0];
           const cell = (
-            p: { price?: number | string; size?: number | string } | undefined,
+            p: { price?: number | null; size?: number | null } | undefined,
             side: "back" | "lay",
           ) => {
             const open = Boolean(p?.price) && !suspended;
