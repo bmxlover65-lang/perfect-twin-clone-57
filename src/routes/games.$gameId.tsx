@@ -1214,14 +1214,25 @@ export function tileTone(label: string): string {
   return "bg-[#232323] text-[#D8D8D8]";
 }
 
+export const DREAM_TONE: Record<string, string> = {
+  "1": "bg-[#C79A00] text-white",
+  "2": "bg-[#2B6FA8] text-white",
+  "5": "bg-[#6B3391] text-white",
+  "10": "bg-[#1F7A44] text-white",
+  "20": "bg-[#B45810] text-white",
+  "40": "bg-[#A5372A] text-white",
+};
+
 function NumberPanel({
   markets,
   suspended,
   perRow,
+  dream,
 }: {
   markets: CasinoMarket[];
   suspended: boolean;
   perRow: number;
+  dream?: boolean;
 }) {
   const winner =
     markets.find((m) => (m.marketName ?? "").toUpperCase() === "WINNER") ?? markets[0];
@@ -1241,9 +1252,9 @@ function NumberPanel({
 
   const Tile = ({ t }: { t: Tile }) => (
     <div
-      className={`relative flex h-[68px] flex-col items-center justify-center rounded-[6px] border border-white/10 ${tileTone(
-        t.label,
-      )}`}
+      className={`relative flex h-[68px] flex-col items-center justify-center rounded-[6px] border border-white/10 ${
+        (dream ? DREAM_TONE[t.label.trim()] : undefined) ?? tileTone(t.label)
+      }`}
     >
       <span className="text-[1.1rem] font-extrabold leading-none">{t.label}</span>
       <span className="mt-1 text-[0.72rem] font-bold leading-none">
@@ -1642,10 +1653,13 @@ function GamePage() {
             markets={markets}
             suspended={suspended}
             perRow={gameId === "88.0019" ? 5 : gameId === "88.0020" ? 3 : 2}
+            dream={gameId === "88.0020"}
           />
         ) : null}
 
-        {gameId !== "88.0023" ? <RecentStrip results={results} /> : null}
+        {gameId !== "88.0023" ? (
+          <RecentStrip results={results} dream={gameId === "88.0020"} />
+        ) : null}
       </div>
     );
   }
@@ -1739,7 +1753,7 @@ function GamePage() {
 }
 
 
-function RecentStrip({ results }: { results: CasinoResult[] }) {
+function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: boolean }) {
   return (
       <div className="mt-4 flex flex-wrap items-center gap-2 rounded-md bg-ex-panel px-3 py-2">
         <span className="mr-1 text-base font-bold text-ex-text">Recent Result</span>
@@ -1769,11 +1783,13 @@ function RecentStrip({ results }: { results: CasinoResult[] }) {
                   ? "bg-ex-lay text-ex-cell-foreground"
                   : "bg-ex-back text-ex-cell-foreground";
 
+          const finalTone = (dream ? DREAM_TONE[first] : undefined) ?? tone;
+
           return (
             <span
               key={`${r.roundId ?? ""}-${idx}`}
               title={`Round ${r.roundId}`}
-              className={`flex h-9 min-w-9 items-center justify-center rounded-full px-2 text-sm font-bold ${tone}`}
+              className={`flex h-9 min-w-9 items-center justify-center rounded-full px-2 text-sm font-bold ${finalTone}`}
             >
               {first || "-"}
             </span>
