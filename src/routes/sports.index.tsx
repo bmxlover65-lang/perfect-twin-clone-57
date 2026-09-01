@@ -132,8 +132,8 @@ function SportsPage() {
   const list = filter === "inplay" ? inplay : filter === "pre" ? pre : events;
 
   const pill = (active: boolean) =>
-    `rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-      active ? "bg-nav-active text-background" : "bg-muted text-foreground hover:bg-accent"
+  `rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+      active ? "bg-nav-active text-background" : "bg-muted text-foreground hover:opacity-80"
     }`;
 
   return (
