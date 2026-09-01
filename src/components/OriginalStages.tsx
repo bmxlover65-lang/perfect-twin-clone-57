@@ -555,12 +555,25 @@ export function BalloonStage({
         {popped ? (
           <div
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center"
-            style={{ animation: "scale-in 200ms ease-out" }}
+            style={{ animation: "scale-in 220ms cubic-bezier(.2,1.4,.4,1)" }}
           >
-            <p className="text-[clamp(1.6rem,5vw,3.6rem)] font-extrabold leading-none text-[#C81E1E] drop-shadow-[0_3px_6px_rgba(0,0,0,0.35)]">
-              {crashAt.toFixed(2)}x
-            </p>
-            <p className="mt-1 text-[clamp(0.8rem,1.8vw,1.2rem)] font-extrabold uppercase tracking-[0.2em] text-[#C81E1E]">
+            <div className="relative">
+              {[...Array(10)].map((_, i) => (
+                <span
+                  key={i}
+                  className="absolute left-1/2 top-1/2 h-2 w-2 rounded-full bg-[#E8384F]"
+                  style={{
+                    transform: `rotate(${i * 36}deg) translateY(-58px)`,
+                    opacity: 0.85,
+                    animation: `fade-out 700ms ${i * 12}ms ease-out forwards`,
+                  }}
+                />
+              ))}
+              <p className="text-[clamp(1.8rem,5.6vw,3.9rem)] font-extrabold leading-none text-[#C81E1E] drop-shadow-[0_3px_10px_rgba(255,255,255,0.55)]">
+                {crashAt.toFixed(2)}x
+              </p>
+            </div>
+            <p className="mt-1 text-[clamp(0.8rem,1.8vw,1.2rem)] font-extrabold uppercase tracking-[0.28em] text-[#C81E1E]">
               Burst
             </p>
           </div>
@@ -572,8 +585,8 @@ export function BalloonStage({
                 ? {
                     bottom: `${2 + grow * 52}%`,
                     width: `${Math.max(15, 27 - grow * 12)}%`,
-                    transform: "translateX(-50%)",
-                    transition: "bottom 220ms linear, width 220ms linear",
+                    transform: `translateX(calc(-50% + ${drift}px))`,
+                    transition: "bottom 220ms linear, width 220ms linear, transform 220ms linear",
                   }
                 : {
                     bottom: "18%",
@@ -587,10 +600,17 @@ export function BalloonStage({
               src={balloonImg.url}
               alt="Balloon"
               className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
-              style={{ filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))" }}
+              style={{
+                filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))",
+                opacity: flying ? Math.max(0.15, 1 - grow * 1.1) : 1,
+                transition: "opacity 240ms linear",
+              }}
             />
             {flying ? (
-              <p className="absolute left-1/2 top-[34%] w-[220%] -translate-x-1/2 text-center text-[clamp(1.1rem,3.2vw,2.4rem)] font-extrabold leading-none text-[#2B2B2B] drop-shadow-[0_2px_4px_rgba(255,255,255,0.5)]">
+              <p
+                className="absolute left-1/2 top-[34%] w-[240%] -translate-x-1/2 text-center text-[clamp(1.3rem,4vw,3rem)] font-extrabold leading-none drop-shadow-[0_2px_8px_rgba(255,255,255,0.55)]"
+                style={{ color: shown >= 10 ? "#7B2FF2" : shown >= 2 ? "#D9631A" : "#2B2B2B" }}
+              >
                 {shown.toFixed(2)}
                 <span className="text-[0.62em]">x</span>
               </p>
@@ -601,6 +621,7 @@ export function BalloonStage({
             )}
           </div>
         )}
+
 
 
 
