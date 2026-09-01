@@ -404,16 +404,15 @@ export function BalloonStage({
   }, [suspended, popped, target, muted]);
 
   const grow = Math.min(1, Math.log(Math.max(1, shown)) / Math.log(20));
-  const size = 120 + grow * 170;
-  const bottom = 90 + grow * 190;
-
-  const histColor = (v: number) =>
-    v >= 4 ? "bg-[#F0A500] text-black" : v >= 2 ? "bg-[#E4572E] text-black" : "bg-[#2E86DE] text-white";
 
   const bgIndex = Math.abs(hashStr(roundId ?? "0")) % LOCATIONS.length;
 
   const histColor2 = (v: number) =>
     v >= 2 ? "bg-[#E8871E] text-white" : "bg-[#123A73] text-white";
+
+  const seedHist = [1.81, 5.68, 2.58, 1.12, 1.15, 3.88, 2.59, 1.3, 1.25, 1.03];
+  const histList = [...history, ...seedHist].slice(0, 10);
+
 
   return (
     <div className="w-full rounded-[14px] bg-black p-1.5">
