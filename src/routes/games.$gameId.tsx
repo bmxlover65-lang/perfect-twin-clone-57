@@ -1710,7 +1710,16 @@ function GamePage() {
 
         {gameId === "88.0019" ? (
           <div className="mt-2">
-            <LuckyWheel spinning={false} />
+            <LuckyWheel
+              winner={
+                (d as unknown as { gameResult?: string })?.gameResult ??
+                results[0]?.winner ??
+                null
+              }
+              roundId={d?.roundId ? String(d.roundId) : undefined}
+              suspended={suspended}
+              leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
+            />
           </div>
         ) : gameId === "88.0020" ? (
           <DreamWheel
