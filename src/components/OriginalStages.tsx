@@ -516,25 +516,29 @@ export function BalloonStage({
 
   return (
     <div className="w-full rounded-[14px] bg-black p-1.5">
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[10px]">
+      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[10px] bg-[linear-gradient(180deg,#7FD3D8_0%,#BDE7E0_45%,#F3E7C8_100%)]">
         {/* sky artwork — parallax scroll as the balloon climbs */}
         <img
           src={LOCATIONS[bgIndex]!.url}
           alt=""
-          className="absolute left-0 h-[170%] w-full object-cover transition-transform duration-700 ease-out"
-          style={{ bottom: 0, transform: `translateY(${grow * 55}%)` }}
+          className="absolute inset-x-0 bottom-0 h-[150%] w-full object-cover object-bottom"
+          style={{
+            transform: `translateY(${grow * 42}%)`,
+            transition: "transform 400ms linear",
+          }}
         />
 
-        {/* balloon — flies up and out of view while the round runs;
-            between rounds it sits big in the middle with the waiting label */}
-        {flying && !popped ? (
+        {/* balloon — flies up while the round runs, bursts at the crash point,
+            then sits big in the middle while the next round counts down */}
+        {flying ? (
           <div
-            className="absolute left-1/2 transition-all duration-500 ease-out"
+            className="absolute left-1/2"
             style={{
-              bottom: `${-6 + grow * 108}%`,
-              width: `${Math.max(13, 26 - grow * 12)}%`,
-              opacity: grow > 0.82 ? 0 : 1,
+              bottom: `${-4 + grow * 96}%`,
+              width: `${Math.max(12, 26 - grow * 13)}%`,
+              opacity: grow > 0.9 ? 0 : 1,
               transform: "translateX(-50%)",
+              transition: "bottom 220ms linear, width 220ms linear, opacity 300ms linear",
             }}
           >
             <img
@@ -543,6 +547,15 @@ export function BalloonStage({
               className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
               style={{ filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))" }}
             />
+          </div>
+        ) : popped ? (
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+            <p className="text-[clamp(1.6rem,5vw,3.6rem)] font-extrabold leading-none text-[#C81E1E] drop-shadow-[0_3px_6px_rgba(0,0,0,0.35)]">
+              {crashAt.toFixed(2)}x
+            </p>
+            <p className="mt-1 text-[clamp(0.8rem,1.8vw,1.2rem)] font-extrabold uppercase tracking-[0.2em] text-[#C81E1E]">
+              Burst
+            </p>
           </div>
         ) : (
           <div className="absolute left-1/2 top-1/2 w-[30%] min-w-[150px] -translate-x-1/2 -translate-y-1/2">
@@ -553,10 +566,11 @@ export function BalloonStage({
               style={{ filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))" }}
             />
             <p className="absolute left-1/2 top-[40%] w-[150%] -translate-x-1/2 text-center text-[clamp(0.75rem,1.5vw,1.15rem)] font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)]">
-              Waiting For Next Round
+              Next round in {wait}s
             </p>
           </div>
         )}
+
 
         {/* live multiplier — plain dark text in the middle of the sky */}
         {flying && !popped ? (
