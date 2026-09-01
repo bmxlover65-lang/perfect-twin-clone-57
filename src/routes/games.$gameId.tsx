@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Aviator } from "@/components/Aviator";
 import { applyOverride, useAdminConfig } from "@/lib/admin";
+import { logResult } from "@/lib/telemetry";
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
 import dream1x from "@/assets/dream/dream1x.png.asset.json";
 import dream2x from "@/assets/dream/dream2x.png.asset.json";
@@ -1606,6 +1607,27 @@ function GamePage() {
   }, [load]);
 
   const roundKey = state?.data?.roundId ? String(state.data.roundId) : "";
+
+  useEffect(() => {
+    if (!roundKey) return;
+    const dd = state?.data as unknown as
+      | { gameResult?: string; multiplier?: string; eventName?: string }
+      | undefined;
+    const real = String(dd?.gameResult ?? dd?.multiplier ?? "");
+    if (!real) return;
+    const shown = applyOverride(cfg, admin, gameId, real) ?? real;
+    logResult({
+      ts: Date.now(),
+      gameId,
+      gameName: dd?.eventName ?? gameId,
+      round: roundKey,
+      real,
+      shown,
+      forced: shown !== real,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roundKey, gameId, admin, cfg]);
+
 
   useEffect(() => {
     let alive = true;

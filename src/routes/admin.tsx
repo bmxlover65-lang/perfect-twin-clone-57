@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import type React from "react";
 import { useEffect, useState } from "react";
 import {
   type AdminConfig,
@@ -8,6 +9,7 @@ import {
   setAdminStored,
   writeConfig,
 } from "@/lib/admin";
+import { clearTelemetry, useTelemetry } from "@/lib/telemetry";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -46,6 +48,8 @@ function AdminPage() {
   const [admin, setAdmin] = useState(false);
   const [cfg, setCfg] = useState<AdminConfig>(DEFAULT_CONFIG);
   const [pass, setPass] = useState("");
+  const [err, setErr] = useState("");
+  const tele = useTelemetry();
 
   useEffect(() => {
     setAdmin(isAdminStored());
@@ -60,6 +64,16 @@ function AdminPage() {
   const setGame = (id: string, mode: "real" | "forced", value: string) =>
     save({ ...cfg, games: { ...cfg.games, [id]: { mode, value } } });
 
+  const unlock = () => {
+    if (pass.trim().toLowerCase() === "universe") {
+      setAdminStored(true);
+      setAdmin(true);
+      setErr("");
+    } else {
+      setErr("Galat passcode. Passcode: universe");
+    }
+  };
+
   if (!admin) {
     return (
       <div className="mx-auto max-w-[420px] px-4 py-16">
@@ -72,16 +86,15 @@ function AdminPage() {
           onChange={(e) => setPass(e.target.value)}
           type="password"
           placeholder="Passcode"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") unlock();
+          }}
           className="mt-4 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
         />
+        {err ? <p className="mt-2 text-sm text-destructive">{err}</p> : null}
         <button
           type="button"
-          onClick={() => {
-            if (pass === "universe") {
-              setAdminStored(true);
-              setAdmin(true);
-            }
-          }}
+          onClick={unlock}
           className="mt-3 w-full rounded-md bg-primary px-3 py-2 text-sm font-bold text-primary-foreground"
         >
           Unlock
@@ -114,7 +127,108 @@ function AdminPage() {
         </button>
       </div>
 
-      <div className="mt-6 space-y-3">
+
+      <div className="mt-6 grid gap-3 sm:grid-cols-3">
+        <Stat label="Player balance" value={`${tele.balance.toFixed(2)} INR`} />
+        <Stat label="My bets logged" value={String(tele.bets.length)} />
+        <Stat label="Chat messages" value={String(tele.chat.length)} />
+      </div>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-2">
+        <Card title="My Bets">
+          {tele.bets.length === 0 ? (
+            <Empty text="No bets yet." />
+          ) : (
+            <table className="w-full text-[0.75rem]">
+              <thead className="text-muted-foreground">
+                <tr className="text-left">
+                  <th className="py-1">Game</th>
+                  <th>Round</th>
+                  <th className="text-right">Stake</th>
+                  <th className="text-right">X</th>
+                  <th className="text-right">Win</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tele.bets.slice(0, 30).map((b, i) => (
+                  <tr key={i} className="border-t border-border/60 text-foreground">
+                    <td className="py-1">{b.gameName}</td>
+                    <td className="text-muted-foreground">{b.round}</td>
+                    <td className="text-right">{b.stake.toFixed(2)}</td>
+                    <td className="text-right">{b.multiplier ? `${b.multiplier.toFixed(2)}x` : "—"}</td>
+                    <td className="text-right font-bold">{b.payout.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </Card>
+
+        <Card title="Chat messages">
+          {tele.chat.length === 0 ? (
+            <Empty text="No messages yet." />
+          ) : (
+            <ul className="space-y-1 text-[0.78rem]">
+              {tele.chat.slice(0, 30).map((c, i) => (
+                <li key={i} className="flex gap-2">
+                  <span className="shrink-0 font-bold text-primary">{c.user}</span>
+                  <span className="min-w-0 flex-1 text-foreground">{c.text}</span>
+                  <span className="shrink-0 text-[0.68rem] text-muted-foreground">
+                    {new Date(c.ts).toLocaleTimeString()}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      </div>
+
+      <div className="mt-3">
+        <Card title="Result history — real vs my result">
+          {tele.results.length === 0 ? (
+            <Empty text="No rounds recorded yet. Open a game to start logging." />
+          ) : (
+            <table className="w-full text-[0.75rem]">
+              <thead className="text-muted-foreground">
+                <tr className="text-left">
+                  <th className="py-1">Time</th>
+                  <th>Game</th>
+                  <th>Round</th>
+                  <th>Real</th>
+                  <th>Shown</th>
+                  <th>Source</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tele.results.slice(0, 40).map((r, i) => (
+                  <tr key={i} className="border-t border-border/60 text-foreground">
+                    <td className="py-1 text-muted-foreground">
+                      {new Date(r.ts).toLocaleTimeString()}
+                    </td>
+                    <td>{r.gameName}</td>
+                    <td className="text-muted-foreground">{r.round}</td>
+                    <td className="font-bold">{r.real}</td>
+                    <td className="font-bold">{r.shown}</td>
+                    <td className={r.forced ? "font-bold text-primary" : "text-muted-foreground"}>
+                      {r.forced ? "My result" : "Real"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          <button
+            type="button"
+            onClick={() => clearTelemetry()}
+            className="mt-3 rounded-md border border-border px-3 py-1.5 text-[0.75rem] font-semibold text-foreground"
+          >
+            Clear dashboard data
+          </button>
+        </Card>
+      </div>
+
+      <h2 className="mt-6 text-[1.05rem] font-extrabold text-foreground">Result controls</h2>
+      <div className="mt-3 space-y-3">
         {GAMES.map((g) => {
           const o = cfg.games[g.id] ?? { mode: "real" as const, value: g.options[0]! };
           return (
@@ -214,4 +328,28 @@ function AdminPage() {
       </Link>
     </div>
   );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-border bg-card p-3">
+      <p className="text-[0.7rem] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+        {label}
+      </p>
+      <p className="mt-1 text-[1.3rem] font-extrabold text-foreground">{value}</p>
+    </div>
+  );
+}
+
+function Card({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-lg border border-border bg-card p-4">
+      <p className="mb-2 text-[0.85rem] font-bold text-foreground">{title}</p>
+      <div className="max-h-[280px] overflow-auto">{children}</div>
+    </div>
+  );
+}
+
+function Empty({ text }: { text: string }) {
+  return <p className="text-[0.78rem] text-muted-foreground">{text}</p>;
 }

@@ -5,6 +5,7 @@ import plane2 from "@/assets/aviator/plane-2.svg";
 import plane3 from "@/assets/aviator/plane-3.svg";
 import aviatorText from "@/assets/aviator/aviator.svg";
 import { type AviatorControl, useAdminConfig } from "@/lib/admin";
+import { logBet, logChat, setBalance as saveBalance } from "@/lib/telemetry";
 
 const PLANE_FRAMES = [plane0, plane1, plane2, plane3];
 
@@ -466,9 +467,26 @@ export function Aviator() {
     for (const p of [p1, p2]) {
       if (p.active) rows.push({ round, amount: p.amount, cashedAt: p.cashedAt, crash: multiplier });
     }
-    if (rows.length) setMyBets((m) => [...rows, ...m].slice(0, 40));
+    if (rows.length) {
+      setMyBets((m) => [...rows, ...m].slice(0, 40));
+      for (const r of rows) {
+        logBet({
+          ts: Date.now(),
+          gameId: "88.0030",
+          gameName: "Aviator",
+          round: String(r.round),
+          stake: r.amount,
+          multiplier: r.cashedAt,
+          payout: r.cashedAt ? Math.round(r.amount * r.cashedAt * 100) / 100 : 0,
+        });
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
+
+  useEffect(() => {
+    saveBalance(balance);
+  }, [balance]);
 
   // chatter from other players
   useEffect(() => {
@@ -603,6 +621,7 @@ export function Aviator() {
                   const text = draft.trim();
                   if (!text) return;
                   setChat((c) => [...c, { id: Date.now(), user: "You", text, mine: true }].slice(-40));
+                  logChat({ ts: Date.now(), user: "You", text });
                   setDraft("");
                 }}
               >
