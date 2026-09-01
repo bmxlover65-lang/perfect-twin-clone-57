@@ -1241,7 +1241,7 @@ function NumberPanel({
         {t.size ? Math.round(t.size) : ""}
       </span>
       {!t.open ? (
-        <div className="absolute inset-0 flex items-center justify-center rounded-[6px] bg-black/70">
+        <div className="absolute inset-0 flex items-center justify-center rounded-[6px] bg-black/85">
           <span className="text-[0.72rem] font-extrabold uppercase tracking-wide text-[#e0201c]">
             Suspended
           </span>
