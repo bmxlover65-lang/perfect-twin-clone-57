@@ -132,8 +132,8 @@ function SportsPage() {
   const list = filter === "inplay" ? inplay : filter === "pre" ? pre : events;
 
   const pill = (active: boolean) =>
-    `rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-      active ? "bg-nav-active text-background" : "bg-muted text-foreground hover:bg-accent"
+  `rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+      active ? "bg-nav-active text-background" : "bg-muted text-foreground hover:opacity-80"
     }`;
 
   return (
@@ -158,7 +158,7 @@ function SportsPage() {
         <button
           type="button"
           onClick={() => void load(sportId)}
-          className="rounded-full bg-muted px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+          className="rounded-full bg-muted px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:opacity-80"
         >
           Refresh
         </button>
@@ -268,7 +268,7 @@ function SportsPage() {
               key={e.exEventId}
               to="/sports/$sportId/$eventId"
               params={{ sportId: e.sportId, eventId: e.exEventId }}
-              className="flex items-center justify-between gap-4 rounded-xl bg-muted px-4 py-3 transition-colors hover:bg-accent"
+              className="flex items-center justify-between gap-4 rounded-xl border border-transparent bg-muted px-4 py-3 transition-colors hover:border-border/60"
             >
               <div className="min-w-0">
                 <h3 className="truncate text-base font-bold text-foreground">{e.eventName}</h3>
