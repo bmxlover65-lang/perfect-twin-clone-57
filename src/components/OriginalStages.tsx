@@ -404,16 +404,15 @@ export function BalloonStage({
   }, [suspended, popped, target, muted]);
 
   const grow = Math.min(1, Math.log(Math.max(1, shown)) / Math.log(20));
-  const size = 120 + grow * 170;
-  const bottom = 90 + grow * 190;
-
-  const histColor = (v: number) =>
-    v >= 4 ? "bg-[#F0A500] text-black" : v >= 2 ? "bg-[#E4572E] text-black" : "bg-[#2E86DE] text-white";
 
   const bgIndex = Math.abs(hashStr(roundId ?? "0")) % LOCATIONS.length;
 
   const histColor2 = (v: number) =>
     v >= 2 ? "bg-[#E8871E] text-white" : "bg-[#123A73] text-white";
+
+  const seedHist = [1.81, 5.68, 2.58, 1.12, 1.15, 3.88, 2.59, 1.3, 1.25, 1.03];
+  const histList = [...history, ...seedHist].slice(0, 10);
+
 
   return (
     <div className="w-full rounded-[14px] bg-black p-1.5">
@@ -430,10 +429,11 @@ export function BalloonStage({
         <div
           className="absolute left-1/2 transition-all duration-300 ease-out"
           style={{
-            bottom: `${8 + grow * 26}%`,
-            width: `${14 + grow * 10}%`,
-            opacity: popped ? 0 : 1,
-            transform: `translateX(-50%) scale(${popped ? 1.4 : 1})`,
+            bottom: `${24 + grow * 20}%`,
+            width: `${21 + grow * 5}%`,
+            opacity: 1,
+            transform: `translateX(-50%) scale(1)`,
+
           }}
         >
           <img
@@ -442,21 +442,13 @@ export function BalloonStage({
             className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
             style={{ filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))" }}
           />
-          <p className="absolute left-1/2 top-[30%] -translate-x-1/2 text-[clamp(1.1rem,3.2vw,2.6rem)] font-extrabold leading-none text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]">
-            {shown.toFixed(2)}x
+          <p className="absolute left-1/2 top-[36%] -translate-x-1/2 whitespace-nowrap text-[clamp(1.3rem,3.4vw,2.9rem)] font-extrabold leading-none text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]">
+            {shown.toFixed(2)}
+            <span className="text-[0.7em]">x</span>
           </p>
         </div>
 
-        {popped ? (
-          <div className="absolute left-1/2 top-[34%] -translate-x-1/2 text-center">
-            <p className="text-[0.9rem] font-extrabold uppercase tracking-[0.2em] text-[#B81D5B]">
-              Balloon burst
-            </p>
-            <p className="text-[2.4rem] font-extrabold leading-none text-white drop-shadow-[0_2px_5px_rgba(0,0,0,0.45)]">
-              {target.toFixed(2)}x
-            </p>
-          </div>
-        ) : null}
+
 
         {/* top bar: mute + history + collapse */}
         <div className="absolute inset-x-0 top-0 flex items-start gap-2 px-3 py-2.5">
@@ -474,16 +466,17 @@ export function BalloonStage({
               <path d="M16.5 9.5l5 5m0-5l-5 5" stroke="currentColor" strokeWidth="2" fill="none" />
             </svg>
           </button>
-          <div className="mx-auto flex max-w-[70%] flex-wrap items-center justify-center gap-1.5">
-            {(history.length ? history : [target]).slice(0, 10).map((v, i) => (
+          <div className="mx-auto flex max-w-[78%] flex-nowrap items-center justify-center gap-1.5 overflow-hidden">
+            {histList.map((v, i) => (
               <span
                 key={i}
-                className={`rounded-[5px] px-2.5 py-[3px] text-[0.78rem] font-extrabold ${histColor2(v)}`}
+                className={`shrink-0 rounded-[5px] px-2.5 py-[3px] text-[0.78rem] font-extrabold ${histColor2(v)}`}
               >
                 {v.toFixed(2)}x
               </span>
             ))}
           </div>
+
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#E8A33D]">
             <img src={arrowDown.url} alt="" className="h-3 w-3" />
           </span>
@@ -570,8 +563,9 @@ export function BalloonStage({
               <button
                 key={i}
                 type="button"
-                disabled={!!suspended}
-                className="flex h-[52px] items-center justify-center gap-3 rounded-[8px] border-2 border-white bg-[linear-gradient(180deg,#3CCB4E_0%,#1E9E30_100%)] text-[1.15rem] font-extrabold tracking-wide text-white shadow-[0_3px_0_#146B21] disabled:opacity-40"
+                disabled={false}
+                className="flex h-[52px] items-center justify-center gap-3 rounded-[8px] border-2 border-white bg-[linear-gradient(180deg,#22C93A_0%,#0FA524_100%)] text-[1.35rem] font-extrabold tracking-wide text-white shadow-[0_3px_0_#0B6B18]"
+
               >
                 <img src={heatIcon.url} alt="" className="h-7 w-7" />
                 HEAT
