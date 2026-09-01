@@ -1032,15 +1032,18 @@ function MuflisPanel({
       </div>
       <div className="mt-4 flex flex-nowrap items-center justify-center gap-2 overflow-x-auto">
         {chips.map((c) => (
-          <img
-            key={c.v}
-            src={c.src}
-            alt={`${c.v} chip`}
-            className="h-[54px] w-[54px] shrink-0 select-none object-contain"
-            draggable={false}
-          />
+          <span key={c.v} className="relative inline-flex h-[54px] w-[54px] shrink-0 items-center justify-center">
+            <img
+              src={c.src}
+              alt={`${c.v} chip`}
+              className="absolute inset-0 h-full w-full select-none object-contain"
+              draggable={false}
+            />
+            <span className="relative z-10 text-[0.8rem] font-extrabold text-[#111]">{c.v}</span>
+          </span>
         ))}
       </div>
+
 
 
     </div>
