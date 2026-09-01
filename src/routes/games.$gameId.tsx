@@ -471,9 +471,12 @@ function GamePage() {
         </span>
       </div>
 
-      {markets.map((m) => (
-        <MarketBoard key={m.marketId} market={m} suspended={suspended} />
-      ))}
+      {gameId === "99.0025" && markets.length ? (
+        <AndarBaharPanel markets={markets} suspended={suspended} />
+      ) : (
+        markets.map((m) => <MarketBoard key={m.marketId} market={m} suspended={suspended} />)
+      )}
+
       {!markets.length ? (
         <p className="mt-3 text-sm text-muted-foreground">Loading live markets…</p>
       ) : null}
