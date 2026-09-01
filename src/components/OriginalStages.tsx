@@ -390,138 +390,214 @@ export function BalloonStage({
   const size = 120 + grow * 170;
   const bottom = 90 + grow * 190;
 
+  const histColor = (v: number) =>
+    v >= 4 ? "bg-[#F0A500] text-black" : v >= 2 ? "bg-[#E4572E] text-black" : "bg-[#2E86DE] text-white";
+
   return (
-    <div className="w-full">
-      <div className="flex items-center gap-2 py-2">
+    <div className="w-full overflow-hidden rounded-[10px] bg-[#12212B]">
+      {/* history strip */}
+      <div className="flex items-center gap-1.5 overflow-x-auto bg-[#1B2E3A] px-2 py-1.5">
+        {history.length === 0 ? (
+          <span className="rounded bg-[#2E86DE] px-2.5 py-0.5 text-[0.72rem] font-extrabold text-white">
+            {target.toFixed(2)}x
+          </span>
+        ) : (
+          history.map((v, i) => (
+            <span
+              key={i}
+              className={`shrink-0 rounded px-2.5 py-0.5 text-[0.72rem] font-extrabold ${histColor(v)}`}
+            >
+              {v.toFixed(2)}x
+            </span>
+          ))
+        )}
+        <span className="ml-auto shrink-0 text-white/60">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </span>
+      </div>
+
+      {/* mute + avatar row */}
+      <div className="flex items-center gap-2 bg-[#16303E] px-3 py-2">
         <button
           type="button"
           onClick={() => {
             setMuted((m) => !m);
             airRef.current?.pause();
           }}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1E1E1E] text-[0.95rem] text-white"
+          className="text-white/90"
           aria-label={muted ? "Unmute" : "Mute"}
         >
-          {muted ? "off" : "on"}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 9v6h4l5 5V4L7 9H3z" />
+            {muted ? (
+              <path d="M16 9l5 6m0-6l-5 6" stroke="currentColor" strokeWidth="2" fill="none" />
+            ) : (
+              <path d="M16 8a5 5 0 010 8" stroke="currentColor" strokeWidth="2" fill="none" />
+            )}
+          </svg>
         </button>
-        <span
-          className={`h-7 w-7 rounded-full ${flying ? "bg-[#2E7D32]" : "bg-[#2A2A2A]"}`}
-        />
+        <span className="flex items-center gap-1 rounded bg-[#27475A] px-2 py-1 text-white/90">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+          </svg>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" strokeWidth="3">
+            <path d="M6 15l6-6 6 6" />
+          </svg>
+        </span>
+        {!suspended && leftSec != null ? (
+          <span className="ml-auto flex h-8 w-8 items-center justify-center rounded-full border-2 border-white/70 text-[0.85rem] font-extrabold text-white">
+            {leftSec}
+          </span>
+        ) : null}
       </div>
-      <div className="overflow-hidden rounded-[4px]">
-        <div className="relative h-[430px] overflow-hidden bg-[linear-gradient(180deg,#1B1F8C_0%,#3C42B4_55%,#8189D6_100%)]">
-          {[...Array(10)].map((_, i) => (
-            <span
-              key={i}
-              className="absolute h-2 w-2 rounded-full bg-white/45"
-              style={{
-                left: `${8 + i * 9}%`,
-                top: `${(((i * 37) % 70) + 10 + shown * 6) % 80}%`,
-              }}
-            />
-          ))}
 
-          {/* balloon */}
-          <div
-            className="absolute left-1/2 -translate-x-1/2 transition-all duration-200 ease-out"
-            style={{
-              bottom: `${bottom}px`,
-              width: `${size}px`,
-              height: `${size * 1.18}px`,
-              opacity: popped ? 0 : 1,
-              transform: `translateX(-50%) scale(${popped ? 1.35 : 1})`,
-            }}
-          >
-            <svg viewBox="0 0 120 142" className="h-full w-full">
-              <defs>
-                <radialGradient id="balloonSkin" cx="35%" cy="30%">
-                  <stop offset="0%" stopColor="#FF8B8B" />
-                  <stop offset="55%" stopColor="#E03B3B" />
-                  <stop offset="100%" stopColor="#961B1B" />
-                </radialGradient>
-              </defs>
-              <ellipse cx="60" cy="58" rx="52" ry="58" fill="url(#balloonSkin)" />
-              <ellipse cx="42" cy="36" rx="13" ry="18" fill="#fff" opacity="0.35" />
-              <path d="M54 114 L60 104 L66 114 Z" fill="#7E1414" />
-              <path
-                d="M60 116 C 70 124, 50 130, 60 140"
-                stroke="#EDEDED"
-                strokeWidth="2.5"
-                fill="none"
-              />
-            </svg>
-          </div>
+      {/* sky stage */}
+      <div className="relative h-[380px] overflow-hidden bg-[linear-gradient(180deg,#7FC5BC_0%,#BFE0CE_38%,#F2E8C4_72%,#F6EFD6_100%)] sm:h-[430px]">
+        {/* clouds */}
+        {[12, 55, 80].map((l, i) => (
+          <span
+            key={i}
+            className="absolute h-[10px] w-[52px] rounded-full bg-white/70 blur-[2px]"
+            style={{ left: `${l}%`, top: `${18 + i * 9}%` }}
+          />
+        ))}
 
-          {popped ? (
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-              <p className="text-[1rem] font-extrabold uppercase tracking-[0.2em] text-[#FFD84D]">
-                Balloon burst
-              </p>
-              <p className="text-[3.4rem] font-extrabold leading-none text-white drop-shadow-[0_3px_6px_rgba(0,0,0,0.45)]">
-                {target.toFixed(2)}
-                <span className="text-[1.7rem] font-bold">x</span>
-              </p>
-            </div>
-          ) : (
-            <p className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[3.2rem] font-extrabold leading-none text-white drop-shadow-[0_3px_6px_rgba(0,0,0,0.4)]">
-              {shown.toFixed(2)}
-              <span className="text-[1.6rem] font-bold">x</span>
+        {/* mountains */}
+        <svg viewBox="0 0 400 160" preserveAspectRatio="none" className="absolute bottom-0 left-0 h-[46%] w-full">
+          <path d="M0 160 L0 120 L45 70 L90 118 L140 55 L195 122 L240 84 L300 128 L350 92 L400 130 L400 160 Z" fill="#2E6B74" />
+          <path d="M0 160 L0 140 L60 108 L120 148 L180 100 L250 150 L320 116 L400 150 L400 160 Z" fill="#7A3B52" opacity="0.9" />
+          <path d="M0 160 L0 152 L80 132 L160 158 L260 134 L400 156 L400 160 Z" fill="#264653" />
+        </svg>
+
+        {/* balloon */}
+        <div
+          className="absolute left-1/2 transition-all duration-300 ease-out"
+          style={{
+            bottom: `${bottom}px`,
+            width: `${size}px`,
+            height: `${size * 1.5}px`,
+            opacity: popped ? 0 : 1,
+            transform: `translateX(-50%) scale(${popped ? 1.4 : 1})`,
+          }}
+        >
+          <svg viewBox="0 0 120 180" className="h-full w-full">
+            <defs>
+              <linearGradient id="bPink" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#B81D5B" />
+                <stop offset="28%" stopColor="#E83E8C" />
+                <stop offset="50%" stopColor="#F25CA2" />
+                <stop offset="72%" stopColor="#E83E8C" />
+                <stop offset="100%" stopColor="#B81D5B" />
+              </linearGradient>
+            </defs>
+            {/* envelope */}
+            <path d="M60 6 C22 6 8 40 8 66 C8 96 34 118 60 118 C86 118 112 96 112 66 C112 40 98 6 60 6 Z" fill="url(#bPink)" />
+            {/* stripes */}
+            <path d="M60 6 C44 6 36 40 36 66 C36 96 48 118 60 118 C72 118 84 96 84 66 C84 40 76 6 60 6 Z" fill="#D63384" opacity="0.55" />
+            <path d="M60 6 C54 6 52 40 52 66 C52 96 56 118 60 118 C64 118 68 96 68 66 C68 40 66 6 60 6 Z" fill="#F25CA2" />
+            {/* ropes */}
+            <line x1="42" y1="116" x2="50" y2="142" stroke="#8B5E34" strokeWidth="2" />
+            <line x1="78" y1="116" x2="70" y2="142" stroke="#8B5E34" strokeWidth="2" />
+            {/* flame */}
+            <path d="M60 128 C54 136 56 140 60 143 C64 140 66 136 60 128 Z" fill="#FFB300">
+              <animate attributeName="opacity" values="1;0.4;1" dur="0.5s" repeatCount="indefinite" />
+            </path>
+            {/* basket */}
+            <rect x="48" y="142" width="24" height="18" rx="3" fill="#6D4C2F" />
+            <rect x="48" y="142" width="24" height="5" rx="2" fill="#54381F" />
+          </svg>
+          {/* multiplier on balloon */}
+          <p className="absolute left-1/2 top-[30%] -translate-x-1/2 text-[1.5rem] font-extrabold text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.35)]">
+            {shown.toFixed(2)}x
+          </p>
+        </div>
+
+        {popped ? (
+          <div className="absolute left-1/2 top-[38%] -translate-x-1/2 text-center">
+            <p className="text-[0.95rem] font-extrabold uppercase tracking-[0.2em] text-[#B81D5B]">
+              Balloon burst
             </p>
-          )}
-
-          {!suspended && leftSec != null ? (
-            <span className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full border-2 border-white/70 text-[1.05rem] font-extrabold text-white">
-              {leftSec}
-            </span>
-          ) : null}
-        </div>
-        <div className="h-[80px] w-full bg-[#2E7D32]" />
+            <p className="text-[2.6rem] font-extrabold leading-none text-[#12212B]">
+              {target.toFixed(2)}x
+            </p>
+          </div>
+        ) : null}
       </div>
-      <div className="mt-1 grid grid-cols-[repeat(2,minmax(0,1fr))_minmax(0,1fr)_minmax(0,1.4fr)] gap-2 rounded-[4px] bg-[#151515] p-3">
-        <div className="col-span-2 grid grid-cols-2 gap-2">
-          {BALLOON_STAKES.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setStake(s)}
-              className={`h-9 rounded text-[0.78rem] font-bold text-white/90 ${
-                stake === s ? "bg-[#3A3A3A] ring-1 ring-[#D4AF1F]" : "bg-[#242424]"
-              }`}
-            >
-              {s}
-            </button>
-          ))}
+
+      {/* betting panel */}
+      <div className="grid grid-cols-[1fr_auto_1.15fr] gap-2 bg-[#12212B] p-3">
+        {/* stakes */}
+        <div>
+          <label className="mb-1 flex items-center gap-1.5 text-[0.72rem] font-bold text-white/80">
+            Auto
+            <span className={`relative inline-flex h-4 w-7 items-center rounded-full ${flying ? "bg-[#2E86DE]" : "bg-[#3A4B57]"}`}>
+              <span className={`absolute h-3 w-3 rounded-full bg-white transition-all ${flying ? "left-3.5" : "left-0.5"}`} />
+            </span>
+          </label>
+          <div className="grid grid-cols-2 gap-1.5">
+            {BALLOON_STAKES.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setStake(s)}
+                className={`h-8 rounded bg-[#1E3A4C] text-[0.75rem] font-bold text-white/90 ${
+                  stake === s ? "ring-2 ring-[#F0A500]" : ""
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="grid gap-2">
-          {["Edits", "Clear", "Min", "Max"].map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => {
-                if (s === "Clear") setStake(0);
-                if (s === "Min") setStake(10);
-                if (s === "Max") setStake(10000);
-              }}
-              className="h-9 rounded bg-[#242424] text-[0.78rem] font-bold text-white/90"
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-        <div className="grid content-start gap-2">
-          <button
-            type="button"
-            className="h-9 rounded bg-[#2C2C2C] text-[0.85rem] font-extrabold text-white disabled:opacity-40"
-            disabled={!!suspended}
-          >
-            BET {stake ? stake : ""}
+        {/* edit/clear/min/max */}
+        <div className="grid content-start gap-1.5 pt-5">
+          <button type="button" className="h-8 rounded bg-[#F0A500] px-3 text-[0.72rem] font-extrabold text-black">
+            Edits
           </button>
           <button
             type="button"
-            className="h-9 rounded bg-[#2C2C2C] text-[0.85rem] font-extrabold text-white"
+            onClick={() => setStake(0)}
+            className="h-8 rounded bg-[#D64545] px-3 text-[0.72rem] font-extrabold text-white"
           >
-            HEAT
+            Clear
           </button>
+          <button
+            type="button"
+            onClick={() => setStake(10)}
+            className="h-8 rounded bg-[#7A4BC2] px-3 text-[0.72rem] font-extrabold text-white"
+          >
+            Min
+          </button>
+          <button
+            type="button"
+            onClick={() => setStake(10000)}
+            className="h-8 rounded bg-[#3A4BC2] px-3 text-[0.72rem] font-extrabold text-white"
+          >
+            Max
+          </button>
+        </div>
+        {/* heat buttons */}
+        <div className="grid content-start gap-2 pt-5">
+          {[0, 1].map((i) => (
+            <button
+              key={i}
+              type="button"
+              disabled={!!suspended}
+              className="flex h-12 items-center justify-center gap-2 rounded-[8px] bg-[linear-gradient(180deg,#3CCB4E_0%,#1E9E30_100%)] text-[1.05rem] font-extrabold text-white shadow-[inset_0_2px_0_rgba(255,255,255,0.35),0_3px_0_#146B21] disabled:opacity-40"
+            >
+              <svg width="20" height="22" viewBox="0 0 24 26" fill="none">
+                <path d="M12 1 C14 6 20 8 20 15 A8 8 0 1 1 4 15 C4 10 8 8 9 4 C10 7 12 8 12 8 C11 5 11 3 12 1 Z" fill="#FF6B1A" stroke="#B33A00" strokeWidth="1.2" />
+                <path d="M12 12 C13.5 15 16 16 16 19 A4 4 0 1 1 8 19 C8 16.5 10.5 15.5 12 12 Z" fill="#FFD23E" />
+              </svg>
+              HEAT
+            </button>
+          ))}
+          <span className="text-center text-[0.7rem] font-bold text-white/60">
+            Stake: {stake || 0}
+          </span>
         </div>
       </div>
     </div>
