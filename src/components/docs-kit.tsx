@@ -98,7 +98,7 @@ export function Step({ n, title, children }: { n: number; title: string; childre
       </span>
       <div>
         <p className="font-semibold text-foreground">{title}</p>
-        <p className="mt-1 text-sm text-muted-foreground">{children}</p>
+        <div className="mt-1 text-sm text-muted-foreground">{children}</div>
       </div>
     </div>
   );
