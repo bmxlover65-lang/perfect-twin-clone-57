@@ -586,6 +586,9 @@ function GamePage() {
         <AndarBaharPanel markets={markets} suspended={suspended} />
       ) : gameId === "99.0001" && markets.length ? (
         <BaccaratPanel markets={markets} suspended={suspended} />
+      ) : gameId === "99.0007" && markets.length ? (
+        <PokerPanel markets={markets} suspended={suspended} />
+
       ) : (
         markets.map((m) => <MarketBoard key={m.marketId} market={m} suspended={suspended} />)
       )}
