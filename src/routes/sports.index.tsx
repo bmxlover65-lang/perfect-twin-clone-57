@@ -3,13 +3,16 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   fetchEvents,
+  fetchProxyHealth,
   fetchSports,
   fmtInt,
   fmtOdds,
   runnerName,
+  type ProxyHealth,
   type Sport,
   type UEvent,
 } from "@/lib/uapi";
+
 
 export const Route = createFileRoute("/sports/")({
   head: () => ({
