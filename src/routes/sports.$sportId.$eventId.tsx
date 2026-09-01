@@ -316,7 +316,21 @@ function EventPage() {
 
       {error ? <p className="mt-3 text-sm text-live-lose">{error}</p> : null}
 
-      <div className="mt-5 grid gap-4">
+      <div className="mt-5 grid gap-4 lg:grid-cols-2">
+        <div className="overflow-hidden rounded-lg bg-ex-panel">
+          <header className="bg-ex-header px-4 py-2.5 text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-ex-text">
+            Live TV
+          </header>
+          {token ? (
+            <iframe
+              title="Live TV"
+              src={embedUrl("tv", sportId, eventId, token)}
+              className="h-[340px] w-full border-0 bg-black"
+            />
+          ) : (
+            <div className="h-[340px] w-full bg-black" />
+          )}
+        </div>
 
         <div className="overflow-hidden rounded-lg bg-ex-panel">
           <header className="bg-ex-header px-4 py-2.5 text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-ex-text">
@@ -333,6 +347,7 @@ function EventPage() {
           )}
         </div>
       </div>
+
 
       <p className="mt-6 text-base font-bold text-foreground">
         Live odds <span className="text-sm font-normal text-muted-foreground">· live via WebSocket</span>

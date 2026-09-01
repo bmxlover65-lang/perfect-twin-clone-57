@@ -110,7 +110,7 @@ export function fetchSessionToken() {
   return get<{ sessionToken: string }>("session");
 }
 
-export function embedUrl(kind: "player" | "scoreboard", sportId: string, exEventId: string, token: string) {
+export function embedUrl(kind: "tv" | "player" | "scoreboard", sportId: string, exEventId: string, token: string) {
   const q = new URLSearchParams({ sportId, exEventId, tv: "true", sessionToken: token });
   return `https://universeapi.shop/public/tv/sports/${kind}?${q.toString()}`;
 }
