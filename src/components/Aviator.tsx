@@ -236,31 +236,35 @@ function FlightStage({
   const hoverScale = phase === "flying" ? Math.max(0, Math.min(1, multiplier - 2)) : 0;
   const hoverY = Math.sin(t / 1000) * 16 * hoverScale;
   const hoverX = Math.cos(t / 1500) * 34 * hoverScale;
-  const x = 40 + p * (W - 190) + hoverX;
-  const y = H - 40 - Math.sin(p * 1.35) * (H - 110) + hoverY;
+  const x = 40 + p * (W - 200) + hoverX;
+  const y = H - 40 - Math.sin(p * 1.35) * (H - 120) + hoverY;
   const flewT = phase === "crashed" ? 1 : 0;
-  const px = x + flewT * 340;
-  const py = y - flewT * 190;
+  const px = x + flewT * 360;
+  const py = y - flewT * 200;
   const path = `M40,${H - 40} Q ${40 + (x - 40) * 0.62},${H - 40} ${x},${y}`;
   const area = `${path} L ${x},${H - 40} Z`;
-  const planeW = 108;
+  const planeW = 96;
   const planeH = planeW * (74 / 150);
+  const tick = (t / 22) % 60;
+
 
   return (
     <div className="relative overflow-hidden rounded-[14px] bg-black">
       {/* spribe-style rotating sun rays */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
-          className="absolute left-[6%] top-[86%] h-[1200px] w-[1200px] -translate-x-1/2 -translate-y-1/2 opacity-70"
+          className="absolute left-[5%] top-[88%] h-[900px] w-[900px] -translate-x-1/2 -translate-y-1/2 opacity-45"
           style={{
             background:
-              "repeating-conic-gradient(from 0deg, #14171b 0deg 7deg, #05070a 7deg 14deg)",
+              "repeating-conic-gradient(from 0deg, #101317 0deg 6deg, #050608 6deg 12deg)",
             borderRadius: "9999px",
-            animation: "av-spin 60s linear infinite",
+            maskImage: "radial-gradient(circle, #000 0%, #000 45%, transparent 78%)",
+            WebkitMaskImage: "radial-gradient(circle, #000 0%, #000 45%, transparent 78%)",
+            animation: "av-spin 90s linear infinite",
             animationPlayState: phase === "flying" ? "running" : "paused",
           }}
         />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_110%,rgba(180,25,25,0.35),transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_8%_112%,rgba(190,25,25,0.28),transparent_52%)]" />
       </div>
       <style>{`@keyframes av-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes av-prop{to{transform:rotate(360deg)}}`}</style>
@@ -282,6 +286,25 @@ function FlightStage({
 
         <line x1="40" y1={H - 40} x2={W - 20} y2={H - 40} stroke="#ffffff22" strokeWidth="2" />
         <line x1="40" y1="20" x2="40" y2={H - 40} stroke="#ffffff22" strokeWidth="2" />
+        {/* moving axis ticks like the real game */}
+        {Array.from({ length: 12 }).map((_, i) => (
+          <circle
+            key={`bx${i}`}
+            cx={70 + ((i * 60 + (phase === "flying" ? -tick : 0) + 720) % 720)}
+            cy={H - 24}
+            r="2.5"
+            fill="#ffffff35"
+          />
+        ))}
+        {Array.from({ length: 5 }).map((_, i) => (
+          <circle
+            key={`by${i}`}
+            cy={H - 70 - ((i * 56 + (phase === "flying" ? tick : 0)) % 240)}
+            cx="24"
+            r="2.5"
+            fill="#ffffff35"
+          />
+        ))}
 
         {phase !== "betting" ? (
           <>
@@ -296,8 +319,8 @@ function FlightStage({
             />
             <image
               href={PLANE_FRAMES[phase === "crashed" ? 0 : frame]}
-              x={px - 6}
-              y={py - planeH + planeH * 0.1}
+              x={px - planeW * 0.72}
+              y={py - planeH * 0.62}
               width={planeW}
               height={planeH}
               opacity={phase === "crashed" ? 0 : 1}
@@ -309,6 +332,7 @@ function FlightStage({
           </>
         ) : null}
       </svg>
+
       <img
         src={aviatorText}
         alt="Aviator"
