@@ -432,6 +432,52 @@ export function BalloonStage({
     }
   }, [suspended, popped, target, muted]);
 
+  // balloon burst → any active HEAT bet is lost
+  useEffect(() => {
+    if (!popped) return;
+    setBets((prev) => {
+      prev.forEach((b, i) => {
+        if (b) {
+          setFlash((f) => {
+            const n = [...f];
+            n[i] = { text: `-${b.stake.toLocaleString("en-IN")}`, win: false };
+            return n;
+          });
+        }
+      });
+      return [null, null];
+    });
+  }, [popped]);
+
+  // HEAT button: press to place a bet, press again to cash out before the burst
+  const pressHeat = (i: 0 | 1) => {
+    if (popped) return;
+    setBets((prev) => {
+      const next = [...prev];
+      const b = next[i];
+      if (b) {
+        const payout = Math.round(b.stake * shown);
+        setBalance((bal) => bal + payout);
+        setFlash((f) => {
+          const n = [...f];
+          n[i] = { text: `+${payout.toLocaleString("en-IN")}`, win: true };
+          return n;
+        });
+        next[i] = null;
+      } else {
+        if (!flying || stake <= 0) return prev;
+        setBalance((bal) => Math.max(0, bal - stake));
+        next[i] = { entry: shown, stake };
+        setFlash((f) => {
+          const n = [...f];
+          n[i] = null;
+          return n;
+        });
+      }
+      return next;
+    });
+  };
+
   const grow = Math.min(1, Math.log(Math.max(1, shown)) / Math.log(20));
 
   const bgIndex = Math.abs(hashStr(roundId ?? "0")) % LOCATIONS.length;
