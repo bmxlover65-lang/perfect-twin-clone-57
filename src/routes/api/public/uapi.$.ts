@@ -5,10 +5,19 @@ const UPSTREAM = "https://universeapi.shop/public";
 let cachedToken: string | null = null;
 let cachedAt = 0;
 
+function apiKey(): string | undefined {
+  return process.env["UAPI_KEY"] || undefined;
+}
+
+function authHeaders(): Record<string, string> {
+  const key = apiKey();
+  return key ? { "X-API-Key": key, "x-api-key": key } : {};
+}
+
 async function mintToken(): Promise<string> {
   const res = await fetch(`${UPSTREAM}/session`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: "{}",
   });
   const json = (await res.json().catch(() => ({}))) as { sessionToken?: string; error?: string };
@@ -31,11 +40,13 @@ async function upstream(path: string, search: string, token: string, body?: stri
     headers: {
       "x-session-token": token,
       accept: "application/json",
+      ...authHeaders(),
       ...(body === undefined ? {} : { "content-type": "application/json" }),
     },
     ...(body === undefined ? {} : { body }),
   });
 }
+
 
 async function proxy(splat: string, search: string, body?: string) {
   try {
