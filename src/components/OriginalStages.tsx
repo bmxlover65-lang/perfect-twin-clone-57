@@ -520,9 +520,9 @@ export function BalloonStage({
         <img
           src={LOCATIONS[bgIndex]!.url}
           alt=""
-          className="absolute inset-x-0 bottom-0 h-[150%] w-full object-cover object-bottom"
+          className="absolute inset-x-0 bottom-0 h-[58%] w-full object-cover object-top"
           style={{
-            transform: `translateY(${grow * 42}%)`,
+            transform: `translateY(${grow * 100}%)`,
             transition: "transform 400ms linear",
           }}
         />
