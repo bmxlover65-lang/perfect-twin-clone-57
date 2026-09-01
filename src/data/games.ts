@@ -406,6 +406,9 @@ const GAME_IMAGES: Record<string, string> = {
   "99.0021": dragonTiger1DayImg.url,
   "99.0001": baccaratImg.url,
   "99.0025": andarBaharImg.url,
+  "88.0023": balloonImg.url,
+  "88.0021": headsTailsImg.url,
+  "88.0019": lucky09Img.url,
 };
 
 const seeds: Seed[] = [
