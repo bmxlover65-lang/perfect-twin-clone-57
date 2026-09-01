@@ -374,6 +374,22 @@ interface Seed {
   results: string[];
 }
 
+const GAME_IMAGES: Record<string, string> = {
+  "99.0022": cards32Img.url,
+  "99.0007": pokerImg.url,
+  "99.0041": dtlImg.url,
+  "99.0030": lucky7Img.url,
+  "99.0013": teenpatti1DayImg.url,
+  "99.0010": teenpatti1DayImg.url,
+  "99.0014": teenpatti1DayImg.url,
+  "99.0016": jokerTeenpattiImg.url,
+  "99.0018": dragonTigerImg.url,
+  "99.0019": dragonTigerImg.url,
+  "99.0021": dragonTigerImg.url,
+  "99.0001": baccaratImg.url,
+  "99.0025": andarBaharImg.url,
+};
+
 const seeds: Seed[] = [
   { id: "4.3544687543453", name: "BALL BY BALL", kind: "ballbyball", hues: [140, 95], glyph: "⬤", results: ["0", "1", "2", "4", "6", "W"] },
   { id: "99.0010", name: "20-20 TEENPATTI", kind: "teenpatti", hues: [265, 320], glyph: "♠", results: ["A", "B"] },
