@@ -190,11 +190,13 @@ function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-nav-foreground/10 bg-nav">
       <div className="mx-auto flex h-[60px] max-w-[1600px] items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-mark text-sm font-bold tracking-tight text-white">
-            R<span className="text-brand-accent">I</span>
-          </span>
-          <span className="text-xl font-bold tracking-tight text-nav-foreground">
-            Universal AP<span className="text-brand-accent">I</span>
+          <img
+            src="/favicon.svg"
+            alt="Universal API"
+            className="h-8 w-8 rounded-lg"
+          />
+          <span className="text-xl font-bold tracking-tight text-white">
+            Universal API
           </span>
         </Link>
         <nav className="flex items-center gap-5">
