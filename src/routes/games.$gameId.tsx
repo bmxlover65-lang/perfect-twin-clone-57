@@ -1809,34 +1809,43 @@ function GamePage() {
           />
         )}
 
-        {gameId === "88.0021" ? (
-          <div className="mt-2">
-            <HeadsTailsPanel
-              runners={(markets[0]?.runners ?? []).map((r) => ({
-                id: String(r.selectionId),
-                label:
-                  markets[0]?.runnersName?.[String(r.selectionId)] ?? String(r.selectionId),
-                price: r.price?.back?.[0]?.price,
-                size: r.price?.back?.[0]?.size,
-                open: !suspended && isOpenStatus(r.status),
-              }))}
-              min={markets[0]?.min ?? 100}
-              max={markets[0]?.max ?? 100000}
+        <BetLayer
+          gameId={gameId}
+          gameName={d?.eventName ?? gameId}
+          round={String(d?.roundId ?? "")}
+          disabled={suspended}
+        >
+          {gameId === "88.0021" ? (
+            <div className="mt-2">
+              <HeadsTailsPanel
+                runners={(markets[0]?.runners ?? []).map((r) => ({
+                  id: String(r.selectionId),
+                  label:
+                    markets[0]?.runnersName?.[String(r.selectionId)] ?? String(r.selectionId),
+                  price: r.price?.back?.[0]?.price,
+                  size: r.price?.back?.[0]?.size,
+                  open: !suspended && isOpenStatus(r.status),
+                }))}
+                min={markets[0]?.min ?? 100}
+                max={markets[0]?.max ?? 100000}
+              />
+            </div>
+          ) : gameId !== "88.0023" && markets.length ? (
+            <NumberPanel
+              markets={markets}
+              suspended={suspended}
+              perRow={gameId === "88.0019" ? 5 : gameId === "88.0020" ? 3 : 2}
+              dream={gameId === "88.0020"}
             />
-          </div>
-        ) : gameId !== "88.0023" && markets.length ? (
-          <NumberPanel
-            markets={markets}
-            suspended={suspended}
-            perRow={gameId === "88.0019" ? 5 : gameId === "88.0020" ? 3 : 2}
-            dream={gameId === "88.0020"}
-          />
-        ) : null}
+          ) : null}
+        </BetLayer>
 
+        {gameId !== "88.0023" ? <MyBets gameId={gameId} /> : null}
 
         {gameId !== "88.0023" ? (
           <RecentStrip results={results} dream={gameId === "88.0020"} />
         ) : null}
+
       </div>
     );
   }
