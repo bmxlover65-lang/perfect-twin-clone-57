@@ -429,7 +429,7 @@ export function BalloonStage({
         <div
           className="absolute left-1/2 transition-all duration-300 ease-out"
           style={{
-            bottom: `${16 + grow * 22}%`,
+            bottom: `${24 + grow * 20}%`,
             width: `${21 + grow * 5}%`,
             opacity: 1,
             transform: `translateX(-50%) scale(1)`,
@@ -447,14 +447,6 @@ export function BalloonStage({
             <span className="text-[0.7em]">x</span>
           </p>
         </div>
-
-        {popped ? (
-          <div className="absolute left-1/2 top-[12%] -translate-x-1/2 text-center">
-            <p className="text-[0.8rem] font-extrabold uppercase tracking-[0.2em] text-[#B81D5B]">
-              Balloon burst
-            </p>
-          </div>
-        ) : null}
 
 
 
