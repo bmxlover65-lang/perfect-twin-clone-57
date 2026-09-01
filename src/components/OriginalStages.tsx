@@ -331,6 +331,7 @@ export function BalloonStage({
   const [flying, setFlying] = useState(false);
   const [popped, setPopped] = useState(false);
   const [shown, setShown] = useState(1);
+  const [history, setHistory] = useState<number[]>([]);
   const airRef = useRef<HTMLAudioElement | null>(null);
   const doneFor = useRef<string | null>(null);
   const target = Number(multiplier) || 1;
