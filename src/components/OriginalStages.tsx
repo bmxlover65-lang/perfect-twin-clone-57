@@ -132,6 +132,13 @@ export function DreamWheel({
     setShowWin(false);
     setSpin(true);
     setRot(base + 360 * 6 - seg);
+    try {
+      const audio = new Audio("/wheel-spin.mp3");
+      audio.volume = 0.6;
+      void audio.play().catch(() => undefined);
+    } catch {
+      // audio not available
+    }
     const t = window.setTimeout(() => {
       setSpin(false);
       setShowWin(true);
