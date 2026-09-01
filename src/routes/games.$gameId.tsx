@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Aviator } from "@/components/Aviator";
+import { applyOverride, useAdminConfig } from "@/lib/admin";
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
 import dream1x from "@/assets/dream/dream1x.png.asset.json";
 import dream2x from "@/assets/dream/dream2x.png.asset.json";
@@ -1576,6 +1577,7 @@ function DragonTigerPanel({
 
 function GamePage() {
   const { gameId } = Route.useParams();
+  const { admin, cfg } = useAdminConfig();
   const [state, setState] = useState<CasinoState | null>(null);
   const [results, setResults] = useState<CasinoResult[]>([]);
   const [stream, setStream] = useState<string | null>(null);
@@ -1711,11 +1713,14 @@ function GamePage() {
         {gameId === "88.0019" ? (
           <div className="mt-2">
             <LuckyWheel
-              winner={
+              winner={applyOverride(
+                cfg,
+                admin,
+                gameId,
                 (d as unknown as { gameResult?: string })?.gameResult ??
-                results[0]?.winner ??
-                null
-              }
+                  results[0]?.winner ??
+                  null,
+              )}
               roundId={d?.roundId ? String(d.roundId) : undefined}
               suspended={suspended}
               leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
@@ -1723,11 +1728,14 @@ function GamePage() {
           </div>
         ) : gameId === "88.0020" ? (
           <DreamWheel
-            winner={
+            winner={applyOverride(
+              cfg,
+              admin,
+              gameId,
               (d as unknown as { gameResult?: string })?.gameResult ??
-              results[0]?.winner ??
-              null
-            }
+                results[0]?.winner ??
+                null,
+            )}
             roundId={d?.roundId ? String(d.roundId) : undefined}
             suspended={suspended}
             leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
@@ -1737,9 +1745,14 @@ function GamePage() {
           <CoinStageImage
             winner={(() => {
               const w = (
-                (d as unknown as { gameResult?: string })?.gameResult ??
-                results[0]?.winner ??
-                ""
+                applyOverride(
+                  cfg,
+                  admin,
+                  gameId,
+                  (d as unknown as { gameResult?: string })?.gameResult ??
+                    results[0]?.winner ??
+                    "",
+                ) ?? ""
               )
                 .toString()
                 .toUpperCase();
@@ -1754,7 +1767,9 @@ function GamePage() {
 
         ) : (
           <BalloonStage
-            multiplier={raw.multiplier ?? "1.00"}
+            multiplier={
+              applyOverride(cfg, admin, gameId, raw.multiplier ?? "1.00") ?? "1.00"
+            }
             roundId={d?.roundId ? String(d.roundId) : undefined}
             suspended={suspended}
             leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
