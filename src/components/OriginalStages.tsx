@@ -425,19 +425,22 @@ export function BalloonStage({
         <img
           src={LOCATIONS[bgIndex]!.url}
           alt=""
-          className="absolute left-0 h-[170%] w-full object-cover transition-transform duration-500 ease-out"
-          style={{ bottom: 0, transform: `translateY(${grow * 40}%)` }}
+          className="absolute left-0 h-[170%] w-full object-cover transition-transform duration-700 ease-out"
+          style={{ bottom: 0, transform: `translateY(${grow * 55}%)` }}
         />
 
-        {/* balloon */}
+        {/* balloon — rises and recedes as the multiplier climbs; bursts on pop */}
         <div
-          className="absolute left-1/2 transition-all duration-300 ease-out"
+          className={`absolute left-1/2 ${
+            popped ? "transition-all duration-200 ease-in" : "transition-all duration-500 ease-out"
+          }`}
           style={{
-            bottom: `${24 + grow * 20}%`,
-            width: `${21 + grow * 5}%`,
-            opacity: 1,
-            transform: `translateX(-50%) scale(1)`,
-
+            bottom: popped ? "72%" : `${8 + grow * 52}%`,
+            width: `${Math.max(12, 23 - grow * 9)}%`,
+            opacity: popped ? 0 : 1,
+            transform: popped
+              ? "translateX(-50%) scale(1.55)"
+              : "translateX(-50%) scale(1)",
           }}
         >
           <img
