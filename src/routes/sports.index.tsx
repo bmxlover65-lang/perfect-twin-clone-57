@@ -158,7 +158,7 @@ function SportsPage() {
         <button
           type="button"
           onClick={() => void load(sportId)}
-          className="rounded-full bg-muted px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+          className="rounded-full bg-muted px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:opacity-80"
         >
           Refresh
         </button>
