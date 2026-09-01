@@ -1,5 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import luckyBg from "@/assets/lucky-bg.gif.asset.json";
+import balloonImg from "@/assets/balloon/balloon.png.asset.json";
+import heatIcon from "@/assets/balloon/heat-icon.webp.asset.json";
+import arrowDown from "@/assets/balloon/ArrowDown.webp.asset.json";
+import profileIcon from "@/assets/balloon/Profile.webp.asset.json";
+import loc1 from "@/assets/balloon/locationLt.png.asset.json";
+import loc2 from "@/assets/balloon/locationLt2.png.asset.json";
+import loc3 from "@/assets/balloon/locationLt3.png.asset.json";
+import bonusSfx from "@/assets/balloon/balloon_achieve_bonus.mp3.asset.json";
+
+const LOCATIONS = [loc1, loc2, loc3];
+
+function hashStr(s: string) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return h;
+}
+
 
 
 
