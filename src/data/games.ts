@@ -17,6 +17,7 @@ import lucky09Img from "@/assets/games/Lucky_0_to_9.webp.asset.json";
 import aaaImg from "@/assets/games/AmarAkbarAnthony-01.webp.asset.json";
 import ballByBallImg from "@/assets/games/ballbyball.gif.asset.json";
 import dreamCatcherImg from "@/assets/games/dream-catcher.png.asset.json";
+import aviatorImg from "@/assets/games/aviator.png.asset.json";
 
 export type GameKind =
   | "teenpatti"
@@ -33,6 +34,7 @@ export type GameKind =
   | "cardrace"
   | "ballbyball"
   | "dtl"
+  | "aviator"
   | "aaa";
 
 export interface GameMarketTemplate {
@@ -296,6 +298,16 @@ const balloonMarkets = (): GameMarketTemplate[] => [
   },
 ];
 
+const aviatorMarkets = (): GameMarketTemplate[] => [
+  {
+    title: "CASH OUT MULTIPLIER",
+    min: 100,
+    max: 200000,
+    runners: ["1.5x", "2x", "5x", "10x"],
+    odds: [1.5, 2.0, 5.0, 10.0],
+  },
+];
+
 const cardRaceMarkets = (): GameMarketTemplate[] => [
   {
     title: "SUIT RACE 1:3.7",
@@ -380,6 +392,8 @@ const marketsFor = (kind: GameKind): GameMarketTemplate[] => {
       return ballByBallMarkets();
     case "dtl":
       return dtlMarkets();
+    case "aviator":
+      return aviatorMarkets();
     case "aaa":
       return aaaMarkets();
   }
@@ -415,6 +429,7 @@ const GAME_IMAGES: Record<string, string> = {
   "99.0005": aaaImg.url,
   "4.3544687543453": ballByBallImg.url,
   "88.0020": dreamCatcherImg.url,
+  "88.0030": aviatorImg.url,
 };
 
 const seeds: Seed[] = [
@@ -437,6 +452,7 @@ const seeds: Seed[] = [
   { id: "88.0019", name: "LUCKY 0 TO 9", kind: "lucky09", hues: [250, 300], glyph: "09", results: ["0", "3", "5", "7", "9"] },
   { id: "88.0020", name: "DREAM CATCHER", kind: "wheel", hues: [200, 145], glyph: "◎", results: ["1", "2", "5", "10", "20", "40"] },
   { id: "88.0021", name: "HEADS & TAILS", kind: "coin", hues: [45, 20], glyph: "◐", results: ["H", "T"] },
+  { id: "88.0030", name: "AVIATOR", kind: "aviator", hues: [0, 15], glyph: "✈", results: ["1.2x", "2x", "5x", "10x"] },
   { id: "88.0023", name: "BALLOON", kind: "balloon", hues: [330, 20], glyph: "◍", results: ["R", "G", "B", "Y"] },
 ];
 
