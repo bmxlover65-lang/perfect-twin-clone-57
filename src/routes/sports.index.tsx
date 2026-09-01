@@ -55,6 +55,7 @@ function SportsPage() {
   const [pollCount, setPollCount] = useState(0);
   const [errorLog, setErrorLog] = useState<{ at: string; message: string }[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [health, setHealth] = useState<ProxyHealth | null>(null);
 
   useEffect(() => {
     const q = new URLSearchParams(window.location.search).get("admin");
@@ -62,6 +63,18 @@ function SportsPage() {
     if (q === "0") localStorage.removeItem("uapi_admin");
     setIsAdmin(localStorage.getItem("uapi_admin") === "1");
   }, []);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    const run = () =>
+      fetchProxyHealth()
+        .then(setHealth)
+        .catch(() => undefined);
+    void run();
+    const t = setInterval(run, 60000);
+    return () => clearInterval(t);
+  }, [isAdmin]);
+
 
 
   useEffect(() => {
