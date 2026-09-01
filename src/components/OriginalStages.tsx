@@ -449,15 +449,13 @@ export function BalloonStage({
         </div>
 
         {popped ? (
-          <div className="absolute left-1/2 top-[34%] -translate-x-1/2 text-center">
-            <p className="text-[0.9rem] font-extrabold uppercase tracking-[0.2em] text-[#B81D5B]">
+          <div className="absolute left-1/2 top-[12%] -translate-x-1/2 text-center">
+            <p className="text-[0.8rem] font-extrabold uppercase tracking-[0.2em] text-[#B81D5B]">
               Balloon burst
-            </p>
-            <p className="text-[2.4rem] font-extrabold leading-none text-white drop-shadow-[0_2px_5px_rgba(0,0,0,0.45)]">
-              {target.toFixed(2)}x
             </p>
           </div>
         ) : null}
+
 
 
         {/* top bar: mute + history + collapse */}
