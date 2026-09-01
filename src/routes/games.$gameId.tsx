@@ -170,35 +170,35 @@ function PokerPanel({
     locked: boolean;
   }) => (
     <div
-      className={`flex h-[52px] w-[210px] -skew-x-[18deg] items-center justify-center rounded-[3px] shadow-md ${
+      className={`flex h-[55px] w-[215px] -skew-x-[18deg] items-center justify-center rounded-[2px] shadow-[0_2px_5px_rgba(0,0,0,0.25)] ${
         locked
           ? "bg-gradient-to-b from-[#c9d4cf] to-[#b5c2bc]"
-          : "bg-gradient-to-b from-[#17805A] to-[#0C5B3E]"
+          : "bg-gradient-to-br from-[#1a7f5a] to-[#0b5c3c]"
       }`}
     >
       <div className="skew-x-[18deg] text-center leading-tight">
-        <p className={`text-[1.05rem] font-extrabold ${locked ? "text-white/70" : "text-white"}`}>
+        <p className={`text-[1.15rem] font-extrabold ${locked ? "text-white/70" : "text-[#16261f]"}`}>
           {fmtOdds(price)}
         </p>
-        <p className="text-[0.66rem] font-semibold text-white/70">{fmtSize(size)}</p>
+        <p className="text-[0.62rem] font-semibold text-[#16261f]/55">{fmtSize(size)}</p>
       </div>
     </div>
   );
 
   return (
-    <div className="mt-3 bg-[#ececec] p-3">
-      <div className="mb-3 flex items-center justify-between gap-4">
+    <div className="mt-3 bg-[#ececec]">
+      <div className="flex items-center justify-between gap-4 px-3 py-4">
         {["PLAYER A", "PLAYER B"].map((n) => (
           <div
             key={n}
-            className="flex h-[62px] flex-1 items-center justify-center rounded-md bg-gradient-to-b from-[#17805A] to-[#0B4F36] text-[1.05rem] font-extrabold tracking-wide text-[#0d2b21] shadow"
+            className="flex h-[68px] w-[250px] items-center justify-center rounded-[4px] bg-gradient-to-br from-[#1a7f5a] to-[#0b5c3c] text-[1.05rem] font-extrabold tracking-wide text-[#16261f] shadow-[0_2px_5px_rgba(0,0,0,0.25)]"
           >
             {n}
           </div>
         ))}
       </div>
 
-      <div className="space-y-2">
+      <div>
         {markets.map((m) => {
           const names = m.runnersName ?? {};
           const runners = m.runners ?? [];
@@ -210,19 +210,19 @@ function PokerPanel({
           return (
             <div
               key={m.marketId}
-              className={`relative bg-white px-3 pb-4 pt-0 ${
-                isSusp ? "rounded-[14px] border border-[#e0403f]" : "border-b border-[#d8d8d8]"
+              className={`relative border-t border-[#c9c9c9] px-3 pb-6 pt-0 ${
+                isSusp ? "rounded-[14px] border border-[#e0403f]" : ""
               }`}
             >
               <div className="flex justify-center">
-                <div className="-mt-0 flex h-[38px] w-[300px] items-center justify-center gap-1 rounded-b-[14px] bg-white text-[0.8rem] font-extrabold uppercase tracking-wide text-[#333] shadow-[0_2px_4px_rgba(0,0,0,0.18)]">
+                <div className="flex h-[42px] w-[305px] items-center justify-center gap-1.5 rounded-b-[22px] bg-white text-[0.82rem] font-extrabold uppercase tracking-wide text-[#333] shadow-[0_3px_5px_rgba(0,0,0,0.18)]">
                   {m.marketName}
-                  <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#9aa0a6] text-[0.6rem] font-bold text-white">
+                  <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#5b8dab] text-[0.6rem] font-bold text-white">
                     i
                   </span>
                 </div>
               </div>
-              <div className="relative mt-2 flex items-center justify-between">
+              <div className="relative -mt-5 flex items-center justify-between">
                 <Plate
                   price={a?.price?.back?.[0]?.price}
                   size={a?.price?.back?.[0]?.size}
@@ -243,6 +243,7 @@ function PokerPanel({
           );
         })}
       </div>
+
     </div>
   );
 }
