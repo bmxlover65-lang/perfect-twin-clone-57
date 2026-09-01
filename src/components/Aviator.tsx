@@ -210,14 +210,32 @@ function FlightStage({
   multiplier: number;
   countdown: number;
 }) {
+  const [frame, setFrame] = useState(0);
+  const [t, setT] = useState(0);
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setFrame((f) => (f + 1) % 4);
+      setT(Date.now());
+    }, 50);
+    return () => window.clearInterval(id);
+  }, []);
+
   // progress 0..1 across the plot area
   const p = phase === "flying" ? Math.min(1, Math.log(multiplier) / Math.log(25)) : phase === "crashed" ? 1 : 0;
   const W = 760;
   const H = 320;
-  const x = 40 + p * (W - 150);
-  const y = H - 40 - Math.sin(p * 1.35) * (H - 110);
+  const hoverScale = phase === "flying" ? Math.max(0, Math.min(1, multiplier - 2)) : 0;
+  const hoverY = Math.sin(t / 1000) * 16 * hoverScale;
+  const hoverX = Math.cos(t / 1500) * 34 * hoverScale;
+  const x = 40 + p * (W - 190) + hoverX;
+  const y = H - 40 - Math.sin(p * 1.35) * (H - 110) + hoverY;
+  const flewT = phase === "crashed" ? 1 : 0;
+  const px = x + flewT * 340;
+  const py = y - flewT * 190;
   const path = `M40,${H - 40} Q ${40 + (x - 40) * 0.62},${H - 40} ${x},${y}`;
   const area = `${path} L ${x},${H - 40} Z`;
+  const planeW = 108;
+  const planeH = planeW * (74 / 150);
 
   return (
     <div className="relative overflow-hidden rounded-[14px] bg-[#0E0F10]">
@@ -247,11 +265,18 @@ function FlightStage({
           <>
             <path d={area} fill="url(#av-area)" />
             <path d={path} fill="none" stroke="#E01E1E" strokeWidth="4" strokeLinecap="round" />
-            <g transform={`translate(${x - 4},${y - 6})`}>
-              <text fontSize="34" style={{ filter: "drop-shadow(0 2px 6px rgba(0,0,0,.6))" }}>
-                ✈
-              </text>
-            </g>
+            <image
+              href={PLANE_FRAMES[phase === "crashed" ? 0 : frame]}
+              x={px - 6}
+              y={py - planeH + planeH * 0.1}
+              width={planeW}
+              height={planeH}
+              opacity={phase === "crashed" ? 0 : 1}
+              style={{
+                transition:
+                  phase === "crashed" ? "opacity 1.1s linear, x 1.1s linear, y 1.1s linear" : "none",
+              }}
+            />
           </>
         ) : null}
       </svg>
