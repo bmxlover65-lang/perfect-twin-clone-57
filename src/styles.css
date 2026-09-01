@@ -173,7 +173,7 @@
 
 
 .dark {
-  --background: oklch(0.129 0.042 264.695);
+  --background: #1B1B1D;
   --foreground: oklch(0.984 0.003 247.858);
   --card: oklch(0.208 0.042 265.755);
   --card-foreground: oklch(0.984 0.003 247.858);
@@ -229,11 +229,11 @@
   --card-black: oklch(0.2 0.01 264);
   --code-surface: oklch(0.16 0.02 264);
   --code-foreground: oklch(0.92 0.02 150);
-  --ex-panel: oklch(0.205 0.012 264);
-  --ex-header: oklch(0.28 0.014 264);
-  --ex-row: oklch(0.175 0.01 264);
-  --ex-board: oklch(0.225 0.012 264);
-  --ex-line: oklch(0.30 0.012 264);
+  --ex-panel: #1B1B1D;
+  --ex-header: #242426;
+  --ex-row: #1F1F21;
+  --ex-board: #252527;
+  --ex-line: #2C2C2E;
   --ex-text: oklch(0.98 0.004 250);
   --ex-muted: oklch(0.72 0.018 250);
   --ex-back: oklch(0.765 0.11 236);
