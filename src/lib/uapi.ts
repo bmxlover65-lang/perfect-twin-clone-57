@@ -137,3 +137,87 @@ export function fmtSize(size: number | undefined | null): string {
 export function fmtInt(n: number | undefined | null): string {
   return new Intl.NumberFormat("en-US").format(Math.round(n ?? 0));
 }
+
+/* ---------------- Casino (live games) ---------------- */
+
+export type CasinoGame = { eventId: string; eventName: string };
+
+export type CasinoRunner = {
+  selectionId: string;
+  status?: string;
+  price?: { back?: PricePoint[]; lay?: PricePoint[] };
+};
+
+export type CasinoMarket = {
+  marketId: string;
+  marketName: string;
+  min?: number;
+  max?: number;
+  index?: number;
+  runners?: CasinoRunner[];
+  runnersName?: Record<string, string> | null;
+};
+
+export type CasinoCard = Record<string, string>;
+
+export type CasinoState = {
+  eventId?: string;
+  freshnessMs?: number;
+  stale?: boolean;
+  data?: {
+    roundId?: string;
+    eventId?: string;
+    eventName?: string;
+    status?: string;
+    roundStatus?: string;
+    leftSec?: number;
+    betDelay?: number;
+    updatedAt?: string;
+    marketArr?: CasinoMarket[];
+    cardsArr?: Record<string, CasinoCard> | CasinoCard | null;
+    gameResult?: string | null;
+  } | null;
+  error?: string;
+};
+
+export type CasinoResult = {
+  roundId: string;
+  eventId: string;
+  eventName?: string;
+  winner?: string;
+  cards?: Record<string, CasinoCard>;
+  results?: {
+    marketId: string;
+    marketName: string;
+    index?: number;
+    runners?: Record<string, string>;
+    runnersName?: Record<string, string>;
+  }[];
+};
+
+export function fetchCasinoGames() {
+  return get<{ games: CasinoGame[] }>("games");
+}
+
+export function fetchCasinoState(eventId: string) {
+  return get<CasinoState>(`games/${encodeURIComponent(eventId)}/state`);
+}
+
+export function fetchCasinoResults(eventId: string) {
+  return get<{ data: CasinoResult[] }>(`games/${encodeURIComponent(eventId)}/results`);
+}
+
+export async function fetchCasinoStream(eventId: string) {
+  const res = await fetch(`${BASE}/tv/streaming`, {
+    method: "POST",
+    headers: { "content-type": "application/json", accept: "application/json" },
+    body: JSON.stringify({ eventId }),
+  });
+  const json = (await res.json().catch(() => ({}))) as {
+    upstreamIframeUrl?: string;
+    playerUrl?: string;
+    error?: string;
+  };
+  if (!res.ok) throw new Error(json.error ?? `Stream request failed (${res.status})`);
+  return json;
+}
