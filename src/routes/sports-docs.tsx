@@ -136,17 +136,17 @@ function SportsDocs() {
             end; the same key powers events, odds, results and TV embeds.
           </P>
           <Step n={1} title="Request a B2B API key">
-            <P>
+            <>
               Email the provider with your company name, brand domain(s) and the products you need
               (Sports, Casino or both). You receive a key in the form{" "}
               <Code>uapi_live_xxxxxxxxxxxxxxxx</Code> plus an allowlisted origin list.
-            </P>
+            </>
           </Step>
           <Step n={2} title="Store the key server-side">
-            <P>
+            <>
               Keep the key in a server environment variable — never in browser code, mobile bundles
               or public repos.
-            </P>
+            </>
             <Block
               label=".env (backend only)"
               code={`UAPI_BASE_URL=https://universeapi.shop/api
@@ -154,7 +154,7 @@ UAPI_KEY=uapi_live_xxxxxxxxxxxxxxxx`}
             />
           </Step>
           <Step n={3} title="Verify the key">
-            <P>A 200 response with a sports array means the key and entitlements are active.</P>
+            <>A 200 response with a sports array means the key and entitlements are active.</>
             <Block
               label="curl"
               code={`curl -s "$UAPI_BASE_URL/sports" \\
@@ -162,11 +162,11 @@ UAPI_KEY=uapi_live_xxxxxxxxxxxxxxxx`}
             />
           </Step>
           <Step n={4} title="Proxy the API from your backend">
-            <P>
+            <>
               Expose your own thin routes so the key never reaches the client. This site uses exactly
               that pattern: <Code>/api/public/uapi/*</Code> forwards to the provider and injects the
               credential server-side.
-            </P>
+            </>
             <Block
               label="Node / TypeScript proxy"
               code={`export async function uapi(path: string) {
@@ -179,10 +179,10 @@ UAPI_KEY=uapi_live_xxxxxxxxxxxxxxxx`}
             />
           </Step>
           <Step n={5} title="Wire the front end">
-            <P>
+            <>
               Call your proxy routes only. Poll the event list every 10–15s and odds every 1–2s for
               the event the user is viewing.
-            </P>
+            </>
           </Step>
           <Note>
             Rotate keys from the partner portal. A rotated key invalidates old TV embed tokens within
