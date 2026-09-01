@@ -50,10 +50,31 @@ async function upstream(path: string, search: string, token: string, body?: stri
 
 async function proxy(splat: string, search: string, body?: string) {
   try {
+    if (splat === "health") {
+      const t0 = Date.now();
+      let ok = true;
+      let message = "";
+      try {
+        await getToken(true);
+      } catch (e) {
+        ok = false;
+        message = e instanceof Error ? e.message : "session failed";
+      }
+      return Response.json({
+        ok,
+        keyConfigured: Boolean(apiKey()),
+        authMode: apiKey() ? "b2b-api-key" : "public-session",
+        latencyMs: Date.now() - t0,
+        upstream: UPSTREAM,
+        checkedAt: new Date().toISOString(),
+        error: message || undefined,
+      });
+    }
     if (splat === "session") {
       const token = await getToken();
       return Response.json({ sessionToken: token });
     }
+
     let token = await getToken();
     let res = await upstream(splat, search, token, body);
     if (res.status === 401 || res.status === 403) {
