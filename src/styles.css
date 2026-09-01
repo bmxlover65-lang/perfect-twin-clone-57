@@ -174,7 +174,29 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+  --nav: oklch(0.16 0.02 264);
+  --nav-foreground: oklch(0.96 0.005 247);
+  --lobby: oklch(0.24 0.03 264);
+  --board-header: oklch(0.12 0.01 264);
+  --board-header-foreground: oklch(0.98 0 0);
+  --board-body: oklch(0.34 0.03 250);
+  --board-body-foreground: oklch(0.98 0 0);
+  --back-odds: oklch(0.46 0.05 250);
+  --back-odds-hover: oklch(0.52 0.06 250);
+  --back-odds-foreground: oklch(0.99 0 0);
+  --live-badge: oklch(0.85 0.16 92);
+  --live-badge-foreground: oklch(0.2 0.01 92);
+  --live-pill: oklch(0.32 0.07 152);
+  --live-pill-foreground: oklch(0.88 0.14 152);
+  --live-win: oklch(0.72 0.16 143);
+  --live-lose: oklch(0.68 0.19 27);
+  --table-felt: oklch(0.12 0.02 264);
+  --card-red: oklch(0.52 0.21 27);
+  --card-black: oklch(0.2 0.01 264);
+  --code-surface: oklch(0.16 0.02 264);
+  --code-foreground: oklch(0.92 0.02 150);
 }
+
 
 @layer base {
   * {
