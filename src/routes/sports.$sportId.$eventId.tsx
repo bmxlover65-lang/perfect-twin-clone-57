@@ -83,7 +83,7 @@ function BoardHeader({
   dim: boolean;
 }) {
   return (
-    <header className="flex items-center justify-between border-b border-ex-line/60 bg-ex-panel/60 px-4 py-3">
+    <header className="flex items-center justify-between border-b border-ex-line/60 bg-ex-row px-4 py-3">
       <span className={`text-[0.95rem] font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}>{name}</span>
       <span className={`flex items-center gap-4 text-[0.78rem] ${dim ? "text-ex-muted/70" : "text-ex-muted"}`}>
         <span>Matched {fmtInt(matched)}</span>
