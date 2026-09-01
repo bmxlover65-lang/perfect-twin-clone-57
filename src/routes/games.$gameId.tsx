@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Aviator } from "@/components/Aviator";
 import { applyOverride, useAdminConfig } from "@/lib/admin";
+import { logResult } from "@/lib/telemetry";
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
 import dream1x from "@/assets/dream/dream1x.png.asset.json";
 import dream2x from "@/assets/dream/dream2x.png.asset.json";
