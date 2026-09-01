@@ -86,9 +86,16 @@
   --color-ex-panel: var(--ex-panel);
   --color-ex-header: var(--ex-header);
   --color-ex-row: var(--ex-row);
+  --color-ex-board: var(--ex-board);
+  --color-ex-line: var(--ex-line);
+  --color-ex-text: var(--ex-text);
+  --color-ex-muted: var(--ex-muted);
   --color-ex-back: var(--ex-back);
+  --color-ex-back-dim: var(--ex-back-dim);
   --color-ex-lay: var(--ex-lay);
+  --color-ex-lay-dim: var(--ex-lay-dim);
   --color-ex-cell-foreground: var(--ex-cell-foreground);
+
 }
 
 
@@ -150,12 +157,18 @@
   --card-black: oklch(0.2 0.01 264);
   --code-surface: oklch(0.19 0.02 264);
   --code-foreground: oklch(0.92 0.02 150);
-  --ex-panel: oklch(0.97 0.005 250);
-  --ex-header: oklch(0.93 0.01 250);
-  --ex-row: oklch(1 0 0);
-  --ex-back: oklch(0.82 0.08 240);
-  --ex-lay: oklch(0.85 0.09 5);
-  --ex-cell-foreground: oklch(0.18 0.02 264);
+  --ex-panel: oklch(0.22 0.022 250);
+  --ex-header: oklch(0.31 0.032 245);
+  --ex-row: oklch(0.19 0.022 250);
+  --ex-board: oklch(0.26 0.03 248);
+  --ex-line: oklch(0.32 0.02 248);
+  --ex-text: oklch(0.97 0.005 250);
+  --ex-muted: oklch(0.68 0.02 250);
+  --ex-back: oklch(0.8 0.09 232);
+  --ex-back-dim: oklch(0.56 0.05 235);
+  --ex-lay: oklch(0.8 0.09 5);
+  --ex-lay-dim: oklch(0.58 0.05 5);
+  --ex-cell-foreground: oklch(0.2 0.02 250);
 }
 
 
@@ -216,12 +229,18 @@
   --card-black: oklch(0.2 0.01 264);
   --code-surface: oklch(0.16 0.02 264);
   --code-foreground: oklch(0.92 0.02 150);
-  --ex-panel: oklch(0.19 0.02 258);
-  --ex-header: oklch(0.25 0.03 250);
-  --ex-row: oklch(0.16 0.02 258);
-  --ex-back: oklch(0.72 0.09 240);
-  --ex-lay: oklch(0.78 0.11 5);
-  --ex-cell-foreground: oklch(0.15 0.02 264);
+  --ex-panel: oklch(0.22 0.022 250);
+  --ex-header: oklch(0.31 0.032 245);
+  --ex-row: oklch(0.19 0.022 250);
+  --ex-board: oklch(0.26 0.03 248);
+  --ex-line: oklch(0.32 0.02 248);
+  --ex-text: oklch(0.97 0.005 250);
+  --ex-muted: oklch(0.68 0.02 250);
+  --ex-back: oklch(0.8 0.09 232);
+  --ex-back-dim: oklch(0.56 0.05 235);
+  --ex-lay: oklch(0.8 0.09 5);
+  --ex-lay-dim: oklch(0.58 0.05 5);
+  --ex-cell-foreground: oklch(0.2 0.02 250);
 }
 
 
