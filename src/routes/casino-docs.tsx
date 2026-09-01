@@ -1,123 +1,926 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { DocsLayout, type DocSection } from "@/components/DocsLayout";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Block, Code, Endpoint, H2, H3, Note, P, Step, Table } from "@/components/docs-kit";
+import { GAMES } from "@/data/games";
 
 export const Route = createFileRoute("/casino-docs")({
   head: () => ({
     meta: [
-      { title: "Casino API Docs — Universal API" },
+      { title: "Universal API — Casino Integration Guide" },
       {
         name: "description",
         content:
-          "Endpoints for the Universe Live casino feed: game list, live table state, odds markets and round results.",
+          "Server-side API for live casino data, TV overlays and iframe video embeds on your partner platform.",
       },
-      { property: "og:title", content: "Casino API Docs — Universal API" },
+      { property: "og:title", content: "Universal API — Casino Integration Guide" },
       {
         property: "og:description",
-        content: "Game list, table state, odds and results endpoints for Universe Live.",
+        content: "Endpoints, authentication, iframe embeds and game UI reference for Universal API.",
       },
     ],
   }),
   component: CasinoDocs,
 });
 
-const SECTIONS: DocSection[] = [
-  {
-    id: "games",
-    title: "List games",
-    description: "Returns every live table available in the Universe Live lobby.",
-    method: "GET",
-    path: "/api/casino/games",
-    sample: `{
-  "provider": "universe-live",
-  "count": 20,
-  "games": [
-    { "id": "99.0010", "name": "20-20 TEENPATTI", "kind": "teenpatti", "status": "live" },
-    { "id": "99.0019", "name": "20-20 DRAGON TIGER", "kind": "dragontiger", "status": "live" }
-  ]
-}`,
-  },
-  {
-    id: "table",
-    title: "Table state",
-    description: "Current round id, phase, dealt cards and countdown for a single table.",
-    method: "GET",
-    path: "/api/casino/games/{gameId}/state",
-    sample: `{
-  "gameId": "99.0010",
-  "rid": "9100109135558",
-  "phase": "suspended",
-  "secondsLeft": 4,
-  "cards": {
-    "playerA": ["S7", "H4", null],
-    "playerB": ["H5", null, null]
-  }
-}`,
-  },
-  {
-    id: "odds",
-    title: "Odds markets",
-    description: "All markets for a table with min/max stake, price and matched volume.",
-    method: "GET",
-    path: "/api/casino/games/{gameId}/odds",
-    sample: `{
-  "gameId": "99.0010",
-  "markets": [
-    {
-      "title": "WINNER",
-      "min": 100, "max": 500000, "status": "SUSPENDED",
-      "runners": [
-        { "name": "PLAYER A", "price": 1.98, "volume": 2283528 },
-        { "name": "PLAYER B", "price": 1.98, "volume": 2258566 }
-      ]
-    }
-  ]
-}`,
-  },
-  {
-    id: "results",
-    title: "Round results",
-    description: "Last completed rounds with winner and settlement payload.",
-    method: "GET",
-    path: "/api/casino/games/{gameId}/results",
-    sample: `{
-  "gameId": "99.0010",
-  "results": [
-    { "rid": "9100109135558", "winner": "PLAYER A", "settledAt": "2026-09-01T13:22:08Z" },
-    { "rid": "9100109135557", "winner": "PLAYER B", "settledAt": "2026-09-01T13:21:36Z" }
-  ]
-}`,
-  },
-  {
-    id: "bet",
-    title: "Place bet",
-    description: "Submits a stake against an open market. Rejected while a market is suspended.",
-    method: "POST",
-    path: "/api/casino/bets",
-    sample: `POST /api/casino/bets
-{
-  "gameId": "99.0010",
-  "rid": "9100109135558",
-  "market": "WINNER",
-  "runner": "PLAYER A",
-  "stake": 500
-}
+const TOC = [
+  ["getting-started", "Getting started"],
+  ["authentication", "Authentication"],
+  ["endpoints", "Endpoints"],
+  ["game-catalog", "Game catalog"],
+  ["live-game-state", "Live game state"],
+  ["historical-results", "Historical results"],
+  ["tv-video", "TV & video"],
+  ["iframe-embed", "Iframe embed"],
+  ["response-fields", "Response fields"],
+  ["errors", "Errors"],
+  ["integration-guide", "Integration guide"],
+  ["game-ui", "Game UI (HTML/CSS)"],
+  ["supported-games", "Supported games"],
+] as const;
 
-200 OK
-{ "accepted": true, "betId": "b_7f21a", "price": 1.98 }`,
-  },
+const UI_GAMES = [
+  "99.0010",
+  "99.0013",
+  "99.0016",
+  "99.0014",
+  "99.0018",
+  "99.0019",
+  "99.0021",
+  "99.0030",
+  "99.0005",
+  "99.0046",
+  "99.0001",
+  "99.0025",
+  "99.0022",
+  "99.0007",
+  "99.0041",
 ];
 
 function CasinoDocs() {
   return (
-    <DocsLayout
-      title="Casino API"
-      intro="REST endpoints for the Universe Live casino feed. Every response is JSON; authenticate with your operator key in the Authorization header."
-      sections={SECTIONS}
-    >
-      <pre className="mt-4 overflow-x-auto rounded-md bg-code-surface p-4 text-[0.8rem] text-code-foreground">
-        <code>{`curl https://api.universal.example/api/casino/games \\
-  -H "Authorization: Bearer <operator-key>"`}</code>
-      </pre>
-    </DocsLayout>
+    <div className="mx-auto max-w-7xl px-4 py-10">
+      <div className="grid gap-10 lg:grid-cols-[260px_1fr]">
+        <aside className="lg:sticky lg:top-24 lg:self-start">
+          <nav className="rounded-xl border border-border bg-card p-4">
+            <p className="px-2 text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+              On this page
+            </p>
+            <ul className="mt-3 space-y-0.5">
+              {TOC.map(([id, label]) => (
+                <li key={id}>
+                  <a
+                    href={`#${id}`}
+                    className="block rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  >
+                    {label}
+                  </a>
+                </li>
+              ))}
+              <li>
+                <Link
+                  to="/sports-docs"
+                  className="block rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                >
+                  Sports API docs →
+                </Link>
+              </li>
+            </ul>
+          </nav>
+        </aside>
+
+        <main className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+            Client integration
+          </p>
+          <h1 className="mt-2 text-4xl font-bold tracking-tight text-foreground">Universal API</h1>
+          <p className="mt-3 max-w-2xl text-[1.05rem] leading-relaxed text-muted-foreground">
+            Integration guide — server-side API for live data, TV overlays, and iframe video embeds
+            on your partner platform.
+          </p>
+
+          <div className="mt-6 rounded-md border-l-4 border-live-win bg-muted px-4 py-3 text-sm text-foreground">
+            <strong>Base URL:</strong> <Code>https://universeapi.shop</Code>
+          </div>
+
+          {/* Getting started */}
+          <H2 id="getting-started">Getting started</H2>
+          <P>Before calling the API, Universal API will provision your partner account with:</P>
+          <ul className="mt-3 list-disc space-y-2 pl-6 text-[0.95rem] text-muted-foreground">
+            <li>
+              <strong className="text-foreground">API key</strong> — send on every server-side
+              request (keep it secret; never expose in browser or mobile bundles).
+            </li>
+            <li>
+              <strong className="text-foreground">Allowed domains</strong> — partner website domains
+              that may embed the TV iframe (e.g. <Code>partner.com</Code>,{" "}
+              <Code>app.partner.com</Code>).
+            </li>
+            <li>
+              <strong className="text-foreground">Subscription period</strong> — your key is valid
+              between the start and end dates on your account.
+            </li>
+          </ul>
+          <p className="mt-4 text-[0.95rem] text-foreground">
+            <strong>API base URL:</strong> <Code>https://universeapi.shop/api</Code>
+          </p>
+          <P>
+            All endpoints live under <Code>/api</Code>. JSON responses use{" "}
+            <Code>application/json</Code> unless noted otherwise. Contact your account manager for
+            key rotation, new domains, or subscription changes.
+          </P>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {["15 live games", "Real-time snapshots", "Server-to-server JSON", "TV iframe embed"].map(
+              (t) => (
+                <span
+                  key={t}
+                  className="rounded-full border border-border bg-muted px-3 py-1 text-xs text-muted-foreground"
+                >
+                  {t}
+                </span>
+              ),
+            )}
+          </div>
+
+          {/* Authentication */}
+          <H2 id="authentication">Authentication</H2>
+          <P>
+            Include your API key on every server-side request using one of the following headers:
+          </P>
+          <Block
+            label="Headers"
+            code={`X-API-Key: your-api-key
+# or
+Authorization: Bearer your-api-key`}
+          />
+          <H3>Access control</H3>
+          <P>Different routes use different checks:</P>
+          <Table
+            head={["Route", "Who calls it", "Auth"]}
+            rows={[
+              [
+                <Code key="a">/api/*</Code>,
+                "Your backend",
+                "API key + active subscription",
+              ],
+              [
+                <Code key="b">/api/tv/player</Code>,
+                "End-user browser (iframe)",
+                "Embed token + tv=true + parent page domain in your allowed domains",
+              ],
+            ]}
+          />
+          <P>Server API requests are rejected if any of the following apply:</P>
+          <ul className="mt-3 list-disc space-y-1 pl-6 text-[0.95rem] text-muted-foreground">
+            <li>API key is missing or invalid</li>
+            <li>Your account is inactive or outside the subscription window</li>
+          </ul>
+          <Note>
+            Server API calls are not restricted by caller IP — proxy them through your backend and
+            keep the key secret.
+          </Note>
+          <H3>TV embed requests</H3>
+          <P>
+            To mint iframe embed tokens (<Code>POST /tv/games/:eventId/embed</Code>), also send:
+          </P>
+          <Block label="TV header" code={`X-TV-Client: true`} />
+          <P>
+            The browser iframe player validates the embedding site via Referer / Origin against your
+            account&apos;s allowed domains. Register every production domain where users will load
+            the iframe (including <Code>www</Code> variants if used).
+          </P>
+
+          {/* Endpoints */}
+          <H2 id="endpoints">Endpoints</H2>
+          <P>
+            All paths below are relative to <Code>https://universeapi.shop/api</Code>.
+          </P>
+          <Table
+            head={["Method", "Path", "Purpose"]}
+            rows={[
+              ["GET", <Code key="1">/health</Code>, "Gateway health check"],
+              ["GET", <Code key="2">/games</Code>, "Game catalog"],
+              [
+                "GET",
+                <Code key="3">/games/:eventId/state</Code>,
+                "Live snapshot (poll from backend)",
+              ],
+              [
+                "GET / POST",
+                <Code key="4">/games/:eventId/results, /results</Code>,
+                "Historical round results",
+              ],
+              [
+                "GET",
+                <Code key="5">/tv/games/:eventId/state</Code>,
+                "Alias of /games/:eventId/state",
+              ],
+              [
+                "POST",
+                <Code key="6">/tv/games/:eventId/embed</Code>,
+                "Mint short-lived iframe token (backend only)",
+              ],
+              [
+                "GET",
+                <Code key="7">/tv/player</Code>,
+                "Browser iframe player (embed token + domain)",
+              ],
+            ]}
+          />
+
+          {/* Game catalog */}
+          <H2 id="game-catalog">Game catalog</H2>
+          <Endpoint method="GET" path="/games" auth="API key" />
+          <P>Returns every game available on your subscription.</P>
+          <Block
+            label="Example"
+            code={`GET https://universeapi.shop/api/games
+X-API-Key: your-api-key`}
+          />
+          <Block
+            label="Response 200"
+            code={`{
+  "games": [
+    { "eventId": "99.0010", "eventName": "20-20 TEENPATTI" },
+    { "eventId": "99.0018", "eventName": "DRAGON TIGER" }
+  ]
+}`}
+          />
+
+          {/* Live game state */}
+          <H2 id="live-game-state">Live game state</H2>
+          <Endpoint method="GET" path="/games/:eventId/state" auth="API key" />
+          <P>
+            Returns the current live snapshot for one game — round timer, markets, cards, and result
+            data when available.
+          </P>
+          <Block
+            label="Example"
+            code={`GET https://universeapi.shop/api/games/99.0010/state
+X-API-Key: your-api-key`}
+          />
+          <Block
+            label="Response 200"
+            code={`{
+  "client": "Your Company Name",
+  "clientIp": "203.0.113.10",
+  "eventId": "99.0010",
+  "stale": false,
+  "freshnessMs": 280,
+  "data": {
+    "roundId": "123456789",
+    "status": "OPEN",
+    "roundStatus": "OPEN",
+    "leftSec": 12,
+    "marketArr": [ … ],
+    "cardsArr": { … },
+    "resultsArr": [ … ],
+    "updatedAt": "2026-05-24T11:00:00.000Z"
+  }
+}`}
+          />
+          <P>
+            Poll this endpoint at a reasonable interval (e.g. every 1–2 seconds) or use it as a
+            fallback when streaming is unavailable. A <Code>503</Code> response means live data is
+            temporarily unavailable or stale — retry after a short delay.
+          </P>
+          <Note>
+            <Code>GET /tv/games/:eventId/state</Code> is an alias — same request and response.
+          </Note>
+
+          {/* Historical results */}
+          <H2 id="historical-results">Historical results</H2>
+          <P>
+            Fetch recent completed rounds for a game — winners, cards, and market outcomes. Use this
+            to populate the &quot;Recent results&quot; panel in your live UI.
+          </P>
+          <Endpoint method="GET" path="/games/:eventId/results" auth="API key" />
+          <P>Returns recent completed rounds for the game in the path.</P>
+          <Block
+            label="Example"
+            code={`GET https://universeapi.shop/api/games/99.0010/results
+X-API-Key: your-api-key`}
+          />
+          <P>
+            Same response from <Code>POST /results</Code> with body{" "}
+            <Code>{`{ "eventId": "99.0010" }`}</Code> or <Code>GET /results?eventId=99.0010</Code>.
+          </P>
+          <Block
+            label="Response 200"
+            code={`{
+  "data": [
+    {
+      "roundId": "987654321",
+      "winner": "A",
+      "cards": { "A": ["H7", "D9"], "B": ["C3", "S5"] },
+      "results": [
+        {
+          "marketName": "Main",
+          "runners": [
+            { "selectionId": "1", "result": "WIN" },
+            { "selectionId": "2", "result": "LOSE" }
+          ]
+        }
+      ]
+    }
+  ],
+  "meta": { "status": true, "message": "Success" }
+}`}
+          />
+          <P>
+            Poll when the user opens a game or after each round ends — every 10–30 seconds is usually
+            enough. Returns <Code>503</Code> if historical results are temporarily unavailable.
+          </P>
+
+          {/* TV & video */}
+          <H2 id="tv-video">TV &amp; video</H2>
+          <P>
+            Embed the live video stream in an iframe on your site. Your backend mints a short-lived
+            token; the browser loads the player URL — no API key in the iframe.
+          </P>
+          <Table
+            head={["Need", "Endpoint", "Used in"]}
+            rows={[
+              [
+                "First-party streaming config",
+                <Code key="1">POST /public/tv/streaming</Code>,
+                "Public casino UI — returns iframeUrl (direct WebRTC player)",
+              ],
+              [
+                "Video iframe URL",
+                <Code key="2">POST /api/tv/games/:eventId/embed</Code>,
+                "Your backend (returns embed path)",
+              ],
+              [
+                "Video player page",
+                <Code key="3">GET /api/tv/player?embedToken=&amp;tv=true</Code>,
+                "Browser iframe src (redirects to upstream WebRTC player)",
+              ],
+            ]}
+          />
+          <Note>
+            For timer, odds, and cards overlays, use <strong>Live game state</strong> — not the TV
+            endpoints below.
+          </Note>
+          <Endpoint method="POST" path="/public/tv/streaming" auth="Session + first-party Origin" />
+          <P>
+            Returns upstream WebRTC player config for the public casino UI at{" "}
+            <Code>https://universeapi.shop</Code>. Use <Code>iframeUrl</Code> as the iframe src — do
+            not wrap it in another player page (nested iframes block WebRTC video).
+          </P>
+          <Block
+            label="Example"
+            code={`POST https://universeapi.shop/public/tv/streaming
+Origin: https://universeapi.shop
+X-Session-Token: <from POST /public/session>
+X-TV-Client: true
+Content-Type: application/json
+
+{ "eventId": "99.0010" }`}
+          />
+          <Block
+            label="Response 200"
+            code={`{
+  "data": {
+    "eventId": "99.0010",
+    "appName": "live",
+    "url": "livecdnplatin.com",
+    "streamingName": "GAME10",
+    "token": "…"
+  },
+  "iframeUrl": "https://player.universestudio.games/index.html?appName=live&streamingName=GAME10&url=livecdnplatin.com&token=…",
+  "playerUrl": "/public/tv/player?eventId=99.0010"
+}`}
+          />
+          <P>
+            Prefer <Code>iframeUrl</Code> for embedding. <Code>playerUrl</Code> is a legacy gateway
+            redirect to the same upstream player.
+          </P>
+
+          {/* Iframe embed */}
+          <H2 id="iframe-embed">Iframe video embed</H2>
+          <P>
+            Browsers cannot send <Code>X-API-Key</Code> on an iframe src. Use a two-step flow: your
+            backend mints a short-lived embed token, then your frontend loads the player iframe with
+            that token.
+          </P>
+          <H3>How iframe integration works</H3>
+          <Block
+            code={`Browser on partner.com (live page)
+    ↓  POST /your-backend/casino/tv/:eventId/embed
+Your backend
+    ↓  POST https://universeapi.shop/api/tv/games/:eventId/embed  +  X-API-Key  +  X-TV-Client: true
+Universal API
+    ↓  { iframePath, expiresIn }
+Your backend
+    ↓  { iframeUrl: "https://universeapi.shop/api/tv/player?..." }
+Browser on partner.com
+    ↓  <iframe src="iframeUrl">  (embedToken + Referer: partner.com)
+Universal API player page → upstream video stream`}
+          />
+          <Step n={1} title="Backend requests embed token">
+            <Code>POST /api/tv/games/:eventId/embed</Code> with API key + <Code>X-TV-Client: true</Code>
+          </Step>
+          <Step n={2} title="Return iframe URL to frontend">
+            Response includes <Code>iframePath</Code> — prefix with{" "}
+            <Code>https://universeapi.shop</Code> for the full URL.
+          </Step>
+          <Step n={3} title="Browser loads iframe">
+            Set iframe src to the URL. Token expires after <Code>expiresIn</Code> seconds — refresh
+            before expiry.
+          </Step>
+
+          <Endpoint method="POST" path="/tv/games/:eventId/embed" auth="API key + X-TV-Client" />
+          <P>
+            Creates a short-lived embed token for one game. Call from your server only — never expose
+            the API key in browser code.
+          </P>
+          <Block
+            label="Request"
+            code={`POST https://universeapi.shop/api/tv/games/99.0010/embed
+Content-Type: application/json
+X-API-Key: your-api-key
+X-TV-Client: true`}
+          />
+          <Block
+            label="Response 200"
+            code={`{
+  "eventId": "99.0010",
+  "embedToken": "YkpY2RozaknDuLWGPR8cSbx0_SSnMnsMtK55fCo2ojw",
+  "expiresIn": 3600,
+  "iframePath": "/api/tv/player?eventId=99.0010&embedToken=YkpY2Roz...&tv=true"
+}`}
+          />
+          <Endpoint
+            method="GET"
+            path="/tv/player?eventId=&embedToken=&tv=true"
+            auth="Embed token + tv=true + domain allowlist"
+          />
+          <P>
+            Provider-hosted HTML player page. Use as iframe src on your whitelisted partner domain.
+            The browser must send a <Code>Referer</Code> or <Code>Origin</Code> header matching one
+            of your allowed domains (subdomains of a registered domain are accepted).
+          </P>
+          <Note>
+            Do not set <Code>referrerpolicy=&quot;no-referrer&quot;</Code> on the iframe — that
+            blocks domain validation.
+          </Note>
+          <Table
+            head={["Query param", "Required", "Description"]}
+            rows={[
+              [<Code key="1">eventId</Code>, "Yes", "Game id (must match the token)"],
+              [
+                <Code key="2">embedToken</Code>,
+                "Yes",
+                "Token from POST /api/tv/games/:eventId/embed",
+              ],
+              [<Code key="3">tv</Code>, "Yes", "Must be true"],
+            ]}
+          />
+          <H3>Token refresh</H3>
+          <P>
+            Embed tokens expire after <Code>expiresIn</Code> seconds (default 3600). Refresh from
+            your backend a few minutes before expiry — do not put the API key in browser code to call
+            our embed endpoint directly.
+          </P>
+          <Block
+            label="Refresh before expiry"
+            code={`let refreshTimer;
+
+async function loadVideo(eventId) {
+  const res = await fetch(
+    \`/your-backend/casino/tv/\${encodeURIComponent(eventId)}/embed\`,
+    { method: "POST" }
+  );
+  const body = await res.json();
+  if (!res.ok || !body.iframeUrl) throw new Error(body.error ?? "Video unavailable");
+
+  document.getElementById("video-frame").src = body.iframeUrl;
+
+  clearTimeout(refreshTimer);
+  const refreshMs = Math.max((body.expiresIn - 300) * 1000, 60_000);
+  refreshTimer = setTimeout(() => loadVideo(eventId), refreshMs);
+}`}
+          />
+          <H3>HTML — live page with video iframe</H3>
+          <Block
+            label="HTML"
+            code={`<div class="uc-live-video">
+  <iframe
+    id="video-frame"
+    title="Live casino stream"
+    allow="autoplay; fullscreen"
+    referrerpolicy="strict-origin-when-cross-origin"
+    style="width:100%;aspect-ratio:16/9;border:0;border-radius:10px;background:#000"
+  ></iframe>
+  <p id="video-error" class="uc-error" hidden></p>
+</div>
+
+<script>
+  async function loadVideo(eventId) {
+    const res = await fetch(
+      \`/your-backend/casino/tv/\${encodeURIComponent(eventId)}/embed\`,
+      { method: "POST" }
+    );
+    const body = await res.json();
+    if (!res.ok || !body.iframeUrl) {
+      document.getElementById("video-error").hidden = false;
+      document.getElementById("video-error").textContent =
+        body.error ?? "Video unavailable";
+      return;
+    }
+    document.getElementById("video-frame").src = body.iframeUrl;
+  }
+
+  loadVideo(new URLSearchParams(location.search).get("eventId"));
+</script>`}
+          />
+          <H3>Backend proxy — mint embed URL</H3>
+          <Block
+            label="your-backend/routes/casino.js"
+            code={`router.post("/tv/:eventId/embed", async (req, res) => {
+  const { eventId } = req.params;
+  const r = await fetch(\`https://universeapi.shop/api/tv/games/\${eventId}/embed\`, {
+    method: "POST",
+    headers: {
+      "X-API-Key": process.env.UC_API_KEY,
+      "X-TV-Client": "true",
+    },
+  });
+  const body = await r.json();
+  if (!r.ok) {
+    res.status(r.status).json(body);
+    return;
+  }
+  // Prefix iframePath with provider base URL
+  const providerBaseUrl = process.env.UC_PROVIDER_BASE_URL ?? "https://universeapi.shop";
+  res.json({
+    iframeUrl: \`\${providerBaseUrl}\${body.iframePath}\`,
+    expiresIn: body.expiresIn,
+  });
+});`}
+          />
+          <H3>Iframe troubleshooting</H3>
+          <Table
+            head={["Symptom", "Likely cause", "Fix"]}
+            rows={[
+              [
+                "Universe Casino logo stuck (no live video)",
+                "Double-nested iframe blocked WebRTC encrypted-media",
+                "Use iframeUrl from POST /public/tv/streaming directly, or GET /api/tv/player (redirects upstream). Add allow=\"autoplay; fullscreen; encrypted-media\" on the iframe.",
+              ],
+              [
+                "Blank iframe / error page",
+                "Expired or invalid embedToken",
+                "Call your backend embed proxy again and set a new iframe src",
+              ],
+              [
+                '"Domain not whitelisted" in iframe',
+                "Parent page domain not in your allowed domains, or Referer blocked",
+                "Ask your account manager to add the embedding domain (e.g. partner.com). Remove no-referrer from the iframe.",
+              ],
+              [
+                "403 on embed POST",
+                "Subscription expired or account disabled",
+                "Contact support to renew or reactivate your account",
+              ],
+              [
+                "503 on embed POST",
+                "No stream configured for that game",
+                "Verify game is live; retry when streaming is available",
+              ],
+              [
+                "401 on embed POST",
+                "Missing X-TV-Client: true",
+                "Add header on server-side embed request",
+              ],
+            ]}
+          />
+          <Note>
+            <strong>Important:</strong> the TV player URL serves video only. Overlays come from Live
+            game state.
+          </Note>
+
+          {/* Response fields */}
+          <H2 id="response-fields">Response fields</H2>
+          <Table
+            head={["Field", "Description"]}
+            rows={[
+              [<Code key="1">eventId</Code>, "Game identifier (e.g. 99.0010)"],
+              [
+                <Code key="2">stale</Code>,
+                "true when the snapshot is outdated — treat as degraded data",
+              ],
+              [<Code key="3">freshnessMs</Code>, "Milliseconds since the snapshot was last updated"],
+              [<Code key="4">data.roundId</Code>, "Current round identifier"],
+              [
+                <Code key="5">data.status / data.roundStatus</Code>,
+                "Round phase (e.g. OPEN, CLOSED)",
+              ],
+              [<Code key="6">data.leftSec</Code>, "Seconds remaining in the current betting window"],
+              [<Code key="7">data.marketArr</Code>, "Markets and runner prices for the round"],
+              [<Code key="8">data.cardsArr</Code>, "Dealt cards keyed by market/runner"],
+              [
+                <Code key="9">data.resultsArr</Code>,
+                "Recent result entries when present in live snapshot",
+              ],
+              [
+                <Code key="10">data[].roundId</Code>,
+                "Round id from GET /api/games/:eventId/results",
+              ],
+              [<Code key="11">data[].winner</Code>, "Winning runner code for the round"],
+              [<Code key="12">data[].cards</Code>, "Card codes dealt in that round"],
+              [<Code key="13">data[].results</Code>, "Per-market runner outcomes (WIN / LOSE)"],
+            ]}
+          />
+
+          {/* Errors */}
+          <H2 id="errors">Errors</H2>
+          <P>Every error response uses this shape:</P>
+          <Block label="Error body" code={`{ "error": "Human-readable message" }`} />
+          <Table
+            head={["Status", "Meaning", "What to do"]}
+            rows={[
+              ["401", "Unauthorized", "Check your API key is present and correct"],
+              [
+                "403",
+                "Forbidden",
+                "Subscription expired, account disabled, or (for TV iframe) embedding domain not whitelisted — contact support",
+              ],
+              ["404", "Not found", "Verify the eventId is in the supported games list"],
+              ["503", "Unavailable", "Live data missing or stale — retry after a few seconds"],
+            ]}
+          />
+
+          {/* Integration guide */}
+          <H2 id="integration-guide">Integration guide</H2>
+          <P>Recommended setup for a production integration.</P>
+          <Step n={1} title="Store credentials securely">
+            Keep your API key in server-side environment variables. Never expose it in browser code
+            or mobile app bundles.
+          </Step>
+          <Step n={2} title="Register embedding domains">
+            Provide every production domain where end users will load the TV iframe (e.g.
+            partner.com, www.partner.com). Subdomains of a registered domain are accepted
+            automatically.
+          </Step>
+          <Step n={3} title="Fetch the game list">
+            Call <Code>GET /api/games</Code> once at startup (or cache with a long TTL) to build your
+            game menu.
+          </Step>
+          <Step n={4} title="Poll live state per game">
+            When a user opens a game, poll <Code>GET /api/games/:eventId/state</Code> every 1–2
+            seconds from your backend and forward normalized data to your frontend.
+          </Step>
+          <Step n={5} title="Handle degraded responses">
+            On <Code>503</Code> or <Code>stale: true</Code>, show a &quot;live data temporarily
+            unavailable&quot; state and retry with exponential backoff.
+          </Step>
+          <Step n={6} title="Load recent results">
+            Call <Code>GET /api/games/:eventId/results</Code> when the live page opens and refresh
+            every 10–30 seconds for the results sidebar.
+          </Step>
+          <Step n={7} title="Embed live video (optional)">
+            On the live page, call your backend embed proxy, set iframe src to the returned URL, and
+            refresh the token before <Code>expiresIn</Code>. See Iframe embed.
+          </Step>
+          <Note>
+            <strong>Best practice:</strong> proxy all API calls through your own backend so the API
+            key never reaches the browser. Only the short-lived embed token is passed to the iframe
+            URL.
+          </Note>
+
+          {/* Game UI */}
+          <H2 id="game-ui">Game UI reference (HTML &amp; CSS)</H2>
+          <P>
+            Copy the markup and styles below into your partner site. Bind odds from{" "}
+            <Code>data.marketArr</Code> on live state and populate result modals from{" "}
+            <Code>GET /api/games/:eventId/results</Code>. Download image assets from this site and
+            host them on your server under the same <Code>/assets/</Code> paths.
+          </P>
+          <Note>
+            <strong>Assets:</strong> All files are served from this domain only (e.g.{" "}
+            <Code>/assets/cards/H7_.png</Code>). Use Download to save files — no third-party links.
+            After download, upload to your CDN keeping the path structure.
+          </Note>
+          <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+            {UI_GAMES.map((id) => {
+              const g = GAMES.find((x) => x.id === id);
+              return (
+                <div key={id} className="rounded-lg border border-border bg-card px-3 py-2">
+                  <p className="font-mono text-[0.7rem] text-muted-foreground">{id}</p>
+                  <p className="mt-0.5 text-xs font-semibold text-foreground">{g?.name ?? id}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          <H3>20-20 TEENPATTI 99.0010</H3>
+          <P>Runner tiles per market + dual-column result modal (Player A vs Player B).</P>
+          <P>
+            Bind prices from <Code>data.marketArr</Code>. Map card codes from <Code>cardsArr</Code>{" "}
+            to <Code>cardImageUrl(code)</Code>.
+          </P>
+          <p className="mt-5 text-sm font-semibold text-foreground">
+            Assets (download from this site)
+          </p>
+          <Table
+            head={["Asset", "Path on your server", "Download"]}
+            rows={[
+              ["Playing card", <Code key="1">/assets/cards/{"{code}"}_.png</Code>, "—"],
+              ["Hidden / back card", <Code key="2">/assets/cards/null.png</Code>, "Download"],
+              [
+                "Result modal trophy styles",
+                <Code key="3">/assets/docs/trophy-icons.css</Code>,
+                "Download",
+              ],
+            ]}
+          />
+          <H3>HTML — asset links &amp; img tags</H3>
+          <Block
+            label="HTML"
+            code={`<link rel="stylesheet" href="/assets/docs/trophy-icons.css" />
+
+<!-- Bind src from API card codes; paths are on your server after you download assets -->
+<img src="/assets/cards/H7_.png" alt="Player A card" width="62" />
+<img src="/assets/cards/S5_.png" alt="Player B card" width="62" />`}
+          />
+          <H3>JavaScript — build image URLs from API codes</H3>
+          <Block
+            label="JS"
+            code={`const ASSET_BASE = "https://your-domain.com";
+
+function cardImageUrl(code) {
+  if (!code || code === "0") return \`\${ASSET_BASE}/assets/cards/null.png\`;
+  return \`\${ASSET_BASE}/assets/cards/\${code}_.png\`;
+}
+
+// After download: host files under /assets/ on your server`}
+          />
+          <H3>Live odds / markets UI</H3>
+          <Block
+            label="HTML"
+            code={`<div class="uc-markets-scroll">
+  <section class="uc-market">
+    <header class="uc-market-header">
+      <strong class="uc-market-title">PAIR PLUS A</strong>
+      <span class="uc-market-minmax">Min/Max: 100 - 25000</span>
+    </header>
+    <div class="uc-market-body">
+      <div class="uc-runners-row uc-runners-row-two">
+        <div class="uc-runner">
+          <span class="uc-runner-name">Pair A</span>
+          <div class="uc-odds-box">
+            <div class="uc-odds-price">2.5</div>
+            <div class="uc-odds-size">100</div>
+          </div>
+        </div>
+        <div class="uc-runner">
+          <span class="uc-runner-name">Pair B</span>
+          <div class="uc-odds-box">
+            <div class="uc-odds-price">2.5</div>
+            <div class="uc-odds-size">100</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>`}
+          />
+          <H3>CSS — odds panel</H3>
+          <Block
+            label="CSS"
+            code={`:root,
+[data-theme="light"] {
+  --casino-page-bg: var(--ifm-background-color);
+  --casino-shell-bg: #000;
+  --casino-markets-bg: #ededed;
+  --casino-market-header-bg: #000;
+  --casino-market-header-text: #fff;
+  --casino-market-body-bg: #fff;
+  --casino-text: #243a48;
+  --casino-runners-bg: linear-gradient(
+    90deg,
+    rgb(153 199 241) 0%,
+    rgb(138 189 216 / 50%) 49%,
+    rgb(146 198 246) 100%
+  );
+  --casino-odds-bg: rgba(114, 187, 239, 0.5);
+  --casino-odds-text: #111;
+  --casino-odds-shadow: 0 2px 7px 1px #67828be6;
+  --casino-back-bg: #72bbef;
+  --casino-lay-bg: #faa9ba;
+  --casino-results-bg: #000;
+  --casino-results-text: #fff;
+  --casino-card-border: #000;
+}
+
+[data-theme="dark"] {
+  --casino-shell-bg: #0d1117;
+  --casino-market-header-bg: #161b22;
+  --casino-odds-bg: rgba(114, 187, 239, 0.22);
+  --casino-odds-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  --casino-results-bg: #161b22;
+}
+
+.uc-market-header {
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--casino-market-header-bg);
+  color: var(--casino-market-header-text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.uc-suspended-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.65);
+  border: 2px solid #666;
+  z-index: 1;
+}
+
+.uc-odds-box {
+  width: 100%;
+  max-width: 150px;
+  min-width: 72px;
+  border-radius: 5px;
+  padding: 4px 2px;
+  background: var(--casino-odds-bg);
+  box-shadow: var(--casino-odds-shadow);
+  color: var(--casino-odds-text);
+  text-align: center;
+  font-weight: 600;
+}`}
+          />
+          <H3>Result modal UI</H3>
+          <Block
+            label="HTML"
+            code={`<div style="margin-bottom: 80px;">
+  <div class="modal-title p-2">
+    <h6 class="text-right round-id"><b>Round Id:</b> 952705064335</h6>
+  </div>
+  <div class="col-12 col-md-6 col-xs-12 paati_boxs">
+    <h6>Player A</h6>
+    <div class="card-Img-box">
+      <img src="/assets/cards/H7_.png" alt="Player A card 1" />
+      <img src="/assets/cards/D9_.png" alt="Player A card 2" />
+      <img src="/assets/cards/C3_.png" alt="Player A card 3" />
+    </div>
+    <div class="btn winner-team WinnerA">Winner</div>
+  </div>
+  <div class="col-12 col-md-6 col-xs-12 paati_boxs">
+    <h6>Player B</h6>
+    <div class="card-Img-box">
+      <img src="/assets/cards/S5_.png" alt="Player B card 1" />
+      <img src="/assets/cards/H2_.png" alt="Player B card 2" />
+      <img src="/assets/cards/D8_.png" alt="Player B card 3" />
+    </div>
+  </div>
+  <div class="clearfix"></div>
+  <div class="col-md-12 col-xs-12 all-market-winner">
+    <h6 class="text-center fw-bold">WINNER</h6>
+    <div class="dual-column-market-row">
+      <div class="card-Img-box sectionA p-1">
+        <i class="fa fa-trophy winner-icon" aria-hidden="true"></i>
+        <span class="teen-market-runner-name">PLAYER A</span>
+      </div>
+      <div class="card-Img-box sectionB p-1">
+        <i class="fa fa-trophy loser-icon" aria-hidden="true"></i>
+        <span class="teen-market-runner-name">PLAYER B</span>
+      </div>
+    </div>
+  </div>
+</div>`}
+          />
+
+          {/* Supported games */}
+          <H2 id="supported-games">Supported games</H2>
+          <Table
+            head={["eventId", "Game name"]}
+            rows={GAMES.filter((g) => g.id.startsWith("99.") || g.id.startsWith("88.")).map((g) => [
+              <Code key={g.id}>{g.id}</Code>,
+              <span key={`${g.id}n`} className="text-foreground">
+                {g.name}
+              </span>,
+            ])}
+          />
+
+          <div className="mt-12 border-t border-border pt-6">
+            <Link to="/sports-docs" className="text-sm font-semibold text-foreground hover:underline">
+              Sports API docs →
+            </Link>
+          </div>
+        </main>
+      </div>
+    </div>
   );
 }
