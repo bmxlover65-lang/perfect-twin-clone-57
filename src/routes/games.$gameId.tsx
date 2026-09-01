@@ -219,6 +219,155 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
   );
 }
 
+type ABRunner = {
+  id: string;
+  label: string;
+  price?: number | null;
+  open: boolean;
+};
+
+function AndarBaharPanel({
+  markets,
+  suspended,
+}: {
+  markets: CasinoMarket[];
+  suspended: boolean;
+}) {
+  const byName = (n: string) => markets.find((m) => (m.marketName ?? "").toUpperCase() === n);
+  const list = (m?: CasinoMarket): ABRunner[] =>
+    (m?.runners ?? []).map((r) => ({
+      id: String(r.selectionId),
+      label: (m?.runnersName ?? {})[String(r.selectionId)] ?? String(r.selectionId),
+      price: r.price?.back?.[0]?.price,
+      open: !suspended && (r.status ?? "").toUpperCase() === "ACTIVE",
+    }));
+
+  const winner = list(byName("WINNER"));
+  const side = list(byName("SIDE BET"));
+  const oddEven = list(byName("ODD/EVEN"));
+  const suits = list(byName("CARD SUIT"));
+  const cards = list(byName("LUCKY CARD"));
+  const minmax = byName("WINNER");
+
+  const Price = ({ r }: { r: ABRunner }) => (
+    <span className="relative inline-flex items-center justify-center">
+      <span>{fmtOdds(r.price)}</span>
+      {!r.open ? <span className="absolute text-[0.85em]">🔒</span> : null}
+    </span>
+  );
+
+  const Chip = ({ r, kind }: { r: ABRunner; kind: "side" | "bet" }) => (
+    <div
+      className={`flex h-[52px] w-[112px] flex-col items-center justify-center rounded border-2 border-[#E3C000] text-[0.78rem] font-extrabold leading-tight ${
+        kind === "side"
+          ? r.open
+            ? "bg-white text-black"
+            : "bg-[#9A9A93] text-black/60"
+          : r.open
+            ? "bg-[#1272CE] text-white"
+            : "bg-[#173049] text-white/45"
+      }`}
+    >
+      <span className="uppercase">{r.label}</span>
+      <Price r={r} />
+    </div>
+  );
+
+  const Bar = ({ r, className = "" }: { r: ABRunner; className?: string }) => (
+    <div
+      className={`flex h-9 items-center justify-center rounded text-[0.95rem] font-bold ${
+        r.open ? "bg-[#3D6480] text-white" : "bg-[#3D6480] text-black/70"
+      } ${className}`}
+    >
+      <Price r={r} />
+    </div>
+  );
+
+  const suitGlyph: Record<string, { s: string; red: boolean }> = {
+    SPADES: { s: "♠", red: false },
+    HEARTS: { s: "♥", red: true },
+    DIAMONDS: { s: "♦", red: true },
+    CLUBS: { s: "♣", red: false },
+  };
+
+  const group = (letter: "A" | "B") => {
+    const s = side.find((r) => r.label.toUpperCase().endsWith(letter));
+    const b1 = winner.find((r) => r.label.toUpperCase().startsWith("1ST") && r.label.endsWith(letter));
+    const b2 = winner.find((r) => r.label.toUpperCase().startsWith("2ST") && r.label.endsWith(letter));
+    return (
+      <div className="flex items-center gap-2">
+        <span className="text-lg font-extrabold text-black">{letter}</span>
+        {s ? <Chip r={s} kind="side" /> : null}
+        {b1 ? <Chip r={b1} kind="bet" /> : null}
+        {b2 ? <Chip r={b2} kind="bet" /> : null}
+        <span className="text-lg font-extrabold text-black">{letter}</span>
+      </div>
+    );
+  };
+
+  return (
+    <div className="mt-1 bg-[#E4E4E4] px-3 py-3">
+      <p className="mb-1 text-right text-[0.7rem] font-bold text-black/60">
+        Min/Max: {minmax?.min ?? 0} - {minmax?.max ?? 0}
+      </p>
+      <div className="flex flex-wrap items-center justify-center gap-6">
+        {group("A")}
+        {group("B")}
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-4">
+        {["EVEN", "ODD"].map((n) => {
+          const r = oddEven.find((x) => x.label.toUpperCase() === n);
+          if (!r) return <div key={n} />;
+          return (
+            <div key={n}>
+              <p className="mb-1 text-center text-lg font-extrabold text-black">{n}</p>
+              <Bar r={r} />
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-5 grid grid-cols-4 gap-4">
+        {suits.map((r) => {
+          const g = suitGlyph[r.label.toUpperCase()] ?? { s: "?", red: false };
+          return (
+            <div key={r.id}>
+              <p
+                className={`mb-1 text-center text-2xl leading-none ${
+                  g.red ? "text-[#E01B24]" : "text-black"
+                }`}
+              >
+                {g.s}
+              </p>
+              <Bar r={r} />
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-5 flex flex-wrap justify-center gap-2">
+        {cards.map((r) => (
+          <div key={r.id} className="text-center">
+            <div
+              className={`flex h-[52px] w-[52px] flex-col items-center justify-center rounded border border-black/25 ${
+                r.open ? "bg-[#C9C9BE]" : "bg-[#9A9A93]"
+              }`}
+            >
+              <span className="text-lg font-extrabold leading-none text-black/70">{r.label}</span>
+              <span className="text-[0.6rem] leading-none">
+                <span className="text-black/70">♣</span>
+                <span className="text-[#E01B24]">♥</span>
+              </span>
+              {!r.open ? <span className="absolute text-xs">🔒</span> : null}
+            </div>
+            <p className="mt-0.5 text-[0.72rem] font-bold text-[#E01B24]">{fmtOdds(r.price)}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 
 function GamePage() {
