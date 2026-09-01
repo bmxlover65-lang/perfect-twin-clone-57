@@ -459,6 +459,35 @@ export function Aviator() {
     }
   }, [multiplier, phase, p1, p2, win]);
 
+  // record my bets when the round settles
+  useEffect(() => {
+    if (phase !== "crashed") return;
+    const rows: MyBet[] = [];
+    for (const p of [p1, p2]) {
+      if (p.active) rows.push({ round, amount: p.amount, cashedAt: p.cashedAt, crash: multiplier });
+    }
+    if (rows.length) setMyBets((m) => [...rows, ...m].slice(0, 40));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
+
+  // chatter from other players
+  useEffect(() => {
+    const lines = ["nice one", "1.5x safe", "big red again 😭", "cash early bro", "🚀🚀", "auto 2x on"];
+    const id = window.setInterval(() => {
+      setChat((c) =>
+        [
+          ...c,
+          {
+            id: Date.now(),
+            user: NAMES[Math.floor(Math.random() * NAMES.length)]!,
+            text: lines[Math.floor(Math.random() * lines.length)]!,
+          },
+        ].slice(-40),
+      );
+    }, 9000);
+    return () => window.clearInterval(id);
+  }, []);
+
   const totals = useMemo(() => {
     const staked = bets.reduce((s, b) => s + b.amount, 0);
     const cashed = bets.filter((b) => b.cashedAt !== undefined).length;
@@ -480,38 +509,118 @@ export function Aviator() {
       </div>
 
       <div className="grid gap-2 lg:grid-cols-[240px_1fr]">
-        {/* all bets */}
+        {/* bets + chat */}
         <div className="rounded-[14px] bg-[#1B1C1D] p-2">
-          <div className="flex items-center justify-between text-[0.72rem] font-bold text-white/70">
-            <span>ALL BETS</span>
-            <span>{totals.count}</span>
+          <div className="flex rounded-full bg-[#101112] p-[3px] text-[0.68rem] font-bold text-white/55">
+            {([["all", "All Bets"], ["my", "My Bets"], ["top", "Top"]] as const).map(([k, l]) => (
+              <button
+                key={k}
+                type="button"
+                onClick={() => setTab(k)}
+                className={`flex-1 rounded-full px-2 py-[3px] ${
+                  tab === k ? "bg-[#2C2D30] text-white" : ""
+                }`}
+              >
+                {l}
+              </button>
+            ))}
           </div>
-          <div className="mt-1 grid grid-cols-[1fr_auto_auto] gap-x-2 border-b border-white/10 pb-1 text-[0.62rem] font-bold uppercase text-white/40">
-            <span>User</span>
+
+          <div className="mt-2 grid grid-cols-[1fr_auto_auto] gap-x-2 border-b border-white/10 pb-1 text-[0.62rem] font-bold uppercase text-white/40">
+            <span>{tab === "my" ? "Round" : "User"}</span>
             <span>Bet</span>
             <span className="text-right">X</span>
           </div>
-          <div className="max-h-[320px] space-y-[3px] overflow-y-auto pt-1">
-            {bets.map((b) => (
-              <div
-                key={b.id}
-                className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-2 rounded-[6px] px-1 py-[3px] text-[0.72rem] ${
-                  b.cashedAt !== undefined
-                    ? "bg-[#123A18] text-[#8CFF6B]"
-                    : "bg-[#101112] text-white/70"
-                }`}
-              >
-                <span className="truncate">{b.user}</span>
-                <span className="font-semibold">{b.amount}</span>
-                <span className="text-right font-bold">
-                  {b.cashedAt !== undefined ? `${fmt(b.cashedAt)}x` : "—"}
-                </span>
-              </div>
-            ))}
+
+          <div className="max-h-[300px] space-y-[3px] overflow-y-auto pt-1">
+            {tab === "my"
+              ? (myBets.length ? myBets : []).map((b, i) => (
+                  <div
+                    key={`${b.round}-${i}`}
+                    className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-2 rounded-[6px] px-1 py-[3px] text-[0.72rem] ${
+                      b.cashedAt ? "bg-[#123A18] text-[#8CFF6B]" : "bg-[#3A1212] text-[#F98080]"
+                    }`}
+                  >
+                    <span>#{b.round}</span>
+                    <span className="font-semibold">{b.amount}</span>
+                    <span className="text-right font-bold">
+                      {b.cashedAt ? `${fmt(b.cashedAt)}x` : `${fmt(b.crash)}x`}
+                    </span>
+                  </div>
+                ))
+              : (tab === "top"
+                  ? [...bets].sort((a, b) => (b.cashedAt ?? 0) - (a.cashedAt ?? 0))
+                  : bets
+                ).map((b) => (
+                  <div
+                    key={b.id}
+                    className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-2 rounded-[6px] px-1 py-[3px] text-[0.72rem] ${
+                      b.cashedAt !== undefined
+                        ? "bg-[#123A18] text-[#8CFF6B]"
+                        : "bg-[#101112] text-white/70"
+                    }`}
+                  >
+                    <span className="truncate">{b.user}</span>
+                    <span className="font-semibold">{b.amount}</span>
+                    <span className="text-right font-bold">
+                      {b.cashedAt !== undefined ? `${fmt(b.cashedAt)}x` : "—"}
+                    </span>
+                  </div>
+                ))}
+            {tab === "my" && myBets.length === 0 ? (
+              <p className="py-6 text-center text-[0.72rem] text-white/40">No bets yet</p>
+            ) : null}
           </div>
+
           <p className="mt-1 border-t border-white/10 pt-1 text-[0.65rem] text-white/40">
             Total bet {totals.staked} INR · {totals.cashed} cashed out
           </p>
+
+          <button
+            type="button"
+            onClick={() => setChatOpen((v) => !v)}
+            className="mt-2 w-full rounded-full bg-[#101112] py-[5px] text-[0.7rem] font-bold text-white/70"
+          >
+            {chatOpen ? "Hide chat" : `Chat (${chat.length})`}
+          </button>
+
+          {chatOpen ? (
+            <div className="mt-2 rounded-[10px] bg-[#101112] p-2">
+              <div className="max-h-[180px] space-y-[5px] overflow-y-auto">
+                {chat.map((m) => (
+                  <div key={m.id} className="text-[0.72rem] leading-tight">
+                    <span className={m.mine ? "font-bold text-[#8CFF6B]" : "font-bold text-[#34B3F1]"}>
+                      {m.mine ? "You" : m.user}
+                    </span>{" "}
+                    <span className="text-white/75">{m.text}</span>
+                  </div>
+                ))}
+              </div>
+              <form
+                className="mt-2 flex gap-1"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const text = draft.trim();
+                  if (!text) return;
+                  setChat((c) => [...c, { id: Date.now(), user: "You", text, mine: true }].slice(-40));
+                  setDraft("");
+                }}
+              >
+                <input
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  placeholder="Message"
+                  className="min-w-0 flex-1 rounded-full bg-[#1B1C1D] px-3 py-1 text-[0.72rem] text-white outline-none"
+                />
+                <button
+                  type="submit"
+                  className="rounded-full bg-[#28A909] px-3 py-1 text-[0.7rem] font-bold text-white"
+                >
+                  Send
+                </button>
+              </form>
+            </div>
+          ) : null}
         </div>
 
         {/* stage + panels */}
