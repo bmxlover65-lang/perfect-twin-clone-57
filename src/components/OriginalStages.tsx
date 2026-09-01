@@ -458,15 +458,33 @@ export function BalloonStage({
           <button
             type="button"
             onClick={() => {
-              setMuted((m) => !m);
-              airRef.current?.pause();
+              setMuted((m) => {
+                const next = !m;
+                if (next) {
+                  airRef.current?.pause();
+                } else if (flying && !popped) {
+                  try {
+                    const a = new Audio("/balloon-air.mp3");
+                    a.volume = 0.35;
+                    airRef.current = a;
+                    void a.play().catch(() => undefined);
+                  } catch {
+                    // audio unavailable
+                  }
+                }
+                return next;
+              });
             }}
             className="shrink-0 text-[#2B2B2B]"
             aria-label={muted ? "Unmute" : "Mute"}
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
               <path d="M3 9v6h4l5 5V4L7 9H3z" />
-              <path d="M16.5 9.5l5 5m0-5l-5 5" stroke="currentColor" strokeWidth="2" fill="none" />
+              {muted ? (
+                <path d="M16.5 9.5l5 5m0-5l-5 5" stroke="currentColor" strokeWidth="2" fill="none" />
+              ) : (
+                <path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
+              )}
             </svg>
           </button>
           <div className="mx-auto flex max-w-[78%] flex-nowrap items-center justify-center gap-1.5 overflow-hidden">
