@@ -425,19 +425,22 @@ export function BalloonStage({
         <img
           src={LOCATIONS[bgIndex]!.url}
           alt=""
-          className="absolute left-0 h-[170%] w-full object-cover transition-transform duration-500 ease-out"
-          style={{ bottom: 0, transform: `translateY(${grow * 40}%)` }}
+          className="absolute left-0 h-[170%] w-full object-cover transition-transform duration-700 ease-out"
+          style={{ bottom: 0, transform: `translateY(${grow * 55}%)` }}
         />
 
-        {/* balloon */}
+        {/* balloon — rises and recedes as the multiplier climbs; bursts on pop */}
         <div
-          className="absolute left-1/2 transition-all duration-300 ease-out"
+          className={`absolute left-1/2 ${
+            popped ? "transition-all duration-200 ease-in" : "transition-all duration-500 ease-out"
+          }`}
           style={{
-            bottom: `${24 + grow * 20}%`,
-            width: `${21 + grow * 5}%`,
-            opacity: 1,
-            transform: `translateX(-50%) scale(1)`,
-
+            bottom: popped ? "72%" : `${8 + grow * 52}%`,
+            width: `${Math.max(12, 23 - grow * 9)}%`,
+            opacity: popped ? 0 : 1,
+            transform: popped
+              ? "translateX(-50%) scale(1.55)"
+              : "translateX(-50%) scale(1)",
           }}
         >
           <img
@@ -452,7 +455,17 @@ export function BalloonStage({
           </p>
         </div>
 
-
+        {/* burst flash on pop */}
+        {popped ? (
+          <div className="absolute inset-x-0 top-[30%] flex flex-col items-center">
+            <span className="animate-[scale-in_0.25s_ease-out] text-[clamp(1.8rem,5vw,3.5rem)] font-extrabold text-[#E01E1E] drop-shadow-[0_3px_6px_rgba(0,0,0,0.4)]">
+              BURST
+            </span>
+            <span className="text-[clamp(1.1rem,3vw,2rem)] font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
+              {target.toFixed(2)}x
+            </span>
+          </div>
+        ) : null}
 
         {/* top bar: mute + history + collapse */}
         <div className="absolute inset-x-0 top-0 flex items-start gap-2 px-3 py-2.5">
