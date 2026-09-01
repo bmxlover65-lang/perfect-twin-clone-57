@@ -82,6 +82,16 @@ async function proxy(splat: string, search: string, body?: string) {
       res = await upstream(splat, search, token, body);
     }
     const text = await res.text();
+    // Upstream currently 502s on some casino endpoints (e.g. /results).
+    // Degrade gracefully instead of surfacing a 502 to the app.
+    if (!res.ok && res.status >= 500) {
+      return Response.json(
+        splat.endsWith("/results")
+          ? { data: [], upstreamStatus: res.status }
+          : { error: `Upstream unavailable (${res.status})`, upstreamStatus: res.status },
+        { status: 200, headers: { "cache-control": "no-store" } },
+      );
+    }
     return new Response(text, {
       status: res.status,
       headers: {
@@ -91,10 +101,11 @@ async function proxy(splat: string, search: string, body?: string) {
     });
   } catch (error) {
     return Response.json(
-      { error: error instanceof Error ? error.message : "Upstream request failed" },
-      { status: 502 },
+      { error: error instanceof Error ? error.message : "Upstream request failed", data: [] },
+      { status: 200 },
     );
   }
+
 }
 
 export const Route = createFileRoute("/api/public/uapi/$")({
