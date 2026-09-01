@@ -1,4 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import plane0 from "@/assets/aviator/plane-0.svg";
+import plane1 from "@/assets/aviator/plane-1.svg";
+import plane2 from "@/assets/aviator/plane-2.svg";
+import plane3 from "@/assets/aviator/plane-3.svg";
+import aviatorText from "@/assets/aviator/aviator.svg";
+
+const PLANE_FRAMES = [plane0, plane1, plane2, plane3];
 
 /* ---------------- round engine ---------------- */
 
