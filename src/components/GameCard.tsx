@@ -9,14 +9,23 @@ export function GameCard({ game }: { game: GameDef }) {
       className="group block overflow-hidden rounded-xl bg-card shadow-sm transition-transform duration-200 hover:-translate-y-1 hover:shadow-xl"
     >
       <div className="relative aspect-[16/23] overflow-hidden bg-table-felt">
-        <div
-          className="absolute inset-0 flex items-center justify-center"
-          style={{
-            background: `linear-gradient(160deg, oklch(0.38 0.14 ${game.hues[0]}), oklch(0.18 0.08 ${game.hues[1]}))`,
-          }}
-        >
-          <span className="text-5xl opacity-80 drop-shadow-lg">{game.glyph}</span>
-        </div>
+        {game.image ? (
+          <img
+            src={game.image}
+            alt={game.name}
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <div
+            className="absolute inset-0 flex items-center justify-center"
+            style={{
+              background: `linear-gradient(160deg, oklch(0.38 0.14 ${game.hues[0]}), oklch(0.18 0.08 ${game.hues[1]}))`,
+            }}
+          >
+            <span className="text-5xl opacity-80 drop-shadow-lg">{game.glyph}</span>
+          </div>
+        )}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
