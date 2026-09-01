@@ -391,27 +391,6 @@ function EventPage() {
         ) : null}
       </div>
 
-      <p className="mt-8 text-base font-bold text-foreground">
-        Result &amp; settlement history{" "}
-        <span className="text-sm font-normal text-muted-foreground">
-          · market status changes and settled runners observed live
-        </span>
-      </p>
-      <div className="mt-3 rounded-lg bg-ex-panel p-3">
-        {history.length ? (
-          <ul className="space-y-1">
-            {history.map((h, i) => (
-              <li key={`${h.at}-${i}`} className="font-mono text-xs text-ex-text">
-                [{h.at}] {h.text}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="font-mono text-xs text-ex-muted">
-            Watching markets… settlement and suspend/open transitions will appear here.
-          </p>
-        )}
-      </div>
     </div>
   );
 }
