@@ -475,16 +475,17 @@ export function BalloonStage({
               <path d="M16.5 9.5l5 5m0-5l-5 5" stroke="currentColor" strokeWidth="2" fill="none" />
             </svg>
           </button>
-          <div className="mx-auto flex max-w-[70%] flex-wrap items-center justify-center gap-1.5">
-            {(history.length ? history : [target]).slice(0, 10).map((v, i) => (
+          <div className="mx-auto flex max-w-[78%] flex-nowrap items-center justify-center gap-1.5 overflow-hidden">
+            {histList.map((v, i) => (
               <span
                 key={i}
-                className={`rounded-[5px] px-2.5 py-[3px] text-[0.78rem] font-extrabold ${histColor2(v)}`}
+                className={`shrink-0 rounded-[5px] px-2.5 py-[3px] text-[0.78rem] font-extrabold ${histColor2(v)}`}
               >
                 {v.toFixed(2)}x
               </span>
             ))}
           </div>
+
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#E8A33D]">
             <img src={arrowDown.url} alt="" className="h-3 w-3" />
           </span>
