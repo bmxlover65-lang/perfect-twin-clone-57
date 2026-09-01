@@ -153,6 +153,100 @@ function BaccaratPanel({
   );
 }
 
+function PokerPanel({
+  markets,
+  suspended,
+}: {
+  markets: CasinoMarket[];
+  suspended: boolean;
+}) {
+  const Plate = ({
+    price,
+    size,
+    locked,
+  }: {
+    price?: number | null;
+    size?: number | null;
+    locked: boolean;
+  }) => (
+    <div
+      className={`flex h-[52px] w-[210px] -skew-x-[18deg] items-center justify-center rounded-[3px] shadow-md ${
+        locked
+          ? "bg-gradient-to-b from-[#c9d4cf] to-[#b5c2bc]"
+          : "bg-gradient-to-b from-[#17805A] to-[#0C5B3E]"
+      }`}
+    >
+      <div className="skew-x-[18deg] text-center leading-tight">
+        <p className={`text-[1.05rem] font-extrabold ${locked ? "text-white/70" : "text-white"}`}>
+          {fmtOdds(price)}
+        </p>
+        <p className="text-[0.66rem] font-semibold text-white/70">{fmtSize(size)}</p>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="mt-3 bg-[#ececec] p-3">
+      <div className="mb-3 flex items-center justify-between gap-4">
+        {["PLAYER A", "PLAYER B"].map((n) => (
+          <div
+            key={n}
+            className="flex h-[62px] flex-1 items-center justify-center rounded-md bg-gradient-to-b from-[#17805A] to-[#0B4F36] text-[1.05rem] font-extrabold tracking-wide text-[#0d2b21] shadow"
+          >
+            {n}
+          </div>
+        ))}
+      </div>
+
+      <div className="space-y-2">
+        {markets.map((m) => {
+          const names = m.runnersName ?? {};
+          const runners = m.runners ?? [];
+          const a = runners.find((r) => (names[String(r.selectionId)] ?? "").toUpperCase().includes("A"));
+          const b = runners.find((r) => (names[String(r.selectionId)] ?? "").toUpperCase().includes("B"));
+          const isSusp =
+            suspended ||
+            runners.every((r) => (r.status ?? "").toUpperCase() !== "ACTIVE");
+          return (
+            <div
+              key={m.marketId}
+              className={`relative bg-white px-3 pb-4 pt-0 ${
+                isSusp ? "rounded-[14px] border border-[#e0403f]" : "border-b border-[#d8d8d8]"
+              }`}
+            >
+              <div className="flex justify-center">
+                <div className="-mt-0 flex h-[38px] w-[300px] items-center justify-center gap-1 rounded-b-[14px] bg-white text-[0.8rem] font-extrabold uppercase tracking-wide text-[#333] shadow-[0_2px_4px_rgba(0,0,0,0.18)]">
+                  {m.marketName}
+                  <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#9aa0a6] text-[0.6rem] font-bold text-white">
+                    i
+                  </span>
+                </div>
+              </div>
+              <div className="relative mt-2 flex items-center justify-between">
+                <Plate
+                  price={a?.price?.back?.[0]?.price}
+                  size={a?.price?.back?.[0]?.size}
+                  locked={isSusp}
+                />
+                <Plate
+                  price={b?.price?.back?.[0]?.price}
+                  size={b?.price?.back?.[0]?.size}
+                  locked={isSusp}
+                />
+                {isSusp ? (
+                  <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[1.35rem] font-extrabold uppercase text-[#e0201c]">
+                    Suspended
+                  </span>
+                ) : null}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 
 function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
