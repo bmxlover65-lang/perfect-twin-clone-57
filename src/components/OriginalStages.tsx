@@ -315,28 +315,163 @@ export function CoinStage({ side }: { side: "HEADS" | "TAILS" }) {
 
 const BALLOON_STAKES = [10, 50, 100, 500, 1000, 2500, 5000, 10000];
 
-export function BalloonStage({ multiplier }: { multiplier: string }) {
+export function BalloonStage({
+  multiplier,
+  roundId,
+  suspended,
+  leftSec,
+}: {
+  multiplier: string;
+  roundId?: string | undefined;
+  suspended?: boolean;
+  leftSec?: number | undefined;
+}) {
+  const [muted, setMuted] = useState(false);
+  const [stake, setStake] = useState(100);
+  const [flying, setFlying] = useState(false);
+  const [popped, setPopped] = useState(false);
+  const [shown, setShown] = useState(1);
+  const airRef = useRef<HTMLAudioElement | null>(null);
+  const doneFor = useRef<string | null>(null);
+  const target = Number(multiplier) || 1;
+
+  // live count-up towards the API multiplier while the round is flying
+  useEffect(() => {
+    if (popped) return;
+    let raf = 0;
+    const tick = () => {
+      setShown((v) => v + Math.max(0.004, (target - v) * 0.06));
+      raf = window.requestAnimationFrame(tick);
+    };
+    raf = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(raf);
+  }, [target, popped]);
+
+  // new round → reset + air sound
+  useEffect(() => {
+    if (!roundId || doneFor.current === roundId) return;
+    doneFor.current = roundId;
+    setPopped(false);
+    setFlying(true);
+    setShown(1);
+    if (!muted) {
+      try {
+        const a = new Audio("/balloon-air.mp3");
+        a.volume = 0.35;
+        airRef.current = a;
+        void a.play().catch(() => undefined);
+      } catch {
+        // audio unavailable
+      }
+    }
+  }, [roundId, muted]);
+
+  // round ends → pop
+  useEffect(() => {
+    if (!suspended || popped) return;
+    setPopped(true);
+    setFlying(false);
+    setShown(target);
+    airRef.current?.pause();
+    if (!muted) {
+      try {
+        const a = new Audio("/balloon-pop.mp3");
+        a.volume = 0.7;
+        void a.play().catch(() => undefined);
+      } catch {
+        // audio unavailable
+      }
+    }
+  }, [suspended, popped, target, muted]);
+
+  const grow = Math.min(1, Math.log(Math.max(1, shown)) / Math.log(20));
+  const size = 120 + grow * 170;
+  const bottom = 90 + grow * 190;
+
   return (
     <div className="w-full">
       <div className="flex items-center gap-2 py-2">
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1E1E1E] text-white">
-          🔊
-        </span>
-        <span className="h-7 w-7 rounded-full bg-[#2A2A2A]" />
+        <button
+          type="button"
+          onClick={() => {
+            setMuted((m) => !m);
+            airRef.current?.pause();
+          }}
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1E1E1E] text-[0.95rem] text-white"
+          aria-label={muted ? "Unmute" : "Mute"}
+        >
+          {muted ? "off" : "on"}
+        </button>
+        <span
+          className={`h-7 w-7 rounded-full ${flying ? "bg-[#2E7D32]" : "bg-[#2A2A2A]"}`}
+        />
       </div>
       <div className="overflow-hidden rounded-[4px]">
-        <div className="relative flex h-[430px] items-center justify-center bg-[linear-gradient(180deg,#1B1F8C_0%,#3C42B4_55%,#8189D6_100%)]">
-          {[...Array(8)].map((_, i) => (
+        <div className="relative h-[430px] overflow-hidden bg-[linear-gradient(180deg,#1B1F8C_0%,#3C42B4_55%,#8189D6_100%)]">
+          {[...Array(10)].map((_, i) => (
             <span
               key={i}
-              className="absolute h-2 w-2 rounded-full bg-white/50"
-              style={{ left: `${18 + i * 9}%`, top: `${30 + ((i * 37) % 45)}%` }}
+              className="absolute h-2 w-2 rounded-full bg-white/45"
+              style={{
+                left: `${8 + i * 9}%`,
+                top: `${(((i * 37) % 70) + 10 + shown * 6) % 80}%`,
+              }}
             />
           ))}
-          <p className="text-[3.2rem] font-extrabold leading-none text-white drop-shadow-[0_3px_6px_rgba(0,0,0,0.4)]">
-            {multiplier}
-            <span className="text-[1.6rem] font-bold">x</span>
-          </p>
+
+          {/* balloon */}
+          <div
+            className="absolute left-1/2 -translate-x-1/2 transition-all duration-200 ease-out"
+            style={{
+              bottom: `${bottom}px`,
+              width: `${size}px`,
+              height: `${size * 1.18}px`,
+              opacity: popped ? 0 : 1,
+              transform: `translateX(-50%) scale(${popped ? 1.35 : 1})`,
+            }}
+          >
+            <svg viewBox="0 0 120 142" className="h-full w-full">
+              <defs>
+                <radialGradient id="balloonSkin" cx="35%" cy="30%">
+                  <stop offset="0%" stopColor="#FF8B8B" />
+                  <stop offset="55%" stopColor="#E03B3B" />
+                  <stop offset="100%" stopColor="#961B1B" />
+                </radialGradient>
+              </defs>
+              <ellipse cx="60" cy="58" rx="52" ry="58" fill="url(#balloonSkin)" />
+              <ellipse cx="42" cy="36" rx="13" ry="18" fill="#fff" opacity="0.35" />
+              <path d="M54 114 L60 104 L66 114 Z" fill="#7E1414" />
+              <path
+                d="M60 116 C 70 124, 50 130, 60 140"
+                stroke="#EDEDED"
+                strokeWidth="2.5"
+                fill="none"
+              />
+            </svg>
+          </div>
+
+          {popped ? (
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+              <p className="text-[1rem] font-extrabold uppercase tracking-[0.2em] text-[#FFD84D]">
+                Balloon burst
+              </p>
+              <p className="text-[3.4rem] font-extrabold leading-none text-white drop-shadow-[0_3px_6px_rgba(0,0,0,0.45)]">
+                {target.toFixed(2)}
+                <span className="text-[1.7rem] font-bold">x</span>
+              </p>
+            </div>
+          ) : (
+            <p className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[3.2rem] font-extrabold leading-none text-white drop-shadow-[0_3px_6px_rgba(0,0,0,0.4)]">
+              {shown.toFixed(2)}
+              <span className="text-[1.6rem] font-bold">x</span>
+            </p>
+          )}
+
+          {!suspended && leftSec != null ? (
+            <span className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full border-2 border-white/70 text-[1.05rem] font-extrabold text-white">
+              {leftSec}
+            </span>
+          ) : null}
         </div>
         <div className="h-[80px] w-full bg-[#2E7D32]" />
       </div>
@@ -346,7 +481,10 @@ export function BalloonStage({ multiplier }: { multiplier: string }) {
             <button
               key={s}
               type="button"
-              className="h-9 rounded bg-[#242424] text-[0.78rem] font-bold text-white/90"
+              onClick={() => setStake(s)}
+              className={`h-9 rounded text-[0.78rem] font-bold text-white/90 ${
+                stake === s ? "bg-[#3A3A3A] ring-1 ring-[#D4AF1F]" : "bg-[#242424]"
+              }`}
             >
               {s}
             </button>
@@ -357,6 +495,11 @@ export function BalloonStage({ multiplier }: { multiplier: string }) {
             <button
               key={s}
               type="button"
+              onClick={() => {
+                if (s === "Clear") setStake(0);
+                if (s === "Min") setStake(10);
+                if (s === "Max") setStake(10000);
+              }}
               className="h-9 rounded bg-[#242424] text-[0.78rem] font-bold text-white/90"
             >
               {s}
@@ -366,9 +509,10 @@ export function BalloonStage({ multiplier }: { multiplier: string }) {
         <div className="grid content-start gap-2">
           <button
             type="button"
-            className="h-9 rounded bg-[#2C2C2C] text-[0.85rem] font-extrabold text-white"
+            className="h-9 rounded bg-[#2C2C2C] text-[0.85rem] font-extrabold text-white disabled:opacity-40"
+            disabled={!!suspended}
           >
-            BET
+            BET {stake ? stake : ""}
           </button>
           <button
             type="button"
