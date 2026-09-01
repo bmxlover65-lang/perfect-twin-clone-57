@@ -54,6 +54,15 @@ function SportsPage() {
   const [latency, setLatency] = useState(0);
   const [pollCount, setPollCount] = useState(0);
   const [errorLog, setErrorLog] = useState<{ at: string; message: string }[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("admin");
+    if (q === "1") localStorage.setItem("uapi_admin", "1");
+    if (q === "0") localStorage.removeItem("uapi_admin");
+    setIsAdmin(localStorage.getItem("uapi_admin") === "1");
+  }, []);
+
 
   useEffect(() => {
     fetchSports()
@@ -177,9 +186,10 @@ function SportsPage() {
         </p>
       ) : null}
 
+      {isAdmin ? (
       <section className="mt-6 rounded-2xl border border-border/60 bg-card p-4">
         <header className="flex items-center justify-between px-1 pb-3">
-          <h2 className="text-sm font-bold text-foreground">Feed health</h2>
+          <h2 className="text-sm font-bold text-foreground">Feed health (admin)</h2>
           <span
             className={`flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold ${
               error ? "bg-live-lose/20 text-live-lose" : "bg-live-pill text-live-pill-foreground"
@@ -220,6 +230,7 @@ function SportsPage() {
           )}
         </div>
       </section>
+      ) : null}
 
       <section className="mt-6 rounded-2xl border border-border/60 bg-card p-4">
         <header className="flex items-center justify-between px-1 pb-3">
