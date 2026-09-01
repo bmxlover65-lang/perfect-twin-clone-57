@@ -7,6 +7,10 @@ import jokerTeenpattiImg from "@/assets/games/Joker_teenpatti.webp.asset.json";
 import dragonTigerImg from "@/assets/games/Dragontiger.webp.asset.json";
 import baccaratImg from "@/assets/games/Baccarat.webp.asset.json";
 import andarBaharImg from "@/assets/games/Andar_Bahar.webp.asset.json";
+import dragonTiger1DayImg from "@/assets/games/1_Day_Dragon_tiger.webp.asset.json";
+import muflisTeenpattiImg from "@/assets/games/muflisteenpatti-01.webp.asset.json";
+import cardRaceImg from "@/assets/games/CardRace.webp.asset.json";
+import teenpatti2020Img from "@/assets/games/20-20_teenpatti.webp.asset.json";
 
 export type GameKind =
   | "teenpatti"
@@ -390,12 +394,13 @@ const GAME_IMAGES: Record<string, string> = {
   "99.0041": dtlImg.url,
   "99.0030": lucky7Img.url,
   "99.0013": teenpatti1DayImg.url,
-  "99.0010": teenpatti1DayImg.url,
-  "99.0014": teenpatti1DayImg.url,
+  "99.0010": teenpatti2020Img.url,
+  "99.0014": muflisTeenpattiImg.url,
+  "99.0046": cardRaceImg.url,
   "99.0016": jokerTeenpattiImg.url,
   "99.0018": dragonTigerImg.url,
   "99.0019": dragonTigerImg.url,
-  "99.0021": dragonTigerImg.url,
+  "99.0021": dragonTiger1DayImg.url,
   "99.0001": baccaratImg.url,
   "99.0025": andarBaharImg.url,
 };
