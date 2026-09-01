@@ -25,10 +25,44 @@ async function getToken(force = false): Promise<string> {
   return mintToken();
 }
 
-async function upstream(path: string, search: string, token: string) {
+async function upstream(path: string, search: string, token: string, body?: string) {
   return fetch(`${UPSTREAM}/${path}${search}`, {
-    headers: { "x-session-token": token, accept: "application/json" },
+    method: body === undefined ? "GET" : "POST",
+    headers: {
+      "x-session-token": token,
+      accept: "application/json",
+      ...(body === undefined ? {} : { "content-type": "application/json" }),
+    },
+    ...(body === undefined ? {} : { body }),
   });
+}
+
+async function proxy(splat: string, search: string, body?: string) {
+  try {
+    if (splat === "session") {
+      const token = await getToken();
+      return Response.json({ sessionToken: token });
+    }
+    let token = await getToken();
+    let res = await upstream(splat, search, token, body);
+    if (res.status === 401 || res.status === 403) {
+      token = await getToken(true);
+      res = await upstream(splat, search, token, body);
+    }
+    const text = await res.text();
+    return new Response(text, {
+      status: res.status,
+      headers: {
+        "content-type": res.headers.get("content-type") ?? "application/json",
+        "cache-control": "no-store",
+      },
+    });
+  } catch (error) {
+    return Response.json(
+      { error: error instanceof Error ? error.message : "Upstream request failed" },
+      { status: 502 },
+    );
+  }
 }
 
 export const Route = createFileRoute("/api/public/uapi/$")({
@@ -36,36 +70,12 @@ export const Route = createFileRoute("/api/public/uapi/$")({
     handlers: {
       GET: async ({ request, params }) => {
         const splat = (params as { _splat?: string })._splat ?? "";
-        const url = new URL(request.url);
-        const search = url.search;
-
-        try {
-          if (splat === "session") {
-            const token = await getToken();
-            return Response.json({ sessionToken: token });
-          }
-
-          let token = await getToken();
-          let res = await upstream(splat, search, token);
-          if (res.status === 401 || res.status === 403) {
-            token = await getToken(true);
-            res = await upstream(splat, search, token);
-          }
-
-          const body = await res.text();
-          return new Response(body, {
-            status: res.status,
-            headers: {
-              "content-type": res.headers.get("content-type") ?? "application/json",
-              "cache-control": "no-store",
-            },
-          });
-        } catch (error) {
-          return Response.json(
-            { error: error instanceof Error ? error.message : "Upstream request failed" },
-            { status: 502 },
-          );
-        }
+        return proxy(splat, new URL(request.url).search);
+      },
+      POST: async ({ request, params }) => {
+        const splat = (params as { _splat?: string })._splat ?? "";
+        const body = await request.text().catch(() => "{}");
+        return proxy(splat, new URL(request.url).search, body || "{}");
       },
     },
   },

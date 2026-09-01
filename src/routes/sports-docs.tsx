@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Block, Code, Endpoint, H2, H3, Note, P, Table } from "@/components/docs-kit";
+import { Block, Code, Endpoint, H2, H3, Note, P, Step, Table } from "@/components/docs-kit";
+import { LiveApiDemo } from "@/components/LiveApiDemo";
 
 export const Route = createFileRoute("/sports-docs")({
   head: () => ({
@@ -25,6 +26,7 @@ const TOC = [
   ["overview", "Overview"],
   ["product-access", "Product access"],
   ["authentication", "Authentication"],
+  ["api-key-setup", "API key & endpoint setup"],
   ["sport-ids", "Sport IDs"],
   ["event-fields", "Event fields"],
   ["endpoints", "Endpoints"],
@@ -127,6 +129,66 @@ function SportsDocs() {
           <Block label="Bearer" code={`Authorization: Bearer your-partner-api-key`} />
 
           {/* Sport IDs */}
+          {/* API key & endpoint setup */}
+          <H2 id="api-key-setup">API key &amp; endpoint setup</H2>
+          <P>
+            Every B2B integration needs one real API key and one base URL. Follow these steps end to
+            end; the same key powers events, odds, results and TV embeds.
+          </P>
+          <Step n={1} title="Request a B2B API key">
+            <>
+              Email the provider with your company name, brand domain(s) and the products you need
+              (Sports, Casino or both). You receive a key in the form{" "}
+              <Code>uapi_live_xxxxxxxxxxxxxxxx</Code> plus an allowlisted origin list.
+            </>
+          </Step>
+          <Step n={2} title="Store the key server-side">
+            <>
+              Keep the key in a server environment variable — never in browser code, mobile bundles
+              or public repos.
+            </>
+            <Block
+              label=".env (backend only)"
+              code={`UAPI_BASE_URL=https://universeapi.shop/api
+UAPI_KEY=uapi_live_xxxxxxxxxxxxxxxx`}
+            />
+          </Step>
+          <Step n={3} title="Verify the key">
+            <>A 200 response with a sports array means the key and entitlements are active.</>
+            <Block
+              label="curl"
+              code={`curl -s "$UAPI_BASE_URL/sports" \\
+  -H "X-API-Key: $UAPI_KEY"`}
+            />
+          </Step>
+          <Step n={4} title="Proxy the API from your backend">
+            <>
+              Expose your own thin routes so the key never reaches the client. This site uses exactly
+              that pattern: <Code>/api/public/uapi/*</Code> forwards to the provider and injects the
+              credential server-side.
+            </>
+            <Block
+              label="Node / TypeScript proxy"
+              code={`export async function uapi(path: string) {
+  const res = await fetch(\`\${process.env.UAPI_BASE_URL}/\${path}\`, {
+    headers: { "X-API-Key": process.env.UAPI_KEY!, accept: "application/json" },
+  });
+  if (!res.ok) throw new Error(\`Upstream \${res.status}\`);
+  return res.json();
+}`}
+            />
+          </Step>
+          <Step n={5} title="Wire the front end">
+            <>
+              Call your proxy routes only. Poll the event list every 10–15s and odds every 1–2s for
+              the event the user is viewing.
+            </>
+          </Step>
+          <Note>
+            Rotate keys from the partner portal. A rotated key invalidates old TV embed tokens within
+            60 seconds.
+          </Note>
+
           <H2 id="sport-ids">Sport IDs</H2>
           <Table
             head={["sportId", "Sport"]}
@@ -587,6 +649,19 @@ GET  https://universeapi.shop/api/sports/4/{exEventId}/score`}
             <Code>GET /public/tv/sports/scoreboard</Code>) and is not for partner embedding.
             Partners must use the B2B mint + <Code>/api/tv/sports/*</Code> flow above.
           </P>
+          <P>
+            The widget below issues real requests against this site&rsquo;s backend proxy, which
+            forwards to the provider with server-side credentials.
+          </P>
+          <LiveApiDemo
+            title="Sports API — live responses"
+            paths={[
+              { label: "GET /sports", path: "sports" },
+              { label: "Cricket events", path: "sports/4/events" },
+              { label: "Soccer events", path: "sports/1/events" },
+              { label: "Tennis events", path: "sports/2/events" },
+            ]}
+          />
 
           {/* Polling guide */}
           <H2 id="polling-guide">Polling guide</H2>

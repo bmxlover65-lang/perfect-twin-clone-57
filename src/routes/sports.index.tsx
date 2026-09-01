@@ -50,6 +50,10 @@ function SportsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshedAt, setRefreshedAt] = useState("");
+  const [lastPoll, setLastPoll] = useState<Date | null>(null);
+  const [latency, setLatency] = useState(0);
+  const [pollCount, setPollCount] = useState(0);
+  const [errorLog, setErrorLog] = useState<{ at: string; message: string }[]>([]);
 
   useEffect(() => {
     fetchSports()
@@ -67,13 +71,24 @@ function SportsPage() {
   const load = useCallback(
     async (id: string, silent = false) => {
       if (!silent) setLoading(true);
+      const started = Date.now();
       try {
         const data = await fetchEvents(id);
         setEvents(data.events ?? []);
         setError(null);
         setRefreshedAt(new Date(data.refreshedAt ?? Date.now()).toLocaleTimeString());
+        setLatency(Date.now() - started);
+        setLastPoll(new Date());
+        setPollCount((n) => n + 1);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to load events");
+        const message = e instanceof Error ? e.message : "Failed to load events";
+        setError(message);
+        setLatency(Date.now() - started);
+        setLastPoll(new Date());
+        setPollCount((n) => n + 1);
+        setErrorLog((log) =>
+          [{ at: new Date().toLocaleTimeString(), message }, ...log].slice(0, 8),
+        );
       } finally {
         setLoading(false);
       }
@@ -102,8 +117,12 @@ function SportsPage() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">Sports</h1>
           <p className="mt-2 max-w-[620px] text-muted-foreground">
-            All events for each sport (in-play + pre-match). Open one to verify odds, TV, and
-            scoreboard.
+            Real in-play and pre-match events with live exchange odds. Data source:{" "}
+            <span className="font-semibold text-foreground">
+              Universal API (universeapi.shop/public)
+            </span>{" "}
+            through the server proxy <code className="font-mono">/api/public/uapi/sports/…</code>,
+            polled every 15s.
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
             {loading
@@ -160,14 +179,58 @@ function SportsPage() {
 
       <section className="mt-6 rounded-2xl border border-border/60 bg-ex-panel p-4">
         <header className="flex items-center justify-between px-1 pb-3">
-          <h2 className="text-sm font-bold text-foreground">
+          <h2 className="text-sm font-bold text-ex-text">Feed health</h2>
+          <span
+            className={`flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold ${
+              error ? "bg-live-lose/20 text-live-lose" : "bg-live-pill text-live-pill-foreground"
+            }`}
+          >
+            <span className="h-2 w-2 rounded-full bg-current" />
+            {error ? "Degraded" : "Operational"}
+          </span>
+        </header>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+          {[
+            ["API status", error ? "error" : "200 OK"],
+            ["Last poll", lastPoll ? lastPoll.toLocaleTimeString() : "—"],
+            ["Latency", `${latency} ms`],
+            ["Live (in-play)", String(inplay.length)],
+            ["Polls / errors", `${pollCount} / ${errorLog.length}`],
+          ].map(([k, v]) => (
+            <div key={k} className="rounded-lg bg-ex-row px-3 py-2">
+              <p className="text-[0.68rem] uppercase tracking-wide text-ex-muted">{k}</p>
+              <p className="text-sm font-bold text-ex-text">{v}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 rounded-lg bg-ex-row p-3">
+          <p className="text-[0.68rem] uppercase tracking-wide text-ex-muted">Error log</p>
+          {errorLog.length ? (
+            <ul className="mt-1 space-y-1">
+              {errorLog.map((l, i) => (
+                <li key={`${l.at}-${i}`} className="font-mono text-xs text-live-lose">
+                  [{l.at}] {l.message}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-1 font-mono text-xs text-ex-muted">
+              No errors recorded in this session.
+            </p>
+          )}
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-border/60 bg-ex-panel p-4">
+        <header className="flex items-center justify-between px-1 pb-3">
+          <h2 className="text-sm font-bold text-ex-text">
             {filter === "inplay"
               ? "In-play events"
               : filter === "pre"
                 ? "Pre-match events"
                 : "All events"}
           </h2>
-          <span className="text-sm text-muted-foreground">{list.length}</span>
+          <span className="text-sm text-ex-muted">{list.length}</span>
         </header>
 
         <div className="space-y-3">
@@ -179,8 +242,8 @@ function SportsPage() {
               className="flex items-center justify-between gap-4 rounded-xl bg-ex-row px-4 py-3 transition-colors hover:bg-accent/40"
             >
               <div className="min-w-0">
-                <h3 className="truncate text-base font-bold text-foreground">{e.eventName}</h3>
-                <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                <h3 className="truncate text-base font-bold text-ex-text">{e.eventName}</h3>
+                <p className="mt-1 flex items-center gap-2 text-sm text-ex-muted">
                   {e.inPlay ? <span className="h-2 w-2 shrink-0 rounded-full bg-live-lose" /> : null}
                   <span>
                     {e.inPlay ? "In-play" : "Pre-match"}
@@ -192,17 +255,17 @@ function SportsPage() {
                   {(e.runners ?? []).slice(0, 4).map((r) => (
                     <span
                       key={String(r.selectionId)}
-                      className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground"
+                      className="rounded-md bg-ex-panel px-2 py-1 text-xs text-ex-muted"
                     >
                       {runnerName(e, r.selectionId)}{" "}
-                      <span className="font-bold text-foreground">
+                      <span className="font-bold text-ex-text">
                         {fmtOdds(r.backPrice)}/{fmtOdds(r.layPrice)}
                       </span>
                     </span>
                   ))}
                 </div>
               </div>
-              <span className="shrink-0 text-sm text-muted-foreground">Odds →</span>
+              <span className="shrink-0 text-sm text-ex-muted">Odds →</span>
             </Link>
           ))}
           {!loading && !list.length ? (

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Block, Code, Endpoint, H2, H3, Note, P, Step, Table } from "@/components/docs-kit";
+import { LiveApiDemo } from "@/components/LiveApiDemo";
 import { GAMES } from "@/data/games";
 
 export const Route = createFileRoute("/casino-docs")({
@@ -27,6 +28,7 @@ const TOC = [
   ["endpoints", "Endpoints"],
   ["game-catalog", "Game catalog"],
   ["live-game-state", "Live game state"],
+  ["live-demo", "Live demo"],
   ["historical-results", "Historical results"],
   ["tv-video", "TV & video"],
   ["iframe-embed", "Iframe embed"],
@@ -287,6 +289,23 @@ X-API-Key: your-api-key`}
           </Note>
 
           {/* Historical results */}
+          {/* Live demo */}
+          <H2 id="live-demo">Live demo</H2>
+          <P>
+            Real responses from the live casino feed, fetched through this site&rsquo;s backend proxy
+            (<Code>/api/public/uapi/*</Code>). The lobby and game pages on this site render exactly
+            this data.
+          </P>
+          <LiveApiDemo
+            title="Casino API — live responses"
+            paths={[
+              { label: "GET /games", path: "games" },
+              { label: "Teenpatti state", path: "games/99.0010/state" },
+              { label: "Teenpatti results", path: "games/99.0010/results" },
+              { label: "Lucky 7 state", path: "games/99.0030/state" },
+            ]}
+          />
+
           <H2 id="historical-results">Historical results</H2>
           <P>
             Fetch recent completed rounds for a game — winners, cards, and market outcomes. Use this
