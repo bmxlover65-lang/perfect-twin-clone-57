@@ -3,6 +3,8 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Aviator } from "@/components/Aviator";
 import { applyOverride, useAdminConfig } from "@/lib/admin";
 import { logResult } from "@/lib/telemetry";
+import { BalanceChip, BetLayer, MyBets } from "@/components/betting";
+import { settleRound } from "@/lib/wallet";
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
 import dream1x from "@/assets/dream/dream1x.png.asset.json";
 import dream2x from "@/assets/dream/dream2x.png.asset.json";
@@ -1643,6 +1645,15 @@ function GamePage() {
     };
   }, [gameId, roundKey]);
 
+  // auto settlement — every finished round settles my open bets
+  useEffect(() => {
+    results.slice(0, 6).forEach((r) => {
+      const rr = r as CasinoResult & { result?: string; selectionName?: string };
+      const winner = (rr.winner ?? rr.result ?? rr.selectionName ?? "").toString().trim();
+      settleRound(gameId, String(r.roundId ?? ""), winner);
+    });
+  }, [results, gameId]);
+
 
   useEffect(() => {
     fetchCasinoStream(gameId)
@@ -1726,8 +1737,8 @@ function GamePage() {
         <h1 className="text-[1.35rem] font-extrabold uppercase text-foreground">
           {d?.eventName ?? "Loading game…"}
         </h1>
-        <p className="mt-1 text-[0.8rem] font-bold text-foreground/80">
-          RID: {d?.roundId ?? "—"}
+        <p className="mt-1 flex items-center gap-2 text-[0.8rem] font-bold text-foreground/80">
+          RID: {d?.roundId ?? "—"} <BalanceChip />
         </p>
 
         {error ? <p className="mt-3 text-sm text-live-lose">{error}</p> : null}
@@ -1798,34 +1809,43 @@ function GamePage() {
           />
         )}
 
-        {gameId === "88.0021" ? (
-          <div className="mt-2">
-            <HeadsTailsPanel
-              runners={(markets[0]?.runners ?? []).map((r) => ({
-                id: String(r.selectionId),
-                label:
-                  markets[0]?.runnersName?.[String(r.selectionId)] ?? String(r.selectionId),
-                price: r.price?.back?.[0]?.price,
-                size: r.price?.back?.[0]?.size,
-                open: !suspended && isOpenStatus(r.status),
-              }))}
-              min={markets[0]?.min ?? 100}
-              max={markets[0]?.max ?? 100000}
+        <BetLayer
+          gameId={gameId}
+          gameName={d?.eventName ?? gameId}
+          round={String(d?.roundId ?? "")}
+          disabled={suspended}
+        >
+          {gameId === "88.0021" ? (
+            <div className="mt-2">
+              <HeadsTailsPanel
+                runners={(markets[0]?.runners ?? []).map((r) => ({
+                  id: String(r.selectionId),
+                  label:
+                    markets[0]?.runnersName?.[String(r.selectionId)] ?? String(r.selectionId),
+                  price: r.price?.back?.[0]?.price,
+                  size: r.price?.back?.[0]?.size,
+                  open: !suspended && isOpenStatus(r.status),
+                }))}
+                min={markets[0]?.min ?? 100}
+                max={markets[0]?.max ?? 100000}
+              />
+            </div>
+          ) : gameId !== "88.0023" && markets.length ? (
+            <NumberPanel
+              markets={markets}
+              suspended={suspended}
+              perRow={gameId === "88.0019" ? 5 : gameId === "88.0020" ? 3 : 2}
+              dream={gameId === "88.0020"}
             />
-          </div>
-        ) : gameId !== "88.0023" && markets.length ? (
-          <NumberPanel
-            markets={markets}
-            suspended={suspended}
-            perRow={gameId === "88.0019" ? 5 : gameId === "88.0020" ? 3 : 2}
-            dream={gameId === "88.0020"}
-          />
-        ) : null}
+          ) : null}
+        </BetLayer>
 
+        {gameId !== "88.0023" ? <MyBets gameId={gameId} /> : null}
 
         {gameId !== "88.0023" ? (
           <RecentStrip results={results} dream={gameId === "88.0020"} />
         ) : null}
+
       </div>
     );
   }
@@ -1844,8 +1864,11 @@ function GamePage() {
             {d?.eventName ?? "Loading game…"}
           </h1>
         </div>
-        <span className="flex items-center gap-2 rounded-full bg-live-pill px-3 py-1 text-sm font-semibold text-live-pill-foreground">
-          <span className="h-2 w-2 rounded-full bg-current" /> Live
+        <span className="flex items-center gap-2">
+          <BalanceChip />
+          <span className="flex items-center gap-2 rounded-full bg-live-pill px-3 py-1 text-sm font-semibold text-live-pill-foreground">
+            <span className="h-2 w-2 rounded-full bg-current" /> Live
+          </span>
         </span>
       </div>
 
@@ -1876,36 +1899,38 @@ function GamePage() {
         </span>
       </div>
 
-      {gameId === "99.0014" && markets.length ? (
-        <MuflisPanel markets={markets} suspended={suspended} />
-      ) : (gameId === "99.0018" || gameId === "99.0019") && markets.length ? (
-        <DT20Panel markets={markets} suspended={suspended} />
+      <BetLayer
+        gameId={gameId}
+        gameName={d?.eventName ?? gameId}
+        round={String(d?.roundId ?? "")}
+        disabled={suspended}
+      >
+        {gameId === "99.0014" && markets.length ? (
+          <MuflisPanel markets={markets} suspended={suspended} />
+        ) : (gameId === "99.0018" || gameId === "99.0019") && markets.length ? (
+          <DT20Panel markets={markets} suspended={suspended} />
+        ) : gameId === "99.0021" && markets.length ? (
+          <DragonTigerPanel markets={markets} suspended={suspended} />
+        ) : gameId === "99.0041" && markets.length ? (
+          <DTLPanel markets={markets} suspended={suspended} resultDeclared={suspended} />
+        ) : gameId === "99.0025" && markets.length ? (
+          <AndarBaharPanel markets={markets} suspended={suspended} />
+        ) : gameId === "99.0001" && markets.length ? (
+          <BaccaratPanel markets={markets} suspended={suspended} />
+        ) : gameId === "99.0007" && markets.length ? (
+          <PokerPanel markets={markets} suspended={suspended} />
+        ) : gameId === "99.0046" && markets.length ? (
+          <CardRacePanel markets={markets} suspended={suspended} />
+        ) : gameId === "99.0005" && markets.length ? (
+          <AAAPanel markets={markets} suspended={suspended} />
+        ) : (
+          markets.map((m, i) => (
+            <MarketBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
+          ))
+        )}
+      </BetLayer>
+      <MyBets gameId={gameId} />
 
-      ) : gameId === "99.0021" && markets.length ? (
-
-        <DragonTigerPanel markets={markets} suspended={suspended} />
-      ) : gameId === "99.0041" && markets.length ? (
-        <DTLPanel markets={markets} suspended={suspended} resultDeclared={suspended} />
-
-      ) : gameId === "99.0025" && markets.length ? (
-        <AndarBaharPanel markets={markets} suspended={suspended} />
-      ) : gameId === "99.0001" && markets.length ? (
-        <BaccaratPanel markets={markets} suspended={suspended} />
-      ) : gameId === "99.0007" && markets.length ? (
-        <PokerPanel markets={markets} suspended={suspended} />
-      ) : gameId === "99.0046" && markets.length ? (
-        <CardRacePanel markets={markets} suspended={suspended} />
-      ) : gameId === "99.0005" && markets.length ? (
-        <AAAPanel markets={markets} suspended={suspended} />
-
-
-
-
-      ) : (
-        markets.map((m, i) => (
-          <MarketBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
-        ))
-      )}
 
 
       {!markets.length ? (

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { creditWin, debit, useWallet } from "@/lib/wallet";
 import luckyBg from "@/assets/lucky-bg.gif.asset.json";
 import balloonImg from "@/assets/balloon/balloon.png.asset.json";
 import heatIcon from "@/assets/balloon/heat-icon.webp.asset.json";
@@ -335,8 +336,6 @@ const BALLOON_STAKES = [10, 50, 100, 500, 1000, 2500, 5000, 10000];
 export function BalloonStage({
   multiplier,
   roundId,
-  suspended,
-  leftSec,
 }: {
   multiplier: string;
   roundId?: string | undefined;
@@ -345,96 +344,118 @@ export function BalloonStage({
 }) {
   const [muted, setMuted] = useState(false);
   const [stake, setStake] = useState(100);
-  const [flying, setFlying] = useState(false);
-  const [popped, setPopped] = useState(false);
+  const [phase, setPhase] = useState<"waiting" | "flying" | "crashed">("waiting");
   const [shown, setShown] = useState(1);
+  const [wait, setWait] = useState(5);
+  const [crashAt, setCrashAt] = useState(2);
   const [history, setHistory] = useState<number[]>([]);
   const [autos, setAutos] = useState<[boolean, boolean]>([false, false]);
-  const [balance, setBalance] = useState(10000);
+  const wallet = useWallet();
+  const balance = wallet.balance;
   const [bets, setBets] = useState<(null | { entry: number; stake: number })[]>([null, null]);
   const [flash, setFlash] = useState<(null | { text: string; win: boolean })[]>([null, null]);
   const airRef = useRef<HTMLAudioElement | null>(null);
-  const doneFor = useRef<string | null>(null);
-  const target = Number(multiplier) || 1;
+  const apiTarget = Number(multiplier) || 0;
+  const apiRef = useRef(apiTarget);
+  apiRef.current = apiTarget;
+  const stakeRef = useRef(stake);
+  stakeRef.current = stake;
+  const autoRef = useRef(autos);
+  autoRef.current = autos;
+  const mutedRef = useRef(muted);
+  mutedRef.current = muted;
 
-  // live exponential count-up towards the API multiplier (1.01, 1.02, ...) —
-  // pops exactly at the crash point when the target is reached
+  const play = (src: string, vol: number, keep?: boolean) => {
+    if (mutedRef.current) return;
+    try {
+      const a = new Audio(src);
+      a.volume = vol;
+      if (keep) airRef.current = a;
+      void a.play().catch(() => undefined);
+    } catch {
+      // audio unavailable
+    }
+  };
+
+  // continuous local round engine — never sits on "waiting" forever
   useEffect(() => {
-    if (popped) return;
     let raf = 0;
     let last = performance.now();
+    let ph: "waiting" | "flying" | "crashed" = "waiting";
+    let t = 3; // seconds left in the current phase
+    let v = 1;
+    let target = 2;
+
+    const startRound = () => {
+      const api = apiRef.current;
+      target =
+        api > 1.05
+          ? api
+          : Math.min(28, Math.max(1.02, 0.92 / Math.max(0.03, 1 - Math.random())));
+      setCrashAt(target);
+      v = 1;
+      setShown(1);
+      ph = "flying";
+      setPhase("flying");
+      play("/balloon-air.mp3", 0.35, true);
+      // auto bets
+      setBets((prev) =>
+        prev.map((b, i) => {
+          if (b || !autoRef.current[i]) return null;
+          if (!debit(stakeRef.current)) return null;
+          return { entry: 1, stake: stakeRef.current };
+        }),
+      );
+      setFlash([null, null]);
+    };
+
+    const burst = () => {
+      ph = "crashed";
+      setPhase("crashed");
+      setShown(target);
+      setHistory((h) => [target, ...h].slice(0, 10));
+      airRef.current?.pause();
+      play(bonusSfx.url, 0.7);
+      t = 3;
+    };
+
     const tick = (now: number) => {
-      const dt = (now - last) / 1000;
+      const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
-      setShown((v) => Math.min(target, v + v * dt * 0.09));
+      if (ph === "flying") {
+        v = v + v * dt * 0.16;
+        if (v >= target) {
+          v = target;
+          setShown(target);
+          burst();
+        } else {
+          setShown(v);
+        }
+      } else {
+        t -= dt;
+        setWait(Math.max(0, Math.ceil(t)));
+        if (t <= 0) {
+          if (ph === "crashed") {
+            ph = "waiting";
+            setPhase("waiting");
+            t = 5;
+          } else {
+            startRound();
+          }
+        }
+      }
       raf = window.requestAnimationFrame(tick);
     };
     raf = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(raf);
-  }, [target, popped]);
-
-  // multiplier reached the crash point → burst right there
-  useEffect(() => {
-    if (!popped && flying && shown >= target && target > 1) {
-      setPopped(true);
-      setFlying(false);
-      setHistory((h) => [target, ...h].slice(0, 9));
+    return () => {
+      window.cancelAnimationFrame(raf);
       airRef.current?.pause();
-      if (!muted) {
-        try {
-          const a = new Audio(bonusSfx.url);
-          a.volume = 0.7;
-          void a.play().catch(() => undefined);
-        } catch {
-          // audio unavailable
-        }
-      }
-    }
-  }, [shown, target, popped, flying, muted]);
-
-  // new round → reset + air sound
-  useEffect(() => {
-    if (!roundId || doneFor.current === roundId) return;
-    doneFor.current = roundId;
-    setPopped(false);
-    setFlying(true);
-    setShown(1);
-    setBets([null, null]);
-    setFlash([null, null]);
-    if (!muted) {
-      try {
-        const a = new Audio("/balloon-air.mp3");
-        a.volume = 0.35;
-        airRef.current = a;
-        void a.play().catch(() => undefined);
-      } catch {
-        // audio unavailable
-      }
-    }
-  }, [roundId, muted]);
-
-  // round ends → pop
-  useEffect(() => {
-    if (!suspended || popped) return;
-    setPopped(true);
-    setFlying(false);
-    setShown(target);
-    setHistory((h) => [target, ...h].slice(0, 9));
-    airRef.current?.pause();
-    if (!muted) {
-      try {
-        const a = new Audio(bonusSfx.url);
-        a.volume = 0.7;
-        void a.play().catch(() => undefined);
-      } catch {
-        // audio unavailable
-      }
-    }
-  }, [suspended, popped, target, muted]);
+    };
+  }, []);
 
   // balloon burst → any active HEAT bet is lost
   useEffect(() => {
-    if (!popped) return;
+    if (phase !== "crashed") return;
     setBets((prev) => {
       prev.forEach((b, i) => {
         if (b) {
@@ -447,17 +468,17 @@ export function BalloonStage({
       });
       return [null, null];
     });
-  }, [popped]);
+  }, [phase]);
 
   // HEAT button: press to place a bet, press again to cash out before the burst
   const pressHeat = (i: 0 | 1) => {
-    if (popped) return;
     setBets((prev) => {
       const next = [...prev];
       const b = next[i];
       if (b) {
+        if (phase !== "flying") return prev;
         const payout = Math.round(b.stake * shown);
-        setBalance((bal) => bal + payout);
+        creditWin(payout);
         setFlash((f) => {
           const n = [...f];
           n[i] = { text: `+${payout.toLocaleString("en-IN")}`, win: true };
@@ -465,8 +486,8 @@ export function BalloonStage({
         });
         next[i] = null;
       } else {
-        if (!flying || stake <= 0) return prev;
-        setBalance((bal) => Math.max(0, bal - stake));
+        if (phase !== "flying" || stake <= 0) return prev;
+        if (!debit(stake)) return prev;
         next[i] = { entry: shown, stake };
         setFlash((f) => {
           const n = [...f];
@@ -478,7 +499,9 @@ export function BalloonStage({
     });
   };
 
-  const grow = Math.min(1, Math.log(Math.max(1, shown)) / Math.log(20));
+  const flying = phase === "flying";
+  const popped = phase === "crashed";
+  const grow = Math.min(1, Math.log(Math.max(1, shown)) / Math.log(12));
 
   const bgIndex = Math.abs(hashStr(roundId ?? "0")) % LOCATIONS.length;
 
@@ -489,27 +512,32 @@ export function BalloonStage({
   const histList = [...history, ...seedHist].slice(0, 10);
 
 
+
   return (
     <div className="w-full rounded-[14px] bg-black p-1.5">
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[10px]">
+      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[10px] bg-[linear-gradient(180deg,#7FD3D8_0%,#BDE7E0_45%,#F3E7C8_100%)]">
         {/* sky artwork — parallax scroll as the balloon climbs */}
         <img
           src={LOCATIONS[bgIndex]!.url}
           alt=""
-          className="absolute left-0 h-[170%] w-full object-cover transition-transform duration-700 ease-out"
-          style={{ bottom: 0, transform: `translateY(${grow * 55}%)` }}
+          className="absolute inset-x-0 bottom-0 h-[58%] w-full object-cover object-top"
+          style={{
+            transform: `translateY(${grow * 100}%)`,
+            transition: "transform 400ms linear",
+          }}
         />
 
-        {/* balloon — flies up and out of view while the round runs;
-            between rounds it sits big in the middle with the waiting label */}
-        {flying && !popped ? (
+        {/* balloon — flies up while the round runs, bursts at the crash point,
+            then sits big in the middle while the next round counts down */}
+        {flying ? (
           <div
-            className="absolute left-1/2 transition-all duration-500 ease-out"
+            className="absolute left-1/2"
             style={{
-              bottom: `${-6 + grow * 108}%`,
-              width: `${Math.max(13, 26 - grow * 12)}%`,
-              opacity: grow > 0.82 ? 0 : 1,
+              bottom: `${-4 + grow * 96}%`,
+              width: `${Math.max(12, 26 - grow * 13)}%`,
+              opacity: grow > 0.9 ? 0 : 1,
               transform: "translateX(-50%)",
+              transition: "bottom 220ms linear, width 220ms linear, opacity 300ms linear",
             }}
           >
             <img
@@ -518,6 +546,15 @@ export function BalloonStage({
               className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
               style={{ filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))" }}
             />
+          </div>
+        ) : popped ? (
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+            <p className="text-[clamp(1.6rem,5vw,3.6rem)] font-extrabold leading-none text-[#C81E1E] drop-shadow-[0_3px_6px_rgba(0,0,0,0.35)]">
+              {crashAt.toFixed(2)}x
+            </p>
+            <p className="mt-1 text-[clamp(0.8rem,1.8vw,1.2rem)] font-extrabold uppercase tracking-[0.2em] text-[#C81E1E]">
+              Burst
+            </p>
           </div>
         ) : (
           <div className="absolute left-1/2 top-1/2 w-[30%] min-w-[150px] -translate-x-1/2 -translate-y-1/2">
@@ -528,10 +565,11 @@ export function BalloonStage({
               style={{ filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))" }}
             />
             <p className="absolute left-1/2 top-[40%] w-[150%] -translate-x-1/2 text-center text-[clamp(0.75rem,1.5vw,1.15rem)] font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)]">
-              Waiting For Next Round
+              Next round in {wait}s
             </p>
           </div>
         )}
+
 
         {/* live multiplier — plain dark text in the middle of the sky */}
         {flying && !popped ? (
@@ -596,7 +634,7 @@ export function BalloonStage({
         <div className="absolute left-0 top-[18%] flex items-center gap-2 rounded-r-[6px] bg-[#8E9BA6]/80 py-1 pl-3 pr-1.5">
           <img src={profileIcon.url} alt="" className="h-5 w-5" />
           <span className="text-[0.8rem] font-extrabold text-white">
-            {balance.toLocaleString("en-IN")}
+            {Math.round(balance).toLocaleString("en-IN")}
           </span>
           <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1B6FE0]">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
@@ -606,9 +644,9 @@ export function BalloonStage({
         </div>
 
         {/* countdown */}
-        {!suspended && leftSec != null ? (
+        {!flying ? (
           <span className="absolute right-3 top-[18%] flex h-9 w-9 items-center justify-center rounded-full border-2 border-white/80 text-[0.9rem] font-extrabold text-white">
-            {leftSec}
+            {wait}
           </span>
         ) : null}
 
