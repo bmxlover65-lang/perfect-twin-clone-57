@@ -56,19 +56,20 @@ function Cell({
     side === "back" ? (has ? "bg-ex-back" : "bg-ex-back-dim") : has ? "bg-ex-lay" : "bg-ex-lay-dim";
   return (
     <div
-      className={`flex h-11 flex-col items-center justify-center rounded-sm ${tone} ${
+      className={`flex h-[52px] flex-col items-center justify-center rounded-sm ${tone} ${
         dim ? "opacity-40" : ""
       } text-ex-cell-foreground`}
     >
-      <span className="text-[0.8rem] font-bold leading-none">{fmtOdds(price)}</span>
+      <span className="text-[0.88rem] font-bold leading-none">{fmtOdds(price)}</span>
       {has && size ? (
-        <span className="mt-0.5 text-[0.6rem] leading-none opacity-80">{fmtSize(size)}</span>
+        <span className="mt-1 text-[0.65rem] leading-none opacity-80">{fmtSize(size)}</span>
       ) : null}
     </div>
   );
 }
 
-const GRID = "grid grid-cols-[1fr_repeat(6,minmax(56px,78px))] items-center gap-1";
+const GRID = "grid grid-cols-[1fr_repeat(6,minmax(72px,96px))] items-center gap-1.5";
+
 
 function BoardHeader({
   name,
