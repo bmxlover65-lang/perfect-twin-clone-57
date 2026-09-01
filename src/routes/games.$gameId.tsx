@@ -1251,24 +1251,44 @@ function NumberPanel({
     }));
   };
 
-  const Tile = ({ t }: { t: Tile }) => (
-    <div
-      className={`relative flex h-[68px] flex-col items-center justify-center rounded-[6px] border border-white/10 ${
-        (dream ? DREAM_TONE[t.label.trim()] : undefined) ?? tileTone(t.label)
-      }`}
-    >
-      <span className="text-[1.1rem] font-extrabold leading-none">{t.label}</span>
-      <span className="mt-1 text-[0.72rem] font-bold leading-none">
-        {t.price ? t.price.toFixed(2) : "—"}
-      </span>
-      <span className="mt-[3px] text-[0.66rem] font-semibold leading-none opacity-60">
-        {t.size ? Math.round(t.size) : ""}
-      </span>
-      {!t.open ? (
-        <div className="absolute inset-0 rounded-[6px] bg-black/45" />
-      ) : null}
-    </div>
-  );
+  const Tile = ({ t }: { t: Tile }) => {
+    const note = dream ? DREAM_NOTE[t.label.trim()] : undefined;
+    if (note) {
+      return (
+        <div className="relative flex flex-col items-center">
+          <img
+            src={note}
+            alt={`${t.label}x`}
+            className="h-[72px] w-full select-none rounded-[6px] object-cover"
+            draggable={false}
+          />
+          <span className="mt-1 text-[0.78rem] font-extrabold leading-none text-white">
+            {t.price ? t.price.toFixed(2) : "—"}
+          </span>
+          {!t.open ? (
+            <div className="absolute inset-x-0 top-0 h-[72px] rounded-[6px] bg-black/55" />
+          ) : null}
+        </div>
+      );
+    }
+    return (
+      <div
+        className={`relative flex h-[68px] flex-col items-center justify-center rounded-[6px] border border-white/10 ${
+          (dream ? DREAM_TONE[t.label.trim()] : undefined) ?? tileTone(t.label)
+        }`}
+      >
+        <span className="text-[1.1rem] font-extrabold leading-none">{t.label}</span>
+        <span className="mt-1 text-[0.72rem] font-bold leading-none">
+          {t.price ? t.price.toFixed(2) : "—"}
+        </span>
+        <span className="mt-[3px] text-[0.66rem] font-semibold leading-none opacity-60">
+          {t.size ? Math.round(t.size) : ""}
+        </span>
+        {!t.open ? <div className="absolute inset-0 rounded-[6px] bg-black/45" /> : null}
+      </div>
+    );
+  };
+
 
   const main = toTiles(winner);
   const order = ["EVEN", "RED", "BLACK", "ODD"];
