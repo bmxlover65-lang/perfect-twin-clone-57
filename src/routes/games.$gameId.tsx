@@ -1215,6 +1215,15 @@ export function tileTone(label: string): string {
   return "bg-[#232323] text-[#D8D8D8]";
 }
 
+export const DREAM_NOTE: Record<string, string> = {
+  "1": dream1x.url,
+  "2": dream2x.url,
+  "5": dream5x.url,
+  "10": dream10x.url,
+  "20": dream20x.url,
+  "40": dream40x.url,
+};
+
 export const DREAM_TONE: Record<string, string> = {
   "1": "bg-[#C79A00] text-white",
   "2": "bg-[#2B6FA8] text-white",
