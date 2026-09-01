@@ -124,7 +124,7 @@ export function runnerName(market: Market | UEvent, selectionId: string | number
 
 export function fmtOdds(price: number | undefined | null): string {
   if (!price) return "—";
-  return price >= 100 ? String(Math.round(price)) : price.toFixed(2).replace(/\.00$/, "");
+  return String(Math.round(price * 100) / 100);
 }
 
 export function fmtSize(size: number | undefined | null): string {
