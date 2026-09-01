@@ -1366,6 +1366,12 @@ function GamePage() {
         <BaccaratPanel markets={markets} suspended={suspended} />
       ) : gameId === "99.0007" && markets.length ? (
         <PokerPanel markets={markets} suspended={suspended} />
+      ) : gameId === "99.0046" && markets.length ? (
+        <CardRacePanel markets={markets} suspended={suspended} />
+      ) : gameId === "99.0005" && markets.length ? (
+        <AAAPanel markets={markets} suspended={suspended} />
+
+
 
       ) : (
         markets.map((m, i) => (
