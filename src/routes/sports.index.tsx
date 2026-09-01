@@ -230,6 +230,7 @@ function SportsPage() {
           )}
         </div>
       </section>
+      ) : null}
 
       <section className="mt-6 rounded-2xl border border-border/60 bg-card p-4">
         <header className="flex items-center justify-between px-1 pb-3">
