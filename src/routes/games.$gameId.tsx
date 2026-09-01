@@ -764,8 +764,8 @@ function AAAPanel({
     size,
     tone,
   }: {
-    price?: number | null;
-    size?: number | null;
+    price?: number | null | undefined;
+    size?: number | null | undefined;
     tone: "back" | "lay";
   }) => (
     <div
