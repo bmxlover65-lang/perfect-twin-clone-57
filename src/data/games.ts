@@ -15,6 +15,8 @@ import balloonImg from "@/assets/games/Balloon.webp.asset.json";
 import headsTailsImg from "@/assets/games/Head_n_Tails.webp.asset.json";
 import lucky09Img from "@/assets/games/Lucky_0_to_9.webp.asset.json";
 import aaaImg from "@/assets/games/AmarAkbarAnthony-01.webp.asset.json";
+import ballByBallImg from "@/assets/games/ballbyball.gif.asset.json";
+import dreamCatcherImg from "@/assets/games/dream-catcher.png.asset.json";
 
 export type GameKind =
   | "teenpatti"
@@ -411,6 +413,8 @@ const GAME_IMAGES: Record<string, string> = {
   "88.0021": headsTailsImg.url,
   "88.0019": lucky09Img.url,
   "99.0005": aaaImg.url,
+  "4.3544687543453": ballByBallImg.url,
+  "88.0020": dreamCatcherImg.url,
 };
 
 const seeds: Seed[] = [
