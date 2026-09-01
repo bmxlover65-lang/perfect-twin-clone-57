@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import neonCity from "@/assets/games/neon-city.jpg";
+import luckyBg from "@/assets/lucky-bg.gif.asset.json";
 
 
 
