@@ -70,12 +70,69 @@ function Cards({ hand, title }: { hand: Record<string, string>; title: string })
   );
 }
 
+function TileBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
+  const names = market.runnersName ?? {};
+  const runners = market.runners ?? [];
+  const cols = runners.length <= 2 ? runners.length : runners.length === 3 ? 2 : 4;
+  return (
+    <div className="mt-3 overflow-hidden rounded-md">
+      <header className="flex items-center justify-between bg-ex-header px-3 py-1.5">
+        <h3 className="text-[0.78rem] font-extrabold uppercase tracking-[0.06em] text-ex-text">
+          {market.marketName}
+        </h3>
+        <span className="text-[0.7rem] font-semibold text-ex-muted">
+          Min/Max: {market.min ?? 0} - {market.max ?? 0}
+        </span>
+      </header>
+      <div className="relative bg-[#A9D4EF] px-4 py-4">
+        <div
+          className="mx-auto grid justify-center gap-x-6 gap-y-3"
+          style={{ gridTemplateColumns: `repeat(${cols}, minmax(120px, 220px))` }}
+        >
+          {runners.map((r, i) => {
+            const back = r.price?.back?.[0];
+            const last = runners.length === 3 && i === 2;
+            return (
+              <div
+                key={String(r.selectionId)}
+                className={`text-center ${last ? "col-span-2 mx-auto w-[220px]" : ""}`}
+              >
+                <p className="text-[0.78rem] font-extrabold uppercase tracking-wide text-[#0F172A]">
+                  {names[String(r.selectionId)] ?? String(r.selectionId)}
+                </p>
+                <div className="mt-1 rounded-md bg-[#72BBEA] px-3 py-2 leading-tight shadow-sm">
+                  <span className="block text-sm font-extrabold text-[#0F172A]">
+                    {fmtOdds(back?.price)}
+                  </span>
+                  <span className="block text-[0.7rem] font-semibold text-[#0F172A]/80">
+                    {fmtSize(back?.size)}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {suspended ? (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/55">
+            <span className="text-lg font-extrabold uppercase tracking-[0.14em] text-white">
+              Suspended
+            </span>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
   const hasLay = runners.some((r) => Boolean(r.price?.lay?.[0]?.price));
+  if (!hasLay && runners.length > 0 && runners.length <= 4) {
+    return <TileBoard market={market} suspended={suspended} />;
+  }
   return (
-    <div className="mt-3 overflow-hidden rounded-md border border-ex-line bg-ex-panel">
+    <div className="mt-3 overflow-hidden rounded-md border border-ex-line bg-ex-row">
       <header className="bg-ex-header px-3 py-1.5">
         <h3 className="text-[0.78rem] font-extrabold uppercase tracking-[0.06em] text-ex-text">
           {market.marketName}
@@ -83,13 +140,13 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
       </header>
       <div className="relative">
         <div
-          className={`grid items-center border-b border-ex-line bg-ex-header/60 px-3 py-1.5 text-[0.72rem] font-bold text-ex-muted ${
+          className={`grid items-center border-b border-ex-line bg-ex-panel px-3 py-1.5 text-[0.72rem] font-bold text-ex-muted ${
             hasLay ? "grid-cols-[1fr_120px_120px]" : "grid-cols-[1fr_120px]"
           }`}
         >
-          <span>Min/Max: {market.min ?? 0} - {market.max ?? 0}</span>
-          <span className="text-center">{hasLay ? "Back" : ""}</span>
-          {hasLay ? <span className="text-center">Lay</span> : null}
+          <span>Min/Max {market.min ?? 0} - {market.max ?? 0}</span>
+          <span className="text-center text-ex-text">Back</span>
+          {hasLay ? <span className="text-center text-ex-text">Lay</span> : null}
         </div>
         {runners.map((r) => {
           const back = r.price?.back?.[0];
@@ -107,7 +164,7 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
                 ? "bg-ex-back-dim text-ex-muted"
                 : "bg-ex-lay-dim text-ex-muted";
             return (
-              <div className={`flex h-[46px] flex-col items-center justify-center ${cls}`}>
+              <div className={`flex h-[52px] flex-col items-center justify-center ${cls}`}>
                 <span className="text-sm font-bold leading-none">{fmtOdds(p?.price)}</span>
                 <span className="mt-0.5 text-[0.66rem] font-semibold opacity-80">
                   {fmtSize(p?.size)}
@@ -118,11 +175,11 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
           return (
             <div
               key={String(r.selectionId)}
-              className={`grid items-center gap-px border-b border-ex-line last:border-0 ${
+              className={`grid items-center border-b border-ex-line last:border-0 ${
                 hasLay ? "grid-cols-[1fr_120px_120px]" : "grid-cols-[1fr_120px]"
               }`}
             >
-              <span className="truncate px-3 text-[0.82rem] font-bold uppercase text-ex-text">
+              <span className="truncate px-3 text-[0.82rem] font-bold text-ex-text">
                 {names[String(r.selectionId)] ?? String(r.selectionId)}
               </span>
               {cell(back, "back")}
@@ -141,6 +198,7 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
     </div>
   );
 }
+
 
 function GamePage() {
   const { gameId } = Route.useParams();
@@ -198,7 +256,7 @@ function GamePage() {
   const cards = (d?.cardsArr ?? {}) as Record<string, Record<string, string>>;
 
   return (
-    <div className="sports-theme mx-auto max-w-[900px] px-4 py-5">
+    <div className="mx-auto max-w-[900px] px-4 py-5">
       <div className="flex items-start justify-between gap-3">
         <div>
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
@@ -250,28 +308,32 @@ function GamePage() {
         <p className="mt-3 text-sm text-muted-foreground">Loading live markets…</p>
       ) : null}
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        <span className="mr-1 text-base font-bold text-foreground">Recent Result</span>
+      <div className="mt-4 flex flex-wrap items-center gap-2 rounded-md bg-ex-panel px-3 py-2">
+        <span className="mr-1 text-base font-bold text-ex-text">Recent Result</span>
         {results.slice(0, 10).map((r) => {
-          const w = (r.winner ?? "-").toString();
-          const first = w.trim().slice(0, 1).toUpperCase();
-          const tone =
-            first === "A"
-              ? "bg-ex-back text-ex-cell-foreground"
-              : first === "B"
+          const w = (r.winner ?? "-").toString().trim();
+          const lower = w.toLowerCase();
+          const isTie = lower.startsWith("tie") || lower.startsWith("draw");
+          const first = isTie ? "Tie" : w.slice(0, 1).toUpperCase();
+          const tone = isTie
+            ? "bg-[#8CD9B5] text-[#0F172A]"
+            : first === "L"
+              ? "bg-[#8E44C7] text-white"
+              : ["B", "T"].includes(first)
                 ? "bg-ex-lay text-ex-cell-foreground"
-                : "bg-ex-panel text-ex-text";
+                : "bg-ex-back text-ex-cell-foreground";
           return (
             <span
               key={r.roundId}
               title={`Round ${r.roundId}`}
-              className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ${tone}`}
+              className={`flex h-9 min-w-9 items-center justify-center rounded-full px-2 text-sm font-bold ${tone}`}
             >
               {first || "-"}
             </span>
           );
         })}
       </div>
+
     </div>
   );
 }
