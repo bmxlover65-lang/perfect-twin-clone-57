@@ -313,21 +313,6 @@ function EventPage() {
         token
       </p>
 
-      <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
-        {[
-          ["Sport", SPORT_NAMES[sportId] ?? sportId],
-          ["State", data?.inPlay ? "In-play" : "Pre-match"],
-          ["Matched", fmtInt(data?.totalMatched)],
-          ["Markets", String(matchOdds.length + bookmakers.length + fancy.length + sportsbook.length)],
-          ["TV", data?.tv ? "Yes" : "No"],
-          ["Scoreboard", data?.isScore ? "Yes" : "No"],
-        ].map(([k, v]) => (
-          <div key={k} className="rounded-lg bg-ex-panel px-3 py-2">
-            <p className="text-[0.68rem] uppercase tracking-wide text-ex-muted">{k}</p>
-            <p className="text-sm font-bold text-ex-text">{v}</p>
-          </div>
-        ))}
-      </div>
 
       {error ? <p className="mt-3 text-sm text-live-lose">{error}</p> : null}
 
