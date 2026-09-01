@@ -56,19 +56,20 @@ function Cell({
     side === "back" ? (has ? "bg-ex-back" : "bg-ex-back-dim") : has ? "bg-ex-lay" : "bg-ex-lay-dim";
   return (
     <div
-      className={`flex h-11 flex-col items-center justify-center rounded-sm ${tone} ${
+      className={`flex h-[52px] flex-col items-center justify-center rounded-sm ${tone} ${
         dim ? "opacity-40" : ""
       } text-ex-cell-foreground`}
     >
-      <span className="text-[0.8rem] font-bold leading-none">{fmtOdds(price)}</span>
+      <span className="text-[0.88rem] font-bold leading-none">{fmtOdds(price)}</span>
       {has && size ? (
-        <span className="mt-0.5 text-[0.6rem] leading-none opacity-80">{fmtSize(size)}</span>
+        <span className="mt-1 text-[0.65rem] leading-none opacity-80">{fmtSize(size)}</span>
       ) : null}
     </div>
   );
 }
 
-const GRID = "grid grid-cols-[1fr_repeat(6,minmax(56px,78px))] items-center gap-1";
+const GRID = "grid grid-cols-[1fr_repeat(6,minmax(72px,96px))] items-center gap-1.5";
+
 
 function BoardHeader({
   name,
@@ -82,11 +83,11 @@ function BoardHeader({
   dim: boolean;
 }) {
   return (
-    <header className="flex items-center justify-between border-b border-ex-line/60 px-3 py-2">
-      <span className={`text-sm font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}>{name}</span>
-      <span className={`flex items-center gap-4 text-[0.72rem] ${dim ? "text-ex-muted/70" : "text-ex-muted"}`}>
+    <header className="flex items-center justify-between border-b border-ex-line/60 bg-ex-panel/60 px-4 py-3">
+      <span className={`text-[0.95rem] font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}>{name}</span>
+      <span className={`flex items-center gap-4 text-[0.78rem] ${dim ? "text-ex-muted/70" : "text-ex-muted"}`}>
         <span>Matched {fmtInt(matched)}</span>
-        <span className="font-bold uppercase tracking-wide">{status}</span>
+        <span className="font-bold uppercase tracking-wide text-ex-text">{status}</span>
       </span>
     </header>
   );
@@ -95,8 +96,9 @@ function BoardHeader({
 function BackLayHead() {
   return (
     <div
-      className={`${GRID} px-3 pt-2 text-[0.62rem] font-bold uppercase tracking-[0.12em] text-ex-muted`}
+      className={`${GRID} border-b border-ex-line/40 px-4 py-1.5 text-[0.66rem] font-bold uppercase tracking-[0.12em] text-ex-muted`}
     >
+
       <span />
       <span className="col-span-3 text-center">Back</span>
       <span className="col-span-3 text-center">Lay</span>
@@ -129,15 +131,19 @@ function Board({ market }: { market: Market }) {
         dim={dim}
       />
       <BackLayHead />
-      <div className="relative space-y-1 p-3 pt-1">
+      <div className="relative">
         {runners.map((r) => {
           const back = [...(r.price?.back ?? [])].slice(0, 3).reverse();
           const lay = (r.price?.lay ?? []).slice(0, 3);
           return (
-            <div key={String(r.selectionId)} className={GRID}>
+            <div
+              key={String(r.selectionId)}
+              className={`${GRID} border-b border-ex-line/30 px-4 py-2 last:border-b-0`}
+            >
               <span
-                className={`truncate pr-2 text-sm font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}
+                className={`truncate pr-2 text-[0.95rem] font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}
               >
+
                 {runnerName(market, r.selectionId)}
               </span>
               {[0, 1, 2].map((i) => (
@@ -169,13 +175,13 @@ function FancyRow({ market }: { market: Market }) {
         {market.marketName.trim()}
       </span>
       <div className="flex shrink-0 gap-1">
-        <div className="w-[78px]">
+        <div className="w-[96px]">
           <div className="pb-1 text-center text-[0.62rem] font-bold uppercase tracking-[0.12em] text-ex-muted">
             No
           </div>
           <Cell price={no?.price} size={no?.size} side="lay" dim={dim} />
         </div>
-        <div className="w-[78px]">
+        <div className="w-[96px]">
           <div className="pb-1 text-center text-[0.62rem] font-bold uppercase tracking-[0.12em] text-ex-muted">
             Yes
           </div>
