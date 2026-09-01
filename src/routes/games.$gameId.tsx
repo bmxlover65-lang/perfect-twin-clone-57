@@ -610,7 +610,99 @@ function AndarBaharPanel({
   );
 }
 
+function MuflisPanel({
+  markets,
+  suspended,
+}: {
+  markets: CasinoMarket[];
+  suspended: boolean;
+}) {
+  const winner =
+    markets.find((m) => (m.marketName ?? "").toUpperCase() === "WINNER") ?? markets[0];
+  const names = winner?.runnersName ?? {};
+  const runners = winner?.runners ?? [];
+  const pick = (letter: "A" | "B") =>
+    runners.find((r) =>
+      (names[String(r.selectionId)] ?? "").toUpperCase().trim().endsWith(letter),
+    );
+
+  const chips: { v: string; ring: string; face: string }[] = [
+    { v: "1k", ring: "#1b3a6b", face: "#f2f4f8" },
+    { v: "5k", ring: "#d63a75", face: "#f2f4f8" },
+    { v: "10k", ring: "#2b2b7a", face: "#f2f4f8" },
+    { v: "25k", ring: "#e0a400", face: "#f2f4f8" },
+    { v: "50k", ring: "#1b3a6b", face: "#f2f4f8" },
+    { v: "100k", ring: "#1b3a6b", face: "#f2f4f8" },
+    { v: "200k", ring: "#1b3a6b", face: "#f2f4f8" },
+    { v: "500k", ring: "#1b3a6b", face: "#f2f4f8" },
+  ];
+
+  const Side = ({ letter }: { letter: "A" | "B" }) => {
+    const r = pick(letter);
+    const open = !suspended && isOpenStatus(r?.status);
+    return (
+      <div className="relative flex-1">
+        <div
+          className={`relative flex h-[105px] items-center justify-center overflow-hidden ${
+            letter === "A" ? "rounded-l-[14px]" : "rounded-r-[14px]"
+          } bg-[#0B0B0D]`}
+        >
+          <div
+            className={`absolute top-0 h-full w-[210px] bg-[#4A4A4A] ${
+              letter === "A" ? "right-0 rounded-l-[14px]" : "left-0 rounded-r-[14px]"
+            }`}
+          />
+          <div className="relative text-center leading-tight">
+            <p className="text-[1.3rem] font-extrabold uppercase tracking-wide text-white">
+              Player {letter}
+            </p>
+            <p className="mt-1 text-[1.3rem] font-extrabold text-white">
+              {fmtOdds(r?.price?.back?.[0]?.price)}
+            </p>
+          </div>
+          {!open ? (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60">
+              <span className="text-[1.1rem] font-extrabold uppercase tracking-wide text-[#e0201c]">
+                Suspended
+              </span>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="mt-3 rounded-[14px] bg-[#2C2F33] p-3">
+      <p className="mb-2 text-right text-[0.7rem] font-semibold text-white/50">
+        Min:{winner?.min ?? 100} Max:{winner?.max ?? 500000}
+      </p>
+      <div className="flex items-stretch gap-1">
+        <Side letter="A" />
+        <Side letter="B" />
+      </div>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+        {chips.map((c) => (
+          <span
+            key={c.v}
+            className="flex h-[58px] w-[58px] items-center justify-center rounded-full shadow-[0_0_0_2px_rgba(224,140,40,0.6)]"
+            style={{ background: c.ring }}
+          >
+            <span
+              className="flex h-[40px] w-[40px] items-center justify-center rounded-full text-[0.8rem] font-extrabold text-[#111]"
+              style={{ background: c.face }}
+            >
+              {c.v}
+            </span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function DragonTigerPanel({
+
   markets,
   suspended,
 }: {
