@@ -412,8 +412,6 @@ export function BalloonStage({
 
   const bgIndex = Math.abs(hashStr(roundId ?? "0")) % LOCATIONS.length;
 
-  const bgIndex = Math.abs(hashStr(roundId ?? "0")) % LOCATIONS.length;
-
   const histColor2 = (v: number) =>
     v >= 2 ? "bg-[#E8871E] text-white" : "bg-[#123A73] text-white";
 
