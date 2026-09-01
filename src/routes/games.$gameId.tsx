@@ -1652,14 +1652,22 @@ function GamePage() {
           const w = (r.winner ?? "-").toString().trim();
           const lower = w.toLowerCase();
           const isTie = lower.startsWith("tie") || lower.startsWith("draw");
-          const first = isTie ? "Tie" : w.slice(0, 1).toUpperCase();
-          const tone = isTie
-            ? "bg-[#8CD9B5] text-[#0F172A]"
-            : first === "L"
-              ? "bg-[#8E44C7] text-white"
-              : ["B", "T"].includes(first)
-                ? "bg-ex-lay text-ex-cell-foreground"
-                : "bg-ex-back text-ex-cell-foreground";
+          const isNum = /^\d+$/.test(w);
+          const first = isTie ? "Tie" : isNum ? w : w.slice(0, 1).toUpperCase();
+          const tone = isNum
+            ? w === "0"
+              ? "bg-[#12563A] text-white"
+              : Number(w) % 2 === 1
+                ? "bg-[#D9483B] text-white"
+                : "bg-[#1E1E1E] text-white"
+            : isTie
+              ? "bg-[#8CD9B5] text-[#0F172A]"
+              : first === "L"
+                ? "bg-[#8E44C7] text-white"
+                : ["B", "T"].includes(first)
+                  ? "bg-ex-lay text-ex-cell-foreground"
+                  : "bg-ex-back text-ex-cell-foreground";
+
           return (
             <span
               key={r.roundId}
