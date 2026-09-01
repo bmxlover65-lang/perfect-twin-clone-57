@@ -353,7 +353,10 @@ export function BalloonStage({
   const [autos, setAutos] = useState<[boolean, boolean]>([false, false]);
   const wallet = useWallet();
   const balance = wallet.balance;
-  const [bets, setBets] = useState<(null | { entry: number; stake: number })[]>([null, null]);
+  const [bets, setBets] = useState<(null | { entry: number; stake: number; pending?: boolean })[]>([
+    null,
+    null,
+  ]);
   const [flash, setFlash] = useState<(null | { text: string; win: boolean })[]>([null, null]);
   const airRef = useRef<HTMLAudioElement | null>(null);
   const apiTarget = Number(multiplier) || 0;
