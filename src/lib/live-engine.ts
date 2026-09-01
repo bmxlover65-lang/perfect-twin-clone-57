@@ -55,8 +55,8 @@ const SUITS: PlayingCard["suit"][] = ["S", "H", "C", "D"];
 
 function dealCard(seed: string): PlayingCard {
   return {
-    rank: RANKS[Math.floor(rand(seed, "r") * RANKS.length)],
-    suit: SUITS[Math.floor(rand(seed, "s") * SUITS.length)],
+    rank: RANKS[Math.floor(rand(seed, "r") * RANKS.length)] ?? "A",
+    suit: SUITS[Math.floor(rand(seed, "s") * SUITS.length)] ?? "S",
   };
 }
 
@@ -83,8 +83,9 @@ export function computeState(game: GameDef, elapsedSeconds: number): LiveState {
     max: m.max,
     suspended: phase !== "open",
     runners: m.runners.map((label, ri) => {
-      const drift = m.odds[ri] < 3 ? (rand(game.id, round, mi, ri, "o") - 0.5) * 0.08 : 0;
-      const odds = Math.max(1.01, m.odds[ri] + drift);
+      const base = m.odds[ri] ?? 2;
+      const drift = base < 3 ? (rand(game.id, round, mi, ri, "o") - 0.5) * 0.08 : 0;
+      const odds = Math.max(1.01, base + drift);
       const volume = Math.floor(
         m.max * (0.35 + rand(game.id, round, mi, ri, "v") * 0.65),
       );
@@ -97,10 +98,12 @@ export function computeState(game: GameDef, elapsedSeconds: number): LiveState {
   }));
 
   const reveal = phase === "open" ? Math.min(3, Math.floor(inRound / 6)) : 3;
-  const winner = game.results[Math.floor(rand(game.id, round, "w") * game.results.length)];
+  const pickResult = (r: number) =>
+    game.results[Math.floor(rand(game.id, r, "w") * game.results.length)] ?? "-";
+  const winner = pickResult(round);
   const recent = Array.from({ length: 10 }, (_, i) => {
     const r = round - i - (phase === "result" ? 0 : 1);
-    return game.results[Math.floor(rand(game.id, Math.max(r, 0), "w") * game.results.length)];
+    return pickResult(Math.max(r, 0));
   });
 
   return {
