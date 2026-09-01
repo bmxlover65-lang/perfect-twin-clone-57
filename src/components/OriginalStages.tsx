@@ -349,6 +349,7 @@ export function BalloonStage({
   const [popped, setPopped] = useState(false);
   const [shown, setShown] = useState(1);
   const [history, setHistory] = useState<number[]>([]);
+  const [autos, setAutos] = useState<[boolean, boolean]>([false, false]);
   const airRef = useRef<HTMLAudioElement | null>(null);
   const doneFor = useRef<string | null>(null);
   const target = Number(multiplier) || 1;
@@ -458,15 +459,33 @@ export function BalloonStage({
           <button
             type="button"
             onClick={() => {
-              setMuted((m) => !m);
-              airRef.current?.pause();
+              setMuted((m) => {
+                const next = !m;
+                if (next) {
+                  airRef.current?.pause();
+                } else if (flying && !popped) {
+                  try {
+                    const a = new Audio("/balloon-air.mp3");
+                    a.volume = 0.35;
+                    airRef.current = a;
+                    void a.play().catch(() => undefined);
+                  } catch {
+                    // audio unavailable
+                  }
+                }
+                return next;
+              });
             }}
             className="shrink-0 text-[#2B2B2B]"
             aria-label={muted ? "Unmute" : "Mute"}
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
               <path d="M3 9v6h4l5 5V4L7 9H3z" />
-              <path d="M16.5 9.5l5 5m0-5l-5 5" stroke="currentColor" strokeWidth="2" fill="none" />
+              {muted ? (
+                <path d="M16.5 9.5l5 5m0-5l-5 5" stroke="currentColor" strokeWidth="2" fill="none" />
+              ) : (
+                <path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
+              )}
             </svg>
           </button>
           <div className="mx-auto flex max-w-[78%] flex-nowrap items-center justify-center gap-1.5 overflow-hidden">
@@ -507,13 +526,27 @@ export function BalloonStage({
           {/* auto toggles + stakes */}
           <div className="w-[46%] max-w-[430px]">
             <div className="mb-1.5 grid grid-cols-2 gap-2">
-              {[0, 1].map((i) => (
-                <label key={i} className="flex items-center gap-2 text-[0.82rem] font-bold text-[#2B2B2B]">
+              {([0, 1] as const).map((i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setAutos((a) => (i === 0 ? [!a[0], a[1]] : [a[0], !a[1]]))}
+                  className="flex items-center gap-2 text-[0.82rem] font-bold text-[#2B2B2B]"
+                  aria-pressed={autos[i]}
+                >
                   Auto
-                  <span className="relative inline-flex h-5 w-10 items-center rounded-full bg-[#D9D9D9]">
-                    <span className="absolute left-0.5 h-4 w-4 rounded-full bg-white shadow" />
+                  <span
+                    className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors ${
+                      autos[i] ? "bg-[#2FA84F]" : "bg-[#D9D9D9]"
+                    }`}
+                  >
+                    <span
+                      className={`absolute h-4 w-4 rounded-full bg-white shadow transition-all ${
+                        autos[i] ? "left-[1.35rem]" : "left-0.5"
+                      }`}
+                    />
                   </span>
-                </label>
+                </button>
               ))}
             </div>
             <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
@@ -534,7 +567,11 @@ export function BalloonStage({
 
           {/* edits / clear / min / max */}
           <div className="grid w-[16%] min-w-[100px] gap-1.5">
-            <button type="button" className="h-7 rounded-[5px] bg-[#E8871E] text-[0.82rem] font-bold text-white">
+            <button
+              type="button"
+              onClick={() => setStake(100)}
+              className="h-7 rounded-[5px] bg-[#E8871E] text-[0.82rem] font-bold text-white"
+            >
               Edits
             </button>
             <button
