@@ -184,10 +184,12 @@ UAPI_KEY=uapi_live_xxxxxxxxxxxxxxxx`}
               the event the user is viewing.
             </>
           </Step>
+          <ApiKeySetup />
           <Note>
             Rotate keys from the partner portal. A rotated key invalidates old TV embed tokens within
             60 seconds.
           </Note>
+
 
           <H2 id="sport-ids">Sport IDs</H2>
           <Table
