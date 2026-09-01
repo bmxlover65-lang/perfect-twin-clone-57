@@ -268,7 +268,7 @@ function SportsPage() {
               key={e.exEventId}
               to="/sports/$sportId/$eventId"
               params={{ sportId: e.sportId, eventId: e.exEventId }}
-              className="flex items-center justify-between gap-4 rounded-xl bg-muted px-4 py-3 transition-colors hover:bg-accent"
+              className="flex items-center justify-between gap-4 rounded-xl border border-transparent bg-muted px-4 py-3 transition-colors hover:border-border/60"
             >
               <div className="min-w-0">
                 <h3 className="truncate text-base font-bold text-foreground">{e.eventName}</h3>
