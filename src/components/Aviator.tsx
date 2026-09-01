@@ -5,6 +5,7 @@ import plane2 from "@/assets/aviator/plane-2.svg";
 import plane3 from "@/assets/aviator/plane-3.svg";
 import aviatorText from "@/assets/aviator/aviator.svg";
 import { type AviatorControl, useAdminConfig } from "@/lib/admin";
+import { logBet, logChat, setBalance as saveBalance } from "@/lib/telemetry";
 
 const PLANE_FRAMES = [plane0, plane1, plane2, plane3];
 
@@ -620,6 +621,7 @@ export function Aviator() {
                   const text = draft.trim();
                   if (!text) return;
                   setChat((c) => [...c, { id: Date.now(), user: "You", text, mine: true }].slice(-40));
+                  logChat({ ts: Date.now(), user: "You", text });
                   setDraft("");
                 }}
               >
