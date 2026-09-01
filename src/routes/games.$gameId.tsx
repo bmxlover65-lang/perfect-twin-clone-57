@@ -610,6 +610,115 @@ function AndarBaharPanel({
   );
 }
 
+function CardRacePanel({
+  markets,
+  suspended,
+}: {
+  markets: CasinoMarket[];
+  suspended: boolean;
+}) {
+  const suitColor = (s: string) => (s === "♥" || s === "♦" ? "#E01B24" : "#111");
+
+  const Label = ({ text }: { text: string }) => {
+    const up = text.toUpperCase();
+    const kingSuit =
+      up.startsWith("HEART") ? "♥" :
+      up.startsWith("DIAMOND") ? "♦" :
+      up.startsWith("SPADE") ? "♠" :
+      up.startsWith("CLUB") ? "♣" : null;
+
+    if (kingSuit) {
+      return (
+        <span className="inline-flex h-[42px] w-[32px] flex-col items-center justify-center rounded-[3px] border border-[#E3C96B] bg-white leading-none shadow-sm">
+          <span className="text-[0.95rem] font-bold" style={{ color: suitColor(kingSuit) }}>K</span>
+          <span className="text-[0.9rem]" style={{ color: suitColor(kingSuit) }}>{kingSuit}</span>
+        </span>
+      );
+    }
+
+    const suffix =
+      up === "RED" ? ["♥", "♦"] :
+      up === "BLACK" ? ["♠", "♣"] :
+      up.startsWith("ANY SUIT") ? ["♥", "♠", "♦", "♣"] : [];
+
+    return (
+      <span className="inline-flex items-center gap-1 text-[0.95rem] font-bold text-[#555]">
+        {up.replace(/♥|♦|♠|♣/g, "").trim()}
+        {suffix.map((s) => (
+          <span key={s} style={{ color: suitColor(s) }} className="text-[0.85rem]">
+            {s}
+          </span>
+        ))}
+      </span>
+    );
+  };
+
+  return (
+    <div className="mt-3 space-y-2 rounded-[4px] bg-white p-2">
+      {markets.map((m, mi) => {
+        const names = m.runnersName ?? {};
+        const runners = m.runners ?? [];
+        const allClosed = runners.every((r) => suspended || !isOpenStatus(r.status));
+        return (
+          <div key={`${m.marketId}-${mi}`} className="border border-[#d9d9d9]">
+            <div className="flex items-center justify-between bg-black px-2 py-[5px]">
+              <span className="text-[0.85rem] font-extrabold uppercase tracking-wide text-white">
+                {m.marketName}
+              </span>
+              <span className="text-[0.72rem] font-bold text-white">
+                Min/Max: {m.min ?? 100} - {m.max ?? 100000}
+              </span>
+            </div>
+            <div className="relative">
+              {runners.map((r, i) => {
+                const open = !suspended && isOpenStatus(r.status);
+                const label = names[String(r.selectionId)] ?? String(r.selectionId);
+                return (
+                  <div
+                    key={`${r.selectionId}-${i}`}
+                    className={`flex items-stretch ${i ? "border-t border-[#e6e6e6]" : ""}`}
+                  >
+                    <div className="flex min-h-[42px] flex-1 items-center px-2 py-1">
+                      <Label text={label} />
+                    </div>
+                    <div className="flex w-[134px] items-center justify-center border-l border-[#e6e6e6] p-1">
+                      {open ? (
+                        <div className="flex h-[38px] w-full flex-col items-center justify-center bg-[#72BBEF] leading-none">
+                          <span className="text-[0.95rem] font-bold text-[#111]">
+                            {fmtOdds(r.price?.back?.[0]?.price)}
+                          </span>
+                          <span className="text-[0.68rem] text-[#111]">
+                            {r.price?.back?.[0]?.size ?? ""}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex h-[38px] w-full items-center justify-center border-2 border-[#E01B24] bg-white">
+                          <span className="text-[0.78rem] font-bold uppercase text-[#E01B24]">
+                            Suspended
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="w-[134px] border-l border-[#e6e6e6]" />
+                  </div>
+                );
+              })}
+              {allClosed && runners.length ? (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center pr-[268px]">
+                  <span className="text-[1.6rem] font-extrabold uppercase tracking-wide text-[#9aa0a6]">
+                    Suspended
+                  </span>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+
 function MuflisPanel({
   markets,
   suspended,
