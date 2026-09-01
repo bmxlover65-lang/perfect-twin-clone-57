@@ -537,13 +537,13 @@ export function BalloonStage({
 
   return (
     <div className="w-full rounded-[14px] bg-black p-1.5">
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[10px] bg-[linear-gradient(180deg,#5EC8DE_0%,#9BDCD9_45%,#F3E7C8_100%)]">
+      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[10px] bg-[linear-gradient(180deg,#59BFD4_0%,#6EC8DA_60%,#8FD2DC_100%)]">
         {/* sky artwork — parallax: the ground drops away as the balloon climbs */}
         <div className="absolute inset-0 overflow-hidden">
           <img
             src={LOCATIONS[bgIndex]!.url}
             alt=""
-            className="absolute inset-x-0 bottom-0 h-[190%] w-full object-cover object-bottom"
+            className="absolute inset-x-0 bottom-0 h-[190%] w-full object-cover object-bottom opacity-35"
             style={{
               transform: `translateY(${grow * 78}%)`,
               transition: "transform 240ms linear",
@@ -583,15 +583,15 @@ export function BalloonStage({
             style={
               flying
                 ? {
-                    bottom: `${2 + grow * 52}%`,
-                    width: `${Math.max(15, 27 - grow * 12)}%`,
+                    bottom: `${8 + grow * 34}%`,
+                    width: `${Math.max(24, 42 - grow * 14)}%`,
                     transform: `translateX(calc(-50% + ${drift}px))`,
                     transition: "bottom 220ms linear, width 220ms linear, transform 220ms linear",
                   }
                 : {
-                    bottom: "18%",
-                    width: "27%",
-                    minWidth: 150,
+                    bottom: "16%",
+                    width: "42%",
+                    minWidth: 220,
                     transform: "translateX(-50%)",
                   }
             }
@@ -600,19 +600,11 @@ export function BalloonStage({
               src={balloonImg.url}
               alt="Balloon"
               className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
-              style={{
-                filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))",
-                opacity: flying ? Math.max(0.15, 1 - grow * 1.1) : 1,
-                transition: "opacity 240ms linear",
-              }}
+              style={{ filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))" }}
             />
             {flying ? (
-              <p
-                className="absolute left-1/2 top-[34%] w-[240%] -translate-x-1/2 text-center text-[clamp(1.3rem,4vw,3rem)] font-extrabold leading-none drop-shadow-[0_2px_8px_rgba(255,255,255,0.55)]"
-                style={{ color: shown >= 10 ? "#7B2FF2" : shown >= 2 ? "#D9631A" : "#2B2B2B" }}
-              >
-                {shown.toFixed(2)}
-                <span className="text-[0.62em]">x</span>
+              <p className="absolute left-1/2 top-[36%] w-[180%] -translate-x-1/2 text-center text-[clamp(1.4rem,3.8vw,2.8rem)] font-extrabold leading-none text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]">
+                {shown.toFixed(2)}x
               </p>
             ) : (
               <p className="absolute left-1/2 top-[40%] w-[150%] -translate-x-1/2 text-center text-[clamp(0.75rem,1.5vw,1.15rem)] font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)]">
