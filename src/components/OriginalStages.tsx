@@ -697,9 +697,11 @@ export function BalloonStage({
         ) : null}
 
         {/* bottom overlay controls */}
-        <div className="absolute inset-x-0 bottom-0 flex items-end gap-3 px-3 pb-3">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[46%] bg-[linear-gradient(180deg,transparent_0%,rgba(0,0,0,0.10)_45%,rgba(0,0,0,0.28)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 flex items-end gap-2 px-2 pb-2 sm:gap-3 sm:px-3 sm:pb-3">
           {/* auto toggles + stakes */}
-          <div className="w-[46%] max-w-[430px]">
+          <div className="w-[42%] max-w-[430px] sm:w-[46%]">
+
             <div className="mb-1.5 grid grid-cols-2 gap-2">
               {([0, 1] as const).map((i) => (
                 <button
