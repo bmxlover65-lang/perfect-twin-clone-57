@@ -197,13 +197,13 @@ function SportsPage() {
             ["Live (in-play)", String(inplay.length)],
             ["Polls / errors", `${pollCount} / ${errorLog.length}`],
           ].map(([k, v]) => (
-            <div key={k} className="rounded-lg bg-ex-row px-3 py-2">
+            <div key={k} className="rounded-lg bg-muted/50 px-3 py-2">
               <p className="text-[0.68rem] uppercase tracking-wide text-muted-foreground">{k}</p>
               <p className="text-sm font-bold text-foreground">{v}</p>
             </div>
           ))}
         </div>
-        <div className="mt-3 rounded-lg bg-ex-row p-3">
+        <div className="mt-3 rounded-lg bg-muted/50 p-3">
           <p className="text-[0.68rem] uppercase tracking-wide text-muted-foreground">Error log</p>
           {errorLog.length ? (
             <ul className="mt-1 space-y-1">
@@ -239,7 +239,7 @@ function SportsPage() {
               key={e.exEventId}
               to="/sports/$sportId/$eventId"
               params={{ sportId: e.sportId, eventId: e.exEventId }}
-              className="flex items-center justify-between gap-4 rounded-xl bg-ex-row px-4 py-3 transition-colors hover:bg-accent/40"
+              className="flex items-center justify-between gap-4 rounded-xl bg-muted/50 px-4 py-3 transition-colors hover:bg-accent/40"
             >
               <div className="min-w-0">
                 <h3 className="truncate text-base font-bold text-foreground">{e.eventName}</h3>
