@@ -250,22 +250,27 @@ function GamePage() {
         <p className="mt-3 text-sm text-muted-foreground">Loading live markets…</p>
       ) : null}
 
-      <p className="mt-6 text-base font-bold text-foreground">
-        Last results{" "}
-        <span className="text-sm font-normal text-muted-foreground">
-          · {results.length} settled rounds
-        </span>
-      </p>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {results.map((r) => (
-          <span
-            key={r.roundId}
-            title={`Round ${r.roundId}`}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-ex-panel text-sm font-bold text-ex-text"
-          >
-            {r.winner ?? "-"}
-          </span>
-        ))}
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <span className="mr-1 text-base font-bold text-foreground">Recent Result</span>
+        {results.slice(0, 10).map((r) => {
+          const w = (r.winner ?? "-").toString();
+          const first = w.trim().slice(0, 1).toUpperCase();
+          const tone =
+            first === "A"
+              ? "bg-ex-back text-ex-cell-foreground"
+              : first === "B"
+                ? "bg-ex-lay text-ex-cell-foreground"
+                : "bg-ex-panel text-ex-text";
+          return (
+            <span
+              key={r.roundId}
+              title={`Round ${r.roundId}`}
+              className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ${tone}`}
+            >
+              {first || "-"}
+            </span>
+          );
+        })}
       </div>
     </div>
   );
