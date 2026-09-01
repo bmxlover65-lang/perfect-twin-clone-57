@@ -1217,7 +1217,7 @@ function NumberPanel({
     markets.find((m) => (m.marketName ?? "").toUpperCase() === "WINNER") ?? markets[0];
   const side = markets.filter((m) => m !== winner);
 
-  type Tile = { id: string; label: string; price?: number; size?: number; open: boolean };
+  type Tile = { id: string; label: string; price?: number | undefined; size?: number | undefined; open: boolean };
   const toTiles = (m?: CasinoMarket): Tile[] => {
     const names = m?.runnersName ?? {};
     return (m?.runners ?? []).map((r) => ({
