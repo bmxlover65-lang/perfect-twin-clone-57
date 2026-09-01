@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { EVENTS, SPORTS } from "@/data/sports";
 import { drift, fmtOdds } from "@/lib/sports-engine";
 
-export const Route = createFileRoute("/sports")({
+export const Route = createFileRoute("/sports/")({
   head: () => ({
     meta: [
       { title: "Live Sports Events & Odds — Universal API" },
