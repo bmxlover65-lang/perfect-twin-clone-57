@@ -40,7 +40,15 @@ const SPORT_NAMES: Record<string, string> = {
   "4339": "Greyhound Racing",
 };
 
-function Cell({ price, size, side }: { price?: number; size?: number; side: "back" | "lay" }) {
+function Cell({
+  price,
+  size,
+  side,
+}: {
+  price?: number | undefined;
+  size?: number | undefined;
+  side: "back" | "lay";
+}) {
   const tone = side === "back" ? "bg-ex-back" : "bg-ex-lay";
   return (
     <div
