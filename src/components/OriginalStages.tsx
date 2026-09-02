@@ -559,7 +559,23 @@ export function BalloonStage({
         // the balloon keeps rising through the whole flight (time based)
         setClimb((c) => Math.min(1, c + dt / 9));
         if (live) {
-
+          // official winner for this round (once published) is the crash point
+          const official = curRound ? winnersRef.current.get(String(curRound)) : undefined;
+          if (official && official > 0) {
+            peak = official;
+            const goal = official;
+            v = Math.min(goal, v + dt * (0.09 + (v - 1) * 0.14) + (goal - v) * dt * 2);
+            if (goal - v < 0.01) {
+              v = goal;
+              setShown(goal);
+              burst(goal);
+            } else {
+              setShown(v);
+              setCrashAt(goal);
+            }
+            raf = window.requestAnimationFrame(tick);
+            return;
+          }
           // chase the feed value; it is the single source of truth
           if (api > peak + 0.0001) {
             peak = api;
@@ -578,6 +594,7 @@ export function BalloonStage({
             burst(peak);
           }
         } else {
+
           // offline pacing: gentle at first, faster the higher it goes
           v = v + dt * (0.09 + (v - 1) * 0.14);
           if (v >= target) {
