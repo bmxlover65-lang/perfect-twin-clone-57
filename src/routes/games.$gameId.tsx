@@ -1727,7 +1727,7 @@ function GamePage() {
 
   if (isOriginal) {
     return (
-      <div className="mx-auto max-w-[900px] px-4 py-5">
+      <div className="mx-auto max-w-[1240px] px-4 py-5">
         <Link to="/" className="text-sm text-[#2563EB] hover:underline">
           ← Back to lobby
         </Link>
