@@ -303,9 +303,10 @@ function FlightStage({
             cy={H - 70 - ((i * 56 + (phase === "flying" ? tick : 0)) % 240)}
             cx="24"
             r="2.5"
-            fill="#ffffff35"
+            fill="#2FA8F5"
           />
         ))}
+
 
         {phase !== "betting" ? (
           <>
