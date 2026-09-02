@@ -831,7 +831,7 @@ export function Aviator() {
             </div>
           ) : null}
 
-          <div className="mt-2 grid grid-cols-[minmax(0,1fr)_80px_66px_minmax(0,1fr)] gap-x-2 border-b border-white/10 px-2 pb-1 text-[0.65rem] font-semibold text-white/40">
+          <div className="mt-2 grid grid-cols-[1fr_64px_58px_72px] gap-x-2 border-b border-white/10 px-2 pb-1 text-[0.65rem] font-semibold text-white/40">
             <span>{tab === "my" ? "Round" : "User"}</span>
             <span>Bet&nbsp;&nbsp;X</span>
             <span></span>
@@ -902,7 +902,7 @@ export function Aviator() {
                   return (
                     <div
                       key={b.id}
-                      className={`grid grid-cols-[minmax(0,1fr)_80px_66px_minmax(0,1fr)] items-center gap-x-2 px-2 py-[6px] text-[0.72rem] sm:text-[0.76rem] ${
+                      className={`grid grid-cols-[1fr_64px_58px_72px] items-center gap-x-2 px-2 py-[6px] text-[0.72rem] sm:text-[0.76rem] ${
                         done
                           ? "rounded-[7px] border border-[#3B8F20] bg-[#0D4206] text-white"
                           : "border-b border-white/[0.05] bg-transparent text-white/70"
