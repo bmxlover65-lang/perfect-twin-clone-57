@@ -617,12 +617,14 @@ export function BalloonStage({
           if (goal - v < 0.005) v = goal;
           setShown(v);
           setCrashAt(goal);
-          // feed says the round is over → wait a moment for the official winner
-          // (results feed) before bursting so we never crash ahead of the real round
-          if ((suspRef.current || stall > 1.6) && peak > 1 && stall > 6) {
+          // the live feed's own multiplier is the round result: as soon as the
+          // feed suspends the round (or stops advancing) we burst on that value
+          if (peak > 1 && (suspRef.current ? stall > 0.4 : stall > 2.2)) {
             v = peak;
+            setShown(peak);
             burst(peak);
           }
+
 
 
         } else {
