@@ -32,16 +32,17 @@ function fmt(n: number) {
 }
 
 function toneFor(m: number) {
-  if (m < 2) return "text-[#34B3F1]";
+  if (m < 2) return "text-[#20BFFF]";
   if (m < 10) return "text-[#913EF8]";
   return "text-[#C017B4]";
 }
 
 function chipTone(m: number) {
-  if (m < 2) return "border-[#34B3F1]/40 text-[#34B3F1]";
+  if (m < 2) return "border-[#20BFFF]/40 text-[#20BFFF]";
   if (m < 10) return "border-[#913EF8]/40 text-[#913EF8]";
   return "border-[#C017B4]/40 text-[#C017B4]";
 }
+
 
 /* ---------------- fake live bets ---------------- */
 
@@ -119,10 +120,11 @@ function BetPanel({
       : "Cash In";
 
   const tone = canCash
-    ? "bg-[#D07206] hover:bg-[#e07d09]"
+    ? "bg-[#F59E0B] hover:bg-[#f8ac2b]"
     : state.staged || state.active
-      ? "bg-[#B02216] hover:bg-[#c4291b]"
-      : "bg-[#2FA300] hover:bg-[#38bd00]";
+      ? "bg-[#EF0000] hover:bg-[#ff1717]"
+      : "bg-[#18B800] hover:bg-[#1ed100]";
+
 
   const press = () => {
     if (canCash) {
@@ -142,34 +144,34 @@ function BetPanel({
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-2">
       <div className="flex items-center gap-2">
-        <span className="text-[0.78rem] font-semibold text-white/85">Auto</span>
+        <span className="text-[0.72rem] font-semibold text-[#9CA3AF]">Auto</span>
         <button
           type="button"
           role="switch"
           aria-checked={state.auto}
           onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
-          className={`relative h-[22px] w-[44px] rounded-full transition-colors ${
-            state.auto ? "bg-[#2FA300]" : "bg-[#3A3B3F]"
+          className={`relative h-[20px] w-[40px] rounded-full transition-colors ${
+            state.auto ? "bg-[#18B800]" : "bg-[#303238]"
           }`}
         >
           <span
-            className={`absolute top-[2px] h-[18px] w-[18px] rounded-full bg-white transition-all ${
-              state.auto ? "left-[24px]" : "left-[2px]"
+            className={`absolute top-[2px] h-[16px] w-[16px] rounded-full bg-white transition-all ${
+              state.auto ? "left-[22px]" : "left-[2px]"
             }`}
           />
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-2 gap-y-[6px]">
+      <div className="grid grid-cols-2 gap-[5px]">
         {QUICK.map((q) => (
           <button
             key={q}
             type="button"
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`rounded-full border py-[3px] text-center text-[0.72rem] font-semibold transition-colors ${
+            className={`rounded-[8px] border bg-[#1B1C1F] py-[5px] text-center text-[0.72rem] font-semibold transition-colors ${
               state.amount === q
-                ? "border-[#2FA300] text-white"
-                : "border-[#3A3B3F] text-white/75 hover:text-white"
+                ? "border-[#18B800] text-white shadow-[0_0_0_1px_rgba(24,184,0,0.45)]"
+                : "border-[#303238] text-[#9CA3AF] hover:text-white"
             }`}
           >
             {q}
@@ -180,7 +182,7 @@ function BetPanel({
       <button
         type="button"
         onClick={press}
-        className={`rounded-[8px] py-[10px] text-center text-[1.05rem] font-bold text-white ${tone}`}
+        className={`rounded-[10px] py-[11px] text-center text-[1rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.35)] ${tone}`}
       >
         {label}
         {canCash ? (
@@ -189,14 +191,15 @@ function BetPanel({
       </button>
 
       {state.cashedAt ? (
-        <p className="text-center text-[0.7rem] font-bold text-[#2FA300]">
+        <p className="text-center text-[0.7rem] font-bold text-[#18B800]">
           Cashed out {fmt(state.cashedAt)}x · {fmt(state.amount * state.cashedAt)} INR
         </p>
       ) : state.staged ? (
-        <p className="text-center text-[0.7rem] font-semibold text-white/45">
+        <p className="text-center text-[0.7rem] font-semibold text-[#9CA3AF]">
           Waiting for next round
         </p>
       ) : null}
+
     </div>
   );
 }
@@ -244,7 +247,7 @@ function FlightStage({
 
 
   return (
-    <div className="relative overflow-hidden rounded-[14px] bg-black">
+    <div className="relative overflow-hidden rounded-[16px] border border-[#303238] bg-[#05070A]">
       {/* spribe-style rotating sun rays */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
@@ -265,7 +268,7 @@ function FlightStage({
       <style>{`@keyframes av-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes av-prop{to{transform:rotate(360deg)}}`}</style>
 
-      <svg viewBox={`0 0 ${W} ${H}`} className="relative block h-[175px] w-full sm:h-[300px]">
+      <svg viewBox={`0 0 ${W} ${H}`} className="relative block h-[280px] w-full sm:h-[300px]">
         <defs>
           <linearGradient id="av-area" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#E01E1E" stopOpacity="0.5" />
@@ -354,9 +357,23 @@ function FlightStage({
 
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         {phase === "betting" ? (
-          <p className="px-4 text-center text-[0.82rem] font-bold uppercase tracking-[0.04em] text-white sm:text-[1.35rem]">
-            Waiting for next round
-          </p>
+          <>
+            <img
+              src={PLANE_FRAMES[frame]}
+              alt=""
+              className="mb-3 h-[26px] w-[52px] opacity-90 sm:h-[32px] sm:w-[64px]"
+            />
+            <p className="px-4 text-center text-[0.95rem] font-bold uppercase tracking-[0.05em] text-white sm:text-[1.35rem]">
+              Waiting for next round
+            </p>
+            <div className="mt-3 h-[4px] w-[168px] overflow-hidden rounded-full bg-white/10 sm:w-[220px]">
+              <div
+                className="h-full rounded-full bg-[#FF003C]"
+                style={{ width: `${Math.max(0, Math.min(100, (countdown / BET_MS) * 100))}%` }}
+              />
+            </div>
+          </>
+
         ) : phase === "crashed" ? (
           <>
             <p className="text-[0.8rem] font-extrabold uppercase tracking-[0.18em] text-[#E01E1E] sm:text-[1.15rem]">
@@ -528,14 +545,14 @@ export function Aviator() {
   }, [balance]);
 
   return (
-    <div className="rounded-[16px] border border-white/10 bg-[#141516] p-1.5 sm:p-2">
+    <div className="overflow-hidden rounded-[16px] border border-[#303238] bg-[#090A0C] p-1.5 sm:p-2">
       {/* history strip */}
-      <div className="mb-2 flex items-center gap-2 rounded-[12px] bg-[#1B1C1D] px-2 py-[6px]">
-        <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto sm:gap-3">
+      <div className="mb-2 flex items-center gap-2 rounded-[12px] border border-[#303238] bg-[#0B0C0E] px-2 py-[6px]">
+        <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-[6px] overflow-x-auto whitespace-nowrap sm:gap-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {history.map((h, i) => (
             <span
               key={`${h}-${i}`}
-              className={`shrink-0 text-[0.68rem] font-bold sm:text-[0.78rem] ${chipTone(h)}`}
+              className={`shrink-0 rounded-full border bg-[#151618] px-2 py-[2px] text-[0.66rem] font-bold sm:text-[0.75rem] ${chipTone(h)}`}
             >
               {fmt(h)}x
             </span>
@@ -543,7 +560,7 @@ export function Aviator() {
         </div>
         <button
           type="button"
-          className="flex h-[26px] shrink-0 items-center gap-1 rounded-full border border-[#E01E1E]/60 px-2"
+          className="flex h-[26px] shrink-0 items-center gap-1 rounded-full border border-[#FF003C]/60 px-2"
           aria-label="Round history"
         >
           <img src={historyIcon} alt="" className="h-[14px] w-[15px]" />
@@ -554,8 +571,9 @@ export function Aviator() {
 
       <div className="grid gap-2 lg:grid-cols-[320px_1fr]">
         {/* bets + chat */}
-        <div className="order-2 min-w-0 rounded-[14px] bg-[#1B1C1D] p-1.5 lg:order-1 sm:p-2">
-          <div className="mx-auto flex w-full max-w-[280px] rounded-full bg-[#101112] p-[3px] text-[0.68rem] font-bold text-white/55 sm:w-[86%] sm:text-[0.72rem]">
+        <div className="order-2 min-w-0 rounded-[14px] border border-[#303238] bg-[#151618] p-1.5 lg:order-1 sm:p-2">
+
+          <div className="mx-auto flex w-full max-w-[280px] rounded-full bg-[#0B0C0E] p-[3px] text-[0.68rem] font-bold text-white/55 sm:w-[86%] sm:text-[0.72rem]">
             {([["all", "All Bets"], ["my", "My Bets"]] as const).map(([k, l]) => (
               <button
                 key={k}
@@ -616,7 +634,7 @@ export function Aviator() {
                       key={b.id}
                       className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-2 px-1 sm:gap-x-3 py-[5px] text-[0.72rem] ${
                         done
-                          ? "rounded-[6px] border border-[#2FA300]/60 bg-[#123A18] text-white"
+                          ? "rounded-[6px] border border-[#18B800]/60 bg-[#123A18] text-white"
                           : "border-b border-white/[0.06] text-white/70"
                       }`}
                     >
@@ -668,7 +686,7 @@ export function Aviator() {
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} />
 
 
-          <div className="flex items-start gap-2 rounded-[12px] border border-white/10 bg-[#151617] p-2 sm:gap-3 sm:p-3">
+          <div className="flex items-start gap-2 rounded-[14px] border border-[#303238] bg-[#151618] p-2 sm:gap-3 sm:p-3">
             <BetPanel
               state={p1}
               setState={setP1}
@@ -678,7 +696,7 @@ export function Aviator() {
               balance={balance}
             />
 
-            <div className="flex w-[74px] shrink-0 flex-col gap-[6px] pt-[26px] sm:w-[86px]">
+            <div className="flex w-[68px] shrink-0 flex-col gap-[6px] pt-[26px] sm:w-[86px]">
               <button
                 type="button"
                 onClick={() => {
@@ -688,7 +706,7 @@ export function Aviator() {
                     setP2((p) => ({ ...p, amount: v }));
                   }
                 }}
-                className="rounded-[6px] bg-[#E8A70B] py-[6px] text-[0.8rem] font-bold text-white"
+                className="rounded-[8px] bg-[#F59E0B] py-[6px] text-[0.78rem] font-bold text-white"
               >
                 Edit
               </button>
@@ -698,7 +716,7 @@ export function Aviator() {
                   setP1((p) => ({ ...p, amount: 10, staged: false }));
                   setP2((p) => ({ ...p, amount: 10, staged: false }));
                 }}
-                className="rounded-[6px] bg-[#E01E1E] py-[6px] text-[0.8rem] font-bold text-white"
+                className="rounded-[8px] bg-[#EF0000] py-[6px] text-[0.78rem] font-bold text-white"
               >
                 Clear
               </button>
@@ -708,7 +726,7 @@ export function Aviator() {
                   setP1((p) => ({ ...p, amount: 10 }));
                   setP2((p) => ({ ...p, amount: 10 }));
                 }}
-                className="rounded-[6px] border border-[#3A3B3F] py-[6px] text-[0.8rem] font-semibold text-white/70"
+                className="rounded-[8px] border border-[#303238] bg-[#1B1C1F] py-[6px] text-[0.78rem] font-semibold text-[#9CA3AF]"
               >
                 Min
               </button>
@@ -718,7 +736,7 @@ export function Aviator() {
                   setP1((p) => ({ ...p, amount: 10000 }));
                   setP2((p) => ({ ...p, amount: 10000 }));
                 }}
-                className="rounded-[6px] border border-[#3A3B3F] py-[6px] text-[0.8rem] font-semibold text-white/70"
+                className="rounded-[8px] border border-[#303238] bg-[#1B1C1F] py-[6px] text-[0.78rem] font-semibold text-[#9CA3AF]"
               >
                 Max
               </button>
