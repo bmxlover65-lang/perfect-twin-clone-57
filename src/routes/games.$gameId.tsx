@@ -229,18 +229,21 @@ function PokerPanel({
     <div
       className={`flex h-[55px] w-[215px] -skew-x-[18deg] items-center justify-center rounded-[2px] shadow-[0_2px_5px_rgba(0,0,0,0.25)] ${
         locked
-          ? "bg-gradient-to-b from-[#c9d4cf] to-[#b5c2bc]"
-          : "bg-gradient-to-br from-[#1a7f5a] to-[#0b5c3c]"
+          ? "bg-gradient-to-b from-[#cdd7d2] to-[#b7c4be]"
+          : "bg-gradient-to-br from-[#1f8f63] to-[#0a5b3b]"
       }`}
     >
       <div className="skew-x-[18deg] text-center leading-tight">
-        <p className={`text-[1.15rem] font-extrabold ${locked ? "text-white/70" : "text-[#16261f]"}`}>
+        <p className={`text-[1.15rem] font-extrabold ${locked ? "text-white" : "text-white"}`}>
           {fmtOdds(price)}
         </p>
-        <p className="text-[0.62rem] font-semibold text-[#16261f]/55">{fmtSize(size)}</p>
+        <p className={`text-[0.62rem] font-semibold ${locked ? "text-[#7c8a85]" : "text-white/60"}`}>
+          {fmtSize(size)}
+        </p>
       </div>
     </div>
   );
+
 
   return (
     <div className="mt-3 bg-[#ececec]">
