@@ -16,7 +16,7 @@ export type Bet = {
   label: string;
   odds: number;
   stake: number;
-  status: "open" | "won" | "lost";
+  status: "open" | "won" | "lost" | "void";
   payout: number;
 };
 
@@ -182,4 +182,26 @@ export function settleFromRunners(
   });
   if (!touched) return;
   write({ balance: w.balance + credited, bets });
+}
+
+
+/**
+ * Refund (void) open bets that the upstream feed can no longer resolve —
+ * e.g. the market/event closed without publishing a winner. Stake goes back
+ * so money is never stuck in a bet that will never settle.
+ */
+export function voidOpen(gameId: string, olderThanMs = 0) {
+  const w = readWallet();
+  const now = Date.now();
+  let refund = 0;
+  let touched = false;
+  const bets = w.bets.map((b) => {
+    if (b.status !== "open" || b.gameId !== gameId) return b;
+    if (now - b.ts < olderThanMs) return b;
+    touched = true;
+    refund += b.stake;
+    return { ...b, status: "void" as const, payout: b.stake };
+  });
+  if (!touched) return;
+  write({ balance: w.balance + refund, bets });
 }
