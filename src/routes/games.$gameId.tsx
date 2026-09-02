@@ -72,7 +72,7 @@ export const Route = createFileRoute("/games/$gameId")({
 });
 
 const CARD_SIZE =
-  "h-[26px] w-[19px] shrink-0 rounded-[2px] shadow sm:h-[34px] sm:w-[24px] md:h-[40px] md:w-[29px]";
+  "h-[24px] w-[17px] shrink-0 rounded-[2px] shadow sm:h-[31px] sm:w-[22px] md:h-[36px] md:w-[26px]";
 
 function Card({ code }: { code: string }) {
   const clean = code.replace(/_+$/, "");
