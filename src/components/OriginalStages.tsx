@@ -818,14 +818,14 @@ export function BalloonStage({
                 </button>
               ))}
             </div>
-            <div className="grid grid-cols-2 gap-x-1.5 gap-y-1 sm:gap-x-2 sm:gap-y-1.5">
+            <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
               {BALLOON_STAKES.map((s) => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => setStake(s)}
-                  className={`h-6 rounded-[5px] bg-[#123A73] text-[0.7rem] font-extrabold text-white transition-transform active:scale-95 sm:h-7 sm:text-[0.82rem] ${
-                    stake === s ? "ring-2 ring-[#F0A500]" : ""
+                  className={`h-7 rounded-full bg-[#0E2C5C] text-[0.72rem] font-extrabold text-white shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-transform active:scale-95 sm:h-8 sm:text-[0.9rem] ${
+                    stake === s ? "ring-2 ring-[#E01E1E]" : ""
                   }`}
                 >
                   {s}
@@ -836,20 +836,20 @@ export function BalloonStage({
 
 
           {/* edits / clear / min / max */}
-          <div className="grid w-[16%] min-w-[74px] gap-1 sm:min-w-[100px] sm:gap-1.5">
+          <div className="grid w-[20%] min-w-[78px] gap-1.5 sm:min-w-[108px]">
             {(
               [
                 ["Edits", 100, "bg-[#E8871E] text-white"],
                 ["Clear", 0, "bg-[#E01E1E] text-white"],
-                ["Min", 10, "bg-[#2A1330] text-white/60"],
-                ["Max", 10000, "bg-[#2A1330] text-white/60"],
+                ["Min", 10, "bg-[#2A1330] text-white/70"],
+                ["Max", 10000, "bg-[#2A1330] text-white/70"],
               ] as const
             ).map(([label, val, tone]) => (
               <button
                 key={label}
                 type="button"
                 onClick={() => setStake(val)}
-                className={`h-6 rounded-[5px] text-[0.7rem] font-bold transition-transform active:scale-95 sm:h-7 sm:text-[0.82rem] ${tone}`}
+                className={`h-7 rounded-full text-[0.72rem] font-extrabold shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-transform active:scale-95 sm:h-8 sm:text-[0.9rem] ${tone}`}
               >
                 {label}
               </button>
