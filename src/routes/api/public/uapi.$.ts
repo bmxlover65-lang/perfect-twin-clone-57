@@ -95,21 +95,28 @@ const mirrorCache = new Map<string, { at: number; data: unknown[] }>();
 
 async function mirrorResults(eventId: string): Promise<unknown[]> {
   const hit = mirrorCache.get(eventId);
-  if (hit && Date.now() - hit.at < 5000) return hit.data;
+  // keep a very short window only to collapse bursts; always re-fetch otherwise
+  if (hit && Date.now() - hit.at < 700) return hit.data;
   try {
     const res = await fetch(MIRROR_RESULTS, {
       method: "POST",
-      headers: { "content-type": "application/json", accept: "application/json" },
+      cache: "no-store",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json",
+        "cache-control": "no-cache",
+      },
       body: JSON.stringify({ eventId }),
     });
     const json = (await res.json().catch(() => ({}))) as { data?: unknown[] };
     const data = Array.isArray(json.data) ? json.data : [];
-    mirrorCache.set(eventId, { at: Date.now(), data });
-    return data;
+    if (data.length) mirrorCache.set(eventId, { at: Date.now(), data });
+    return data.length ? data : (hit?.data ?? []);
   } catch {
     return hit?.data ?? [];
   }
 }
+
 
 
 async function proxy(splat: string, search: string, body?: string, origin = "") {
