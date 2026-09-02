@@ -929,11 +929,13 @@ export function Aviator() {
                     <div
                       key={`${b.id}-${i}`}
                       className={`grid shrink-0 grid-cols-[1fr_38px_44px_54px] items-center gap-x-2 px-2 py-[7px] text-[0.72rem] sm:text-[0.76rem] ${
-
+                        freshIds.includes(b.id) ? "av-row-in" : ""
+                      } ${
                         done
                           ? "rounded-[7px] border border-[#3B8F20] bg-[#0D4206] text-white"
                           : "border-b border-white/[0.05] bg-[#131416] text-white/70"
                       }`}
+
                     >
                       <span className="flex min-w-0 items-center gap-2">
                         <img
