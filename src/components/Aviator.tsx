@@ -668,9 +668,13 @@ export function Aviator() {
                 <span className="text-[0.74rem] font-semibold text-white/60">{bets.length}</span>
               </span>
               <span className="flex flex-col items-end leading-tight">
-                Users
-                <span className="text-[0.74rem] font-semibold text-white/60">{myBets.length}</span>
+                <span className="flex items-center gap-1">
+                  <span className="h-[6px] w-[6px] rounded-full bg-[#18B800]" />
+                  Online
+                </span>
+                <span className="text-[0.74rem] font-semibold text-white/60">{online.toLocaleString()}</span>
               </span>
+
             </div>
           ) : null}
 
