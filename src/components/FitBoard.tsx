@@ -47,16 +47,19 @@ export function FitBoard({
       className={`w-full overflow-x-auto ${className}`}
       style={{ height: height ? height + 4 : undefined }}
     >
-      <div
-        ref={inner}
-        style={{
-          width: designWidth,
-          transform: `scale(${scale})`,
-          transformOrigin: "top left",
-        }}
-      >
-        {children}
+      <div style={{ width: designWidth * scale }}>
+        <div
+          ref={inner}
+          style={{
+            width: designWidth,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+          }}
+        >
+          {children}
+        </div>
       </div>
+
     </div>
   );
 }
