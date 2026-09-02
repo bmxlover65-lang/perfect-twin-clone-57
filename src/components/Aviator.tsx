@@ -906,12 +906,13 @@ export function Aviator() {
                     </div>
                   )),
                 ]
-              : bets.slice(0, 80).map((b) => {
+              : bets.slice(0, 80).map((b, i) => {
                   const done = b.cashedAt !== undefined;
                   return (
                     <div
-                      key={b.id}
-                      className={`grid shrink-0 grid-cols-[1fr_64px_58px_72px] items-center gap-x-2 px-2 py-[7px] text-[0.72rem] sm:text-[0.76rem] ${
+                      key={`${b.id}-${i}`}
+                      className={`grid shrink-0 grid-cols-[1fr_46px_50px_62px] items-center gap-x-2 px-2 py-[7px] text-[0.72rem] sm:text-[0.76rem] ${
+
                         done
                           ? "rounded-[7px] border border-[#3B8F20] bg-[#0D4206] text-white"
                           : "border-b border-white/[0.05] bg-[#131416] text-white/70"
