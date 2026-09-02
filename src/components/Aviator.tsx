@@ -487,7 +487,7 @@ function FlightStage({
       <svg
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
-        className="relative block h-[340px] w-full sm:h-[400px] lg:h-[470px]"
+        className="relative block aspect-[16/10] h-auto w-full sm:aspect-[19/9] lg:aspect-[19/8] lg:max-h-[430px]"
       >
         <defs>
           <linearGradient id="av-area" x1="0" y1="0" x2="0" y2="1">
