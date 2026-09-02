@@ -584,16 +584,18 @@ export function BalloonStage({
               flying
                 ? {
                     bottom: `${10 + grow * 30}%`,
-                    width: `${Math.max(16, 28 - grow * 8)}%`,
+                    width: `${Math.max(26, 38 - grow * 10)}%`,
+                    minWidth: 170,
                     transform: `translateX(calc(-50% + ${drift}px))`,
                     transition: "bottom 220ms linear, width 220ms linear, transform 220ms linear",
                   }
                 : {
                     bottom: "18%",
-                    width: "28%",
-                    minWidth: 140,
+                    width: "38%",
+                    minWidth: 180,
                     transform: "translateX(-50%)",
                   }
+
             }
           >
             <img
@@ -632,9 +634,10 @@ export function BalloonStage({
               </span>
             ) : null}
             {flying ? (
-              <p className="absolute left-1/2 top-[36%] w-[180%] -translate-x-1/2 text-center text-[clamp(1.4rem,3.8vw,2.8rem)] font-extrabold leading-none text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]">
+              <p className="absolute left-1/2 top-[38%] w-[120%] -translate-x-1/2 text-center text-[clamp(1.6rem,4.4vw,3.2rem)] font-extrabold leading-none text-white drop-shadow-[0_3px_8px_rgba(0,0,0,0.32)]">
                 {shown.toFixed(2)}x
               </p>
+
             ) : (
               <p className="absolute left-1/2 top-[40%] w-[150%] -translate-x-1/2 text-center text-[clamp(0.75rem,1.5vw,1.15rem)] font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)]">
                 Next round in {wait}s
