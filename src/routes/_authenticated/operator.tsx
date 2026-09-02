@@ -240,7 +240,9 @@ function OperatorPage() {
               </table>
             </div>
           </Panel>
+          ) : null}
 
+          {tab === "keys" ? (
           <Panel title="Whitelists & keys">
             <p className="text-xs text-muted-foreground">
               IPs: {(detail?.ips ?? []).map((i: any) => i.ip).join(", ") || "—"}
@@ -252,7 +254,9 @@ function OperatorPage() {
               Keys: {(detail?.keys ?? []).map((k: any) => `${k.key_prefix}…${k.active ? "" : " (revoked)"}`).join(", ") || "—"}
             </p>
           </Panel>
+          ) : null}
 
+          {tab === "logs" ? (
           <Panel title="Callback logs">
             <ul className="space-y-1 text-xs">
               {cbLogs.map((l) => (
@@ -264,8 +268,10 @@ function OperatorPage() {
               {!cbLogs.length ? <li className="text-muted-foreground">No callbacks yet.</li> : null}
             </ul>
           </Panel>
+          ) : null}
         </>
       ) : null}
-    </div>
+    </DashShell>
+
   );
 }
