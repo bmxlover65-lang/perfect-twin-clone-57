@@ -1012,7 +1012,7 @@ export function BallByBallBoard({
       </div>
 
       <div className="overflow-hidden bg-[#FFC800] py-[6px]">
-        <div className="marquee-track flex w-max gap-16 whitespace-nowrap text-[0.95rem] font-bold text-black">
+        <div className="marquee-track flex w-max gap-16 whitespace-nowrap text-[0.85rem] font-bold text-black sm:text-[0.95rem]">
           {[0, 1].map((k) => (
             <span key={k}>
               {news ??
@@ -1023,9 +1023,10 @@ export function BallByBallBoard({
       </div>
 
       {recent && recent.length ? (
-        <div className="px-3 py-3">
-          <p className="text-[0.95rem] font-bold text-black">Recent Result</p>
-          <div className="mt-2 flex flex-wrap gap-2">
+        <div className="px-2 py-3 sm:px-3">
+          <p className="text-[0.9rem] font-bold text-black sm:text-[0.95rem]">Recent Result</p>
+          <div className="mt-2 flex flex-wrap gap-1.5 sm:gap-2">
+
             {recent.slice(0, 10).map((w, i) => (
               <span
                 key={`${w}-${i}`}
