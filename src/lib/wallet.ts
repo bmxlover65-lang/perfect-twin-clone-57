@@ -78,8 +78,9 @@ function norm(s: string) {
 /** "WINNER A" -> "a", "PLAYER B" -> "b" — lets side markets settle off the feed winner. */
 function sideOf(s: string) {
   const m = s.trim().toUpperCase().match(/(?:^|[^A-Z0-9])([AB12])$/);
-  return m ? m[1].toLowerCase() : "";
+  return m?.[1] ? m[1].toLowerCase() : "";
 }
+
 
 function isWin(label: string, winner: string) {
   const sa = sideOf(label);
