@@ -603,7 +603,7 @@ export function BalloonStage({
           <img
             src={LOCATIONS[bgIndex]!.url}
             alt=""
-            className="absolute inset-x-0 bottom-0 h-[210%] w-full object-cover object-bottom opacity-90"
+            className="absolute inset-x-0 bottom-0 h-[210%] w-full object-cover object-bottom opacity-95"
             style={{
               transform: `translateY(${grow * 96}%)`,
               transition: "transform 240ms linear",
@@ -612,10 +612,10 @@ export function BalloonStage({
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(79,182,206,0.55)_0%,rgba(122,203,214,0.18)_38%,rgba(247,239,210,0)_70%)]" />
         </div>
 
-        {/* balloon — climbs while the round runs and bursts at the crash point */}
+        {/* balloon — large, centered, scenic; climbs through the middle/upper area */}
         {popped ? (
           <div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center"
+            className="absolute left-1/2 top-[42%] -translate-x-1/2 -translate-y-1/2 text-center"
             style={{ animation: "scale-in 220ms cubic-bezier(.2,1.4,.4,1)" }}
           >
             <div className="relative">
@@ -640,83 +640,43 @@ export function BalloonStage({
           </div>
         ) : (
           <div
-            className="absolute left-1/2 z-20"
+            className="absolute left-1/2 z-10"
             style={
               flying
                 ? {
-                    bottom: `${2 + grow * 62}%`,
-                    width: `${Math.max(20, 36 - grow * 16)}%`,
-                    minWidth: 120,
+                    bottom: `${18 + grow * 58}%`,
+                    width: `${Math.max(22, 42 - grow * 14)}%`,
+                    minWidth: 160,
+                    maxWidth: 420,
                     transform: `translateX(calc(-50% + ${drift}px))`,
                     transition: "bottom 220ms linear, width 220ms linear, transform 220ms linear",
                   }
                 : {
-                    bottom: "16%",
-                    width: "38%",
-                    minWidth: 180,
+                    bottom: "22%",
+                    width: "42%",
+                    minWidth: 220,
+                    maxWidth: 360,
                     transform: "translateX(-50%)",
                   }
-
             }
           >
             <img
               src={balloonImg.url}
               alt="Balloon"
               className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
-              style={{ filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))" }}
+              style={{ filter: "drop-shadow(0 14px 20px rgba(0,0,0,0.28))" }}
             />
-            {/* burner flame under the basket while the balloon is flying */}
             {flying ? (
-              <span
-                className="pointer-events-none absolute left-1/2 top-[88%] z-10 -translate-x-1/2"
-                aria-hidden
-                style={{
-                  width: 44,
-                  height: 60,
-                  filter: "drop-shadow(0 0 14px rgba(255,120,0,1)) drop-shadow(0 0 30px rgba(255,60,0,0.9)) drop-shadow(0 0 50px rgba(255,180,0,0.5))",
-                }}
-              >
-                <svg viewBox="0 0 72 96" className="h-full w-full animate-[flame-flicker_110ms_ease-in-out_infinite_alternate]">
-                  <defs>
-                    <linearGradient id="fireBody" x1="0" y1="1" x2="0" y2="0">
-                      <stop offset="0%" stopColor="#7A0000" />
-                      <stop offset="30%" stopColor="#FF3D00" />
-                      <stop offset="65%" stopColor="#FFC400" />
-                      <stop offset="100%" stopColor="#FFFFFF" />
-                    </linearGradient>
-                    <linearGradient id="fireCore" x1="0" y1="1" x2="0" y2="0">
-                      <stop offset="0%" stopColor="#FF6F00" />
-                      <stop offset="55%" stopColor="#FFF9C4" />
-                      <stop offset="100%" stopColor="#FFFFFF" />
-                    </linearGradient>
-                  </defs>
-                  <path
-                    d="M36 92 C12 86 4 64 4 46 C4 28 18 14 26 2 C28 20 32 32 36 40 C40 32 44 20 46 2 C54 14 68 28 68 46 C68 64 60 86 36 92 Z"
-                    fill="url(#fireBody)"
-                  />
-                  <path
-                    d="M36 80 C22 76 16 62 16 50 C16 38 24 28 30 20 C32 34 34 42 36 48 C38 42 40 34 42 20 C48 28 56 38 56 50 C56 62 50 76 36 80 Z"
-                    fill="url(#fireCore)"
-                  />
-                </svg>
-              </span>
-            ) : null}
-            {flying ? (
-              <p className="absolute left-1/2 top-[38%] w-[120%] -translate-x-1/2 text-center text-[clamp(1.6rem,4.4vw,3.2rem)] font-extrabold leading-none text-white drop-shadow-[0_3px_8px_rgba(0,0,0,0.32)]">
+              <p className="absolute left-1/2 top-[38%] w-[120%] -translate-x-1/2 text-center text-[clamp(1.8rem,4.8vw,3.6rem)] font-extrabold leading-none text-white drop-shadow-[0_3px_10px_rgba(0,0,0,0.45)]">
                 {shown.toFixed(2)}x
               </p>
-
             ) : (
-              <p className="absolute left-1/2 top-[40%] w-[150%] -translate-x-1/2 text-center text-[clamp(0.75rem,1.5vw,1.15rem)] font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)]">
+              <p className="absolute left-1/2 top-[40%] w-[150%] -translate-x-1/2 text-center text-[clamp(0.85rem,1.7vw,1.25rem)] font-extrabold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
                 Next round in {wait}s
               </p>
             )}
           </div>
         )}
-
-
-
-
 
         {/* top bar: mute + history + collapse */}
         <div className="absolute inset-x-0 top-0 flex items-start gap-2 px-3 py-2.5">
@@ -769,7 +729,7 @@ export function BalloonStage({
         </div>
 
         {/* profile pill + balance */}
-        <div className="absolute left-0 top-[18%] flex items-center gap-2 rounded-r-[6px] bg-[#8E9BA6]/80 py-1 pl-3 pr-1.5">
+        <div className="absolute left-0 top-[14%] flex items-center gap-2 rounded-r-[6px] bg-[#8E9BA6]/80 py-1 pl-3 pr-1.5">
           <img src={profileIcon.url} alt="" className="h-5 w-5" />
           <span className="text-[0.8rem] font-extrabold text-white">
             {Math.round(balance).toLocaleString("en-IN")}
@@ -783,18 +743,17 @@ export function BalloonStage({
 
         {/* countdown */}
         {!flying ? (
-          <span className="absolute right-3 top-[18%] flex h-9 w-9 items-center justify-center rounded-full border-2 border-white/80 text-[0.9rem] font-extrabold text-white">
+          <span className="absolute right-3 top-[14%] flex h-9 w-9 items-center justify-center rounded-full border-2 border-white/80 text-[0.9rem] font-extrabold text-white">
             {wait}
           </span>
         ) : null}
 
-        {/* bottom overlay controls */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[46%] bg-[linear-gradient(180deg,transparent_0%,rgba(0,0,0,0.10)_45%,rgba(0,0,0,0.28)_100%)]" />
-        <div className="absolute inset-x-0 bottom-0 flex items-end gap-2 px-2 pb-2 sm:gap-3 sm:px-3 sm:pb-3">
+        {/* bottom controls — pinned to edges with clear gap from balloon area */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] bg-[linear-gradient(180deg,transparent_0%,rgba(0,0,0,0.08)_40%,rgba(0,0,0,0.32)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 flex items-end gap-3 px-3 pb-3 sm:gap-4 sm:px-4 sm:pb-4">
           {/* auto toggles + stakes */}
-          <div className="w-[42%] max-w-[430px] sm:w-[46%]">
-
-            <div className="mb-1.5 grid grid-cols-2 gap-2">
+          <div className="w-[40%] max-w-[400px] shrink-0 sm:w-[44%]">
+            <div className="mb-2 grid grid-cols-2 gap-2">
               {([0, 1] as const).map((i) => (
                 <button
                   key={i}
@@ -834,9 +793,8 @@ export function BalloonStage({
             </div>
           </div>
 
-
           {/* edits / clear / min / max */}
-          <div className="grid w-[20%] min-w-[78px] gap-1.5 sm:min-w-[108px]">
+          <div className="grid w-[18%] min-w-[78px] shrink-0 gap-1.5 sm:min-w-[108px]">
             {(
               [
                 ["Edits", 100, "bg-[#E8871E] text-white"],
@@ -857,7 +815,7 @@ export function BalloonStage({
           </div>
 
           {/* heat buttons — bet / queue for next round / cash out */}
-          <div className="ml-auto grid w-[30%] min-w-[124px] gap-1.5 sm:w-[26%] sm:min-w-[150px] sm:gap-2">
+          <div className="ml-auto grid w-[28%] min-w-[124px] shrink-0 gap-1.5 sm:w-[24%] sm:min-w-[150px] sm:gap-2">
             {([0, 1] as const).map((i) => {
               const bet = bets[i];
               const fl = flash[i];
@@ -907,7 +865,6 @@ export function BalloonStage({
                   ) : null}
                 </button>
               );
-
             })}
           </div>
         </div>
