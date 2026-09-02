@@ -445,8 +445,18 @@ export function Aviator() {
   );
 
 
-  const [p1, setP1] = useState<PanelState>(() => initialPanel(100));
-  const [p2, setP2] = useState<PanelState>(() => initialPanel(200));
+  const [slots, setSlots] = useState<PanelState[]>(() => [100, 100, 100, 100].map(initialPanel));
+  const setSlot = useCallback(
+    (i: number, fn: (p: PanelState) => PanelState) =>
+      setSlots((s) => s.map((p, j) => (j === i ? fn(p) : p))),
+    [],
+  );
+  const setAllSlots = useCallback(
+    (fn: (p: PanelState) => PanelState) => setSlots((s) => s.map(fn)),
+    [],
+  );
+  const [mode, setMode] = useState<"bet" | "auto">("bet");
+
 
   const crashRef = useRef(1);
   const startRef = useRef(0);
