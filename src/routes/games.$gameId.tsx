@@ -2162,7 +2162,7 @@ function ResultBanner({ results }: { results: CasinoResult[] }) {
   if (!show || !winner) return null;
   return (
     <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-black/55 backdrop-blur-[1px]">
-      <div className="animate-scale-in rounded-xl border-2 border-[#E3C000] bg-[#101820]/95 px-6 py-4 text-center shadow-[0_10px_30px_rgba(0,0,0,0.55)]">
+      <div className="rounded-xl border-2 border-[#E3C000] bg-[#101820]/95 px-6 py-4 text-center shadow-[0_10px_30px_rgba(0,0,0,0.55)] [animation:scale-in_0.25s_ease-out]">
         <p className="text-[0.7rem] font-extrabold uppercase tracking-[0.28em] text-[#E3C000]">
           Result Declared
         </p>
