@@ -1438,30 +1438,40 @@ function NumberPanel({
     }));
   };
 
-  const DREAM_ODDS: Record<string, number> = { "1": 2, "2": 3, "5": 6, "10": 11, "20": 21, "40": 41 };
+  const DREAM_ORDER = ["1", "2", "5", "10", "20", "40"];
+
+  const DREAM_BORDER: Record<string, string> = {
+    "1": "#C79A00",
+    "2": "#2B6FA8",
+    "5": "#6B3391",
+    "10": "#1F7A44",
+    "20": "#B45810",
+    "40": "#A5372A",
+  };
 
   const Tile = ({ t }: { t: Tile }) => {
     const key = t.label.trim();
     const note = dream ? DREAM_NOTE[key] : undefined;
     if (note) {
-      const odds = t.price && t.price > 1 ? t.price : DREAM_ODDS[key];
       return (
-        <div className="relative flex flex-col items-center rounded-[6px] bg-black p-[3px]">
+        <div
+          className="relative overflow-hidden rounded-[6px] border-2 bg-black"
+          style={{ borderColor: DREAM_BORDER[key] ?? "#333" }}
+        >
           <img
             src={note}
             alt={`${key}x`}
-            className="w-full select-none rounded-[4px] object-contain"
+            className="block w-full select-none object-cover"
+            style={{ aspectRatio: "16 / 9" }}
             draggable={false}
           />
-          <span className="pointer-events-none absolute right-1 top-1 rounded bg-black/60 px-1 text-[0.6rem] font-extrabold leading-[1.3] text-white/90">
-            {odds ? odds.toFixed(0) : "—"}
-          </span>
           {!t.open ? (
-            <div className="absolute inset-0 rounded-[10px] bg-black/55" />
+            <div className="absolute inset-0 bg-black/55" />
           ) : null}
         </div>
       );
     }
+
 
     return (
       <div
@@ -1485,7 +1495,14 @@ function NumberPanel({
   };
 
 
-  const main = toTiles(winner);
+  const main = dream
+    ? toTiles(winner).sort((a, b) => {
+        const ai = DREAM_ORDER.indexOf(a.label.trim());
+        const bi = DREAM_ORDER.indexOf(b.label.trim());
+        return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+      })
+    : toTiles(winner);
+
   const order = ["EVEN", "RED", "BLACK", "ODD"];
   const extras = side
     .flatMap((m) => toTiles(m))
