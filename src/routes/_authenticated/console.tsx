@@ -410,8 +410,11 @@ function ConsolePage() {
               </Panel>
             ))}
           </div>
+          ) : null}
 
+          {tab === "results" ? (
           <Panel title="Manual result declare">
+
             <form
               className="grid gap-2 sm:grid-cols-4"
               onSubmit={(e) => {
