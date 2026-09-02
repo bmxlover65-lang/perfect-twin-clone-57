@@ -602,6 +602,35 @@ export function BalloonStage({
               className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
               style={{ filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))" }}
             />
+            {/* burner flame under the basket while the balloon is flying */}
+            {flying ? (
+              <span
+                className="pointer-events-none absolute left-1/2 top-full -translate-x-1/2 -translate-y-[55%]"
+                aria-hidden
+              >
+                <span
+                  className="block h-7 w-5 sm:h-9 sm:w-6"
+                  style={{
+                    background:
+                      "radial-gradient(50% 65% at 50% 70%, #FFF6C8 0%, #FFD23E 35%, #FF8A1E 62%, #F43F0B 85%, transparent 100%)",
+                    borderRadius: "50% 50% 50% 50% / 62% 62% 38% 38%",
+                    transformOrigin: "50% 100%",
+                    animation: "flame-flicker 180ms ease-in-out infinite alternate",
+                    filter: "drop-shadow(0 0 8px rgba(255,140,30,0.85))",
+                  }}
+                />
+                <span
+                  className="absolute inset-x-[22%] bottom-0 block h-[58%]"
+                  style={{
+                    background:
+                      "radial-gradient(50% 60% at 50% 75%, #FFFDE8 0%, #FFE45E 55%, transparent 100%)",
+                    borderRadius: "50% 50% 50% 50% / 60% 60% 40% 40%",
+                    transformOrigin: "50% 100%",
+                    animation: "flame-flicker 140ms ease-in-out infinite alternate-reverse",
+                  }}
+                />
+              </span>
+            ) : null}
             {flying ? (
               <p className="absolute left-1/2 top-[36%] w-[180%] -translate-x-1/2 text-center text-[clamp(1.4rem,3.8vw,2.8rem)] font-extrabold leading-none text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]">
                 {shown.toFixed(2)}x
