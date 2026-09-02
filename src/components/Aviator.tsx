@@ -968,7 +968,7 @@ export function Aviator() {
         </div>
 
         {/* stage + panels */}
-        <div className="order-1 min-w-0 space-y-2 lg:order-2">
+        <div className="order-1 flex min-w-0 flex-col gap-2 lg:order-2 lg:min-h-0">
           {/* history strip — sits above the flying stage */}
           <div className="rounded-[8px] border border-[#34363B] bg-[#202125] px-3 py-2">
             {histOpen ? (
