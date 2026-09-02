@@ -1602,6 +1602,7 @@ function DragonTigerPanel({
 
 function GamePage() {
   const { gameId } = Route.useParams();
+  const isMobileView = useIsMobile();
   const { admin, cfg } = useAdminConfig();
   const [state, setState] = useState<CasinoState | null>(null);
   const [results, setResults] = useState<CasinoResult[]>([]);
