@@ -443,6 +443,9 @@ export function Aviator() {
   const [round, setRound] = useState(1);
   const [balance, setBalance] = useState(5000);
   const [bets, setBets] = useState<LiveBet[]>(() => makeBets(1));
+  const [feed, setFeed] = useState<{ id: number; text: string; kind: "join" | "leave" | "win" }[]>([]);
+  const [online, setOnline] = useState(1842);
+
 
   const [p1, setP1] = useState<PanelState>(() => initialPanel(100));
   const [p2, setP2] = useState<PanelState>(() => initialPanel(200));
