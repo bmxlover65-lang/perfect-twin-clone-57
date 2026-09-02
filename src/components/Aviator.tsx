@@ -48,8 +48,11 @@ function chipTone(m: number) {
 /* ---------------- fake live bets ---------------- */
 
 const NAMES = [
-  "d***5", "R***a", "k***9", "S***h", "m***t", "A***v", "p***l", "N***i",
-  "b***7", "V***y", "j***n", "T***u", "z***3", "H***k", "y***s", "L***o",
+  "dhruv5", "Rohan22", "kabir9", "Simran", "monty", "Arjunv", "poojal", "Nikkii",
+  "bunny7", "Vikky", "jassn", "Tanuu", "zoya3", "Harryk", "yashs", "Luckyoo",
+  "shiva88", "prem01", "kajalr", "imrank", "deepu", "sanjayy", "meena4", "rockz",
+  "gagan2", "heena7", "tushar", "vandna", "amit91", "rani12", "sonuk", "priya5",
+  "mannu3", "jyoti8", "farhan", "neha01", "gulshan", "riya09", "sameer", "kiranp",
 ];
 
 type LiveBet = {
@@ -68,16 +71,21 @@ function maskName(n: string) {
 
 function makeBets(seed: number): LiveBet[] {
   const out: LiveBet[] = [];
-  const n = 28 + (seed % 18);
+  const n = 46 + (seed % 24);
+  const base = [50, 100, 200, 310, 500, 881, 1000, 2500, 5000];
   for (let i = 0; i < n; i += 1) {
-    const amt = [50, 100, 200, 500, 1000, 2500][(seed + i * 7) % 6]!;
+    const pick = base[(seed * 7 + i * 11) % base.length]!;
+    // slight organic jitter so amounts don't look generated
+    const amt = pick + ((seed * 13 + i * 17) % 5) * (pick >= 500 ? 10 : 1);
     out.push({
       id: seed * 100 + i,
       user: NAMES[(seed * 3 + i * 5) % NAMES.length]!,
       amount: amt,
-      target: 1.2 + ((seed * 13 + i * 29) % 700) / 100,
+      target: 1.15 + ((seed * 13 + i * 29) % 850) / 100,
     });
   }
+  // biggest bets on top like the real lobby
+  out.sort((a, b) => b.amount - a.amount);
   return out;
 }
 
