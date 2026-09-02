@@ -753,7 +753,8 @@ export function Aviator() {
           <div className="max-h-[340px] space-y-[3px] overflow-y-auto pt-1 lg:max-h-[560px]">
             {tab === "my"
               ? [
-                  ...[p1, p2]
+                  ...slots
+
                     .filter((p) => p.staged || p.active)
                     .map((p, i) => (
                       <div
