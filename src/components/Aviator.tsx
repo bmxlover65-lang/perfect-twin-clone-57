@@ -120,10 +120,11 @@ function BetPanel({
       : "Cash In";
 
   const tone = canCash
-    ? "bg-[#D07206] hover:bg-[#e07d09]"
+    ? "bg-[#F59E0B] hover:bg-[#f8ac2b]"
     : state.staged || state.active
-      ? "bg-[#B02216] hover:bg-[#c4291b]"
-      : "bg-[#2FA300] hover:bg-[#38bd00]";
+      ? "bg-[#EF0000] hover:bg-[#ff1717]"
+      : "bg-[#18B800] hover:bg-[#1ed100]";
+
 
   const press = () => {
     if (canCash) {
