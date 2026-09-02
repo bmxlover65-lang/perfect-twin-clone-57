@@ -492,8 +492,10 @@ export function BalloonStage({
             ph = "waiting";
             setPhase("waiting");
             t = live ? 60 : 3;
-          } else if (!live) {
-            startRound(undefined);
+          } else {
+            // waiting over: if the feed is live we hold for its next round id,
+            // but if it never advances (stale/down) start a local round anyway
+            startRound(live && apiRound !== curRound ? apiRound : undefined);
           }
         }
       }
