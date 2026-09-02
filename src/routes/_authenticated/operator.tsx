@@ -262,7 +262,10 @@ function OperatorPage() {
           </Panel>
           ) : null}
 
+          {tab === "guide" ? <OperatorGuide /> : null}
+
           {tab === "logs" ? (
+
           <Panel title="Callback logs">
             <ul className="space-y-1 text-xs">
               {cbLogs.map((l) => (
