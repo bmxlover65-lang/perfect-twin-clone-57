@@ -752,21 +752,29 @@ if (expected !== req.headers["x-universal-signature"]) return res.status(401).en
           {/* Errors */}
 
           <H2 id="errors">Errors</H2>
-          <P>Every error response uses this shape:</P>
-          <Block label="Error body" code={`{ "error": "Human-readable message" }`} />
+          <P>
+            Data endpoints reply with <Code>{'{ "error": "message" }'}</Code>. Betting / wallet
+            endpoints reply with <Code>{'{ "status": "error", "code": "…", "message": "…" }'}</Code>.
+          </P>
           <Table
-            head={["Status", "Meaning", "What to do"]}
+            head={["Status", "Code", "Meaning"]}
             rows={[
-              ["401", "Unauthorized", "Check your API key is present and correct"],
-              [
-                "403",
-                "Forbidden",
-                "Subscription expired, account disabled, or (for TV iframe) embedding domain not whitelisted — contact support",
-              ],
-              ["404", "Not found", "Verify the eventId is in the supported games list"],
-              ["503", "Unavailable", "Live data missing or stale — retry after a few seconds"],
+              ["401", <Code key="a">missing_key</Code>, "No x-api-key / Authorization header sent"],
+              ["401", <Code key="b">invalid_key</Code>, "Key unknown or deactivated"],
+              ["403", <Code key="c">operator_disabled</Code>, "Account disabled — contact support"],
+              ["403", <Code key="d">ip_not_allowed</Code>, "Calling IP is not whitelisted for this key"],
+              ["403", <Code key="e">domain_not_allowed</Code>, "Origin domain not whitelisted for this key"],
+              ["402", <Code key="f">plan_expired</Code>, "Monthly subscription has ended — renew to resume"],
+              ["400", <Code key="g">bad_request</Code>, "Invalid or missing body fields"],
+              ["409", <Code key="h">round_closed</Code>, "Betting is closed for that round"],
+              ["424", <Code key="i">no_callback_url</Code>, "Set your wallet callback URL in the operator panel"],
+              ["502", <Code key="j">callback_failed</Code>, "Your wallet endpoint was unreachable or errored"],
+              ["402", <Code key="k">wallet_rejected</Code>, "Your wallet declined the debit (e.g. low balance)"],
+              ["404", "—", "Unknown eventId — check the supported games list"],
+              ["503", "—", "Live data missing or stale — retry with backoff"],
             ]}
           />
+
 
           {/* Integration guide */}
           <H2 id="integration-guide">Integration guide</H2>
