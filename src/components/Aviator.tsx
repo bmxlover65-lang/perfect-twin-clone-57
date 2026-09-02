@@ -726,7 +726,7 @@ export function Aviator() {
                   setP1((p) => ({ ...p, amount: 10, staged: false }));
                   setP2((p) => ({ ...p, amount: 10, staged: false }));
                 }}
-                className="rounded-[8px] bg-[#EF0000] py-[6px] text-[0.78rem] font-bold text-white"
+                className="rounded-[6px] bg-[#EF0000] py-[6px] text-[0.78rem] font-bold text-white"
               >
                 Clear
               </button>
