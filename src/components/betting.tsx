@@ -101,10 +101,12 @@ function extractPick(target: HTMLElement, root: HTMLElement): Pick | null {
 
 /** Red error toast used by the whole casino (insufficient balance, double bet…). */
 export function ErrorToast({ message, onDone }: { message: string; onDone: () => void }) {
+  const doneRef = useRef(onDone);
+  doneRef.current = onDone;
   useEffect(() => {
-    const t = window.setTimeout(onDone, 2800);
+    const t = window.setTimeout(() => doneRef.current(), 2500);
     return () => window.clearTimeout(t);
-  }, [message, onDone]);
+  }, [message]);
   return (
     <div className="pointer-events-none fixed left-1/2 top-4 z-[80] w-[min(92vw,420px)] -translate-x-1/2">
       <div className="flex items-center gap-2 rounded-[4px] bg-[#C0392B] px-3 py-2.5 shadow-[0_4px_14px_rgba(0,0,0,0.35)]">
