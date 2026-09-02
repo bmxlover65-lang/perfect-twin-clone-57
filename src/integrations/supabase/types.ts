@@ -79,6 +79,62 @@ export type Database = {
         }
         Relationships: []
       }
+      bet_rejections: {
+        Row: {
+          code: string
+          created_at: string
+          game_id: string | null
+          id: string
+          ip: string | null
+          market: string | null
+          message: string | null
+          odds: number | null
+          operator_id: string | null
+          operator_user_id: string | null
+          round_id: string | null
+          selection: string | null
+          stake: number | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          game_id?: string | null
+          id?: string
+          ip?: string | null
+          market?: string | null
+          message?: string | null
+          odds?: number | null
+          operator_id?: string | null
+          operator_user_id?: string | null
+          round_id?: string | null
+          selection?: string | null
+          stake?: number | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          game_id?: string | null
+          id?: string
+          ip?: string | null
+          market?: string | null
+          message?: string | null
+          odds?: number | null
+          operator_id?: string | null
+          operator_user_id?: string | null
+          round_id?: string | null
+          selection?: string | null
+          stake?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bet_rejections_operator_id_fkey"
+            columns: ["operator_id"]
+            isOneToOne: false
+            referencedRelation: "operators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bets: {
         Row: {
           created_at: string
