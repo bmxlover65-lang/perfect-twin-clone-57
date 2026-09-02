@@ -415,6 +415,7 @@ export function BalloonStage({
       setCrashAt(target);
       v = 1;
       setShown(1);
+      setClimb(0);
       ph = "flying";
       setPhase("flying");
       play("/balloon-air.mp3", 0.35, true);
