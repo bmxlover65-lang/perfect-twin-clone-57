@@ -85,7 +85,7 @@ export function CoinStageImage({
   }, [flipping, shown]);
 
   return (
-    <div className="relative flex w-full items-center justify-center bg-black py-4">
+    <div className="relative flex w-full items-center justify-center bg-black py-5">
       <img
         src={face === "HEADS" ? headsCoin.url : tailsCoin.url}
         alt={`${face} coin`}
@@ -94,12 +94,12 @@ export function CoinStageImage({
         style={flipping ? { animation: "uapi-coin-flip 0.28s linear infinite" } : undefined}
       />
       {!flipping && !suspended && leftSec != null ? (
-        <span className="absolute bottom-3 right-4 flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#F2C500] text-[1.05rem] font-extrabold text-[#F2C500]">
+        <span className="absolute bottom-5 right-5 flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#F2C500] bg-[#F2C500] text-[1.1rem] font-black text-black shadow-[0_4px_12px_rgba(242,197,0,0.45)]">
           {leftSec}
         </span>
       ) : null}
       {!flipping && suspended && winner ? (
-        <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-[#F2C500] px-4 py-1 text-[0.8rem] font-extrabold uppercase text-black">
+        <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-[#F2C500] px-4 py-1 text-[0.8rem] font-extrabold uppercase text-black">
           {winner} wins
         </span>
       ) : null}
@@ -121,38 +121,52 @@ function formatOdds(n?: number) {
   return n.toFixed(2);
 }
 
-function Plate({ r }: { r: CoinRunner }) {
+function Plate({
+  r,
+  selected,
+  onClick,
+}: {
+  r: CoinRunner;
+  selected: boolean;
+  onClick: () => void;
+}) {
   const heads = r.label.toUpperCase().startsWith("H");
   const base =
-    "relative flex flex-col items-center justify-center gap-2 rounded-[10px] border-2 p-3 text-white shadow-[0_4px_14px_rgba(0,0,0,0.45)] transition-transform active:scale-[0.98]";
+    "relative flex flex-col items-center justify-center rounded-[10px] border-2 p-2 text-white shadow-[0_4px_14px_rgba(0,0,0,0.45)] transition-transform active:scale-[0.98]";
   const theme = heads
     ? "border-[#C4B5FD] bg-gradient-to-b from-[#A78BFA] to-[#7C3AED]"
     : "border-[#93C5FD] bg-gradient-to-b from-[#60A5FA] to-[#2563EB]";
+  const innerBg = heads ? "bg-[#5B21B6]/55" : "bg-[#1E40AF]/55";
+  const barBg = heads ? "bg-[#4C1D95]/80" : "bg-[#1E3A8A]/80";
 
   return (
-    <div className={`${base} ${theme} ${!r.open ? "opacity-60" : ""}`}>
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${base} ${theme} ${selected ? "ring-2 ring-[#F2C500]" : ""}`}
+    >
       {/* decorative side dots */}
-      <span className="pointer-events-none absolute left-2 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-white/40" />
-      <span className="pointer-events-none absolute right-2 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-white/40" />
+      <span className="pointer-events-none absolute left-2 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-white/60" />
+      <span className="pointer-events-none absolute right-2 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-white/60" />
 
-      <div className="grid h-[58px] w-[58px] place-items-center rounded-full bg-black/25 shadow-inner">
-        <span className="text-center text-[0.75rem] font-black leading-tight tracking-wide drop-shadow">
+      <div className={`grid h-[38px] w-[96px] place-items-center rounded-full ${innerBg} px-4 shadow-inner`}>
+        <span className="text-center text-[0.9rem] font-black leading-tight tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
           {r.label.toUpperCase()}
         </span>
       </div>
 
-      <div className="flex flex-col items-center">
-        <span className="text-[1.15rem] font-black leading-none drop-shadow">
+      <div className={`mt-1.5 flex w-full items-center justify-center rounded py-1 ${barBg}`}>
+        <span className="text-[1rem] font-black leading-none text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
           {formatOdds(r.price)}
         </span>
       </div>
 
       {!r.open ? (
-        <span className="absolute inset-0 grid place-items-center rounded-[10px] bg-black/55 text-[1.2rem]">
-          🔒
+        <span className="absolute inset-0 grid place-items-center rounded-[10px] bg-black/80 text-[0.85rem] font-black uppercase tracking-wide text-white">
+          Suspended
         </span>
       ) : null}
-    </div>
+    </button>
   );
 }
 
@@ -160,12 +174,25 @@ export function HeadsTailsPanel({
   runners,
   min,
   max,
+  recent,
 }: {
   runners: CoinRunner[];
   min: number;
   max: number;
+  recent?: string[];
 }) {
   const [chip, setChip] = useState("1k");
+  const [selected, setSelected] = useState<string | null>(null);
+
+  const recentItems = (recent ?? [])
+    .slice(0, 10)
+    .map((r) => {
+      const raw = r.toString().trim().toUpperCase();
+      if (raw.startsWith("T")) return { key: "T", tone: "bg-[#F472B6] text-black" };
+      if (raw.startsWith("H")) return { key: "H", tone: "bg-[#60A5FA] text-black" };
+      return { key: raw.slice(0, 1), tone: "bg-white/20 text-white" };
+    });
+
   return (
     <div className="bg-black p-2">
       <p className="mb-2 text-right text-[0.62rem] font-semibold text-white/40">
@@ -173,7 +200,12 @@ export function HeadsTailsPanel({
       </p>
       <div className="grid grid-cols-2 gap-3">
         {runners.map((r) => (
-          <Plate key={r.id} r={r} />
+          <Plate
+            key={r.id}
+            r={r}
+            selected={selected === r.id}
+            onClick={() => setSelected((s) => (s === r.id ? null : r.id))}
+          />
         ))}
       </div>
       <div className="mt-3 flex flex-nowrap items-center gap-2 overflow-x-auto bg-black px-2 py-2">
@@ -202,6 +234,20 @@ export function HeadsTailsPanel({
           </button>
         ))}
       </div>
+
+      {recentItems.length ? (
+        <div className="mt-3 flex items-center gap-2 overflow-x-auto rounded-md bg-black px-1 py-2">
+          <span className="mr-1 shrink-0 text-[0.95rem] font-bold text-white">Recent Result</span>
+          {recentItems.map((item, idx) => (
+            <span
+              key={`${item.key}-${idx}`}
+              className={`flex h-9 min-w-9 shrink-0 items-center justify-center rounded-full px-2 text-sm font-black ${item.tone}`}
+            >
+              {item.key}
+            </span>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }
