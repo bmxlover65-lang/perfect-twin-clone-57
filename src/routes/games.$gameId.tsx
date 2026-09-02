@@ -1438,19 +1438,23 @@ function NumberPanel({
     }));
   };
 
+  const DREAM_ODDS: Record<string, number> = { "1": 2, "2": 3, "5": 6, "10": 11, "20": 21, "40": 41 };
+
   const Tile = ({ t }: { t: Tile }) => {
-    const note = dream ? DREAM_NOTE[t.label.trim()] : undefined;
+    const key = t.label.trim();
+    const note = dream ? DREAM_NOTE[key] : undefined;
     if (note) {
+      const odds = t.price && t.price > 1 ? t.price : DREAM_ODDS[key];
       return (
-        <div className="relative flex flex-col items-center rounded-[10px] border border-white/5 bg-[#1E3D2B] px-2 py-3">
+        <div className="relative flex flex-col items-center rounded-[10px] border border-white/5 bg-black px-2 py-3">
           <img
             src={note}
-            alt={`${t.label}x`}
+            alt={`${key}x`}
             className="h-[58px] w-auto select-none object-contain"
             draggable={false}
           />
           <span className="mt-2 text-[1.5rem] font-extrabold leading-none text-white">
-            {t.price ? t.price.toFixed(0) : "—"}
+            {odds ? odds.toFixed(0) : "—"}
           </span>
           <span className="mt-1 text-[1.05rem] font-bold leading-none text-white/90">
             {t.size ? Math.round(t.size) : "—"}
@@ -1461,6 +1465,7 @@ function NumberPanel({
         </div>
       );
     }
+
     return (
       <div
         className={`relative flex h-[54px] flex-col items-center justify-center rounded-[6px] border border-white/10 sm:h-[68px] ${
