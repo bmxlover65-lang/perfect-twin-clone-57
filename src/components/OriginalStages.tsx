@@ -397,6 +397,8 @@ export function BalloonStage({
     let v = 1;
     let target = 2;
     let curRound = roundRef.current;
+    let lastFeedRound = roundRef.current;
+    let stale = false;
     let peak = 1;
     let stall = 0;
 
@@ -445,14 +447,17 @@ export function BalloonStage({
       last = now;
       const apiRound = roundRef.current;
       const api = apiRef.current;
-      const live = !!apiRound;
 
-      // a new round id from the feed always restarts the balloon
-      if (live && apiRound !== curRound) {
+      // a genuinely new round id from the feed: sync back to live mode
+      if (apiRound && apiRound !== lastFeedRound) {
+        lastFeedRound = apiRound;
+        stale = false;
         startRound(apiRound);
         raf = window.requestAnimationFrame(tick);
         return;
       }
+      // stale feed (same id, never advances) → run local rounds instead
+      const live = !!apiRound && !stale;
 
       if (ph === "flying") {
         if (live) {
@@ -491,8 +496,11 @@ export function BalloonStage({
           if (ph === "crashed") {
             ph = "waiting";
             setPhase("waiting");
-            t = live ? 60 : 3;
-          } else if (!live) {
+            t = 3;
+          } else {
+            // waiting over: feed never advanced while we waited → mark stale
+            // and start a local round; a new feed id will resync automatically
+            if (live) stale = true;
             startRound(undefined);
           }
         }
@@ -657,8 +665,8 @@ export function BalloonStage({
                 className="pointer-events-none absolute left-1/2 top-[88%] z-10 -translate-x-1/2"
                 aria-hidden
                 style={{
-                  width: 72,
-                  height: 96,
+                  width: 44,
+                  height: 60,
                   filter: "drop-shadow(0 0 14px rgba(255,120,0,1)) drop-shadow(0 0 30px rgba(255,60,0,0.9)) drop-shadow(0 0 50px rgba(255,180,0,0.5))",
                 }}
               >
