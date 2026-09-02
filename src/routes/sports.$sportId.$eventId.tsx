@@ -11,6 +11,7 @@ import {
   type OddsResponse,
 } from "@/lib/uapi";
 import { BalanceChip, BetLayer, MyBets } from "@/components/betting";
+import { Scoreboard } from "@/components/Scoreboard";
 import { settleFromRunners, voidOpen } from "@/lib/wallet";
 
 export const Route = createFileRoute("/sports/$sportId/$eventId")({
