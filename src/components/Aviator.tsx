@@ -144,34 +144,34 @@ function BetPanel({
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-2">
       <div className="flex items-center gap-2">
-        <span className="text-[0.78rem] font-semibold text-white/85">Auto</span>
+        <span className="text-[0.72rem] font-semibold text-[#9CA3AF]">Auto</span>
         <button
           type="button"
           role="switch"
           aria-checked={state.auto}
           onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
-          className={`relative h-[22px] w-[44px] rounded-full transition-colors ${
-            state.auto ? "bg-[#2FA300]" : "bg-[#3A3B3F]"
+          className={`relative h-[20px] w-[40px] rounded-full transition-colors ${
+            state.auto ? "bg-[#18B800]" : "bg-[#303238]"
           }`}
         >
           <span
-            className={`absolute top-[2px] h-[18px] w-[18px] rounded-full bg-white transition-all ${
-              state.auto ? "left-[24px]" : "left-[2px]"
+            className={`absolute top-[2px] h-[16px] w-[16px] rounded-full bg-white transition-all ${
+              state.auto ? "left-[22px]" : "left-[2px]"
             }`}
           />
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-2 gap-y-[6px]">
+      <div className="grid grid-cols-2 gap-[5px]">
         {QUICK.map((q) => (
           <button
             key={q}
             type="button"
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`rounded-full border py-[3px] text-center text-[0.72rem] font-semibold transition-colors ${
+            className={`rounded-[8px] border bg-[#1B1C1F] py-[5px] text-center text-[0.72rem] font-semibold transition-colors ${
               state.amount === q
-                ? "border-[#2FA300] text-white"
-                : "border-[#3A3B3F] text-white/75 hover:text-white"
+                ? "border-[#18B800] text-white shadow-[0_0_0_1px_rgba(24,184,0,0.45)]"
+                : "border-[#303238] text-[#9CA3AF] hover:text-white"
             }`}
           >
             {q}
@@ -182,7 +182,7 @@ function BetPanel({
       <button
         type="button"
         onClick={press}
-        className={`rounded-[8px] py-[10px] text-center text-[1.05rem] font-bold text-white ${tone}`}
+        className={`rounded-[10px] py-[11px] text-center text-[1rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.35)] ${tone}`}
       >
         {label}
         {canCash ? (
@@ -191,14 +191,15 @@ function BetPanel({
       </button>
 
       {state.cashedAt ? (
-        <p className="text-center text-[0.7rem] font-bold text-[#2FA300]">
+        <p className="text-center text-[0.7rem] font-bold text-[#18B800]">
           Cashed out {fmt(state.cashedAt)}x · {fmt(state.amount * state.cashedAt)} INR
         </p>
       ) : state.staged ? (
-        <p className="text-center text-[0.7rem] font-semibold text-white/45">
+        <p className="text-center text-[0.7rem] font-semibold text-[#9CA3AF]">
           Waiting for next round
         </p>
       ) : null}
+
     </div>
   );
 }
