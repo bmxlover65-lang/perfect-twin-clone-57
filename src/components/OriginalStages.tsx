@@ -363,12 +363,17 @@ export function BalloonStage({
   const apiTarget = Number(multiplier) || 0;
   const apiRef = useRef(apiTarget);
   apiRef.current = apiTarget;
+  const roundRef = useRef<string | undefined>(roundId);
+  roundRef.current = roundId;
+  const suspRef = useRef<boolean>(!!suspended);
+  suspRef.current = !!suspended;
   const stakeRef = useRef(stake);
   stakeRef.current = stake;
   const autoRef = useRef(autos);
   autoRef.current = autos;
   const mutedRef = useRef(muted);
   mutedRef.current = muted;
+
 
   const play = (src: string, vol: number, keep?: boolean) => {
     if (mutedRef.current) return;
