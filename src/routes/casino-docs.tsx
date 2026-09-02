@@ -32,7 +32,9 @@ const TOC = [
   ["historical-results", "Historical results"],
   ["tv-video", "TV & video"],
   ["iframe-embed", "Iframe embed"],
+  ["betting-wallet", "Betting & wallet"],
   ["response-fields", "Response fields"],
+
   ["errors", "Errors"],
   ["integration-guide", "Integration guide"],
   ["game-ui", "Game UI (HTML/CSS)"],
@@ -651,23 +653,128 @@ async function loadVideo(eventId) {
             ]}
           />
 
+          {/* Betting & wallet */}
+          <H2 id="betting-wallet">Betting &amp; wallet (seat API)</H2>
+          <P>
+            These endpoints let your platform place real bets on Universal API rounds. Player money
+            always stays in <strong>your</strong> wallet: we call your callback URL to debit stake
+            and credit winnings. All three endpoints use the same{" "}
+            <Code>x-api-key</Code> header and respect your IP / domain whitelist.
+          </P>
+
+          <H3>Place a bet</H3>
+          <Endpoint method="POST" path="/api/public/v1/bet" auth="API key" />
+          <Block
+            label="Request"
+            code={`POST /api/public/v1/bet
+x-api-key: <your key>
+content-type: application/json
+
+{
+  "userId": "player-1042",
+  "gameId": "99.0010",
+  "roundId": "1725312001",
+  "market": "Lucky 7",
+  "selection": "LOW",
+  "odds": 1.98,
+  "stake": 500,
+  "reference": "your-unique-txn-id"
+}`}
+          />
+          <Block
+            label="Response"
+            code={`{ "status": "ok", "betId": "…", "reference": "your-unique-txn-id", "balance": 9500, "currency": "INR" }`}
+          />
+          <Note>
+            <strong>Idempotent:</strong> resending the same <Code>reference</Code> returns the
+            original bet with <Code>duplicate: true</Code> — never double-debits.
+          </Note>
+
+          <H3>Player balance</H3>
+          <Endpoint method="POST" path="/api/public/v1/balance" auth="API key" />
+          <Block label="Request" code={`{ "userId": "player-1042" }`} />
+          <Block label="Response" code={`{ "status": "ok", "currency": "INR", "balance": 9500 }`} />
+
+          <H3>Bet history</H3>
+          <Endpoint method="GET" path="/api/public/v1/bets?userId=&gameId=&limit=50" auth="API key" />
+          <Block
+            label="Response"
+            code={`{ "status": "ok", "count": 2, "bets": [
+  { "operator_user_id": "player-1042", "game_id": "99.0010", "round_id": "1725312001",
+    "selection": "LOW", "odds": 1.98, "stake": 500, "payout": 990,
+    "status": "won", "reference": "your-unique-txn-id", "settled_at": "…" }
+] }`}
+          />
+
+          <H3>Your wallet callback</H3>
+          <P>
+            Set your callback base URL in the operator panel. We POST to{" "}
+            <Code>{"<callback>/balance"}</Code>, <Code>{"<callback>/debit"}</Code>,{" "}
+            <Code>{"<callback>/credit"}</Code> and <Code>{"<callback>/rollback"}</Code>.
+          </P>
+          <Block
+            label="Body we send"
+            code={`{
+  "action": "debit",
+  "operatorId": "…",
+  "currency": "INR",
+  "userId": "player-1042",
+  "amount": 500,
+  "reference": "your-unique-txn-id",
+  "gameId": "99.0010",
+  "roundId": "1725312001",
+  "betId": "…",
+  "timestamp": "2026-09-02T23:10:00.000Z"
+}`}
+          />
+          <P>
+            Headers: <Code>x-universal-operator</Code> (your operator id) and{" "}
+            <Code>x-universal-signature</Code> = HMAC-SHA256 of the <em>raw</em> body using your
+            callback secret (hex). Verify it before touching balances.
+          </P>
+          <Block
+            label="Verify (Node.js)"
+            code={`const expected = crypto.createHmac("sha256", CALLBACK_SECRET)
+  .update(rawBody).digest("hex");
+if (expected !== req.headers["x-universal-signature"]) return res.status(401).end();`}
+          />
+          <Block
+            label="Your reply"
+            code={`{ "status": "ok", "balance": 9500, "reference": "your-unique-txn-id" }`}
+          />
+          <Note>
+            Reply non-2xx or <Code>{'{ "status": "failed" }'}</Code> to reject a debit (e.g.
+            insufficient funds) — the bet is then rejected and logged in your panel. Settlement
+            credits are sent automatically when the round result arrives; failed inserts trigger a{" "}
+            <Code>rollback</Code>.
+          </Note>
+
           {/* Errors */}
+
           <H2 id="errors">Errors</H2>
-          <P>Every error response uses this shape:</P>
-          <Block label="Error body" code={`{ "error": "Human-readable message" }`} />
+          <P>
+            Data endpoints reply with <Code>{'{ "error": "message" }'}</Code>. Betting / wallet
+            endpoints reply with <Code>{'{ "status": "error", "code": "…", "message": "…" }'}</Code>.
+          </P>
           <Table
-            head={["Status", "Meaning", "What to do"]}
+            head={["Status", "Code", "Meaning"]}
             rows={[
-              ["401", "Unauthorized", "Check your API key is present and correct"],
-              [
-                "403",
-                "Forbidden",
-                "Subscription expired, account disabled, or (for TV iframe) embedding domain not whitelisted — contact support",
-              ],
-              ["404", "Not found", "Verify the eventId is in the supported games list"],
-              ["503", "Unavailable", "Live data missing or stale — retry after a few seconds"],
+              ["401", <Code key="a">missing_key</Code>, "No x-api-key / Authorization header sent"],
+              ["401", <Code key="b">invalid_key</Code>, "Key unknown or deactivated"],
+              ["403", <Code key="c">operator_disabled</Code>, "Account disabled — contact support"],
+              ["403", <Code key="d">ip_not_allowed</Code>, "Calling IP is not whitelisted for this key"],
+              ["403", <Code key="e">domain_not_allowed</Code>, "Origin domain not whitelisted for this key"],
+              ["402", <Code key="f">plan_expired</Code>, "Monthly subscription has ended — renew to resume"],
+              ["400", <Code key="g">bad_request</Code>, "Invalid or missing body fields"],
+              ["409", <Code key="h">round_closed</Code>, "Betting is closed for that round"],
+              ["424", <Code key="i">no_callback_url</Code>, "Set your wallet callback URL in the operator panel"],
+              ["502", <Code key="j">callback_failed</Code>, "Your wallet endpoint was unreachable or errored"],
+              ["402", <Code key="k">wallet_rejected</Code>, "Your wallet declined the debit (e.g. low balance)"],
+              ["404", "—", "Unknown eventId — check the supported games list"],
+              ["503", "—", "Live data missing or stale — retry with backoff"],
             ]}
           />
+
 
           {/* Integration guide */}
           <H2 id="integration-guide">Integration guide</H2>
