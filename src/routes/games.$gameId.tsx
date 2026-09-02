@@ -2092,6 +2092,14 @@ function GamePage() {
           <CardRacePanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0005" && markets.length ? (
           <AAAPanel markets={markets} suspended={suspended} />
+        ) : ["99.0030", "99.0010", "99.0019"].includes(gameId) && markets.length ? (
+          markets.map((m, i) => (
+            <DarkGridBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
+          ))
+        ) : ["99.0016", "99.0013"].includes(gameId) && markets.length ? (
+          markets.map((m, i) => (
+            <DarkRowBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
+          ))
         ) : (
           markets.map((m, i) => (
             <MarketBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
