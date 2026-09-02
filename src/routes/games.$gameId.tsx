@@ -2020,6 +2020,10 @@ function GamePage() {
                 }))}
                 min={markets[0]?.min ?? 100}
                 max={markets[0]?.max ?? 100000}
+                recent={results.slice(0, 10).map((r) => {
+                  const rr = r as CasinoResult & { result?: string; selectionName?: string };
+                  return (rr.winner ?? rr.result ?? rr.selectionName ?? "-").toString().trim();
+                })}
               />
             </div>
           ) : gameId !== "88.0023" && markets.length ? (
@@ -2036,7 +2040,7 @@ function GamePage() {
 
         {gameId !== "88.0023" ? <MyBets gameId={gameId} /> : null}
 
-        {gameId !== "88.0023" ? (
+        {gameId !== "88.0021" && gameId !== "88.0023" ? (
           <RecentStrip results={results} dream={gameId === "88.0020"} />
         ) : null}
 
