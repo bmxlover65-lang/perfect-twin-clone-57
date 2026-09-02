@@ -72,7 +72,7 @@ export const Route = createFileRoute("/games/$gameId")({
 });
 
 const CARD_SIZE =
-  "h-[24px] w-[17px] shrink-0 rounded-[2px] shadow sm:h-[31px] sm:w-[22px] md:h-[36px] md:w-[26px]";
+  "h-[42px] w-[30px] shrink-0 rounded-[4px] shadow sm:h-[54px] sm:w-[38px] md:h-[64px] md:w-[46px]";
 
 function Card({ code }: { code: string }) {
   const clean = code.replace(/_+$/, "");
@@ -93,12 +93,12 @@ function Card({ code }: { code: string }) {
   const red = suit === "H" || suit === "D";
   return (
     <span
-      className={`${CARD_SIZE} inline-flex flex-col items-center justify-center bg-white text-[0.7rem] font-bold leading-none ${
+      className={`${CARD_SIZE} inline-flex flex-col items-center justify-center bg-white text-[0.9rem] font-bold leading-none sm:text-[1.1rem] md:text-[1.25rem] ${
         red ? "text-red-600" : "text-black"
       }`}
     >
       <span>{rank || "?"}</span>
-      <span className="text-sm">{map[suit] ?? "?"}</span>
+      <span className="text-sm sm:text-base md:text-lg">{map[suit] ?? "?"}</span>
     </span>
   );
 }
@@ -110,10 +110,10 @@ function Cards({ hand, title }: { hand: Record<string, string>; title: string })
   if (!codes.length) return null;
   return (
     <div>
-      <p className="text-[0.68rem] font-extrabold uppercase tracking-wide text-white drop-shadow">
+      <p className="text-[0.75rem] font-black uppercase tracking-wide text-white drop-shadow sm:text-xs md:text-sm">
         {title.replace(/_/g, " ")}
       </p>
-      <div className="mt-0.5 flex gap-1">
+      <div className="mt-1 flex gap-1 sm:gap-1.5">
         {codes.map((c, i) => (
           <Card key={`${c}-${i}`} code={c} />
         ))}
