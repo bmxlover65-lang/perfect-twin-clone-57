@@ -101,6 +101,8 @@ function ConsolePage() {
   const [roundRows, setRoundRows] = useState<any[]>([]);
   const [note, setNote] = useState<string>("");
   const [err, setErr] = useState<string>("");
+  const [tab, setTab] = useState<string>("overview");
+
 
   const run = async (fn: () => Promise<void>) => {
     setErr("");
