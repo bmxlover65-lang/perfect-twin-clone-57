@@ -272,12 +272,13 @@ export function DreamWheel({
             })}
             <circle cx={cx} cy={cy} r={62} fill="#0B0B0B" />
           </svg>
-          <img
-            src={dreamHub.url}
-            alt=""
-            className="pointer-events-none absolute left-1/2 top-1/2 h-[92px] w-[92px] -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-[128px] sm:w-[128px]"
-          />
         </div>
+        <img
+          src={dreamHub.url}
+          alt=""
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[92px] w-[92px] -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-[128px] sm:w-[128px]"
+        />
+
         <span className="pointer-events-none absolute left-1/2 top-[-10px] -translate-x-1/2 text-[1.6rem] leading-none text-[#F2C500] drop-shadow">
           ▼
         </span>
