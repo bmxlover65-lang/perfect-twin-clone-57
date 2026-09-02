@@ -2,8 +2,13 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { listWhitelist, operatorLedger } from "@/lib/operator-admin.functions";
-import { listCallbackLogs, listRounds, testWalletCall, whoAmI } from "@/lib/portal.functions";
+import {
+  listCallbackLogs,
+  operatorSummary,
+  testWalletCall,
+  updateMyCallback,
+  whoAmI,
+} from "@/lib/portal.functions";
 
 export const Route = createFileRoute("/_authenticated/operator")({
   component: OperatorPage,
@@ -13,12 +18,12 @@ export const Route = createFileRoute("/_authenticated/operator")({
       {
         name: "description",
         content:
-          "Operator panel: check your callback wallet balance, review rounds, bets, settlements and callback logs for your Universal API integration.",
+          "Operator panel: your API keys, IP and domain whitelist, monthly plan, per-user bet history, rejected bets and callback URL settings.",
       },
       { property: "og:title", content: "Operator panel | Universal API" },
       {
         property: "og:description",
-        content: "Wallet checks, round history and bet ledger for Universal API operators.",
+        content: "API key, whitelist, plan, bet ledger and callback settings for Universal API operators.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -39,36 +44,38 @@ import { OperatorGuide } from "@/components/dash-guide";
 
 const TABS = [
   { id: "overview", label: "Overview" },
-  { id: "wallet", label: "Callback wallet" },
-  { id: "bets", label: "My bet history" },
-  { id: "rounds", label: "Rounds" },
-  { id: "keys", label: "Keys & whitelist" },
-  { id: "logs", label: "Callback logs" },
+  { id: "access", label: "API key & whitelist" },
+  { id: "users", label: "Users" },
+  { id: "bets", label: "Bet history" },
+  { id: "rejected", label: "Rejected bets" },
+  { id: "callback", label: "Callback URL" },
   { id: "guide", label: "Guide / Kit" },
 ];
 
+type Summary = Awaited<ReturnType<typeof operatorSummary>>;
 
+const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 
 function OperatorPage() {
   const navigate = useNavigate();
   const me = useServerFn(whoAmI);
-  const wl = useServerFn(listWhitelist);
-  const ledger = useServerFn(operatorLedger);
-  const logs = useServerFn(listCallbackLogs);
-  const rounds = useServerFn(listRounds);
+  const summaryFn = useServerFn(operatorSummary);
+  const logsFn = useServerFn(listCallbackLogs);
   const walletTest = useServerFn(testWalletCall);
+  const saveCallback = useServerFn(updateMyCallback);
 
-  const [ops, setOps] = useState<any[]>([]);
+  const [ops, setOps] = useState<Array<{ id: string; name: string }>>([]);
   const [sel, setSel] = useState("");
-  const [detail, setDetail] = useState<any>(null);
-  const [bets, setBets] = useState<any[]>([]);
+  const [sum, setSum] = useState<Summary | null>(null);
   const [cbLogs, setCbLogs] = useState<any[]>([]);
-  const [roundRows, setRoundRows] = useState<any[]>([]);
-  const [balance, setBalance] = useState<string>("—");
+  const [balance, setBalance] = useState("—");
   const [userId, setUserId] = useState("demo-user");
+  const [cbUrl, setCbUrl] = useState("");
+  const [newSecret, setNewSecret] = useState<string | null>(null);
+  const [note, setNote] = useState("");
   const [err, setErr] = useState("");
-  const [tab, setTab] = useState<string>("overview");
-
+  const [tab, setTab] = useState("overview");
+  const [filterUser, setFilterUser] = useState("");
 
   const run = async (fn: () => Promise<void>) => {
     setErr("");
@@ -81,19 +88,19 @@ function OperatorPage() {
 
   const load = useCallback(
     async (id: string) => {
-      setDetail(await wl({ data: { operatorId: id } }));
-      setBets(await ledger({ data: { operatorId: id, limit: 60 } }));
-      setCbLogs(await logs({ data: { operatorId: id, limit: 20 } }));
-      setRoundRows(await rounds({ data: { limit: 20 } }));
+      const s = await summaryFn({ data: { operatorId: id, limit: 200 } });
+      setSum(s);
+      setCbUrl(s.operator?.callback_url ?? "");
+      setCbLogs(await logsFn({ data: { operatorId: id, limit: 25 } }));
     },
-    [wl, ledger, logs, rounds],
+    [summaryFn, logsFn],
   );
 
   useEffect(() => {
     void run(async () => {
       const r = await me();
-      setOps(r.operators);
-      if (r.operators.length) setSel(r.operators[0]!.id);
+      setOps(r.operators as Array<{ id: string; name: string }>);
+      if (r.operators.length) setSel((r.operators[0] as { id: string }).id);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -103,22 +110,28 @@ function OperatorPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sel]);
 
-  const op = ops.find((o) => o.id === sel);
-
   const signOut = async () => {
     await supabase.auth.signOut();
     void navigate({ to: "/auth", replace: true });
   };
 
-  const staked = bets.reduce((s, b) => s + Number(b.stake), 0);
-  const paid = bets.reduce((s, b) => s + Number(b.payout), 0);
+  const op = sum?.operator;
+  const totals = sum?.totals;
+  const daysLeft = op?.plan_expires_at
+    ? Math.ceil((new Date(op.plan_expires_at).getTime() - Date.now()) / 864e5)
+    : null;
+  const bets = (sum?.bets ?? []).filter((b: any) =>
+    filterUser ? String(b.operator_user_id).toLowerCase().includes(filterUser.toLowerCase()) : true,
+  );
 
   return (
     <DashShell
       title="Operator"
       subtitle={
         op
-          ? `${op.name} · ${op.status} · plan till ${op.plan_expires_at ? new Date(op.plan_expires_at).toLocaleDateString() : "—"}`
+          ? `${op.name} · ${op.status} · plan till ${
+              op.plan_expires_at ? new Date(op.plan_expires_at).toLocaleDateString() : "—"
+            }${daysLeft !== null ? ` (${daysLeft} days left)` : ""}`
           : "No operator linked to this login yet."
       }
       accent="#0F7A5A"
@@ -145,142 +158,347 @@ function OperatorPage() {
         </>
       }
     >
-      {err ? <p className="rounded-md bg-destructive/15 px-3 py-2 text-sm text-destructive">{err}</p> : null}
+      {err ? (
+        <p className="rounded-md bg-destructive/15 px-3 py-2 text-sm text-destructive">{err}</p>
+      ) : null}
+      {note ? <p className="rounded-md bg-primary/10 px-3 py-2 text-sm text-foreground">{note}</p> : null}
 
-      {sel ? (
+      {!sel ? (
+        <Panel title="No operator">
+          <p className="text-sm text-muted-foreground">
+            Aapka login abhi kisi operator se linked nahi hai. Admin se apna operator link karwa lein.
+          </p>
+        </Panel>
+      ) : null}
+
+      {sel && sum ? (
         <>
           {tab === "overview" ? (
-            <div className="grid gap-3 sm:grid-cols-3">
-              <Stat label="Staked" value={`₹${staked.toLocaleString("en-IN")}`} />
-              <Stat label="Paid out" value={`₹${paid.toLocaleString("en-IN")}`} />
-              <Stat label="Net P/L" value={`₹${(staked - paid).toLocaleString("en-IN")}`} />
-            </div>
+            <>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <Stat label="Total bets" value={String(totals?.count ?? 0)} />
+                <Stat label="Staked" value={inr(totals?.staked ?? 0)} />
+                <Stat label="Paid out" value={inr(totals?.payout ?? 0)} />
+                <Stat label="GGR (stake − payout)" value={inr(totals?.ggr ?? 0)} />
+              </div>
+              <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                <Stat label="Open bets" value={String(totals?.open ?? 0)} />
+                <Stat label="Rejected bets" value={String(totals?.rejected ?? 0)} />
+                <Stat
+                  label="Plan"
+                  value={daysLeft === null ? "—" : `${daysLeft} days left`}
+                />
+              </div>
+              <Panel title="Plan & account">
+                <ul className="space-y-1 text-xs text-muted-foreground">
+                  <li>Operator: {op?.name}</li>
+                  <li>Status: {op?.status}</li>
+                  <li>Currency: {op?.currency}</li>
+                  <li>Monthly plan amount: {inr(Number(op?.plan_amount ?? 0))}</li>
+                  <li>
+                    Plan valid till:{" "}
+                    {op?.plan_expires_at ? new Date(op.plan_expires_at).toLocaleString() : "—"}
+                  </li>
+                  <li>Callback URL: {op?.callback_url ?? "not configured"}</li>
+                </ul>
+              </Panel>
+            </>
           ) : null}
 
-          {tab === "wallet" ? (
-          <Panel title="Callback wallet">
+          {tab === "access" ? (
+            <>
+              <Panel title="Your API keys">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead className="text-muted-foreground">
+                      <tr>
+                        <th className="p-2 text-left">Label</th>
+                        <th className="p-2 text-left">Key prefix</th>
+                        <th className="p-2 text-left">Status</th>
+                        <th className="p-2 text-left">Last used</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sum.keys.map((k: any) => (
+                        <tr key={k.id} className="border-t border-border">
+                          <td className="p-2">{k.label}</td>
+                          <td className="p-2 font-mono">{k.key_prefix}…</td>
+                          <td className="p-2">{k.active ? "active" : "revoked"}</td>
+                          <td className="p-2">
+                            {k.last_used_at ? new Date(k.last_used_at).toLocaleString() : "never"}
+                          </td>
+                        </tr>
+                      ))}
+                      {!sum.keys.length ? (
+                        <tr>
+                          <td className="p-3 text-muted-foreground" colSpan={4}>
+                            Abhi koi key issue nahi hui. Admin se key maangein.
+                          </td>
+                        </tr>
+                      ) : null}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Full key sirf issue karte waqt ek baar dikhti hai — usko apne server ke env me rakhein.
+                </p>
+              </Panel>
 
-            <div className="flex flex-wrap items-center gap-2">
-              <input
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
-                placeholder="your user id"
-                className={`${input} max-w-[220px]`}
-              />
-              <button
-                className={btn}
-                onClick={() =>
-                  run(async () => {
-                    const r = await walletTest({
-                      data: { operatorId: sel, action: "balance", userId, amount: 0 },
-                    });
-                    setBalance(r.ok ? String(r.balance ?? "—") : `error: ${r.message}`);
-                    await load(sel);
-                  })
-                }
-              >
-                Fetch balance
-              </button>
-              <span className="text-sm font-bold text-foreground">Balance: {balance}</span>
-            </div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              Callback URL: {op?.callback_url ?? "not configured"} · every call is HMAC-signed with your
-              callback secret and logged below.
-            </p>
-          </Panel>
+              <Panel title="Whitelisted IPs">
+                <ul className="space-y-1 text-xs text-muted-foreground">
+                  {sum.ips.map((i: any) => (
+                    <li key={i.id} className="font-mono">
+                      {i.ip}
+                    </li>
+                  ))}
+                  {!sum.ips.length ? <li>Koi IP whitelist nahi — sabhi IP allowed hain.</li> : null}
+                </ul>
+              </Panel>
+
+              <Panel title="Whitelisted domains">
+                <ul className="space-y-1 text-xs text-muted-foreground">
+                  {sum.domains.map((d: any) => (
+                    <li key={d.id} className="font-mono">
+                      {d.domain}
+                    </li>
+                  ))}
+                  {!sum.domains.length ? (
+                    <li>Koi domain whitelist nahi — sabhi domains allowed hain.</li>
+                  ) : null}
+                </ul>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  IP / domain change karwana ho to admin ko bolein — whitelist admin manage karta hai.
+                </p>
+              </Panel>
+            </>
           ) : null}
 
-          {tab === "rounds" ? (
-          <Panel title="Rounds">
-            <ul className="space-y-1 text-xs text-muted-foreground">
-              {roundRows.map((r) => (
-                <li key={r.id}>
-                  {r.game_id} · {r.round_id} · {r.status} · {r.manual ? "manual" : "live"} ·{" "}
-                  {JSON.stringify(r.result)}
-                </li>
-              ))}
-              {!roundRows.length ? <li>No rounds settled yet.</li> : null}
-            </ul>
-          </Panel>
+          {tab === "users" ? (
+            <Panel title="Per-user activity">
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead className="text-muted-foreground">
+                    <tr>
+                      <th className="p-2 text-left">User ID</th>
+                      <th className="p-2 text-right">Bets</th>
+                      <th className="p-2 text-right">Open</th>
+                      <th className="p-2 text-right">Rejected</th>
+                      <th className="p-2 text-right">Staked</th>
+                      <th className="p-2 text-right">Payout</th>
+                      <th className="p-2 text-right">GGR</th>
+                      <th className="p-2 text-left">Last bet</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sum.users.map((u) => (
+                      <tr key={u.userId} className="border-t border-border">
+                        <td className="p-2 font-mono">{u.userId}</td>
+                        <td className="p-2 text-right">{u.bets}</td>
+                        <td className="p-2 text-right">{u.open}</td>
+                        <td className="p-2 text-right">{u.rejected}</td>
+                        <td className="p-2 text-right">{inr(u.staked)}</td>
+                        <td className="p-2 text-right">{inr(u.payout)}</td>
+                        <td className="p-2 text-right">{inr(u.staked - u.payout)}</td>
+                        <td className="p-2">{u.last ? new Date(u.last).toLocaleString() : "—"}</td>
+                      </tr>
+                    ))}
+                    {!sum.users.length ? (
+                      <tr>
+                        <td className="p-3 text-muted-foreground" colSpan={8}>
+                          Abhi koi user activity nahi.
+                        </td>
+                      </tr>
+                    ) : null}
+                  </tbody>
+                </table>
+              </div>
+            </Panel>
           ) : null}
 
           {tab === "bets" ? (
-
-
-          <Panel title="Bets">
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs">
-                <thead className="text-muted-foreground">
-                  <tr>
-                    <th className="p-2 text-left">User</th>
-                    <th className="p-2 text-left">Game</th>
-                    <th className="p-2 text-left">Round</th>
-                    <th className="p-2 text-left">Selection</th>
-                    <th className="p-2 text-right">Odds</th>
-                    <th className="p-2 text-right">Stake</th>
-                    <th className="p-2 text-right">Payout</th>
-                    <th className="p-2 text-left">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bets.map((b) => (
-                    <tr key={b.id} className="border-t border-border">
-                      <td className="p-2">{b.operator_user_id}</td>
-                      <td className="p-2">{b.game_id}</td>
-                      <td className="p-2">{b.round_id}</td>
-                      <td className="p-2">{b.selection}</td>
-                      <td className="p-2 text-right">{Number(b.odds).toFixed(2)}</td>
-                      <td className="p-2 text-right">{Number(b.stake).toLocaleString("en-IN")}</td>
-                      <td className="p-2 text-right">{Number(b.payout).toLocaleString("en-IN")}</td>
-                      <td className="p-2">{b.status}</td>
-                    </tr>
-                  ))}
-                  {!bets.length ? (
+            <Panel title="Bets placed">
+              <input
+                value={filterUser}
+                onChange={(e) => setFilterUser(e.target.value)}
+                placeholder="filter by user id"
+                className={`${input} mb-3 max-w-[240px]`}
+              />
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead className="text-muted-foreground">
                     <tr>
-                      <td className="p-3 text-muted-foreground" colSpan={8}>
-                        No bets yet.
-                      </td>
+                      <th className="p-2 text-left">Time</th>
+                      <th className="p-2 text-left">User</th>
+                      <th className="p-2 text-left">Game</th>
+                      <th className="p-2 text-left">Round</th>
+                      <th className="p-2 text-left">Selection</th>
+                      <th className="p-2 text-right">Odds</th>
+                      <th className="p-2 text-right">Stake</th>
+                      <th className="p-2 text-right">Payout</th>
+                      <th className="p-2 text-left">Status</th>
                     </tr>
-                  ) : null}
-                </tbody>
-              </table>
-            </div>
-          </Panel>
+                  </thead>
+                  <tbody>
+                    {bets.map((b: any) => (
+                      <tr key={b.id} className="border-t border-border">
+                        <td className="p-2">{new Date(b.created_at).toLocaleString()}</td>
+                        <td className="p-2 font-mono">{b.operator_user_id}</td>
+                        <td className="p-2">{b.game_id}</td>
+                        <td className="p-2">{b.round_id}</td>
+                        <td className="p-2">{b.selection}</td>
+                        <td className="p-2 text-right">{Number(b.odds).toFixed(2)}</td>
+                        <td className="p-2 text-right">{Number(b.stake).toLocaleString("en-IN")}</td>
+                        <td className="p-2 text-right">{Number(b.payout).toLocaleString("en-IN")}</td>
+                        <td className="p-2">{b.status}</td>
+                      </tr>
+                    ))}
+                    {!bets.length ? (
+                      <tr>
+                        <td className="p-3 text-muted-foreground" colSpan={9}>
+                          No bets yet.
+                        </td>
+                      </tr>
+                    ) : null}
+                  </tbody>
+                </table>
+              </div>
+            </Panel>
           ) : null}
 
-          {tab === "keys" ? (
-          <Panel title="Whitelists & keys">
-            <p className="text-xs text-muted-foreground">
-              IPs: {(detail?.ips ?? []).map((i: any) => i.ip).join(", ") || "—"}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Domains: {(detail?.domains ?? []).map((d: any) => d.domain).join(", ") || "—"}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Keys: {(detail?.keys ?? []).map((k: any) => `${k.key_prefix}…${k.active ? "" : " (revoked)"}`).join(", ") || "—"}
-            </p>
-          </Panel>
+          {tab === "rejected" ? (
+            <Panel title="Bets that did NOT go through">
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead className="text-muted-foreground">
+                    <tr>
+                      <th className="p-2 text-left">Time</th>
+                      <th className="p-2 text-left">User</th>
+                      <th className="p-2 text-left">Game</th>
+                      <th className="p-2 text-left">Selection</th>
+                      <th className="p-2 text-right">Stake</th>
+                      <th className="p-2 text-left">Reason</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sum.rejected.map((r: any) => (
+                      <tr key={r.id} className="border-t border-border">
+                        <td className="p-2">{new Date(r.created_at).toLocaleString()}</td>
+                        <td className="p-2 font-mono">{r.operator_user_id ?? "—"}</td>
+                        <td className="p-2">{r.game_id ?? "—"}</td>
+                        <td className="p-2">{r.selection ?? "—"}</td>
+                        <td className="p-2 text-right">{r.stake ? Number(r.stake).toLocaleString("en-IN") : "—"}</td>
+                        <td className="p-2 text-destructive">
+                          {r.code}
+                          {r.message ? ` · ${r.message}` : ""}
+                        </td>
+                      </tr>
+                    ))}
+                    {!sum.rejected.length ? (
+                      <tr>
+                        <td className="p-3 text-muted-foreground" colSpan={6}>
+                          Koi rejected bet nahi — sab bets pass hui hain.
+                        </td>
+                      </tr>
+                    ) : null}
+                  </tbody>
+                </table>
+              </div>
+            </Panel>
+          ) : null}
+
+          {tab === "callback" ? (
+            <>
+              <Panel title="Callback URL (your wallet endpoint)">
+                <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    value={cbUrl}
+                    onChange={(e) => setCbUrl(e.target.value)}
+                    placeholder="https://yoursite.com/api/uapi-wallet"
+                    className={`${input} min-w-[300px] flex-1`}
+                  />
+                  <button
+                    className={btn}
+                    onClick={() =>
+                      run(async () => {
+                        await saveCallback({
+                          data: { operatorId: sel, callbackUrl: cbUrl.trim() || null },
+                        });
+                        setNote("Callback URL saved.");
+                        await load(sel);
+                      })
+                    }
+                  >
+                    Save
+                  </button>
+                  <button
+                    className={ghost}
+                    onClick={() =>
+                      run(async () => {
+                        const r = await saveCallback({ data: { operatorId: sel, rotateSecret: true } });
+                        setNewSecret(r.callbackSecret);
+                        setNote("New callback secret generated — copy it now, it is shown once.");
+                      })
+                    }
+                  >
+                    Rotate secret
+                  </button>
+                </div>
+                {newSecret ? (
+                  <pre className="mt-3 overflow-auto rounded-lg bg-muted p-3 font-mono text-xs">
+                    {newSecret}
+                  </pre>
+                ) : null}
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Har call `x-universal-signature` header me HMAC-SHA256 (secret se) sign hoti hai — apne server pe verify
+                  karein. Actions: balance, debit, credit, rollback.
+                </p>
+              </Panel>
+
+              <Panel title="Test your wallet">
+                <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    value={userId}
+                    onChange={(e) => setUserId(e.target.value)}
+                    placeholder="your user id"
+                    className={`${input} max-w-[220px]`}
+                  />
+                  <button
+                    className={btn}
+                    onClick={() =>
+                      run(async () => {
+                        const r = await walletTest({
+                          data: { operatorId: sel, action: "balance", userId, amount: 0 },
+                        });
+                        setBalance(r.ok ? String(r.balance ?? "—") : `error: ${r.message}`);
+                        await load(sel);
+                      })
+                    }
+                  >
+                    Fetch balance
+                  </button>
+                  <span className="text-sm font-bold text-foreground">Balance: {balance}</span>
+                </div>
+              </Panel>
+
+              <Panel title="Callback logs">
+                <ul className="space-y-1 text-xs">
+                  {cbLogs.map((l) => (
+                    <li key={l.id} className="border-t border-border py-1.5">
+                      <span className={l.ok ? "text-live-win" : "text-destructive"}>
+                        {l.ok ? "OK" : "FAIL"}
+                      </span>{" "}
+                      {l.endpoint} · {l.status_code} · {new Date(l.created_at).toLocaleTimeString()}
+                    </li>
+                  ))}
+                  {!cbLogs.length ? <li className="text-muted-foreground">No callbacks yet.</li> : null}
+                </ul>
+              </Panel>
+            </>
           ) : null}
 
           {tab === "guide" ? <OperatorGuide /> : null}
-
-          {tab === "logs" ? (
-
-          <Panel title="Callback logs">
-            <ul className="space-y-1 text-xs">
-              {cbLogs.map((l) => (
-                <li key={l.id} className="border-t border-border py-1.5">
-                  <span className={l.ok ? "text-live-win" : "text-destructive"}>{l.ok ? "OK" : "FAIL"}</span>{" "}
-                  {l.endpoint} · {l.status_code} · {new Date(l.created_at).toLocaleTimeString()}
-                </li>
-              ))}
-              {!cbLogs.length ? <li className="text-muted-foreground">No callbacks yet.</li> : null}
-            </ul>
-          </Panel>
-          ) : null}
         </>
       ) : null}
     </DashShell>
-
   );
 }

@@ -14,15 +14,33 @@ const schema = z.object({
   reference: z.string().max(120).optional(),
 });
 
+async function logReject(row: Record<string, unknown>) {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("bet_rejections").insert(row as never);
+  } catch {
+    /* logging must never break the bet flow */
+  }
+}
+
 export const Route = createFileRoute("/api/public/v1/bet")({
   server: {
     handlers: {
       POST: async ({ request }) => {
         const auth = await authenticateOperator(request);
-        if (!auth.ok) return jsonError(auth);
+        if (!auth.ok) {
+          await logReject({ code: auth.code, message: auth.error });
+          return jsonError(auth);
+        }
 
         const parsed = schema.safeParse(await request.json().catch(() => null));
         if (!parsed.success) {
+          await logReject({
+            operator_id: auth.operator.id,
+            code: "bad_request",
+            message: parsed.error.issues[0]?.message ?? "Invalid body",
+            ip: auth.ip,
+          });
           return Response.json(
             { status: "error", code: "bad_request", message: parsed.error.issues[0]?.message ?? "Invalid body" },
             { status: 400 },
@@ -39,6 +57,19 @@ export const Route = createFileRoute("/api/public/v1/bet")({
           .eq("round_id", b.roundId)
           .maybeSingle();
         if (round && round.status !== "open") {
+          await logReject({
+            operator_id: auth.operator.id,
+            operator_user_id: b.userId,
+            game_id: b.gameId,
+            round_id: b.roundId,
+            market: b.market ?? null,
+            selection: b.selection,
+            odds: b.odds,
+            stake: b.stake,
+            code: "round_closed",
+            message: "Betting is closed for this round",
+            ip: auth.ip,
+          });
           return Response.json(
             { status: "error", code: "round_closed", message: "Betting is closed for this round" },
             { status: 409 },
@@ -66,6 +97,19 @@ export const Route = createFileRoute("/api/public/v1/bet")({
           roundId: b.roundId,
         });
         if (!debit.ok) {
+          await logReject({
+            operator_id: auth.operator.id,
+            operator_user_id: b.userId,
+            game_id: b.gameId,
+            round_id: b.roundId,
+            market: b.market ?? null,
+            selection: b.selection,
+            odds: b.odds,
+            stake: b.stake,
+            code: debit.code ?? "wallet_declined",
+            message: debit.message ?? "Wallet declined the debit",
+            ip: auth.ip,
+          });
           return Response.json(
             { status: "error", code: debit.code, message: debit.message },
             { status: debit.status },

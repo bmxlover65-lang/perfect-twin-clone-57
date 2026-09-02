@@ -139,3 +139,122 @@ export const testWalletCall = createServerFn({ method: "POST" })
 
     return res;
   });
+
+/** Operator self-service: set the callback URL / rotate the callback secret. */
+export const updateMyCallback = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        operatorId: z.string().uuid(),
+        callbackUrl: z.string().url().max(300).nullable().optional(),
+        rotateSecret: z.boolean().default(false),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    // RLS: only the owner or an admin can see / update this row.
+    const { data: op, error } = await context.supabase
+      .from("operators")
+      .select("id")
+      .eq("id", data.operatorId)
+      .single();
+    if (error || !op) throw new Error("Operator not found");
+
+    const patch: Record<string, unknown> = {};
+    if (data.callbackUrl !== undefined) patch["callback_url"] = data.callbackUrl;
+    let secret: string | null = null;
+    if (data.rotateSecret) {
+      secret = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
+      patch["callback_secret"] = secret;
+    }
+    if (Object.keys(patch).length === 0) return { ok: true, callbackSecret: null };
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: ue } = await supabaseAdmin
+      .from("operators")
+      .update(patch as never)
+      .eq("id", data.operatorId);
+    if (ue) throw new Error(ue.message);
+    return { ok: true, callbackSecret: secret };
+  });
+
+/** Everything the operator panel shows: plan, keys, whitelist, per-user bet stats. */
+export const operatorSummary = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ operatorId: z.string().uuid(), limit: z.number().max(500).default(200) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const [opRes, keysRes, ipsRes, domainsRes, betsRes, rejRes] = await Promise.all([
+      context.supabase
+        .from("operators")
+        .select("id, name, status, currency, callback_url, plan_amount, plan_expires_at, created_at")
+        .eq("id", data.operatorId)
+        .single(),
+      context.supabase
+        .from("api_keys")
+        .select("id, label, key_prefix, active, last_used_at, created_at")
+        .eq("operator_id", data.operatorId)
+        .order("created_at", { ascending: false }),
+      context.supabase.from("ip_whitelist").select("*").eq("operator_id", data.operatorId),
+      context.supabase.from("domain_whitelist").select("*").eq("operator_id", data.operatorId),
+      context.supabase
+        .from("bets")
+        .select("*")
+        .eq("operator_id", data.operatorId)
+        .order("created_at", { ascending: false })
+        .limit(data.limit),
+      context.supabase
+        .from("bet_rejections")
+        .select("*")
+        .eq("operator_id", data.operatorId)
+        .order("created_at", { ascending: false })
+        .limit(100),
+    ]);
+
+    const bets = (betsRes.data ?? []) as Array<Record<string, any>>;
+    const rejected = (rejRes.data ?? []) as Array<Record<string, any>>;
+
+    const users = new Map<
+      string,
+      { userId: string; bets: number; staked: number; payout: number; open: number; rejected: number; last: string }
+    >();
+    const seed = (id: string) =>
+      users.get(id) ??
+      users.set(id, { userId: id, bets: 0, staked: 0, payout: 0, open: 0, rejected: 0, last: "" }).get(id)!;
+
+    for (const b of bets) {
+      const u = seed(String(b['operator_user_id'] ?? "—"));
+      u.bets += 1;
+      u.staked += Number(b['stake'] ?? 0);
+      u.payout += Number(b['payout'] ?? 0);
+      if (b['status'] === "open") u.open += 1;
+      if (!u.last || String(b['created_at']) > u.last) u.last = String(b['created_at']);
+    }
+    for (const r of rejected) {
+      const u = seed(String(r['operator_user_id'] ?? "—"));
+      u.rejected += 1;
+    }
+
+    const staked = bets.reduce((s, b) => s + Number(b['stake'] ?? 0), 0);
+    const payout = bets.reduce((s, b) => s + Number(b['payout'] ?? 0), 0);
+
+    return {
+      operator: opRes.data,
+      keys: keysRes.data ?? [],
+      ips: ipsRes.data ?? [],
+      domains: domainsRes.data ?? [],
+      bets,
+      rejected,
+      users: [...users.values()].sort((a, b) => b.staked - a.staked),
+      totals: {
+        staked,
+        payout,
+        ggr: staked - payout,
+        count: bets.length,
+        open: bets.filter((b) => b['status'] === "open").length,
+        rejected: rejected.length,
+      },
+    };
+  });

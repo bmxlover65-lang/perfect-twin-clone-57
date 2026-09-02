@@ -34,6 +34,9 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [ ] Launch URL minting + game session tokens
 - [ ] Settle real (non-manual) rounds automatically from the live feed
 
-## Phase 4 — Panels
-- [ ] Admin panel: operators, keys, whitelist, monthly plan, bet ledger, manual result override
-- [ ] Operator panel: own keys, whitelist, callback URL, bet history, P/L
+## Phase 4 — Panels (done)
+- [x] Admin panel: operators, keys, whitelist, monthly plan, bet ledger, users & GGR, rejected bets
+- [x] Operator panel: own API keys, IP/domain whitelist (read-only), plan + days left,
+      per-user activity, bet history, rejected bets, self-service callback URL + secret rotate
+- [x] `bet_rejections` table — har failed bet attempt (invalid key, closed round, wallet decline) log hoti hai
+- [x] Public API smoke-tested: balance / bet (idempotent) / bets, invalid key + wallet decline paths
