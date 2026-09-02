@@ -107,7 +107,7 @@ function Card({ code }: { code: string }) {
 
 
 function Cards({ hand, title }: { hand: Record<string, string>; title: string }) {
-  const codes = Object.values(hand).filter(Boolean);
+  const codes = Object.values(hand).filter((c) => c !== undefined && c !== null);
   if (!codes.length) return null;
   return (
     <div>
