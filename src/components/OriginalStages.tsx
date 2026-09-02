@@ -1045,7 +1045,7 @@ export function BalloonStage({
                     </span>
                   </button>
                   {autos[i] ? (
-                    <span className="flex items-center gap-0.5 rounded-full bg-[#1E1E1E]/90 px-1.5 py-[2px] shadow sm:px-1.5">
+                    <span className="flex items-center gap-0.5 rounded-full bg-[#1E1E1E]/90 px-2 py-[3px] shadow sm:px-2.5">
                       <input
                         value={autoX[i]}
                         onChange={(e) => {
@@ -1054,9 +1054,9 @@ export function BalloonStage({
                         }}
                         inputMode="decimal"
                         aria-label="Auto cash out multiplier"
-                        className="w-[30px] bg-transparent text-center text-[0.65rem] font-extrabold text-white outline-none sm:w-[42px] sm:text-[0.8rem]"
+                        className="w-[36px] bg-transparent text-center text-[0.72rem] font-extrabold text-white outline-none sm:w-[46px] sm:text-[0.85rem]"
                       />
-                      <span className="text-[0.58rem] font-bold text-white/70 sm:text-[0.75rem]">x</span>
+                      <span className="text-[0.6rem] font-bold text-white/70 sm:text-[0.75rem]">x</span>
                     </span>
                   ) : null}
                 </div>
