@@ -41,6 +41,8 @@ export function BalloonPanel() {
       }
     },
     refetchInterval: 4000,
+    refetchOnWindowFocus: true,
+    placeholderData: (prev) => prev,
   });
 
   const data = rounds.data ?? [];
