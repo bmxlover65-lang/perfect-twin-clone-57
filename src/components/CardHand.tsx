@@ -1,4 +1,5 @@
 import type { PlayingCard } from "@/lib/live-engine";
+import { CARD_BACK, cardImage } from "@/lib/card-assets";
 
 const SUIT_GLYPH: Record<PlayingCard["suit"], string> = {
   S: "♠",
@@ -10,7 +11,23 @@ const SUIT_GLYPH: Record<PlayingCard["suit"], string> = {
 function Card({ card }: { card: PlayingCard }) {
   if (card.hidden) {
     return (
-      <div className="h-[62px] w-[44px] rounded-[4px] border border-white/20 bg-[repeating-linear-gradient(45deg,oklch(0.35_0.09_265)_0_5px,oklch(0.25_0.07_265)_5px_10px)]" />
+      <img
+        src={CARD_BACK}
+        alt="Face down card"
+        className="h-[62px] w-[44px] rounded-[4px] object-cover shadow"
+        loading="lazy"
+      />
+    );
+  }
+  const img = cardImage(`${card.suit}${card.rank}`);
+  if (img) {
+    return (
+      <img
+        src={img}
+        alt={`${card.rank} ${card.suit}`}
+        className="h-[62px] w-[44px] rounded-[4px] bg-white object-cover shadow"
+        loading="lazy"
+      />
     );
   }
   const red = card.suit === "H" || card.suit === "D";
@@ -29,6 +46,7 @@ function Card({ card }: { card: PlayingCard }) {
     </div>
   );
 }
+
 
 export function CardHand({ title, cards }: { title: string; cards: PlayingCard[] }) {
   return (
