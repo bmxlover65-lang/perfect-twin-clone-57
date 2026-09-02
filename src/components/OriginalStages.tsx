@@ -480,9 +480,12 @@ export function BalloonStage({
           .slice(0, 12)
           .map((r) => Number(r?.winner))
           .filter((n) => n > 0);
+        // the official results feed is the source of truth for the strip
+        if (recent.length) setHistory(recent);
         // if the round already burst on an estimate, correct it to the official value
         const cur = roundRef.current ? winnersRef.current.get(String(roundRef.current)) : undefined;
         if (phaseRef.current === "crashed" && cur && cur > 0) setCrashAt(cur);
+
 
 
       } catch {
