@@ -11,12 +11,12 @@ import { settleLatest, settleRound } from "@/lib/wallet";
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
 import { cardImage } from "@/lib/card-assets";
 
-import dream1x from "@/assets/dream/dream1x.png.asset.json";
-import dream2x from "@/assets/dream/dream2x.png.asset.json";
-import dream5x from "@/assets/dream/dream5x.png.asset.json";
-import dream10x from "@/assets/dream/dream10x.png.asset.json";
-import dream20x from "@/assets/dream/dream20x.png.asset.json";
-import dream40x from "@/assets/dream/dream40x.png.asset.json";
+import dream1x from "@/assets/dream/note1.png.asset.json";
+import dream2x from "@/assets/dream/note2.png.asset.json";
+import dream5x from "@/assets/dream/note5.png.asset.json";
+import dream10x from "@/assets/dream/note10.png.asset.json";
+import dream20x from "@/assets/dream/note20.png.asset.json";
+import dream40x from "@/assets/dream/note40.png.asset.json";
 
 import {
   BallByBallBoard,
@@ -1446,18 +1446,15 @@ function NumberPanel({
     if (note) {
       const odds = t.price && t.price > 1 ? t.price : DREAM_ODDS[key];
       return (
-        <div className="relative flex flex-col items-center rounded-[10px] border border-white/5 bg-black px-2 py-3">
+        <div className="relative flex flex-col items-center rounded-[6px] bg-black p-[3px]">
           <img
             src={note}
             alt={`${key}x`}
-            className="h-[58px] w-auto select-none object-contain"
+            className="w-full select-none rounded-[4px] object-contain"
             draggable={false}
           />
-          <span className="mt-2 text-[1.5rem] font-extrabold leading-none text-white">
+          <span className="pointer-events-none absolute right-1 top-1 rounded bg-black/60 px-1 text-[0.6rem] font-extrabold leading-[1.3] text-white/90">
             {odds ? odds.toFixed(0) : "—"}
-          </span>
-          <span className="mt-1 text-[1.05rem] font-bold leading-none text-white/90">
-            {t.size ? Math.round(t.size) : "—"}
           </span>
           {!t.open ? (
             <div className="absolute inset-0 rounded-[10px] bg-black/55" />
