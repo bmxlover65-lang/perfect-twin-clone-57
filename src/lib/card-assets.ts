@@ -1,0 +1,38 @@
+import back from "@/assets/cards/0.png.asset.json";
+import C3 from "@/assets/cards/C3.png.asset.json";
+import CK from "@/assets/cards/CK.png.asset.json";
+import D6 from "@/assets/cards/D6.png.asset.json";
+import D8 from "@/assets/cards/D8.png.asset.json";
+import D9 from "@/assets/cards/D9.png.asset.json";
+import H2 from "@/assets/cards/H2.png.asset.json";
+import H3 from "@/assets/cards/H3.png.asset.json";
+import H7 from "@/assets/cards/H7.png.asset.json";
+import H8 from "@/assets/cards/H8.png.asset.json";
+
+/** Face-down / hidden card image. */
+export const CARD_BACK = back.url;
+
+/** Card face images keyed by feed code (suit letter + rank), e.g. "H8". */
+export const CARD_IMAGES: Record<string, string> = {
+  C3: C3.url,
+  CK: CK.url,
+  D6: D6.url,
+  D8: D8.url,
+  D9: D9.url,
+  H2: H2.url,
+  H3: H3.url,
+  H7: H7.url,
+  H8: H8.url,
+};
+
+/** Normalise a feed card code ("H8__", "h8") to "H8"; "0"/"" means face-down. */
+export function normalizeCardCode(code: string): string {
+  return (code ?? "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+}
+
+/** Image URL for a card code, or null when no artwork exists for it. */
+export function cardImage(code: string): string | null {
+  const c = normalizeCardCode(code);
+  if (!c || c === "0" || c === "1") return CARD_BACK;
+  return CARD_IMAGES[c] ?? null;
+}
