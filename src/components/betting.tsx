@@ -21,13 +21,32 @@ function oddsOf(el: Element): number | null {
   return null;
 }
 
+/** True only for a compact, clickable-looking price cell. */
+function isPriceCell(el: HTMLElement, root: HTMLElement): boolean {
+  const own = (el.textContent ?? "").replace(/\s+/g, " ").trim();
+  // A price cell holds the odds and (at most) a tiny size line — never a whole row of copy.
+  if (own.length > 18) return false;
+  const r = el.getBoundingClientRect();
+  const rootW = root.getBoundingClientRect().width || 1;
+  if (r.width <= 0 || r.height <= 0) return false;
+  if (r.width > rootW * 0.6) return false;
+  if (r.height > 130) return false;
+  return true;
+}
+
 /** Reads an odds cell out of any market board without touching every panel. */
 function extractPick(target: HTMLElement, root: HTMLElement): Pick | null {
+  // Never treat media / inputs / explicitly opted-out areas as a bet click.
+  if (target.closest("iframe,video,img,input,textarea,select,a,[data-nobet]")) return null;
+
   let el: HTMLElement | null = target;
   let odds: number | null = null;
   let node: HTMLElement | null = null;
-  for (let i = 0; i < 5 && el && el !== root.parentElement; i++, el = el.parentElement) {
+  // Only the clicked element or its 2 closest wrappers can be the price cell —
+  // anything further up is the row/board and must not open the slip.
+  for (let i = 0; i < 3 && el && el !== root.parentElement; i++, el = el.parentElement) {
     if (/suspend|locked/i.test((el.textContent ?? "").trim())) return null;
+    if (!isPriceCell(el, root)) continue;
     const v = oddsOf(el);
     if (v != null) {
       odds = v;
@@ -36,6 +55,7 @@ function extractPick(target: HTMLElement, root: HTMLElement): Pick | null {
     }
   }
   if (odds == null || !node) return null;
+
 
   // Side (A/B) from the cell's position when a row holds exactly two odds cells.
   let side = "";
@@ -175,7 +195,10 @@ export function BetLayer({
       className="relative"
       onClickCapture={(e) => {
         if (disabled) return;
+        // Only a real pointer click on a price cell may open the slip.
+        if (e.detail === 0) return;
         const root = e.currentTarget as HTMLElement;
+
         const target = e.target as HTMLElement;
         const p = extractPick(target, root);
         if (p) {
