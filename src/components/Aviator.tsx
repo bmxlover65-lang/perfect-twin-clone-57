@@ -706,15 +706,17 @@ export function Aviator() {
                   return (
                     <div
                       key={b.id}
-                      className={`grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-2 px-2 sm:gap-x-3 py-[5px] text-[0.72rem] ${
+                      className={`grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-1.5 px-1.5 sm:px-2 sm:gap-x-3 py-[5px] text-[0.68rem] sm:text-[0.72rem] ${
                         done
                           ? "rounded-[7px] border border-[#3B8F20] bg-[#0D4206] text-white"
-                          : "border-b border-white/[0.06] bg-[#111315] text-white/70"
+                          : b.busted
+                            ? "rounded-[7px] border border-white/[0.06] bg-[#1A1113] text-white/45"
+                            : "border-b border-white/[0.06] bg-[#111315] text-white/70"
                       }`}
                     >
-                      <span className="flex min-w-0 items-center gap-2">
+                      <span className="flex min-w-0 items-center gap-1.5 sm:gap-2">
                         <span
-                          className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-[0.6rem] font-bold text-white"
+                          className="grid h-5 w-5 shrink-0 place-items-center rounded-full text-[0.58rem] font-bold text-white sm:h-6 sm:w-6 sm:text-[0.6rem]"
                           style={{
                             background: `conic-gradient(from 0deg, hsl(${(b.id * 47) % 360} 70% 45%), hsl(${(b.id * 91) % 360} 70% 40%))`,
                           }}
@@ -725,7 +727,7 @@ export function Aviator() {
                       </span>
                       <span className="font-semibold text-white/85">{b.amount}</span>
                       <span
-                        className={`shrink-0 rounded-full px-2 py-[1px] text-[0.65rem] font-bold ${
+                        className={`shrink-0 rounded-full px-1.5 py-[1px] text-[0.62rem] font-bold sm:px-2 sm:text-[0.65rem] ${
                           done
                             ? "border border-[#3B8F20]/60 bg-[#052208] text-[#7CFF56]"
                             : ""
@@ -739,6 +741,7 @@ export function Aviator() {
                     </div>
                   );
                 })}
+
 
             {tab === "my" && myBets.length === 0 ? (
               <p className="py-6 text-center text-[0.72rem] text-white/40">No bets yet</p>
