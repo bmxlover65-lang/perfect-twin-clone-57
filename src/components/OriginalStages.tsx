@@ -374,10 +374,23 @@ export function BalloonStage({
   autoRef.current = autos;
   const mutedRef = useRef(muted);
   mutedRef.current = muted;
+  // browsers block audio until the first real user interaction — track it
+  const interactedRef = useRef(false);
 
+  useEffect(() => {
+    const unlock = () => {
+      interactedRef.current = true;
+    };
+    window.addEventListener("pointerdown", unlock, { once: true });
+    window.addEventListener("keydown", unlock, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+    };
+  }, []);
 
   const play = (src: string, vol: number, keep?: boolean) => {
-    if (mutedRef.current) return;
+    if (mutedRef.current || !interactedRef.current) return;
     try {
       const a = new Audio(src);
       a.volume = vol;
