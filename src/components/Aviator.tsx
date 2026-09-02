@@ -816,6 +816,21 @@ export function Aviator() {
             </div>
           ) : null}
 
+          {tab === "my" ? (
+            <div className="mt-2 flex items-start justify-between text-[0.78rem] font-bold text-white/85">
+              <span className="flex flex-col leading-tight">
+                MY BETS
+                <span className="text-[0.74rem] font-semibold text-white/60">
+                  {myBets.length + slots.filter((p) => p.staged || p.active).length}
+                </span>
+              </span>
+              <span className="flex flex-col items-end leading-tight">
+                <span>Balance</span>
+                <span className="text-[0.74rem] font-semibold text-[#18C800]">{fmt(balance)}</span>
+              </span>
+            </div>
+          ) : null}
+
           <div className="mt-2 grid grid-cols-[1fr_auto_auto_auto] gap-x-2 border-b sm:gap-x-3 border-white/10 pb-1 text-[0.62rem] font-semibold text-white/40">
             <span>{tab === "my" ? "Round" : "User"}</span>
             <span>Bet&nbsp;&nbsp;X</span>
@@ -826,28 +841,64 @@ export function Aviator() {
 
 
 
-
           <div className="max-h-[340px] space-y-[3px] overflow-y-auto pt-1 lg:max-h-[560px]">
             {tab === "my"
               ? [
                   ...slots
-
                     .filter((p) => p.staged || p.active)
                     .map((p, i) => (
                       <div
                         key={`live-${i}`}
-                        className="grid grid-cols-[1fr_auto_auto] items-center gap-x-2 rounded-[6px] bg-[#12233A] px-1 py-[4px] text-[0.72rem] text-[#20BFFF] sm:gap-x-3"
+                        className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-1.5 rounded-[7px] border border-[#20BFFF]/40 bg-[#0C1C2B] px-1.5 py-[5px] text-[0.68rem] text-white sm:gap-x-3 sm:px-2 sm:text-[0.72rem]"
                       >
-                        <span>#{round} {p.staged ? "(queued)" : "(live)"}</span>
+                        <span className="flex min-w-0 items-center gap-2">
+                          <img src={AVATARS[0]} alt="" className="h-[22px] w-[22px] rounded-full object-cover" />
+                          <span className="flex min-w-0 flex-col leading-tight">
+                            <span className="truncate font-semibold text-[#20BFFF]">You</span>
+                            <span className="text-[0.6rem] text-white/45">
+                              #{round} {p.staged ? "queued" : "live"}
+                            </span>
+                          </span>
+                        </span>
                         <span className="font-semibold">{p.amount}</span>
-                        <span className="text-right font-bold">
+                        <span className="rounded-full bg-[#0B1B27] px-[6px] py-[1px] text-[0.62rem] font-bold text-[#20BFFF]">
                           {p.cashedAt ? `${fmt(p.cashedAt)}x` : phase === "flying" ? `${fmt(multiplier)}x` : "—"}
+                        </span>
+                        <span className="text-right font-bold">
+                          {p.cashedAt ? fmt(p.amount * p.cashedAt) : ""}
                         </span>
                       </div>
                     )),
                   ...myBets.map((b, i) => (
-                  <div
-                    key={`${b.round}-${i}`}
+                    <div
+                      key={`${b.round}-${i}`}
+                      className={`grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-1.5 rounded-[7px] border px-1.5 py-[5px] text-[0.68rem] sm:gap-x-3 sm:px-2 sm:text-[0.72rem] ${
+                        b.cashedAt
+                          ? "border-[#3B8F20] bg-[#0D4206] text-white"
+                          : "border-white/[0.06] bg-[#1A1113] text-white/50"
+                      }`}
+                    >
+                      <span className="flex min-w-0 items-center gap-2">
+                        <img src={AVATARS[0]} alt="" className="h-[22px] w-[22px] rounded-full object-cover" />
+                        <span className="flex min-w-0 flex-col leading-tight">
+                          <span className="truncate font-semibold">You</span>
+                          <span className="text-[0.6rem] text-white/40">#{b.round}</span>
+                        </span>
+                      </span>
+                      <span className="font-semibold">{b.amount}</span>
+                      <span
+                        className={`rounded-full px-[6px] py-[1px] text-[0.62rem] font-bold ${
+                          b.cashedAt ? "bg-[#052208] text-[#7CFF56]" : "bg-[#2A1113] text-[#F98080]"
+                        }`}
+                      >
+                        {b.cashedAt ? `${fmt(b.cashedAt)}x` : `${fmt(b.crash)}x`}
+                      </span>
+                      <span className="text-right font-bold">
+                        {b.cashedAt ? fmt(b.amount * b.cashedAt) : ""}
+                      </span>
+                    </div>
+                  )),
+
                     className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-2 rounded-[6px] px-1 sm:gap-x-3 py-[4px] text-[0.72rem] ${
                       b.cashedAt ? "bg-[#123A18] text-[#8CFF6B]" : "bg-[#3A1212] text-[#F98080]"
                     }`}
