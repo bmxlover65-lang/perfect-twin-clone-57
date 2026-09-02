@@ -6,6 +6,7 @@ import plane3 from "@/assets/aviator/plane-3.svg";
 import historyIcon from "@/assets/aviator/history.svg";
 import arrowIcon from "@/assets/aviator/arrow-down.svg";
 import fairIcon from "@/assets/aviator/provably-fair.svg";
+import propellerImg from "@/assets/aviator/propeller.png.asset.json";
 import av1 from "@/assets/aviator/av1.png";
 import av2 from "@/assets/aviator/av2.png";
 import av3 from "@/assets/aviator/av3.png";
@@ -406,11 +407,9 @@ function FlightStage({
   muted: boolean;
   setMuted: (fn: (v: boolean) => boolean) => void;
 }) {
-  const [frame, setFrame] = useState(0);
   const [t, setT] = useState(0);
   useEffect(() => {
     const id = window.setInterval(() => {
-      setFrame((f) => (f + 1) % 4);
       setT(Date.now());
     }, 50);
     return () => window.clearInterval(id);
@@ -535,18 +534,14 @@ function FlightStage({
               filter="url(#av-glow)"
             />
 
-            {PLANE_FRAMES.map((src, i) => (
-              <image
-                key={src}
-                href={src}
-                x={px - planeW * 0.72}
-                y={py - planeH * 0.62}
-                width={planeW}
-                height={planeH}
-                opacity={i === frame ? 1 : 0}
+            <image
+              href={PLANE_FRAMES[0]}
+              x={px - planeW * 0.72}
+              y={py - planeH * 0.62}
+              width={planeW}
+              height={planeH}
+            />
 
-              />
-            ))}
 
           </>
         ) : null}
@@ -577,23 +572,14 @@ function FlightStage({
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         {phase === "betting" ? (
           <>
-            <svg
-              viewBox="0 0 120 120"
-              className="mb-2 h-[64px] w-[64px] sm:mb-3 sm:h-[110px] sm:w-[110px]"
-              fill="none"
-              stroke="#EF1B2E"
-              strokeWidth="6"
-              strokeLinecap="round"
+            <img
+              src={propellerImg.url}
+              alt=""
               aria-hidden="true"
-            >
-              <path d="M60 60 L96 16 C104 26 100 44 74 56 Z" />
-              <path d="M60 60 L24 104 C16 94 20 76 46 64 Z" />
-              <circle cx="60" cy="60" r="6" fill="#EF1B2E" stroke="none" />
-              <path d="M40 30 A34 34 0 0 1 66 18" />
-              <path d="M30 44 A44 44 0 0 1 52 10" />
-              <path d="M80 90 A34 34 0 0 1 54 102" />
-              <path d="M90 76 A44 44 0 0 1 68 110" />
-            </svg>
+              className="mb-2 h-[64px] w-[64px] sm:mb-3 sm:h-[110px] sm:w-[110px]"
+              style={{ animation: "av-prop 2.6s linear infinite" }}
+            />
+
             <p className="px-4 text-center text-[1.15rem] uppercase tracking-[0.02em] text-white sm:text-[2rem]">
               Waiting for next round
             </p>
@@ -739,7 +725,7 @@ export function Aviator() {
       const tick = () => {
         if (!mounted) return;
         const t = (performance.now() - startRef.current) / 1000;
-        const m = Math.max(1, Math.round(Math.pow(Math.E, 0.065 * t * (1 + t * 0.035)) * 100) / 100);
+        const m = Math.max(1, Math.round(Math.pow(Math.E, 0.045 * t * (1 + t * 0.012)) * 100) / 100);
         if (m >= crashRef.current) {
           setMultiplier(crashRef.current);
           setPhase("crashed");
