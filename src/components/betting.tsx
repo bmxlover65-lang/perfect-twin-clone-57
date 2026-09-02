@@ -5,19 +5,31 @@ export type Pick = { label: string; odds: number };
 
 const CHIPS = [1000, 5000, 10000, 25000, 50000, 100000, 200000, 500000];
 
+const ODDS_RE = /^\d{1,4}(?:\.\d{1,2})?$/;
+
+function oddsOf(el: Element): number | null {
+  const own = (el.textContent ?? "").trim();
+  const cands: string[] = [own];
+  for (const c of Array.from(el.querySelectorAll("p,span,div,b,strong")).slice(0, 8)) {
+    cands.push((c.textContent ?? "").trim());
+  }
+  for (const t of cands) {
+    if (!ODDS_RE.test(t)) continue;
+    const v = Number(t);
+    if (v >= 1.01 && v <= 1000) return v;
+  }
+  return null;
+}
+
 /** Reads an odds cell out of any market board without touching every panel. */
 function extractPick(target: HTMLElement, root: HTMLElement): Pick | null {
   let el: HTMLElement | null = target;
   let odds: number | null = null;
   let node: HTMLElement | null = null;
-  for (let i = 0; i < 4 && el && el !== root.parentElement; i++, el = el.parentElement) {
-    const txt = (el.textContent ?? "").trim();
-    if (txt.length > 16) continue;
-    if (/suspend/i.test(txt)) return null;
-    const m = txt.match(/^(\d{1,4}(?:\.\d{1,2})?)\b/);
-    if (!m) continue;
-    const v = Number(m[1]);
-    if (v >= 1.01 && v <= 1000) {
+  for (let i = 0; i < 5 && el && el !== root.parentElement; i++, el = el.parentElement) {
+    if (/suspend|locked/i.test((el.textContent ?? "").trim())) return null;
+    const v = oddsOf(el);
+    if (v != null) {
       odds = v;
       node = el;
       break;
@@ -26,7 +38,7 @@ function extractPick(target: HTMLElement, root: HTMLElement): Pick | null {
   if (odds == null || !node) return null;
 
   let row: HTMLElement | null = node.parentElement;
-  for (let i = 0; i < 5 && row && row !== root.parentElement; i++, row = row.parentElement) {
+  for (let i = 0; i < 6 && row && row !== root.parentElement; i++, row = row.parentElement) {
     const txt = (row.textContent ?? "").replace(/\s+/g, " ").trim();
     const lab = txt.match(/[A-Za-z][A-Za-z0-9 .'&+-]{0,26}/);
     if (lab && lab[0].trim().length > 1) {
@@ -35,6 +47,7 @@ function extractPick(target: HTMLElement, root: HTMLElement): Pick | null {
   }
   return { label: "Selection", odds };
 }
+
 
 /** Red error toast used by the whole casino (insufficient balance, double bet…). */
 export function ErrorToast({ message, onDone }: { message: string; onDone: () => void }) {
