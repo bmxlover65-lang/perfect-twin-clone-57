@@ -1763,9 +1763,10 @@ function GamePage() {
         <h1 className="text-[1.35rem] font-extrabold uppercase text-foreground">
           {d?.eventName ?? "Loading game…"}
         </h1>
-        <p className="mt-1 flex items-center gap-2 text-[0.8rem] font-bold text-foreground/80">
-          RID: {d?.roundId ?? "—"} <BalanceChip />
+        <p className="mt-1 flex flex-wrap items-center gap-2 text-[0.8rem] font-bold text-foreground/80">
+          <span>RID: {d?.roundId ?? "—"}</span> <BalanceChip />
         </p>
+
 
         {error ? <p className="mt-3 text-sm text-live-lose">{error}</p> : null}
 
@@ -1880,25 +1881,26 @@ function GamePage() {
 
   return (
     <div className="mx-auto max-w-[900px] px-2 py-4 sm:px-4 sm:py-5">
-      <div className="flex items-start justify-between gap-3">
-        <div>
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+        <div className="min-w-0">
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
             ← Back to lobby
           </Link>
           <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
             Live · Universe Live
           </p>
-          <h1 className="mt-1 text-2xl font-bold text-foreground">
+          <h1 className="mt-1 text-lg font-bold text-foreground sm:text-2xl">
             {d?.eventName ?? "Loading game…"}
           </h1>
         </div>
-        <span className="flex items-center gap-2">
+        <span className="flex shrink-0 flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-2">
           <BalanceChip />
           <span className="flex items-center gap-2 rounded-full bg-live-pill px-3 py-1 text-sm font-semibold text-live-pill-foreground">
             <span className="h-2 w-2 rounded-full bg-current" /> Live
           </span>
         </span>
       </div>
+
 
       {error ? <p className="mt-3 text-sm text-live-lose">{error}</p> : null}
 
@@ -1976,8 +1978,9 @@ function GamePage() {
 
 function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: boolean }) {
   return (
-      <div className="mt-4 flex flex-wrap items-center gap-2 rounded-md bg-ex-panel px-3 py-2">
-        <span className="mr-1 text-base font-bold text-ex-text">Recent Result</span>
+      <div className="mt-4 flex items-center gap-2 overflow-x-auto rounded-md bg-ex-panel px-3 py-2">
+        <span className="mr-1 shrink-0 text-base font-bold text-ex-text">Recent Result</span>
+
         {results.slice(0, 10).map((r, idx) => {
           const rr = r as CasinoResult & { result?: string; selectionName?: string };
           const raw = (rr.winner ?? rr.result ?? rr.selectionName ?? "-").toString().trim();
@@ -2010,7 +2013,7 @@ function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: bool
             <span
               key={`${r.roundId ?? ""}-${idx}`}
               title={`Round ${r.roundId}`}
-              className={`flex h-9 min-w-9 items-center justify-center rounded-full px-2 text-sm font-bold ${finalTone}`}
+              className={`flex h-9 min-w-9 shrink-0 items-center justify-center rounded-full px-2 text-sm font-bold ${finalTone}`}
             >
               {first || "-"}
             </span>
