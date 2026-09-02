@@ -2117,7 +2117,7 @@ function GamePage() {
             {status || "—"} · {d?.leftSec ?? 0}s
           </span>
         ) : null}
-        <ResultBanner results={results} />
+        <ResultBanner results={results} gameId={gameId} />
       </div>
 
 
@@ -2177,7 +2177,18 @@ function GamePage() {
 
 
 /** "RESULT DECLARED" overlay — shows the winning selection right after a round settles. */
-function ResultBanner({ results }: { results: CasinoResult[] }) {
+const LUCKY7_GAMES = ["99.0030", "99.0010", "99.0019"];
+
+function lucky7Label(winner: string): string | null {
+  const w = winner.trim().toUpperCase();
+  if (/^(H|HIGH)\b|HIGH\s*CARD|8\s*TO\s*K/.test(w)) return "HIGH CARD ( 8 TO K ) WIN";
+  if (/^(L|LOW)\b|LOW\s*CARD|A\s*TO\s*6/.test(w)) return "LOW CARD ( A TO 6 ) WIN";
+  if (/^(TIE|DRAW|7)$/.test(w) || /TIE/.test(w)) return "TIE";
+  return null;
+}
+
+function ResultBanner({ results, gameId }: { results: CasinoResult[]; gameId?: string }) {
+
   const top = results[0] as (CasinoResult & { _id?: string; result?: string; selectionName?: string }) | undefined;
   const key = String(top?.roundId ?? top?._id ?? "");
   const winner = (top?.winner ?? top?.result ?? top?.selectionName ?? "").toString().trim();
@@ -2198,10 +2209,12 @@ function ResultBanner({ results }: { results: CasinoResult[] }) {
   }, [key, winner]);
 
   if (!show || !winner) return null;
+  const l7 = gameId && LUCKY7_GAMES.includes(gameId) ? lucky7Label(winner) : null;
   const expanded = /^(player\s*)?[ab]$/i.test(winner)
     ? `PLAYER ${winner.replace(/player\s*/i, "").toUpperCase()}`
     : winner.toUpperCase();
-  const label = /win/i.test(expanded) ? expanded : `${expanded} WIN`;
+  const label = l7 ?? (/win/i.test(expanded) ? expanded : `${expanded} WIN`);
+
   return (
     <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
       <span className="rounded-[6px] bg-[#F26A2E] px-4 py-2 text-[1.05rem] font-bold uppercase tracking-wide text-white shadow-[0_4px_14px_rgba(0,0,0,0.45)] [animation:scale-in_0.25s_ease-out]">
