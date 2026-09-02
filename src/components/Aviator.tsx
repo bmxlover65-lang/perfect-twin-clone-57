@@ -782,7 +782,7 @@ export function Aviator() {
 
   return (
     <div className="overflow-hidden rounded-[16px] border border-[#303238] bg-[#090A0C] p-1.5 sm:p-2">
-      <div className="grid items-stretch gap-2 lg:h-[680px] lg:grid-cols-[minmax(280px,23%)_1fr]">
+      <div className="grid items-stretch gap-2 lg:h-[680px] lg:grid-cols-[minmax(320px,26%)_1fr]">
         {/* bets + chat */}
         <div className="order-2 flex min-w-0 flex-col overflow-hidden rounded-[14px] border border-[#303238] bg-[#151618] p-1.5 lg:order-1 sm:p-2">
 
@@ -831,7 +831,7 @@ export function Aviator() {
             </div>
           ) : null}
 
-          <div className="mt-2 grid grid-cols-[1fr_46px_50px_62px] gap-x-2 border-b border-white/10 px-2 pb-1 text-[0.65rem] font-semibold text-white/40">
+          <div className="mt-2 grid grid-cols-[1fr_44px_46px_58px] gap-x-2 border-b border-white/10 px-2 pb-1 text-[0.65rem] font-semibold text-white/40">
             <span>{tab === "my" ? "Round" : "User"}</span>
             <span>Bet</span>
             <span>X</span>
@@ -911,7 +911,7 @@ export function Aviator() {
                   return (
                     <div
                       key={`${b.id}-${i}`}
-                      className={`grid shrink-0 grid-cols-[1fr_46px_50px_62px] items-center gap-x-2 px-2 py-[7px] text-[0.72rem] sm:text-[0.76rem] ${
+                      className={`grid shrink-0 grid-cols-[1fr_44px_46px_58px] items-center gap-x-2 px-2 py-[7px] text-[0.72rem] sm:text-[0.76rem] ${
 
                         done
                           ? "rounded-[7px] border border-[#3B8F20] bg-[#0D4206] text-white"
