@@ -703,7 +703,31 @@ export function BalloonStage({
     });
   };
 
+  // auto cash out: when the shown multiplier reaches the user's target
+  useEffect(() => {
+    if (phase !== "flying") return;
+    ([0, 1] as const).forEach((i) => {
+      if (!autos[i]) return;
+      const target = Number(autoX[i]);
+      const b = bets[i];
+      if (!b || b.pending || !(target > 1) || shown < target) return;
+      const payout = Math.round(b.stake * target);
+      creditWin(payout);
+      setFlash((f) => {
+        const n = [...f];
+        n[i] = { text: `+${payout.toLocaleString("en-IN")}`, win: true };
+        return n;
+      });
+      setBets((p) => {
+        const n = [...p];
+        n[i] = null;
+        return n;
+      });
+    });
+  }, [shown, phase, autos, autoX, bets]);
+
   const flying = phase === "flying";
+
   const popped = phase === "crashed";
   const grow = Math.min(1, climb * 0.65 + (Math.log(Math.max(1, shown)) / Math.log(12)) * 0.35);
 
