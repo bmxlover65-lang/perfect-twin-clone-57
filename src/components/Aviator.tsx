@@ -264,8 +264,15 @@ function FlightStage({
             animationPlayState: phase === "flying" ? "running" : "paused",
           }}
         />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_8%_112%,rgba(190,25,25,0.28),transparent_52%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_88%_18%,rgba(20,90,190,0.35),transparent_55%)]" />
+        <div
+          className="absolute inset-0 transition-opacity duration-500"
+          style={{
+            background:
+              "radial-gradient(circle at 62% 42%, rgba(24,110,205,0.55), rgba(6,20,40,0.25) 42%, transparent 70%)",
+            opacity: phase === "flying" ? 1 : 0,
+          }}
+        />
+
       </div>
       <style>{`@keyframes av-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes av-prop{to{transform:rotate(360deg)}}`}</style>
