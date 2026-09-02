@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Aviator } from "@/components/Aviator";
 import { FitBoard } from "@/components/FitBoard";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 import { applyOverride, useAdminConfig } from "@/lib/admin";
 import { logResult } from "@/lib/telemetry";
 import { BalanceChip, BetLayer, MyBets } from "@/components/betting";
