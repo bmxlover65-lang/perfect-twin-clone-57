@@ -28,7 +28,10 @@ export function FitBoard({
 
     const measure = () => {
       const w = o.clientWidth;
-      const raw = w > 0 ? Math.min(1, w / designWidth) : 1;
+      // Content can be wider than the nominal design width (long boards):
+      // scale against the real content width so nothing is cut off.
+      const contentW = Math.max(designWidth, i.scrollWidth || 0);
+      const raw = w > 0 ? Math.min(1, w / contentW) : 1;
       const s = Math.max(minScale, raw);
       setScale(s);
       setHeight(i.offsetHeight * s);
