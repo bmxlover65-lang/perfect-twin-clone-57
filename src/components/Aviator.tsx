@@ -841,7 +841,7 @@ export function Aviator() {
 
 
 
-          <div className="max-h-[340px] space-y-[3px] overflow-y-auto pt-1 lg:max-h-[560px]">
+          <div className="h-[340px] max-h-[340px] w-full min-w-0 flex-col space-y-[3px] overflow-y-auto overflow-x-hidden pt-1 [column-count:1] lg:h-[560px] lg:max-h-[560px]">
             {tab === "my"
               ? [
                   ...slots
