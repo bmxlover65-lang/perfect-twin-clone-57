@@ -318,10 +318,13 @@ function ConsolePage() {
           </table>
         </div>
       </Panel>
+      ) : null}
 
       {sel ? (
         <>
+          {tab === "keys" ? (
           <Panel title="API keys">
+
             <div className="flex flex-wrap gap-2">
               <button
                 className={btn}
