@@ -607,34 +607,34 @@ export function BalloonStage({
             {/* burner flame under the basket while the balloon is flying */}
             {flying ? (
               <span
-                className="pointer-events-none absolute left-1/2 top-[86%] z-10 -translate-x-1/2"
+                className="pointer-events-none absolute left-1/2 top-[88%] z-10 -translate-x-1/2"
                 aria-hidden
                 style={{
-                  width: 48,
-                  height: 64,
-                  filter: "drop-shadow(0 0 10px rgba(255,100,0,0.95)) drop-shadow(0 0 20px rgba(255,180,0,0.7))",
+                  width: 72,
+                  height: 96,
+                  filter: "drop-shadow(0 0 14px rgba(255,120,0,1)) drop-shadow(0 0 30px rgba(255,60,0,0.9)) drop-shadow(0 0 50px rgba(255,180,0,0.5))",
                 }}
               >
-                <svg viewBox="0 0 48 64" className="h-full w-full animate-[flame-flicker_120ms_ease-in-out_infinite_alternate]">
+                <svg viewBox="0 0 72 96" className="h-full w-full animate-[flame-flicker_110ms_ease-in-out_infinite_alternate]">
                   <defs>
                     <linearGradient id="fireBody" x1="0" y1="1" x2="0" y2="0">
-                      <stop offset="0%" stopColor="#8B0000" />
-                      <stop offset="35%" stopColor="#FF4500" />
-                      <stop offset="70%" stopColor="#FFD700" />
+                      <stop offset="0%" stopColor="#7A0000" />
+                      <stop offset="30%" stopColor="#FF3D00" />
+                      <stop offset="65%" stopColor="#FFC400" />
                       <stop offset="100%" stopColor="#FFFFFF" />
                     </linearGradient>
                     <linearGradient id="fireCore" x1="0" y1="1" x2="0" y2="0">
-                      <stop offset="0%" stopColor="#FF8C00" />
-                      <stop offset="60%" stopColor="#FFFACD" />
+                      <stop offset="0%" stopColor="#FF6F00" />
+                      <stop offset="55%" stopColor="#FFF9C4" />
                       <stop offset="100%" stopColor="#FFFFFF" />
                     </linearGradient>
                   </defs>
                   <path
-                    d="M24 62 C8 58 2 44 2 32 C2 20 10 10 16 2 C18 14 20 22 24 28 C28 22 30 14 32 2 C38 10 46 20 46 32 C46 44 40 58 24 62 Z"
+                    d="M36 92 C12 86 4 64 4 46 C4 28 18 14 26 2 C28 20 32 32 36 40 C40 32 44 20 46 2 C54 14 68 28 68 46 C68 64 60 86 36 92 Z"
                     fill="url(#fireBody)"
                   />
                   <path
-                    d="M24 54 C16 52 12 42 12 34 C12 26 18 20 22 14 C23 22 24 28 24 32 C24 28 25 22 26 14 C30 20 36 26 36 34 C36 42 32 52 24 54 Z"
+                    d="M36 80 C22 76 16 62 16 50 C16 38 24 28 30 20 C32 34 34 42 36 48 C38 42 40 34 42 20 C48 28 56 38 56 50 C56 62 50 76 36 80 Z"
                     fill="url(#fireCore)"
                   />
                 </svg>
