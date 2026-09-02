@@ -100,7 +100,7 @@ function CasinoDocs() {
           </p>
 
           <div className="mt-6 rounded-md border-l-4 border-live-win bg-muted px-4 py-3 text-sm text-foreground">
-            <strong>Base URL:</strong> <Code>https://universeapi.shop</Code>
+            <strong>Base URL:</strong> <Code>https://universeapi.store</Code>
           </div>
 
           {/* Getting started */}
@@ -122,7 +122,7 @@ function CasinoDocs() {
             </li>
           </ul>
           <p className="mt-4 text-[0.95rem] text-foreground">
-            <strong>API base URL:</strong> <Code>https://universeapi.shop/api</Code>
+            <strong>API base URL:</strong> <Code>https://universeapi.store/api</Code>
           </p>
           <P>
             All endpoints live under <Code>/api</Code>. JSON responses use{" "}
@@ -193,7 +193,7 @@ Authorization: Bearer your-api-key`}
           {/* Endpoints */}
           <H2 id="endpoints">Endpoints</H2>
           <P>
-            All paths below are relative to <Code>https://universeapi.shop/api</Code>.
+            All paths below are relative to <Code>https://universeapi.store/api</Code>.
           </P>
           <Table
             head={["Method", "Path", "Purpose"]}
@@ -234,7 +234,7 @@ Authorization: Bearer your-api-key`}
           <P>Returns every game available on your subscription.</P>
           <Block
             label="Example"
-            code={`GET https://universeapi.shop/api/games
+            code={`GET https://universeapi.store/api/games
 X-API-Key: your-api-key`}
           />
           <Block
@@ -256,7 +256,7 @@ X-API-Key: your-api-key`}
           </P>
           <Block
             label="Example"
-            code={`GET https://universeapi.shop/api/games/99.0010/state
+            code={`GET https://universeapi.store/api/games/99.0010/state
 X-API-Key: your-api-key`}
           />
           <Block
@@ -315,7 +315,7 @@ X-API-Key: your-api-key`}
           <P>Returns recent completed rounds for the game in the path.</P>
           <Block
             label="Example"
-            code={`GET https://universeapi.shop/api/games/99.0010/results
+            code={`GET https://universeapi.store/api/games/99.0010/results
 X-API-Key: your-api-key`}
           />
           <P>
@@ -382,13 +382,13 @@ X-API-Key: your-api-key`}
           <Endpoint method="POST" path="/public/tv/streaming" auth="Session + first-party Origin" />
           <P>
             Returns upstream WebRTC player config for the public casino UI at{" "}
-            <Code>https://universeapi.shop</Code>. Use <Code>iframeUrl</Code> as the iframe src — do
+            <Code>https://universeapi.store</Code>. Use <Code>iframeUrl</Code> as the iframe src — do
             not wrap it in another player page (nested iframes block WebRTC video).
           </P>
           <Block
             label="Example"
-            code={`POST https://universeapi.shop/public/tv/streaming
-Origin: https://universeapi.shop
+            code={`POST https://universeapi.store/public/tv/streaming
+Origin: https://universeapi.store
 X-Session-Token: <from POST /public/session>
 X-TV-Client: true
 Content-Type: application/json
@@ -426,11 +426,11 @@ Content-Type: application/json
             code={`Browser on partner.com (live page)
     ↓  POST /your-backend/casino/tv/:eventId/embed
 Your backend
-    ↓  POST https://universeapi.shop/api/tv/games/:eventId/embed  +  X-API-Key  +  X-TV-Client: true
+    ↓  POST https://universeapi.store/api/tv/games/:eventId/embed  +  X-API-Key  +  X-TV-Client: true
 Universal API
     ↓  { iframePath, expiresIn }
 Your backend
-    ↓  { iframeUrl: "https://universeapi.shop/api/tv/player?..." }
+    ↓  { iframeUrl: "https://universeapi.store/api/tv/player?..." }
 Browser on partner.com
     ↓  <iframe src="iframeUrl">  (embedToken + Referer: partner.com)
 Universal API player page → upstream video stream`}
@@ -440,7 +440,7 @@ Universal API player page → upstream video stream`}
           </Step>
           <Step n={2} title="Return iframe URL to frontend">
             Response includes <Code>iframePath</Code> — prefix with{" "}
-            <Code>https://universeapi.shop</Code> for the full URL.
+            <Code>https://universeapi.store</Code> for the full URL.
           </Step>
           <Step n={3} title="Browser loads iframe">
             Set iframe src to the URL. Token expires after <Code>expiresIn</Code> seconds — refresh
@@ -454,7 +454,7 @@ Universal API player page → upstream video stream`}
           </P>
           <Block
             label="Request"
-            code={`POST https://universeapi.shop/api/tv/games/99.0010/embed
+            code={`POST https://universeapi.store/api/tv/games/99.0010/embed
 Content-Type: application/json
 X-API-Key: your-api-key
 X-TV-Client: true`}
@@ -557,7 +557,7 @@ async function loadVideo(eventId) {
             label="your-backend/routes/casino.js"
             code={`router.post("/tv/:eventId/embed", async (req, res) => {
   const { eventId } = req.params;
-  const r = await fetch(\`https://universeapi.shop/api/tv/games/\${eventId}/embed\`, {
+  const r = await fetch(\`https://universeapi.store/api/tv/games/\${eventId}/embed\`, {
     method: "POST",
     headers: {
       "X-API-Key": process.env.UC_API_KEY,
@@ -570,7 +570,7 @@ async function loadVideo(eventId) {
     return;
   }
   // Prefix iframePath with provider base URL
-  const providerBaseUrl = process.env.UC_PROVIDER_BASE_URL ?? "https://universeapi.shop";
+  const providerBaseUrl = process.env.UC_PROVIDER_BASE_URL ?? "https://universeapi.store";
   res.json({
     iframeUrl: \`\${providerBaseUrl}\${body.iframePath}\`,
     expiresIn: body.expiresIn,

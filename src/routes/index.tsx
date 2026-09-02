@@ -96,7 +96,7 @@ function Lobby() {
             <p className="mt-1 max-w-[640px] text-muted-foreground">
               Real live casino table games. Data source:{" "}
               <span className="font-semibold text-foreground">
-                Universal API (universeapi.shop/public)
+                Universal API (universeapi.store/public)
               </span>{" "}
               via server proxy <code className="font-mono">/api/public/uapi/games</code>.
             </p>
