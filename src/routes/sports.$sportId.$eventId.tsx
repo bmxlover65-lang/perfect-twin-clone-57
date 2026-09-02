@@ -323,12 +323,13 @@ function EventPage() {
           />
         </div>
 
-        <div className="overflow-hidden rounded-lg bg-ex-panel">
-          <header className="bg-ex-header px-4 py-2.5 text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-ex-text">
+        <div className="overflow-hidden rounded-lg border border-white/10 bg-black">
+          <header className="bg-[#24485D] px-4 py-2.5 text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-white">
             Scoreboard
           </header>
           <Scoreboard sportId={sportId} eventId={eventId} />
         </div>
+
       </div>
 
 
