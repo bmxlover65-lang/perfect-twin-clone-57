@@ -2081,8 +2081,8 @@ function GamePage() {
         ) : (
           <div className="aspect-video w-full bg-black" />
         )}
-        <div className="pointer-events-none absolute left-2 top-2 space-y-1">
-          <p className="text-[0.72rem] font-extrabold uppercase tracking-wide text-white drop-shadow">
+        <div className="pointer-events-none absolute left-3 top-3 z-20 max-w-[calc(100%-1.5rem)] space-y-2 overflow-visible">
+          <p className="text-[0.75rem] font-black uppercase tracking-wide text-white drop-shadow sm:text-xs">
             RID: {d?.roundId ?? "—"}
           </p>
           {Object.entries(cards).map(([k, v]) =>
