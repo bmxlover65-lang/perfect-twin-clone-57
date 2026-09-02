@@ -86,6 +86,32 @@ function rewriteTvHtml(html: string, origin: string) {
 }
 
 
+// Secondary results mirror: used when the primary feed returns 5xx/empty
+// for a casino event (e.g. BALLOON 88.0023).
+const MIRROR_RESULTS =
+  "https://vimaan.ludoexchange.com/casinoapp/users/casino/casinoEventResults";
+
+const mirrorCache = new Map<string, { at: number; data: unknown[] }>();
+
+async function mirrorResults(eventId: string): Promise<unknown[]> {
+  const hit = mirrorCache.get(eventId);
+  if (hit && Date.now() - hit.at < 5000) return hit.data;
+  try {
+    const res = await fetch(MIRROR_RESULTS, {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ eventId }),
+    });
+    const json = (await res.json().catch(() => ({}))) as { data?: unknown[] };
+    const data = Array.isArray(json.data) ? json.data : [];
+    mirrorCache.set(eventId, { at: Date.now(), data });
+    return data;
+  } catch {
+    return hit?.data ?? [];
+  }
+}
+
+
 async function proxy(splat: string, search: string, body?: string, origin = "") {
   try {
     if (splat === "stream") {
@@ -125,16 +151,41 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
       res = await upstream(splat, search, token, body);
     }
     const text = await res.text();
+    const resultsMatch = /^games\/([^/]+)\/results$/.exec(splat);
     // Upstream currently 502s on some casino endpoints (e.g. /results).
     // Degrade gracefully instead of surfacing a 502 to the app.
     if (!res.ok && res.status >= 500) {
+      if (resultsMatch) {
+        const data = await mirrorResults(decodeURIComponent(resultsMatch[1]!));
+        return Response.json(
+          { data, upstreamStatus: res.status, source: data.length ? "mirror" : "none" },
+          { status: 200, headers: { "cache-control": "no-store" } },
+        );
+      }
       return Response.json(
-        splat.endsWith("/results")
-          ? { data: [], upstreamStatus: res.status }
-          : { error: `Upstream unavailable (${res.status})`, upstreamStatus: res.status },
+        { error: `Upstream unavailable (${res.status})`, upstreamStatus: res.status },
         { status: 200, headers: { "cache-control": "no-store" } },
       );
     }
+    if (resultsMatch) {
+      let empty = false;
+      try {
+        const parsed = JSON.parse(text) as { data?: unknown[] };
+        empty = !Array.isArray(parsed.data) || parsed.data.length === 0;
+      } catch {
+        empty = true;
+      }
+      if (empty) {
+        const data = await mirrorResults(decodeURIComponent(resultsMatch[1]!));
+        if (data.length) {
+          return Response.json(
+            { data, source: "mirror" },
+            { status: 200, headers: { "cache-control": "no-store" } },
+          );
+        }
+      }
+    }
+
     const contentType = res.headers.get("content-type") ?? "application/json";
     const out = splat.startsWith("tv/") ? rewriteTvHtml(text, origin) : text;
     return new Response(out, {
