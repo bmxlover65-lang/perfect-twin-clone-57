@@ -43,9 +43,9 @@ function fmt(n: number) {
 }
 
 function chipTone(m: number) {
-  if (m < 2) return "border-[#20BFFF]/40 text-[#20BFFF]";
-  if (m < 10) return "border-[#913EF8]/40 text-[#913EF8]";
-  return "border-[#C017B4]/40 text-[#C017B4]";
+  if (m < 2) return "text-[#20BFFF]";
+  if (m < 10) return "text-[#8B5CF6]";
+  return "text-[#FF2DAA]";
 }
 
 
@@ -482,6 +482,7 @@ export function Aviator() {
   const [round, setRound] = useState(1);
   const [balance, setBalance] = useState(5000);
   const [bets, setBets] = useState<LiveBet[]>(() => makeBets(1));
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [feed, setFeed] = useState<{ id: number; text: string; kind: "join" | "leave" | "win" }[]>([]);
   const [online, setOnline] = useState(1842);
   const [muted, setMuted] = useState(true);
