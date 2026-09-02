@@ -674,6 +674,65 @@ export function Aviator() {
   const phaseRef = useRef<Phase>("betting");
   phaseRef.current = phase;
 
+  // official results feed (same upstream round series as the live crash game)
+  const seenRef = useRef<Set<string>>(new Set());
+  const queueRef = useRef<number[]>([]); // unused official winners, oldest first
+  const officialRef = useRef(false);
+  const bootedRef = useRef(false);
+
+
+  useEffect(() => {
+    let stop = false;
+    let busy = false;
+    const pull = async () => {
+      if (stop || busy) return;
+      busy = true;
+      try {
+        const ctrl = new AbortController();
+        const to = window.setTimeout(() => ctrl.abort(), 8000);
+        const res = await fetch("/api/public/uapi/games/88.0023/results", {
+          cache: "no-store",
+          signal: ctrl.signal,
+        });
+        window.clearTimeout(to);
+        const json = (await res.json()) as { data?: { roundId?: string; winner?: string }[] };
+        const rows = Array.isArray(json?.data) ? json.data : [];
+        if (!rows.length) return;
+        // newest first from upstream
+        const fresh: number[] = [];
+        for (const r of rows) {
+          const id = String(r?.roundId ?? "");
+          const w = Number(r?.winner);
+          if (!id || !(w > 0)) continue;
+          if (seenRef.current.has(id)) continue;
+          seenRef.current.add(id);
+          fresh.push(w);
+        }
+        if (bootedRef.current && fresh.length) {
+          // push oldest-first into the queue so rounds play out in real order
+          queueRef.current.push(...fresh.reverse());
+          if (queueRef.current.length > 12) queueRef.current = queueRef.current.slice(-12);
+        }
+        bootedRef.current = true;
+        const strip = rows
+          .map((r) => Number(r?.winner))
+          .filter((n) => n > 0)
+          .slice(0, 24);
+        if (strip.length) setHistory(strip);
+      } catch {
+        /* keep last known results */
+      } finally {
+        busy = false;
+        if (!stop) window.setTimeout(pull, 1500);
+      }
+    };
+    void pull();
+    return () => {
+      stop = true;
+    };
+  }, []);
+
+
   const win = useCallback((amt: number) => {
     setBalance((b) => Math.round((b + amt) * 100) / 100);
     sfx(winSound.url, 0.65);
@@ -686,13 +745,18 @@ export function Aviator() {
 
     const beginBetting = () => {
       const ctl = avRef.current;
+      const official = queueRef.current.shift();
+      officialRef.current = official !== undefined;
       crashRef.current =
         ctl && ctl.mode === "never"
           ? 1
           : ctl && ctl.mode === "forced"
             ? Math.max(1, ctl.crash)
-            : randomCrash();
+            : official !== undefined
+              ? Math.max(1, official)
+              : randomCrash();
       startRef.current = performance.now();
+
       setPhase("betting");
       setMultiplier(1);
       setBets(makeBets(Math.floor(Math.random() * 999) + 1));
@@ -729,7 +793,7 @@ export function Aviator() {
         if (m >= crashRef.current) {
           setMultiplier(crashRef.current);
           setPhase("crashed");
-          setHistory((h) => [crashRef.current, ...h].slice(0, 24));
+          if (!officialRef.current) setHistory((h) => [crashRef.current, ...h].slice(0, 24));
           setRound((r) => r + 1);
           // everyone who did not cash out before the crash loses the round
           setBets((list) =>
