@@ -748,18 +748,18 @@ export function BalloonStage({
           </span>
         ) : null}
 
-        {/* bottom controls — pinned to edges with clear gap from balloon area */}
+        {/* bottom controls — stake cluster left, HEAT right (photo layout) */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] bg-[linear-gradient(180deg,transparent_0%,rgba(0,0,0,0.08)_40%,rgba(0,0,0,0.32)_100%)]" />
-        <div className="absolute inset-x-0 bottom-0 flex items-end gap-3 px-3 pb-3 sm:gap-4 sm:px-4 sm:pb-4">
-          {/* auto toggles + stakes */}
-          <div className="w-[40%] max-w-[400px] shrink-0 sm:w-[44%]">
-            <div className="mb-2 grid grid-cols-2 gap-2">
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 px-3 pb-3 sm:gap-4 sm:px-4 sm:pb-4">
+          {/* left cluster: auto toggles + stakes + edits/clear/min/max */}
+          <div className="shrink-0">
+            <div className="mb-1.5 flex items-end gap-2">
               {([0, 1] as const).map((i) => (
                 <button
                   key={i}
                   type="button"
                   onClick={() => setAutos((a) => (i === 0 ? [!a[0], a[1]] : [a[0], !a[1]]))}
-                  className="flex items-center gap-2 text-[0.82rem] font-bold text-[#2B2B2B]"
+                  className="flex w-[110px] items-center gap-2 text-[0.82rem] font-bold text-[#2B2B2B] sm:w-[150px]"
                   aria-pressed={autos[i]}
                 >
                   Auto
@@ -777,42 +777,43 @@ export function BalloonStage({
                 </button>
               ))}
             </div>
-            <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
-              {BALLOON_STAKES.map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => setStake(s)}
-                  className={`h-7 rounded-full bg-[#0E2C5C] text-[0.72rem] font-extrabold text-white shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-transform active:scale-95 sm:h-8 sm:text-[0.9rem] ${
-                    stake === s ? "ring-2 ring-[#E01E1E]" : ""
-                  }`}
-                >
-                  {s}
-                </button>
-              ))}
+            <div className="flex items-start gap-2">
+              <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+                {BALLOON_STAKES.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setStake(s)}
+                    className={`h-7 w-[110px] rounded-full bg-[#0E2C5C] text-[0.72rem] font-extrabold text-white shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
+                      stake === s ? "ring-2 ring-[#E01E1E]" : ""
+                    }`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+              <div className="grid w-[86px] gap-1.5 sm:w-[110px]">
+                {(
+                  [
+                    ["Edits", 100, "bg-[#E8871E] text-white"],
+                    ["Clear", 0, "bg-[#E01E1E] text-white"],
+                    ["Min", 10, "bg-[#2A1330] text-white/70"],
+                    ["Max", 10000, "bg-[#2A1330] text-white/70"],
+                  ] as const
+                ).map(([label, val, tone]) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => setStake(val)}
+                    className={`h-7 rounded-full text-[0.72rem] font-extrabold shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-transform active:scale-95 sm:h-8 sm:text-[0.9rem] ${tone}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* edits / clear / min / max */}
-          <div className="grid w-[18%] min-w-[78px] shrink-0 gap-1.5 sm:min-w-[108px]">
-            {(
-              [
-                ["Edits", 100, "bg-[#E8871E] text-white"],
-                ["Clear", 0, "bg-[#E01E1E] text-white"],
-                ["Min", 10, "bg-[#2A1330] text-white/70"],
-                ["Max", 10000, "bg-[#2A1330] text-white/70"],
-              ] as const
-            ).map(([label, val, tone]) => (
-              <button
-                key={label}
-                type="button"
-                onClick={() => setStake(val)}
-                className={`h-7 rounded-full text-[0.72rem] font-extrabold shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-transform active:scale-95 sm:h-8 sm:text-[0.9rem] ${tone}`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
 
           {/* heat buttons — bet / queue for next round / cash out */}
           <div className="ml-auto grid w-[28%] min-w-[124px] shrink-0 gap-1.5 sm:w-[24%] sm:min-w-[150px] sm:gap-2">
