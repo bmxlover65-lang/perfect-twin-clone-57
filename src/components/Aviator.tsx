@@ -275,7 +275,7 @@ function FlightStage({
       <style>{`@keyframes av-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes av-prop{to{transform:rotate(360deg)}}`}</style>
 
-      <svg viewBox={`0 0 ${W} ${H}`} className="relative block h-[280px] w-full sm:h-[300px]">
+      <svg viewBox={`0 0 ${W} ${H}`} className="relative block h-[240px] w-full sm:h-[300px] lg:h-[380px]">
         <defs>
           <linearGradient id="av-area" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#E01E1E" stopOpacity="0.5" />
@@ -554,29 +554,33 @@ export function Aviator() {
   return (
     <div className="overflow-hidden rounded-[16px] border border-[#303238] bg-[#090A0C] p-1.5 sm:p-2">
       {/* history strip */}
-      <div className="mb-2 flex items-center gap-2 rounded-[12px] border border-[#303238] bg-[#0B0C0E] px-2 py-[6px]">
-        <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-[6px] overflow-x-auto whitespace-nowrap sm:gap-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="mb-2 rounded-[12px] border border-[#303238] bg-[#141518] px-3 py-[6px]">
+        <div className="mb-[4px] flex items-center justify-between">
+          <span className="text-[0.62rem] font-bold tracking-[0.08em] text-white/70 sm:text-[0.7rem]">
+            ROUND HISTORY
+          </span>
+          <button
+            type="button"
+            className="flex h-[24px] items-center gap-1 rounded-full border border-[#FF003C]/60 px-2"
+            aria-label="Round history"
+          >
+            <img src={historyIcon} alt="" className="h-[13px] w-[14px]" />
+            <img src={arrowIcon} alt="" className="h-[8px] w-[10px]" />
+          </button>
+        </div>
+        <div className="flex min-w-0 flex-wrap items-center gap-[6px] sm:gap-2">
           {history.map((h, i) => (
             <span
               key={`${h}-${i}`}
-              className={`shrink-0 px-1 text-[0.7rem] font-bold sm:text-[0.78rem] ${toneFor(h)}`}
+              className={`shrink-0 rounded-full bg-[#0B0C0E] px-2.5 py-[3px] text-[0.72rem] font-bold sm:text-[0.82rem] ${toneFor(h)}`}
             >
               {fmt(h)}x
             </span>
           ))}
         </div>
-        <button
-          type="button"
-          className="flex h-[26px] shrink-0 items-center gap-1 rounded-full border border-[#FF003C]/60 px-2"
-          aria-label="Round history"
-        >
-          <img src={historyIcon} alt="" className="h-[14px] w-[15px]" />
-          <img src={arrowIcon} alt="" className="h-[8px] w-[10px]" />
-        </button>
-
       </div>
 
-      <div className="grid gap-2 lg:grid-cols-[320px_1fr]">
+      <div className="grid gap-2 lg:grid-cols-[400px_1fr]">
         {/* bets + chat */}
         <div className="order-2 min-w-0 rounded-[14px] border border-[#303238] bg-[#151618] p-1.5 lg:order-1 sm:p-2">
 
@@ -619,7 +623,7 @@ export function Aviator() {
 
 
 
-          <div className="max-h-[300px] space-y-[3px] overflow-y-auto pt-1">
+          <div className="max-h-[340px] space-y-[3px] overflow-y-auto pt-1 lg:max-h-[560px]">
             {tab === "my"
               ? myBets.map((b, i) => (
                   <div
