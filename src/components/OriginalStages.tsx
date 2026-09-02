@@ -598,7 +598,8 @@ export function BalloonStage({
           if (official && official > 0) {
             peak = official;
             const goal = official;
-            v = Math.min(goal, v + dt * (0.09 + (v - 1) * 0.14) + (goal - v) * dt * 2);
+            // reach the official value at the same pace the real game does
+            v = Math.min(goal, v + (goal - v) * Math.min(1, dt * 14) + dt * 0.35);
             if (goal - v < 0.01) {
               v = goal;
               setShown(goal);
@@ -618,10 +619,12 @@ export function BalloonStage({
             stall += dt;
           }
           const goal = Math.max(1, peak);
-          v = v + (goal - v) * Math.min(1, dt * 5);
-          if (goal - v < 0.005) v = goal;
+          // snap onto the feed value (no visible lag behind the real game)
+          v = v + (goal - v) * Math.min(1, dt * 18);
+          if (goal - v < 0.01) v = goal;
           setShown(v);
           setCrashAt(goal);
+
           // the live feed's own multiplier is the round result: as soon as the
           // feed suspends the round (or stops advancing) we burst on that value
           if (peak > 1 && (suspRef.current ? stall > 0.4 : stall > 2.2)) {
