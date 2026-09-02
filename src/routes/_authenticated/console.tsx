@@ -500,7 +500,10 @@ function ConsolePage() {
           </Panel>
           ) : null}
 
+          {tab === "guide" ? <AdminGuide /> : null}
+
           {tab === "bets" ? (
+
           <Panel title="Bet ledger">
 
             <div className="overflow-x-auto">
