@@ -370,12 +370,12 @@ function FlightStage({
             <img
               src={PLANE_FRAMES[frame]}
               alt=""
-              className="mb-3 h-[26px] w-[52px] opacity-90 sm:h-[32px] sm:w-[64px]"
+              className="mb-2 h-[56px] w-[112px] -rotate-[38deg] opacity-95 sm:mb-4 sm:h-[92px] sm:w-[180px]"
             />
-            <p className="px-4 text-center text-[0.95rem] font-bold uppercase tracking-[0.05em] text-white sm:text-[1.35rem]">
+            <p className="px-4 text-center text-[1.2rem] font-bold uppercase tracking-[0.01em] text-white sm:text-[2.1rem]">
               Waiting for next round
             </p>
-            <div className="mt-3 h-[4px] w-[168px] overflow-hidden rounded-full bg-white/10 sm:w-[220px]">
+            <div className="mt-4 h-[6px] w-[190px] overflow-hidden rounded-full bg-white/15 sm:w-[230px]">
               <div
                 className="h-full rounded-full bg-[#FF003C]"
                 style={{ width: `${Math.max(0, Math.min(100, (countdown / BET_MS) * 100))}%` }}
@@ -385,19 +385,20 @@ function FlightStage({
 
         ) : phase === "crashed" ? (
           <>
-            <p className="text-[0.8rem] font-extrabold uppercase tracking-[0.18em] text-[#E01E1E] sm:text-[1.15rem]">
+            <p className="text-[1.3rem] font-bold uppercase tracking-[0.01em] text-white sm:text-[2.1rem]">
               Flew Away!
             </p>
 
-            <p className="text-[2rem] font-extrabold leading-none text-[#E01E1E] drop-shadow-[0_4px_14px_rgba(0,0,0,.7)] sm:text-[3.4rem]">
+            <p className="mt-1 text-[2.6rem] font-extrabold leading-none text-[#E01E1E] drop-shadow-[0_4px_14px_rgba(0,0,0,.7)] sm:text-[4.2rem]">
               {fmt(multiplier)}x
             </p>
           </>
         ) : (
-          <p className="text-[2.1rem] font-extrabold leading-none text-white drop-shadow-[0_4px_14px_rgba(0,0,0,.6)] sm:text-[3.6rem]">
+          <p className="text-[2.6rem] font-extrabold leading-none text-white drop-shadow-[0_4px_22px_rgba(0,0,0,.6)] sm:text-[4.4rem]">
             {fmt(multiplier)}x
           </p>
         )}
+
       </div>
     </div>
   );
