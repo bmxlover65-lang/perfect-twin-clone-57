@@ -72,6 +72,7 @@ const TABS = [
   { id: "keys", label: "API keys & access" },
   { id: "gamecontrol", label: "Game control" },
   { id: "balloon", label: "Balloon rounds" },
+  { id: "aviator", label: "Aviator rounds" },
   { id: "wallet", label: "Callback wallet" },
   { id: "bets", label: "Bet history" },
   { id: "guide", label: "Guide / Kit" },
@@ -519,6 +520,8 @@ function ConsolePage() {
           {tab === "gamecontrol" ? <GameControl /> : null}
 
           {tab === "balloon" ? <BalloonPanel /> : null}
+
+          {tab === "aviator" ? <BalloonPanel heading="Aviator" /> : null}
 
           {tab === "guide" ? <AdminGuide /> : null}
 
