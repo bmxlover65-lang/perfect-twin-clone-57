@@ -601,14 +601,17 @@ export function Aviator() {
 
           {tab === "my" ? (
             <div className="mt-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-[2px] rounded-[4px] border border-[#2C2D30] bg-[#101112] px-2 py-[5px] text-[0.6rem] text-white/60 sm:text-[0.66rem]">
-              <span>
-                This game is <span className="text-[#2FA8F5]">✅ Provably Fair</span>
+              <span className="flex items-center gap-1">
+                This game is
+                <img src={fairIcon} alt="" className="h-[13px] w-[12px]" />
+                <span className="text-[#2FA8F5]">Provably Fair</span>
               </span>
               <span>
                 Powered by <span className="font-bold text-white underline">VIMAAN</span>
               </span>
             </div>
           ) : null}
+
 
           <div className="max-h-[300px] space-y-[3px] overflow-y-auto pt-1">
             {tab === "my"
