@@ -752,11 +752,12 @@ export function BalloonStage({
           </div>
         ) : (
           <div
-            className="absolute left-1/2 z-10 w-[56%] min-w-[160px] max-w-[330px] sm:w-[36%] sm:min-w-[200px]"
+            className="absolute left-1/2 z-10 w-[84%] min-w-[220px] max-w-[430px] sm:w-[46%] sm:min-w-[240px]"
             style={{
-              bottom: "26%",
+              bottom: "22%",
               transform: "translateX(-50%)",
             }}
+
           >
 
             <img
