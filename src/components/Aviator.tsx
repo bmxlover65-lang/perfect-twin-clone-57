@@ -839,8 +839,15 @@ export function Aviator() {
           </div>
 
           <div
-            className="h-[340px] max-h-[340px] w-full min-w-0 flex-col space-y-[2px] overflow-y-auto overflow-x-hidden overscroll-contain pt-1 [column-count:1] lg:h-[560px] lg:max-h-[560px]"
-            style={{ overscrollBehavior: "contain", WebkitOverflowScrolling: "touch" }}
+            className="flex h-[340px] max-h-[340px] w-full min-w-0 flex-col gap-[2px] overflow-y-auto overflow-x-hidden overscroll-contain pt-1 lg:h-[560px] lg:max-h-[560px]"
+            style={{
+              overscrollBehavior: "contain",
+              WebkitOverflowScrolling: "touch",
+              columnCount: 1,
+              columns: "1 auto",
+              display: "flex",
+              flexDirection: "column",
+            }}
           >
 
             {tab === "my"
