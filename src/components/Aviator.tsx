@@ -318,30 +318,36 @@ function FlightStage({
   const tick = (t / 22) % 60;
 
 
+  // blue -> purple/magenta glow as the multiplier climbs
+  const glow = Math.max(0, Math.min(1, (multiplier - 1.5) / 12));
+  const glowInner = `rgba(${Math.round(7 + glow * 59)},${Math.round(58 - glow * 38)},${Math.round(97 - glow * 3)},${0.62 + glow * 0.2})`;
+  const glowMid = glow > 0.45 ? "rgba(66,20,94,0.42)" : "rgba(7,58,97,0.32)";
+
   return (
-    <div className="relative overflow-hidden rounded-[16px] border border-[#303238] bg-[#05070A]">
-      {/* spribe-style rotating sun rays */}
+    <div className="relative overflow-hidden rounded-[14px] border border-[#232629] bg-[#030507]">
+      {/* spribe-style rotating sun rays from the bottom-left */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
-          className="absolute left-[5%] top-[88%] h-[900px] w-[900px] -translate-x-1/2 -translate-y-1/2 opacity-45"
+          className="absolute left-[3%] top-[92%] h-[1100px] w-[1100px] -translate-x-1/2 -translate-y-1/2 opacity-90"
           style={{
             background:
-              "repeating-conic-gradient(from 0deg, #101317 0deg 6deg, #050608 6deg 12deg)",
+              "repeating-conic-gradient(from 0deg, #101318 0deg 6.5deg, #030507 6.5deg 13deg)",
             borderRadius: "9999px",
-            maskImage: "radial-gradient(circle, #000 0%, #000 45%, transparent 78%)",
-            WebkitMaskImage: "radial-gradient(circle, #000 0%, #000 45%, transparent 78%)",
+            maskImage: "radial-gradient(circle, #000 0%, #000 52%, transparent 82%)",
+            WebkitMaskImage: "radial-gradient(circle, #000 0%, #000 52%, transparent 82%)",
             animation: "av-spin 90s linear infinite",
             animationPlayState: phase === "flying" ? "running" : "paused",
           }}
         />
         <div
-          className="absolute inset-0 transition-opacity duration-500"
+          className="absolute inset-0 transition-opacity duration-700"
           style={{
-            background:
-              "radial-gradient(circle at 62% 42%, rgba(24,110,205,0.55), rgba(6,20,40,0.25) 42%, transparent 70%)",
+            background: `radial-gradient(circle at 50% 45%, ${glowInner}, ${glowMid} 38%, transparent 68%)`,
             opacity: phase === "flying" ? 1 : 0,
           }}
         />
+
+
 
       </div>
       <style>{`@keyframes av-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
@@ -353,9 +359,10 @@ function FlightStage({
       <svg viewBox={`0 0 ${W} ${H}`} className="relative block h-[240px] w-full sm:h-[300px] lg:h-[380px]">
         <defs>
           <linearGradient id="av-area" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#E01E1E" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="#E01E1E" stopOpacity="0.02" />
+            <stop offset="0%" stopColor="#FF1238" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#FF1238" stopOpacity="0.03" />
           </linearGradient>
+
           <filter id="av-glow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="4" result="b" />
             <feMerge>
@@ -383,22 +390,34 @@ function FlightStage({
             cy={H - 70 - ((i * 56 + (phase === "flying" ? tick : 0)) % 240)}
             cx="24"
             r="2.5"
-            fill="#2FA8F5"
+            fill="#20BFFF"
           />
         ))}
 
+        {/* plane parked at the start position while waiting */}
+        {phase === "betting" ? (
+          <image
+            href={PLANE_FRAMES[0]}
+            x={18}
+            y={H - 40 - planeH * 0.62}
+            width={planeW}
+            height={planeH}
+            opacity={0.95}
+          />
+        ) : null}
 
-        {phase !== "betting" ? (
+        {phase === "flying" ? (
           <>
             <path d={area} fill="url(#av-area)" />
             <path
               d={path}
               fill="none"
-              stroke="#E01E1E"
-              strokeWidth="5"
+              stroke="#FF1238"
+              strokeWidth="4.5"
               strokeLinecap="round"
               filter="url(#av-glow)"
             />
+
             {PLANE_FRAMES.map((src, i) => (
               <image
                 key={src}
@@ -407,11 +426,8 @@ function FlightStage({
                 y={py - planeH * 0.62}
                 width={planeW}
                 height={planeH}
-                opacity={phase === "crashed" ? 0 : i === frame ? 1 : 0}
-                style={{
-                  transition:
-                    phase === "crashed" ? "opacity 1.1s linear, x 1.1s linear, y 1.1s linear" : "none",
-                }}
+                opacity={i === frame ? 1 : 0}
+
               />
             ))}
 
@@ -475,19 +491,20 @@ function FlightStage({
 
         ) : phase === "crashed" ? (
           <>
-            <p className="text-[1.3rem] font-bold uppercase tracking-[0.01em] text-white sm:text-[2.1rem]">
+            <p className="text-[1.35rem] font-medium uppercase tracking-[0.01em] text-white sm:text-[2.1rem]">
               Flew Away!
             </p>
 
-            <p className="mt-1 text-[2.6rem] font-extrabold leading-none text-[#E01E1E] drop-shadow-[0_4px_14px_rgba(0,0,0,.7)] sm:text-[4.2rem]">
+            <p className="mt-1 text-[2.8rem] font-extrabold leading-none text-[#FF1238] drop-shadow-[0_4px_14px_rgba(0,0,0,.7)] sm:text-[4.6rem] lg:text-[5.6rem]">
               {fmt(multiplier)}x
             </p>
           </>
         ) : (
-          <p className="text-[2.6rem] font-extrabold leading-none text-white drop-shadow-[0_4px_22px_rgba(0,0,0,.6)] sm:text-[4.4rem]">
+          <p className="text-[2.9rem] font-extrabold leading-none text-white drop-shadow-[0_6px_26px_rgba(0,0,0,.65)] sm:text-[4.8rem] lg:text-[6.4rem]">
             {fmt(multiplier)}x
           </p>
         )}
+
 
       </div>
     </div>
