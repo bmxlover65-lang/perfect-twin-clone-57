@@ -96,7 +96,7 @@ export function CoinStageImage({
         alt={`${face} coin`}
         width={240}
         height={240}
-        className="h-[230px] w-[230px] select-none object-contain drop-shadow-[0_8px_20px_rgba(0,0,0,0.6)]"
+        className="h-[260px] w-[260px] select-none object-contain drop-shadow-[0_8px_20px_rgba(0,0,0,0.6)]"
         draggable={false}
         style={flipping ? { animation: "uapi-coin-flip 0.28s linear infinite" } : undefined}
       />
