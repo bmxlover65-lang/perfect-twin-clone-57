@@ -261,6 +261,24 @@ function EventPage() {
   const fancy = data?.fancy ?? [];
   const sportsbook = data?.sportsbook ?? [];
 
+  // Every feed tick: if the upstream marks a runner WINNER / LOSER, settle
+  // the matching open bets right away — result always comes from the feed.
+  useEffect(() => {
+    if (!data) return;
+    const results: { label: string; won: boolean }[] = [];
+    for (const m of [...matchOdds, ...bookmakers, ...fancy, ...sportsbook]) {
+      const names = m.runnersData ?? {};
+      for (const r of m.oddsData?.runners ?? m.runners ?? []) {
+        const st = String(r.status ?? "").toUpperCase();
+        if (st !== "WINNER" && st !== "LOSER") continue;
+        const label = names[String(r.selectionId)] ?? String(r.selectionId);
+        results.push({ label, won: st === "WINNER" });
+      }
+    }
+    settleFromRunners(`sports-${eventId}`, results);
+  }, [data, eventId, matchOdds, bookmakers, fancy, sportsbook]);
+
+
   return (
     <div className="sports-theme mx-auto max-w-[1200px] px-4 py-6">
       <Link to="/sports" className="text-sm text-muted-foreground hover:text-foreground">
