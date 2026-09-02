@@ -21,6 +21,13 @@ import { type AviatorControl, useAdminConfig } from "@/lib/admin";
 import { logBet, setBalance as saveBalance } from "@/lib/telemetry";
 
 const PLANE_FRAMES = [plane0, plane1, plane2, plane3];
+if (typeof window !== "undefined") {
+  PLANE_FRAMES.forEach((src) => {
+    const img = new window.Image();
+    img.src = src;
+  });
+}
+
 const AVATARS = [av1, av2, av3, av4, av5, av6];
 
 /* ---------------- round engine ---------------- */
@@ -338,7 +345,10 @@ function FlightStage({
 
       </div>
       <style>{`@keyframes av-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
-@keyframes av-prop{to{transform:rotate(360deg)}}`}</style>
+@keyframes av-prop{to{transform:rotate(360deg)}}
+@keyframes av-row-in{from{opacity:0;transform:translateY(-10px) scale(0.98)}to{opacity:1;transform:none}}
+.av-row-in{animation:av-row-in .38s cubic-bezier(.2,.8,.3,1)}`}</style>
+
 
       <svg viewBox={`0 0 ${W} ${H}`} className="relative block h-[240px] w-full sm:h-[300px] lg:h-[380px]">
         <defs>
@@ -389,18 +399,22 @@ function FlightStage({
               strokeLinecap="round"
               filter="url(#av-glow)"
             />
-            <image
-              href={PLANE_FRAMES[phase === "crashed" ? 0 : frame]}
-              x={px - planeW * 0.72}
-              y={py - planeH * 0.62}
-              width={planeW}
-              height={planeH}
-              opacity={phase === "crashed" ? 0 : 1}
-              style={{
-                transition:
-                  phase === "crashed" ? "opacity 1.1s linear, x 1.1s linear, y 1.1s linear" : "none",
-              }}
-            />
+            {PLANE_FRAMES.map((src, i) => (
+              <image
+                key={src}
+                href={src}
+                x={px - planeW * 0.72}
+                y={py - planeH * 0.62}
+                width={planeW}
+                height={planeH}
+                opacity={phase === "crashed" ? 0 : i === frame ? 1 : 0}
+                style={{
+                  transition:
+                    phase === "crashed" ? "opacity 1.1s linear, x 1.1s linear, y 1.1s linear" : "none",
+                }}
+              />
+            ))}
+
           </>
         ) : null}
       </svg>
@@ -722,19 +736,22 @@ export function Aviator() {
     }
   }, [countdown, phase, sfx]);
 
-  // players keep joining while the plane flies (feels like a real lobby)
+  // players keep joining (betting + flying) — new rows animate in at the top
+  const [freshIds, setFreshIds] = useState<number[]>([]);
   useEffect(() => {
-    if (phase !== "flying") return;
+    if (phase === "crashed") return;
     const id = window.setInterval(() => {
-      setBets((list) => {
-        if (list.length > 110) return list;
-        const seed = Math.floor(Math.random() * 9999);
-        const extra = makeBets(seed).slice(0, 1 + (seed % 3));
-        return [...list, ...extra];
-      });
-    }, 900);
+      const seed = Math.floor(Math.random() * 9999);
+      const extra = makeBets(seed).slice(0, 1 + (seed % 2));
+      if (!extra.length) return;
+      setBets((list) => (list.length > 140 ? [...extra, ...list.slice(0, 140)] : [...extra, ...list]));
+      const ids = extra.map((b) => b.id);
+      setFreshIds((f) => [...ids, ...f].slice(0, 24));
+      window.setTimeout(() => setFreshIds((f) => f.filter((x) => !ids.includes(x))), 600);
+    }, phase === "betting" ? 480 : 800);
     return () => window.clearInterval(id);
   }, [phase]);
+
 
   // live join / leave ticker + online counter
   useEffect(() => {
@@ -912,11 +929,13 @@ export function Aviator() {
                     <div
                       key={`${b.id}-${i}`}
                       className={`grid shrink-0 grid-cols-[1fr_38px_44px_54px] items-center gap-x-2 px-2 py-[7px] text-[0.72rem] sm:text-[0.76rem] ${
-
+                        freshIds.includes(b.id) ? "av-row-in" : ""
+                      } ${
                         done
                           ? "rounded-[7px] border border-[#3B8F20] bg-[#0D4206] text-white"
                           : "border-b border-white/[0.05] bg-[#131416] text-white/70"
                       }`}
+
                     >
                       <span className="flex min-w-0 items-center gap-2">
                         <img
