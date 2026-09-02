@@ -21,6 +21,13 @@ import { type AviatorControl, useAdminConfig } from "@/lib/admin";
 import { logBet, setBalance as saveBalance } from "@/lib/telemetry";
 
 const PLANE_FRAMES = [plane0, plane1, plane2, plane3];
+if (typeof window !== "undefined") {
+  PLANE_FRAMES.forEach((src) => {
+    const img = new window.Image();
+    img.src = src;
+  });
+}
+
 const AVATARS = [av1, av2, av3, av4, av5, av6];
 
 /* ---------------- round engine ---------------- */
