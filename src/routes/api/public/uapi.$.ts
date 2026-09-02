@@ -47,9 +47,52 @@ async function upstream(path: string, search: string, token: string, body?: stri
   });
 }
 
+// The stream provider only allows its own client hostname. Fetch the player
+// page server-side with that referer and re-serve it from our origin.
+const STREAM_REFERER = "https://universeapi.shop/";
 
-async function proxy(splat: string, search: string, body?: string) {
+async function streamPage(rawUrl: string) {
+  let target: URL;
   try {
+    target = new URL(rawUrl);
+  } catch {
+    return new Response("Bad stream url", { status: 400 });
+  }
+  if (!/(^|\.)diamondtech\.shop$/i.test(target.hostname)) {
+    return new Response("Stream host not allowed", { status: 403 });
+  }
+  const res = await fetch(target.toString(), {
+    redirect: "follow",
+    headers: {
+      referer: STREAM_REFERER,
+      origin: STREAM_REFERER.replace(/\/$/, ""),
+      "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36",
+      accept: "text/html,application/xhtml+xml,*/*",
+    },
+  });
+  const html = await res.text();
+  return new Response(html, {
+    status: res.status,
+    headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
+  });
+}
+
+function rewriteTvHtml(html: string, origin: string) {
+  return html.replace(/https:\/\/[a-z0-9.-]*diamondtech\.shop\/[^"'\s]+/gi, (m) => {
+    const clean = m.replace(/&amp;/g, "&");
+    return `${origin}/api/public/uapi/stream?u=${encodeURIComponent(clean)}`;
+  });
+}
+
+
+async function proxy(splat: string, search: string, body?: string, origin = "") {
+  try {
+    if (splat === "stream") {
+      const u = new URLSearchParams(search).get("u") ?? "";
+      return streamPage(u);
+    }
+
     if (splat === "health") {
       const t0 = Date.now();
       let ok = true;
@@ -92,13 +135,16 @@ async function proxy(splat: string, search: string, body?: string) {
         { status: 200, headers: { "cache-control": "no-store" } },
       );
     }
-    return new Response(text, {
+    const contentType = res.headers.get("content-type") ?? "application/json";
+    const out = splat.startsWith("tv/") ? rewriteTvHtml(text, origin) : text;
+    return new Response(out, {
       status: res.status,
       headers: {
-        "content-type": res.headers.get("content-type") ?? "application/json",
+        "content-type": contentType,
         "cache-control": "no-store",
       },
     });
+
   } catch (error) {
     return Response.json(
       { error: error instanceof Error ? error.message : "Upstream request failed", data: [] },
@@ -113,12 +159,15 @@ export const Route = createFileRoute("/api/public/uapi/$")({
     handlers: {
       GET: async ({ request, params }) => {
         const splat = (params as { _splat?: string })._splat ?? "";
-        return proxy(splat, new URL(request.url).search);
+        const url = new URL(request.url);
+        return proxy(splat, url.search, undefined, url.origin);
       },
       POST: async ({ request, params }) => {
         const splat = (params as { _splat?: string })._splat ?? "";
+        const url = new URL(request.url);
         const body = await request.text().catch(() => "{}");
-        return proxy(splat, new URL(request.url).search, body || "{}");
+        return proxy(splat, url.search, body || "{}", url.origin);
+
       },
     },
   },
