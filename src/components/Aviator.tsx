@@ -6,6 +6,12 @@ import plane3 from "@/assets/aviator/plane-3.svg";
 import historyIcon from "@/assets/aviator/history.svg";
 import arrowIcon from "@/assets/aviator/arrow-down.svg";
 import fairIcon from "@/assets/aviator/provably-fair.svg";
+import av1 from "@/assets/aviator/av1.png";
+import av2 from "@/assets/aviator/av2.png";
+import av3 from "@/assets/aviator/av3.png";
+import av4 from "@/assets/aviator/av4.png";
+import av5 from "@/assets/aviator/av5.png";
+import av6 from "@/assets/aviator/av6.png";
 import bgSound from "@/assets/aviator/aviator-background.mp3.asset.json";
 import crashSound from "@/assets/aviator/plane-crash.mp3.asset.json";
 import beepSound from "@/assets/aviator/beep.mp3.asset.json";
@@ -15,6 +21,7 @@ import { type AviatorControl, useAdminConfig } from "@/lib/admin";
 import { logBet, setBalance as saveBalance } from "@/lib/telemetry";
 
 const PLANE_FRAMES = [plane0, plane1, plane2, plane3];
+const AVATARS = [av1, av2, av3, av4, av5, av6];
 
 /* ---------------- round engine ---------------- */
 
@@ -35,13 +42,6 @@ function fmt(n: number) {
   return n.toFixed(2);
 }
 
-function toneFor(m: number) {
-  if (m < 2) return "text-[#20BFFF]";
-  if (m < 10) return "text-[#913EF8]";
-  return "text-[#C017B4]";
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function chipTone(m: number) {
   if (m < 2) return "border-[#20BFFF]/40 text-[#20BFFF]";
   if (m < 10) return "border-[#913EF8]/40 text-[#913EF8]";
@@ -124,7 +124,7 @@ const initialPanel = (amount: number): PanelState => ({
   active: false,
   cashedAt: null,
   auto: false,
-  autoCashout: 2,
+  autoCashout: 1.1,
 });
 
 const QUICK = [10, 50, 100, 500, 1000, 2500, 5000, 10000];
@@ -989,7 +989,6 @@ export function Aviator() {
                   type="button"
                   onClick={() => {
                     setMode(m);
-                    setAllSlots((p) => ({ ...p, auto: m === "auto" }));
                   }}
                   className={`flex-1 rounded-full py-[4px] capitalize ${
                     mode === m ? "bg-[#2C2D30] text-white" : ""
@@ -1059,6 +1058,7 @@ export function Aviator() {
                   multiplier={multiplier}
                   onWin={win}
                   balance={balance}
+                  mode={mode}
                 />
               ))}
             </div>
