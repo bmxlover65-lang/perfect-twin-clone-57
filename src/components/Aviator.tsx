@@ -338,7 +338,10 @@ function FlightStage({
 
       </div>
       <style>{`@keyframes av-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
-@keyframes av-prop{to{transform:rotate(360deg)}}`}</style>
+@keyframes av-prop{to{transform:rotate(360deg)}}
+@keyframes av-row-in{from{opacity:0;transform:translateY(-10px) scale(0.98)}to{opacity:1;transform:none}}
+.av-row-in{animation:av-row-in .38s cubic-bezier(.2,.8,.3,1)}`}</style>
+
 
       <svg viewBox={`0 0 ${W} ${H}`} className="relative block h-[240px] w-full sm:h-[300px] lg:h-[380px]">
         <defs>
