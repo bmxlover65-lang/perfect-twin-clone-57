@@ -75,12 +75,23 @@ function norm(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
+/** "WINNER A" -> "a", "PLAYER B" -> "b" — lets side markets settle off the feed winner. */
+function sideOf(s: string) {
+  const m = s.trim().toUpperCase().match(/(?:^|[^A-Z0-9])([AB12])$/);
+  return m?.[1] ? m[1].toLowerCase() : "";
+}
+
+
 function isWin(label: string, winner: string) {
+  const sa = sideOf(label);
+  const sb = sideOf(winner);
+  if (sa && sb) return sa === sb || (sa === "a" && sb === "1") || (sa === "b" && sb === "2");
   const a = norm(label);
   const b = norm(winner);
   if (!a || !b) return false;
   return a === b || a.includes(b) || b.includes(a);
 }
+
 
 /** Settle every open bet of a game for a finished round against the winner. */
 export function settleRound(gameId: string, round: string, winner: string) {

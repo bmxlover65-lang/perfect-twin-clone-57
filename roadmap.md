@@ -25,8 +25,12 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Admin server fns: operators, API keys, whitelist, manual result + settlement
       (`src/lib/operator-admin.functions.ts`)
 
-## Phase 3 — Wiring
-- [ ] Auth (email + Google) and first admin role grant
+## Phase 3 — Wiring (done)
+- [x] Email/password auth (`/auth`) + `_authenticated` gate + first-login "Claim admin"
+- [x] Admin console `/console`: operators, keys issue/revoke, IP+domain whitelist,
+      manual result declare + settlement, callback wallet test, bet ledger
+- [x] Operator panel `/operator`: callback balance fetch, rounds, bets, P/L, callback logs
+- [x] Casino bet slip fixed (odds cell parsing + A/B side) — real feed result auto-settles bets
 - [ ] Launch URL minting + game session tokens
 - [ ] Settle real (non-manual) rounds automatically from the live feed
 
