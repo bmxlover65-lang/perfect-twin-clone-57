@@ -8,7 +8,7 @@ import arrowIcon from "@/assets/aviator/arrow-down.svg";
 import fairIcon from "@/assets/aviator/provably-fair.svg";
 
 import { type AviatorControl, useAdminConfig } from "@/lib/admin";
-import { logBet, logChat, setBalance as saveBalance } from "@/lib/telemetry";
+import { logBet, setBalance as saveBalance } from "@/lib/telemetry";
 
 const PLANE_FRAMES = [plane0, plane1, plane2, plane3];
 
@@ -398,8 +398,6 @@ export function Aviator() {
   const [tab, setTab] = useState<"all" | "my" | "top">("all");
   const [myBets, setMyBets] = useState<MyBet[]>([]);
   const [chat, setChat] = useState<ChatMsg[]>(SEED_CHAT);
-  const [chatOpen, setChatOpen] = useState(false);
-  const [draft, setDraft] = useState("");
   const [phase, setPhase] = useState<Phase>("betting");
   const [multiplier, setMultiplier] = useState(1);
   const [countdown, setCountdown] = useState(BET_MS);
@@ -554,12 +552,6 @@ export function Aviator() {
     return () => window.clearInterval(id);
   }, []);
 
-  const totals = useMemo(() => {
-    const staked = bets.reduce((s, b) => s + b.amount, 0);
-    const cashed = bets.filter((b) => b.cashedAt !== undefined).length;
-    return { staked, cashed, count: bets.length };
-  }, [bets]);
-
   return (
     <div className="rounded-[16px] border border-white/10 bg-[#141516] p-1.5 sm:p-2">
       {/* history strip */}
@@ -585,7 +577,7 @@ export function Aviator() {
 
       </div>
 
-      <div className="grid gap-2 lg:grid-cols-[240px_1fr]">
+      <div className="grid gap-2 lg:grid-cols-[320px_1fr]">
         {/* bets + chat */}
         <div className="order-2 min-w-0 rounded-[14px] bg-[#1B1C1D] p-1.5 lg:order-1 sm:p-2">
           <div className="mx-auto flex w-full max-w-[280px] rounded-full bg-[#101112] p-[3px] text-[0.68rem] font-bold text-white/55 sm:w-[86%] sm:text-[0.72rem]">
