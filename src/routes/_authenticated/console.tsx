@@ -69,14 +69,11 @@ import { GameControl } from "@/components/game-control";
 const TABS = [
   { id: "overview", label: "Overview" },
   { id: "operators", label: "Operators" },
-  { id: "keys", label: "API keys" },
-  { id: "whitelist", label: "IP / Domain" },
-  { id: "results", label: "Results" },
+  { id: "keys", label: "API keys & access" },
   { id: "gamecontrol", label: "Game control" },
   { id: "wallet", label: "Callback wallet" },
   { id: "bets", label: "Bet history" },
   { id: "guide", label: "Guide / Kit" },
-
 ];
 
 
