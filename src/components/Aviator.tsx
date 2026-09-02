@@ -905,79 +905,39 @@ export function Aviator() {
         {/* stage + panels */}
         <div className="order-1 min-w-0 space-y-2 lg:order-2">
           {/* history strip — sits above the flying stage */}
-          <div className="rounded-[12px] border border-[#303238] bg-[#0B0C0E] px-2 py-[6px] sm:px-3">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-[0.7rem] font-semibold uppercase tracking-[0.03em] text-white/80 sm:text-[0.8rem]">
+          <div className="rounded-[8px] border border-[#34363B] bg-[#202125] px-3 py-2">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <span className="text-[0.72rem] font-semibold uppercase tracking-[0.03em] text-white">
                 Round History
               </span>
               <button
                 type="button"
                 onClick={() => setHistOpen((v) => !v)}
                 aria-expanded={histOpen}
-                className="flex h-[26px] w-[42px] shrink-0 items-center justify-center gap-[3px] rounded-full border border-[#FF003C]/70 bg-[#141517]"
+                className="flex h-[22px] w-[36px] shrink-0 items-center justify-center gap-[3px] rounded-full border border-[#FF003C]/70 bg-[#141517]"
                 aria-label="Round history"
               >
-                <img src={historyIcon} alt="" className="h-[13px] w-[14px]" />
+                <img src={historyIcon} alt="" className="h-[12px] w-[13px]" />
                 <img
                   src={arrowIcon}
                   alt=""
-                  className={`h-[7px] w-[9px] transition-transform ${histOpen ? "rotate-180" : ""}`}
+                  className={`h-[6px] w-[8px] transition-transform ${histOpen ? "rotate-180" : ""}`}
                 />
               </button>
             </div>
 
-            <div
-              className={`mt-[6px] flex min-w-0 items-center gap-[6px] sm:gap-2 ${
-                histOpen
-                  ? "max-h-[150px] flex-wrap overflow-y-auto"
-                  : "flex-nowrap overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              }`}
-            >
-              {(histOpen ? history : history.slice(0, 24)).map((h, i) => (
+            <div className="flex flex-wrap items-center justify-center gap-x-[6px] gap-y-[5px] sm:gap-x-2">
+              {(histOpen ? history : history.slice(0, 40)).map((h, i) => (
                 <span
                   key={`${h}-${i}`}
-                  className={`shrink-0 rounded-full border bg-[#141517] px-2 py-[2px] text-[0.66rem] font-bold sm:text-[0.78rem] ${chipTone(h)}`}
+                  className={`rounded-full bg-[#090B0E] px-[8px] py-[2px] text-[0.68rem] font-semibold sm:text-[0.72rem] ${chipTone(h)}`}
                 >
                   {fmt(h)}x
                 </span>
               ))}
             </div>
-
-
-            {histOpen ? (
-              <div className="mt-2 border-t border-white/10 pt-2">
-                <div className="flex items-center justify-between text-[0.66rem] font-bold text-white/70">
-                  <span className="flex items-center gap-1">
-                    <span className="h-[6px] w-[6px] rounded-full bg-[#18B800]" />
-                    LIVE USERS
-                    <span className="text-white/45">{online.toLocaleString()}</span>
-                  </span>
-                  <span className="text-white/40">Round #{round}</span>
-                </div>
-                <div className="mt-1 max-h-[92px] space-y-[2px] overflow-y-auto pr-1">
-                  {feed.length === 0 ? (
-                    <p className="py-2 text-[0.64rem] text-white/35">Waiting for players…</p>
-                  ) : (
-                    feed.map((f) => (
-                      <p
-                        key={f.id}
-                        className={`truncate text-[0.64rem] ${
-                          f.kind === "win"
-                            ? "text-[#7CFF56]"
-                            : f.kind === "join"
-                              ? "text-white/55"
-                              : "text-white/30"
-                        }`}
-                      >
-                        {f.kind === "join" ? "→ " : f.kind === "leave" ? "← " : "★ "}
-                        {f.text}
-                      </p>
-                    ))
-                  )}
-                </div>
-              </div>
-            ) : null}
           </div>
+
 
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} />
 
