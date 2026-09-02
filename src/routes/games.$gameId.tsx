@@ -9,6 +9,8 @@ import { logResult } from "@/lib/telemetry";
 import { BalanceChip, BetLayer, MyBets } from "@/components/betting";
 import { settleLatest, settleRound } from "@/lib/wallet";
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
+import { cardImage } from "@/lib/card-assets";
+
 import dream1x from "@/assets/dream/dream1x.png.asset.json";
 import dream2x from "@/assets/dream/dream2x.png.asset.json";
 import dream5x from "@/assets/dream/dream5x.png.asset.json";
@@ -71,6 +73,17 @@ export const Route = createFileRoute("/games/$gameId")({
 
 function Card({ code }: { code: string }) {
   const clean = code.replace(/_+$/, "");
+  const img = cardImage(clean);
+  if (img) {
+    return (
+      <img
+        src={img}
+        alt={clean || "card"}
+        className="h-11 w-8 rounded bg-white object-cover shadow"
+        loading="lazy"
+      />
+    );
+  }
   const suit = clean.slice(0, 1);
   const rank = clean.slice(1);
   const map: Record<string, string> = { S: "♠", H: "♥", D: "♦", C: "♣" };
@@ -86,6 +99,7 @@ function Card({ code }: { code: string }) {
     </span>
   );
 }
+
 
 function Cards({ hand, title }: { hand: Record<string, string>; title: string }) {
   const codes = Object.values(hand).filter(Boolean);
