@@ -1047,17 +1047,22 @@ export function BalloonStage({
               const bet = bets[i];
               const fl = flash[i];
               const live = bet && !bet.pending;
+              const blocked = !bet && (phase === "flying" || used[i]);
               return (
                 <button
                   key={i}
                   type="button"
                   onClick={() => pressHeat(i)}
+                  disabled={blocked}
                   className={`relative flex h-[36px] items-center justify-center gap-1 rounded-[8px] border-2 border-white text-[0.72rem] font-extrabold tracking-wide text-white transition-transform active:translate-y-[2px] active:shadow-none sm:h-[52px] sm:gap-3 sm:text-[1.15rem] ${
-                    live
+                    blocked
+                      ? "cursor-not-allowed bg-[linear-gradient(180deg,#5A6270_0%,#3D434D_100%)] opacity-60 shadow-[0_3px_0_#2A2F36]"
+                      : live
                       ? "bg-[linear-gradient(180deg,#F0A500_0%,#D98200_100%)] shadow-[0_3px_0_#8A5600]"
                       : bet
                         ? "bg-[linear-gradient(180deg,#8C96A3_0%,#6B7480_100%)] shadow-[0_3px_0_#454C55]"
                         : "bg-[linear-gradient(180deg,#22C93A_0%,#0FA524_100%)] shadow-[0_3px_0_#0B6B18]"
+
                   }`}
                 >
                   {live ? (
