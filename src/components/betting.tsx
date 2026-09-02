@@ -125,6 +125,7 @@ export function BetLayer({
   children: ReactNode;
 }) {
   const [pick, setPick] = useState<Pick | null>(null);
+  const [anchor, setAnchor] = useState(0);
   const [odds, setOdds] = useState(1);
   const [stake, setStake] = useState(0);
   const [err, setErr] = useState<string | null>(null);
@@ -171,14 +172,24 @@ export function BetLayer({
 
   return (
     <div
+      className="relative"
       onClickCapture={(e) => {
         if (disabled) return;
         const root = e.currentTarget as HTMLElement;
-        const p = extractPick(e.target as HTMLElement, root);
+        const target = e.target as HTMLElement;
+        const p = extractPick(target, root);
         if (p) {
+          // Anchor the slip right below the row that was clicked.
+          let row: HTMLElement = target;
+          const rootW = root.getBoundingClientRect().width;
+          for (let i = 0; i < 8 && row.parentElement && row.parentElement !== root; i++) {
+            if (row.getBoundingClientRect().width >= rootW * 0.8) break;
+            row = row.parentElement;
+          }
+          const top = row.getBoundingClientRect().bottom - root.getBoundingClientRect().top;
+          setAnchor(Math.max(0, top));
           setPick(p);
           setOdds(p.odds);
-          setStake(0);
           setErr(null);
         }
       }}
@@ -188,11 +199,15 @@ export function BetLayer({
       {err ? <ErrorToast message={err} onDone={() => setErr(null)} /> : null}
 
       {pick ? (
-        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 p-2 sm:items-center">
-          <div className="w-full max-w-[430px] overflow-hidden rounded-[4px] bg-[linear-gradient(180deg,#cfe0ea_0%,#e9f1f5_100%)] shadow-2xl">
+        <div
+          className="absolute left-0 right-0 z-[70]"
+          style={{ top: `${anchor}px` }}
+          onClickCapture={(e) => e.stopPropagation()}
+        >
+          <div className="mx-auto w-full max-w-[430px] overflow-hidden rounded-[4px] border border-[#9fb6c4] bg-[linear-gradient(180deg,#cfe0ea_0%,#e9f1f5_100%)] shadow-[0_10px_24px_rgba(0,0,0,0.35)]">
             <div className="flex items-center justify-between bg-[#1f3b4d] px-3 py-2">
               <span className="text-[0.72rem] font-bold uppercase tracking-[0.1em] text-white/80">
-                {gameName} · RID {round || "—"}
+                {pick.label}
               </span>
               <span className="text-[0.78rem] font-extrabold text-white">
                 Bal {Math.round(wallet.balance).toLocaleString("en-IN")}
@@ -200,9 +215,7 @@ export function BetLayer({
             </div>
 
             <div className="px-3 pb-3 pt-2">
-              <p className="text-center text-[0.85rem] font-extrabold uppercase text-[#20384a]">
-                {pick.label}
-              </p>
+
 
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <Stepper value={odds} onChange={setOdds} step={0.01} decimals={2} />
