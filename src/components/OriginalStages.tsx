@@ -966,15 +966,17 @@ export function BallByBallBoard({
 
   const Plate = ({ r }: { r: BbbRunner }) => (
     <div
-      className={`relative flex h-[74px] items-center rounded-[8px] px-4 shadow-[0_1px_2px_rgba(0,0,0,0.25)] ${plateTone(r.label)}`}
+      className={`relative flex h-[58px] items-center rounded-[8px] px-2 shadow-[0_1px_2px_rgba(0,0,0,0.25)] sm:h-[74px] sm:px-4 ${plateTone(r.label)}`}
     >
-      <span className="flex w-[86px] flex-col items-center leading-tight">
-        <span className="text-[1rem] font-bold">{r.backPrice ? r.backPrice.toFixed(2) : "—"}</span>
-        <span className="text-[0.74rem] font-semibold opacity-80">
-          {r.backSize ? Math.round(r.backSize).toLocaleString("en-US") : ""}
+      <span className="flex w-[46px] shrink-0 flex-col items-center leading-tight sm:w-[86px]">
+        <span className="text-[0.8rem] font-bold sm:text-[1rem]">
+          {r.backPrice ? r.backPrice.toFixed(2) : "—"}
+        </span>
+        <span className="text-[0.6rem] font-semibold opacity-80 sm:text-[0.74rem]">
+          {r.backSize ? Math.round(r.backSize).toLocaleString("en-IN") : ""}
         </span>
       </span>
-      <span className="flex-1 text-center text-[1.05rem] font-extrabold uppercase tracking-wide">
+      <span className="min-w-0 flex-1 truncate text-center text-[0.8rem] font-extrabold uppercase tracking-wide sm:text-[1.05rem]">
         {open(r.status) ? r.label : "SUSPENDED"}
       </span>
     </div>
@@ -983,29 +985,34 @@ export function BallByBallBoard({
   return (
     <div className="bg-white">
       <div className="flex items-center justify-between bg-[#2E4B5C] px-3 py-[7px]">
-        <span className="text-[0.95rem] font-bold text-white">Runs ⓘ</span>
-        <span className="text-[0.82rem] font-semibold text-white">
+        <span className="text-[0.85rem] font-bold text-white sm:text-[0.95rem]">Runs ⓘ</span>
+        <span className="text-[0.7rem] font-semibold text-white sm:text-[0.82rem]">
           Min/Max: {min} - {max}
         </span>
       </div>
       <div className="grid grid-cols-2 border-b border-black/10 bg-[#F1F1F1]">
-        <span className="py-[6px] text-center text-[0.95rem] font-semibold text-black/80">Back</span>
-        <span className="py-[6px] text-center text-[0.95rem] font-semibold text-black/80">Back</span>
+        <span className="py-[6px] text-center text-[0.85rem] font-semibold text-black/80 sm:text-[0.95rem]">
+          Back
+        </span>
+        <span className="py-[6px] text-center text-[0.85rem] font-semibold text-black/80 sm:text-[0.95rem]">
+          Back
+        </span>
       </div>
-      <div className="grid grid-cols-2 gap-x-0 px-3 py-3">
-        <div className="flex flex-col gap-3 border-r border-black/10 pr-4">
+      <div className="grid grid-cols-2 gap-x-0 px-2 py-2 sm:px-3 sm:py-3">
+        <div className="flex flex-col gap-2 border-r border-black/10 pr-2 sm:gap-3 sm:pr-4">
           {left.map((r) => (
             <Plate key={r.selectionId} r={r} />
           ))}
         </div>
-        <div className="flex flex-col gap-3 pl-4">
+        <div className="flex flex-col gap-2 pl-2 sm:gap-3 sm:pl-4">
           {right.map((r) => (
             <Plate key={r.selectionId} r={r} />
           ))}
         </div>
       </div>
+
       <div className="overflow-hidden bg-[#FFC800] py-[6px]">
-        <div className="marquee-track flex w-max gap-16 whitespace-nowrap text-[0.95rem] font-bold text-black">
+        <div className="marquee-track flex w-max gap-16 whitespace-nowrap text-[0.85rem] font-bold text-black sm:text-[0.95rem]">
           {[0, 1].map((k) => (
             <span key={k}>
               {news ??
@@ -1016,13 +1023,14 @@ export function BallByBallBoard({
       </div>
 
       {recent && recent.length ? (
-        <div className="px-3 py-3">
-          <p className="text-[0.95rem] font-bold text-black">Recent Result</p>
-          <div className="mt-2 flex flex-wrap gap-2">
+        <div className="px-2 py-3 sm:px-3">
+          <p className="text-[0.9rem] font-bold text-black sm:text-[0.95rem]">Recent Result</p>
+          <div className="mt-2 flex flex-wrap gap-1.5 sm:gap-2">
+
             {recent.slice(0, 10).map((w, i) => (
               <span
                 key={`${w}-${i}`}
-                className={`grid h-11 w-11 place-items-center rounded-[6px] text-[1rem] font-bold ${
+                className={`grid h-9 w-9 place-items-center rounded-[6px] text-[0.9rem] font-bold sm:h-11 sm:w-11 sm:text-[1rem] ${
                   w === "W"
                     ? "bg-[linear-gradient(180deg,#F98F86,#F26C61)] text-white"
                     : w === "6"
