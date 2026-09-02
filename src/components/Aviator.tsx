@@ -801,9 +801,68 @@ export function Aviator() {
                 />
               </button>
             </div>
+
+            {histOpen ? (
+              <div className="mt-2 border-t border-white/10 pt-2">
+                <div className="flex items-center justify-between text-[0.66rem] font-bold text-white/70">
+                  <span className="flex items-center gap-1">
+                    <span className="h-[6px] w-[6px] rounded-full bg-[#18B800]" />
+                    LIVE USERS
+                    <span className="text-white/45">{online.toLocaleString()}</span>
+                  </span>
+                  <span className="text-white/40">Round #{round}</span>
+                </div>
+                <div className="mt-1 max-h-[92px] space-y-[2px] overflow-y-auto pr-1">
+                  {feed.length === 0 ? (
+                    <p className="py-2 text-[0.64rem] text-white/35">Waiting for players…</p>
+                  ) : (
+                    feed.map((f) => (
+                      <p
+                        key={f.id}
+                        className={`truncate text-[0.64rem] ${
+                          f.kind === "win"
+                            ? "text-[#7CFF56]"
+                            : f.kind === "join"
+                              ? "text-white/55"
+                              : "text-white/30"
+                        }`}
+                      >
+                        {f.kind === "join" ? "→ " : f.kind === "leave" ? "← " : "★ "}
+                        {f.text}
+                      </p>
+                    ))
+                  )}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          {/* real-feel round ticker */}
+          <div className="flex items-center justify-between rounded-[10px] border border-[#303238] bg-[#0B0C0E] px-3 py-[5px] text-[0.66rem] font-bold sm:text-[0.72rem]">
+            <span className="text-white/50">ROUND #{round}</span>
+            <span
+              className={
+                phase === "betting"
+                  ? "text-[#20BFFF]"
+                  : phase === "flying"
+                    ? "text-[#18B800]"
+                    : "text-[#FF003C]"
+              }
+            >
+              {phase === "betting"
+                ? countdown <= 400
+                  ? "GO!"
+                  : `Next round in ${Math.ceil(countdown / 1000)}…`
+                : phase === "flying"
+                  ? "IN FLIGHT"
+                  : "FLEW AWAY"}
+            </span>
+            <span className="text-white/40">{bets.length} bets</span>
           </div>
 
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} />
+
+
 
 
           <div className="flex items-start gap-2 rounded-[14px] border border-[#303238] bg-[#151618] p-2 sm:gap-3 sm:p-3">
