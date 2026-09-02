@@ -481,14 +481,8 @@ export function Aviator() {
 
   const win = useCallback((amt: number) => {
     setBalance((b) => Math.round((b + amt) * 100) / 100);
-    try {
-      const a = new Audio(winSound.url);
-      a.volume = 0.6;
-      void a.play();
-    } catch {
-      /* ignore */
-    }
-  }, []);
+    sfx(winSound.url, 0.65);
+  }, [sfx]);
 
   // round loop
   useEffect(() => {
@@ -772,7 +766,22 @@ export function Aviator() {
 
           <div className="max-h-[340px] space-y-[3px] overflow-y-auto pt-1 lg:max-h-[560px]">
             {tab === "my"
-              ? myBets.map((b, i) => (
+              ? [
+                  ...[p1, p2]
+                    .filter((p) => p.staged || p.active)
+                    .map((p, i) => (
+                      <div
+                        key={`live-${i}`}
+                        className="grid grid-cols-[1fr_auto_auto] items-center gap-x-2 rounded-[6px] bg-[#12233A] px-1 py-[4px] text-[0.72rem] text-[#20BFFF] sm:gap-x-3"
+                      >
+                        <span>#{round} {p.staged ? "(queued)" : "(live)"}</span>
+                        <span className="font-semibold">{p.amount}</span>
+                        <span className="text-right font-bold">
+                          {p.cashedAt ? `${fmt(p.cashedAt)}x` : phase === "flying" ? `${fmt(multiplier)}x` : "—"}
+                        </span>
+                      </div>
+                    )),
+                  ...myBets.map((b, i) => (
                   <div
                     key={`${b.round}-${i}`}
                     className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-2 rounded-[6px] px-1 sm:gap-x-3 py-[4px] text-[0.72rem] ${
@@ -785,7 +794,8 @@ export function Aviator() {
                       {b.cashedAt ? `${fmt(b.cashedAt)}x` : `${fmt(b.crash)}x`}
                     </span>
                   </div>
-                ))
+                  )),
+                ]
               : bets.map((b) => {
                   const done = b.cashedAt !== undefined;
                   return (
