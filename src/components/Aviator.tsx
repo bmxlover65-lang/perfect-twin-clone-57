@@ -736,19 +736,22 @@ export function Aviator() {
     }
   }, [countdown, phase, sfx]);
 
-  // players keep joining while the plane flies (feels like a real lobby)
+  // players keep joining (betting + flying) — new rows animate in at the top
+  const [freshIds, setFreshIds] = useState<number[]>([]);
   useEffect(() => {
-    if (phase !== "flying") return;
+    if (phase === "crashed") return;
     const id = window.setInterval(() => {
-      setBets((list) => {
-        if (list.length > 110) return list;
-        const seed = Math.floor(Math.random() * 9999);
-        const extra = makeBets(seed).slice(0, 1 + (seed % 3));
-        return [...list, ...extra];
-      });
-    }, 900);
+      const seed = Math.floor(Math.random() * 9999);
+      const extra = makeBets(seed).slice(0, 1 + (seed % 2));
+      if (!extra.length) return;
+      setBets((list) => (list.length > 140 ? [...extra, ...list.slice(0, 140)] : [...extra, ...list]));
+      const ids = extra.map((b) => b.id);
+      setFreshIds((f) => [...ids, ...f].slice(0, 24));
+      window.setTimeout(() => setFreshIds((f) => f.filter((x) => !ids.includes(x))), 600);
+    }, phase === "betting" ? 480 : 800);
     return () => window.clearInterval(id);
   }, [phase]);
+
 
   // live join / leave ticker + online counter
   useEffect(() => {
