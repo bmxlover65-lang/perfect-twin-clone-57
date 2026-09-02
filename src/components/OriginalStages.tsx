@@ -768,7 +768,8 @@ export function BalloonStage({
         : "bg-[#123A73] text-white";
 
   const seedHist = [1.81, 5.68, 2.58, 1.12, 1.15, 3.88, 2.59, 1.3, 1.25, 1.03];
-  const histList = [...history, ...seedHist].slice(0, 10);
+  const histList = (history.length ? history : seedHist).slice(0, 12);
+
 
 
 
