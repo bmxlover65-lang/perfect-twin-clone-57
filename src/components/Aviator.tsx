@@ -454,6 +454,21 @@ export function Aviator() {
   const [bets, setBets] = useState<LiveBet[]>(() => makeBets(1));
   const [feed, setFeed] = useState<{ id: number; text: string; kind: "join" | "leave" | "win" }[]>([]);
   const [online, setOnline] = useState(1842);
+  const [muted, setMuted] = useState(true);
+  const bgRef = useRef<HTMLAudioElement | null>(null);
+  const sfx = useCallback(
+    (src: string, vol = 0.6) => {
+      if (muted) return;
+      try {
+        const a = new Audio(src);
+        a.volume = vol;
+        void a.play();
+      } catch {
+        /* autoplay blocked */
+      }
+    },
+    [muted],
+  );
 
 
   const [p1, setP1] = useState<PanelState>(() => initialPanel(100));
@@ -464,7 +479,16 @@ export function Aviator() {
   const phaseRef = useRef<Phase>("betting");
   phaseRef.current = phase;
 
-  const win = useCallback((amt: number) => setBalance((b) => Math.round((b + amt) * 100) / 100), []);
+  const win = useCallback((amt: number) => {
+    setBalance((b) => Math.round((b + amt) * 100) / 100);
+    try {
+      const a = new Audio(winSound.url);
+      a.volume = 0.6;
+      void a.play();
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   // round loop
   useEffect(() => {
@@ -513,7 +537,11 @@ export function Aviator() {
           setHistory((h) => [crashRef.current, ...h].slice(0, 24));
           setRound((r) => r + 1);
           // everyone who did not cash out before the crash loses the round
-          setBets((list) => list.map((b) => (b.cashedAt === undefined ? { ...b, busted: true } : b)));
+          setBets((list) =>
+            list.map((b) =>
+              b.cashedAt === undefined ? { ...b, busted: true, bal: Math.max(0, b.bal - b.amount) } : b,
+            ),
+          );
           window.setTimeout(() => {
             if (mounted) beginBetting();
           }, CRASH_HOLD_MS);
@@ -523,7 +551,11 @@ export function Aviator() {
         setBets((list) =>
           list.map((b) =>
             b.cashedAt === undefined && b.target > 1 && b.target <= m
-              ? { ...b, cashedAt: Math.round(b.target * 100) / 100 }
+              ? {
+                  ...b,
+                  cashedAt: Math.round(b.target * 100) / 100,
+                  bal: Math.round(b.bal + b.amount * (b.target - 1)),
+                }
               : b,
           ),
         );
@@ -590,6 +622,46 @@ export function Aviator() {
   useEffect(() => {
     saveBalance(balance);
   }, [balance]);
+
+  // engine loop while the plane is in the air
+  useEffect(() => {
+    if (muted) {
+      bgRef.current?.pause();
+      return;
+    }
+    if (phase === "flying") {
+      if (!bgRef.current) {
+        const a = new Audio(bgSound.url);
+        a.loop = true;
+        a.volume = 0.35;
+        bgRef.current = a;
+      }
+      void bgRef.current.play().catch(() => undefined);
+    } else {
+      bgRef.current?.pause();
+    }
+  }, [phase, muted]);
+
+  useEffect(() => () => bgRef.current?.pause(), []);
+
+  // crash sound
+  useEffect(() => {
+    if (phase === "crashed") sfx(crashSound.url, 0.7);
+  }, [phase, sfx]);
+
+  // countdown beeps 3..2..1
+  const beepRef = useRef(-1);
+  useEffect(() => {
+    if (phase !== "betting") {
+      beepRef.current = -1;
+      return;
+    }
+    const secs = Math.ceil(countdown / 1000);
+    if (secs <= 3 && secs >= 1 && beepRef.current !== secs) {
+      beepRef.current = secs;
+      sfx(beepSound.url, 0.5);
+    }
+  }, [countdown, phase, sfx]);
 
   // players keep joining while the plane flies (feels like a real lobby)
   useEffect(() => {
@@ -736,7 +808,12 @@ export function Aviator() {
                         >
                           {b.user.slice(0, 1).toUpperCase()}
                         </span>
-                        <span className="truncate">{maskName(b.user)}</span>
+                        <span className="flex min-w-0 flex-col leading-tight">
+                          <span className="truncate">{maskName(b.user)}</span>
+                          <span className="truncate text-[0.58rem] text-white/35">
+                            {b.bal.toLocaleString()}
+                          </span>
+                        </span>
                       </span>
                       <span className="font-semibold text-white/85">{b.amount}</span>
                       <span
