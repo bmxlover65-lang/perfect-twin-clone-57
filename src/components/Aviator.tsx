@@ -247,7 +247,7 @@ function FlightStage({
 
 
   return (
-    <div className="relative overflow-hidden rounded-[14px] bg-black">
+    <div className="relative overflow-hidden rounded-[16px] border border-[#303238] bg-[#05070A]">
       {/* spribe-style rotating sun rays */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
