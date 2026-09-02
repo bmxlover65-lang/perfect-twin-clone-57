@@ -397,6 +397,8 @@ export function BalloonStage({
     let v = 1;
     let target = 2;
     let curRound = roundRef.current;
+    let lastFeedRound = roundRef.current;
+    let stale = false;
     let peak = 1;
     let stall = 0;
 
@@ -445,14 +447,17 @@ export function BalloonStage({
       last = now;
       const apiRound = roundRef.current;
       const api = apiRef.current;
-      const live = !!apiRound;
 
-      // a new round id from the feed always restarts the balloon
-      if (live && apiRound !== curRound) {
+      // a genuinely new round id from the feed: sync back to live mode
+      if (apiRound && apiRound !== lastFeedRound) {
+        lastFeedRound = apiRound;
+        stale = false;
         startRound(apiRound);
         raf = window.requestAnimationFrame(tick);
         return;
       }
+      // stale feed (same id, never advances) → run local rounds instead
+      const live = !!apiRound && !stale;
 
       if (ph === "flying") {
         if (live) {
@@ -493,9 +498,10 @@ export function BalloonStage({
             setPhase("waiting");
             t = 3;
           } else {
-            // waiting over: if the feed is live we hold for its next round id,
-            // but if it never advances (stale/down) start a local round anyway
-            startRound(live && apiRound !== curRound ? apiRound : undefined);
+            // waiting over: feed never advanced while we waited → mark stale
+            // and start a local round; a new feed id will resync automatically
+            if (live) stale = true;
+            startRound(undefined);
           }
         }
       }
