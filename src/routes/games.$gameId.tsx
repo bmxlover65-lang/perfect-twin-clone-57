@@ -2109,9 +2109,16 @@ function GamePage() {
           <p className="text-[0.75rem] font-black uppercase tracking-wide text-white drop-shadow sm:text-xs">
             RID: {d?.roundId ?? "—"}
           </p>
-          {Object.entries(cards).map(([k, v]) =>
-            typeof v === "object" ? <Cards key={k} title={k} hand={v} /> : null,
-          )}
+          {Object.entries(cards).some(([, v]) => typeof v === "object" && v) ? (
+            Object.entries(cards).map(([k, v]) =>
+              typeof v === "object" && v ? <Cards key={k} title={k} hand={v} /> : null,
+            )
+          ) : Object.keys(cards).length ? (
+            <Cards
+              title={d?.eventName?.toUpperCase().startsWith("LUCKY") ? "LUCKY CARD" : "CARD"}
+              hand={cards as unknown as Record<string, string>}
+            />
+          ) : null}
         </div>
         {!suspended && (d?.leftSec ?? 0) > 0 ? (
           <span className="pointer-events-none absolute right-2 top-2 rounded bg-black/60 px-2 py-1 text-[0.72rem] font-bold text-white">
