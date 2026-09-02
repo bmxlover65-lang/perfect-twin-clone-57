@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { Aviator } from "@/components/Aviator";
 import { FitBoard } from "@/components/FitBoard";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -2079,7 +2079,9 @@ function GamePage() {
         <span className="pointer-events-none absolute right-2 top-2 rounded bg-black/60 px-2 py-1 text-[0.72rem] font-bold text-white">
           {status || "—"} · {d?.leftSec ?? 0}s
         </span>
+        <ResultBanner results={results} />
       </div>
+
 
       <BetLayer
         gameId={gameId}
@@ -2136,8 +2138,46 @@ function GamePage() {
 }
 
 
+/** "RESULT DECLARED" overlay — shows the winning selection right after a round settles. */
+function ResultBanner({ results }: { results: CasinoResult[] }) {
+  const top = results[0] as (CasinoResult & { _id?: string; result?: string; selectionName?: string }) | undefined;
+  const key = String(top?.roundId ?? top?._id ?? "");
+  const winner = (top?.winner ?? top?.result ?? top?.selectionName ?? "").toString().trim();
+  const seen = useRef<string>("");
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (!key || !winner) return;
+    if (!seen.current) {
+      seen.current = key;
+      return;
+    }
+    if (seen.current === key) return;
+    seen.current = key;
+    setShow(true);
+    const t = setTimeout(() => setShow(false), 8000);
+    return () => clearTimeout(t);
+  }, [key, winner]);
+
+  if (!show || !winner) return null;
+  return (
+    <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-black/55 backdrop-blur-[1px]">
+      <div className="rounded-xl border-2 border-[#E3C000] bg-[#101820]/95 px-6 py-4 text-center shadow-[0_10px_30px_rgba(0,0,0,0.55)] [animation:scale-in_0.25s_ease-out]">
+        <p className="text-[0.7rem] font-extrabold uppercase tracking-[0.28em] text-[#E3C000]">
+          Result Declared
+        </p>
+        <p className="mt-1 text-2xl font-extrabold uppercase text-white sm:text-3xl">{winner}</p>
+        <p className="mt-1 text-[0.68rem] font-bold uppercase tracking-wide text-white/60">
+          Winner · RID {key}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: boolean }) {
   return (
+
       <div className="mt-4 flex items-center gap-2 overflow-x-auto rounded-md bg-ex-panel px-3 py-2">
         <span className="mr-1 shrink-0 text-base font-bold text-ex-text">Recent Result</span>
 
