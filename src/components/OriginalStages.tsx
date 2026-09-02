@@ -624,7 +624,7 @@ export function BalloonStage({
 
   return (
     <div className="w-full rounded-[14px] bg-black p-1.5">
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[10px] bg-[linear-gradient(180deg,#4FB6CE_0%,#7ACBD6_38%,#BFE0CC_66%,#F3E4B4_88%,#F7EFD2_100%)]">
+      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-[10px] bg-[linear-gradient(180deg,#4FB6CE_0%,#7ACBD6_38%,#BFE0CC_66%,#F3E4B4_88%,#F7EFD2_100%)] sm:aspect-[16/9.5]">
         {/* sky artwork — parallax: the ground drops away as the balloon climbs */}
         <div className="absolute inset-0 overflow-hidden">
           <img
@@ -776,7 +776,7 @@ export function BalloonStage({
         ) : null}
 
         {/* bottom controls — stake cluster left, HEAT right (photo layout) */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] bg-[linear-gradient(180deg,transparent_0%,rgba(0,0,0,0.08)_40%,rgba(0,0,0,0.32)_100%)]" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[36%] bg-[linear-gradient(180deg,transparent_0%,rgba(0,0,0,0.08)_40%,rgba(0,0,0,0.32)_100%)]" />
         <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 px-3 pb-3 sm:gap-4 sm:px-4 sm:pb-4">
           {/* left cluster: auto toggles + stakes + edits/clear/min/max */}
           <div className="shrink-0">
