@@ -268,7 +268,7 @@ function FlightStage({
       <style>{`@keyframes av-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes av-prop{to{transform:rotate(360deg)}}`}</style>
 
-      <svg viewBox={`0 0 ${W} ${H}`} className="relative block h-[175px] w-full sm:h-[300px]">
+      <svg viewBox={`0 0 ${W} ${H}`} className="relative block h-[280px] w-full sm:h-[300px]">
         <defs>
           <linearGradient id="av-area" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#E01E1E" stopOpacity="0.5" />
