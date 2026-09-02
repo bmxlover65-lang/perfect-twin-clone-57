@@ -1704,9 +1704,16 @@ function GamePage() {
             min={raw.min ?? 100}
             max={raw.max ?? 100000}
             news={raw.news}
+            recent={results.slice(0, 10).map((r) => {
+              const rr = r as CasinoResult & { result?: string; selectionName?: string };
+              const s = (rr.winner ?? rr.result ?? rr.selectionName ?? "-").toString().trim();
+              if (/^EXTRA/i.test(s)) return "EX";
+              if (/^WICKET/i.test(s)) return "W";
+              return s.match(/^\d+/)?.[0] ?? s;
+            })}
           />
         </FitBoard>
-        <RecentStrip results={results} />
+
       </div>
     );
   }
