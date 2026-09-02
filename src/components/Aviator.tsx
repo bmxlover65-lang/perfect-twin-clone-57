@@ -271,6 +271,123 @@ function BetPanel({
   );
 }
 
+/** Mobile slot: own stake grid + auto row + cash-in button (matches mobile reference). */
+function MobileBetSlot({
+  state,
+  setState,
+  phase,
+  multiplier,
+  onWin,
+  balance,
+  mode,
+}: {
+  state: PanelState;
+  setState: (fn: (p: PanelState) => PanelState) => void;
+  phase: Phase;
+  multiplier: number;
+  onWin: (amount: number) => void;
+  balance: number;
+  mode: "bet" | "auto";
+}) {
+  const canCash = phase === "flying" && state.active && state.cashedAt === null;
+  const label = canCash
+    ? "Cash Out"
+    : state.staged || (state.active && state.cashedAt === null)
+      ? "Cancel"
+      : "Cash In";
+  const tone = canCash
+    ? "bg-[#F59E0B]"
+    : state.staged || state.active
+      ? "bg-[#EF0000]"
+      : "bg-[#18C800]";
+
+  const press = () => {
+    if (canCash) {
+      onWin(state.amount * multiplier);
+      setState((p) => ({ ...p, cashedAt: multiplier }));
+      return;
+    }
+    if (state.staged || (state.active && state.cashedAt === null)) {
+      setState((p) => ({ ...p, staged: false, active: false }));
+      return;
+    }
+    if (state.amount > balance) return;
+    setState((p) => ({ ...p, staged: true, cashedAt: null }));
+  };
+
+  return (
+    <div className="flex min-w-0 flex-col gap-[6px]">
+      {mode === "auto" ? (
+        <div className="flex items-center gap-2">
+          <span className="text-[0.66rem] font-semibold text-[#C9CBD1]">Auto</span>
+          <button
+            type="button"
+            onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
+            aria-pressed={state.auto}
+            className={`relative h-[18px] w-[36px] shrink-0 rounded-full transition-colors ${
+              state.auto ? "bg-[#18B800]" : "bg-[#2A2C30]"
+            }`}
+          >
+            <span
+              className={`absolute top-[2px] h-[14px] w-[14px] rounded-full bg-white transition-all ${
+                state.auto ? "left-[20px]" : "left-[2px]"
+              }`}
+            />
+          </button>
+        </div>
+      ) : null}
+
+      <div className="grid grid-cols-2 gap-[5px]">
+        {QUICK.map((q) => (
+          <button
+            key={q}
+            type="button"
+            onClick={() => setState((p) => ({ ...p, amount: q }))}
+            className={`rounded-full border bg-[#151618] py-[4px] text-center text-[0.66rem] font-semibold ${
+              state.amount === q
+                ? "border-[#16C800] text-white"
+                : "border-[#44474D] text-[#C9CBD1]"
+            }`}
+          >
+            {q}
+          </button>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={press}
+        className={`rounded-[8px] py-[10px] text-center text-[0.95rem] font-bold text-white ${tone}`}
+      >
+        {label}
+      </button>
+
+      {mode === "auto" ? (
+        <div className="flex items-center gap-1 rounded-full bg-[#0B0C0E] px-2 py-[2px]">
+          <input
+            type="number"
+            step="0.01"
+            min="1.01"
+            value={state.autoCashout}
+            onChange={(e) => {
+              const v = Number(e.target.value);
+              setState((p) => ({ ...p, autoCashout: Number.isFinite(v) ? v : p.autoCashout }));
+            }}
+            className="min-w-0 flex-1 bg-transparent text-center text-[0.72rem] font-bold text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+          />
+        </div>
+      ) : null}
+
+      {state.cashedAt ? (
+        <p className="text-center text-[0.6rem] font-bold text-[#18B800]">
+          {fmt(state.cashedAt)}x · {fmt(state.amount * state.cashedAt)}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+
 
 
 
@@ -1059,7 +1176,62 @@ export function Aviator() {
               ))}
             </div>
 
-            <div className="grid grid-cols-4 gap-[6px] sm:gap-[8px]">
+            {/* mobile: two slots with own stake grids + center action column */}
+            <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-[8px] sm:hidden">
+              <MobileBetSlot
+                state={slots[0]!}
+                setState={(fn) => setSlot(0, fn)}
+                phase={phase}
+                multiplier={multiplier}
+                onWin={win}
+                balance={balance}
+                mode={mode}
+              />
+              <div className="flex w-[62px] flex-col gap-[6px] pt-[6px]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const v = Number(window.prompt("Custom stake", String(slots[0]!.amount)) ?? "");
+                    if (Number.isFinite(v) && v >= 10) setAllSlots((p) => ({ ...p, amount: v }));
+                  }}
+                  className="rounded-full bg-[#F59E0B] py-[5px] text-[0.7rem] font-bold text-white"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAllSlots((p) => ({ ...p, amount: 10, staged: false }))}
+                  className="rounded-full bg-[#EF0000] py-[5px] text-[0.7rem] font-bold text-white"
+                >
+                  Clear
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAllSlots((p) => ({ ...p, amount: 10 }))}
+                  className="rounded-full border border-[#44474D] bg-[#151618] py-[5px] text-[0.7rem] font-semibold text-[#9CA3AF]"
+                >
+                  Min
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAllSlots((p) => ({ ...p, amount: 10000 }))}
+                  className="rounded-full border border-[#44474D] bg-[#151618] py-[5px] text-[0.7rem] font-semibold text-[#9CA3AF]"
+                >
+                  Max
+                </button>
+              </div>
+              <MobileBetSlot
+                state={slots[1]!}
+                setState={(fn) => setSlot(1, fn)}
+                phase={phase}
+                multiplier={multiplier}
+                onWin={win}
+                balance={balance}
+                mode={mode}
+              />
+            </div>
+
+            <div className="hidden grid-cols-4 gap-[6px] sm:grid sm:gap-[8px]">
               {QUICK.map((q) => (
                 <button
                   key={q}
@@ -1108,7 +1280,7 @@ export function Aviator() {
               </button>
             </div>
 
-            <div className="mt-2 grid grid-cols-4 gap-[6px] sm:mt-3 sm:gap-[8px]">
+            <div className="mt-2 hidden grid-cols-4 gap-[6px] sm:mt-3 sm:grid sm:gap-[8px]">
               {slots.map((s, i) => (
                 <BetPanel
                   key={i}
