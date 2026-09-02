@@ -279,14 +279,10 @@ export function DreamWheel({
           className="pointer-events-none absolute left-1/2 top-1/2 h-[92px] w-[92px] -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-[128px] sm:w-[128px]"
         />
 
-        <span className="pointer-events-none absolute left-1/2 top-[-10px] -translate-x-1/2 text-[1.6rem] leading-none text-[#F2C500] drop-shadow">
+        <span className="pointer-events-none absolute left-1/2 top-[-14px] -translate-x-1/2 text-[1.7rem] leading-none text-[#F2C500] drop-shadow">
           ▼
         </span>
-        {!suspended && leftSec != null ? (
-          <span className="pointer-events-none absolute bottom-2 right-2 flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#F2C500] bg-black/45 text-[1.05rem] font-extrabold text-[#F2C500]">
-            {leftSec}
-          </span>
-        ) : null}
+
         {showWin && winner ? (
           <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-[#F2C500] px-4 py-1 text-[0.8rem] font-extrabold uppercase text-black">
             {winner}x wins
