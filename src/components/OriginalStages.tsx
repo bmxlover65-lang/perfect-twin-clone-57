@@ -607,17 +607,37 @@ export function BalloonStage({
             {/* burner flame under the basket while the balloon is flying */}
             {flying ? (
               <span
-                className="pointer-events-none absolute left-1/2 top-[92%] z-10 -translate-x-1/2"
+                className="pointer-events-none absolute left-1/2 top-[86%] z-10 -translate-x-1/2"
                 aria-hidden
+                style={{
+                  width: 48,
+                  height: 64,
+                  filter: "drop-shadow(0 0 10px rgba(255,100,0,0.95)) drop-shadow(0 0 20px rgba(255,180,0,0.7))",
+                }}
               >
-                <img
-                  src={heatIcon.url}
-                  alt=""
-                  className="h-10 w-10 animate-[flame-flicker_120ms_ease-in-out_infinite_alternate] sm:h-12 sm:w-12"
-                  style={{
-                    filter: "drop-shadow(0 0 12px #FF5E00) drop-shadow(0 0 22px #FFD23E)",
-                  }}
-                />
+                <svg viewBox="0 0 48 64" className="h-full w-full animate-[flame-flicker_120ms_ease-in-out_infinite_alternate]">
+                  <defs>
+                    <linearGradient id="fireBody" x1="0" y1="1" x2="0" y2="0">
+                      <stop offset="0%" stopColor="#8B0000" />
+                      <stop offset="35%" stopColor="#FF4500" />
+                      <stop offset="70%" stopColor="#FFD700" />
+                      <stop offset="100%" stopColor="#FFFFFF" />
+                    </linearGradient>
+                    <linearGradient id="fireCore" x1="0" y1="1" x2="0" y2="0">
+                      <stop offset="0%" stopColor="#FF8C00" />
+                      <stop offset="60%" stopColor="#FFFACD" />
+                      <stop offset="100%" stopColor="#FFFFFF" />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M24 62 C8 58 2 44 2 32 C2 20 10 10 16 2 C18 14 20 22 24 28 C28 22 30 14 32 2 C38 10 46 20 46 32 C46 44 40 58 24 62 Z"
+                    fill="url(#fireBody)"
+                  />
+                  <path
+                    d="M24 54 C16 52 12 42 12 34 C12 26 18 20 22 14 C23 22 24 28 24 32 C24 28 25 22 26 14 C30 20 36 26 36 34 C36 42 32 52 24 54 Z"
+                    fill="url(#fireCore)"
+                  />
+                </svg>
               </span>
             ) : null}
             {flying ? (
