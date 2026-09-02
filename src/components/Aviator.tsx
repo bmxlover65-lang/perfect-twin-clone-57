@@ -852,23 +852,21 @@ export function Aviator() {
                             : "border-b border-white/[0.06] bg-[#111315] text-white/70"
                       }`}
                     >
-                      <span className="flex min-w-0 items-center gap-1.5 sm:gap-2">
-                        <span
-                          className="grid h-5 w-5 shrink-0 place-items-center rounded-full text-[0.58rem] font-bold text-white sm:h-6 sm:w-6 sm:text-[0.6rem]"
-                          style={{
-                            background: `conic-gradient(from 0deg, hsl(${(b.id * 47) % 360} 70% 45%), hsl(${(b.id * 91) % 360} 70% 40%))`,
-                          }}
-                        >
-                          {b.user.slice(0, 1).toUpperCase()}
-                        </span>
-                        <span className="flex min-w-0 flex-col leading-tight">
-                          <span className="truncate">{maskName(b.user)}</span>
-                          <span className="truncate text-[0.58rem] text-white/35">
-                            {b.bal.toLocaleString()}
-                          </span>
+                      <span className="flex min-w-0 items-center gap-2">
+                        <img
+                          src={AVATARS[b.id % AVATARS.length]}
+                          alt=""
+                          loading="lazy"
+                          width={96}
+                          height={96}
+                          className="h-6 w-6 shrink-0 rounded-full object-cover sm:h-7 sm:w-7"
+                        />
+                        <span className="truncate font-semibold text-[#20BFFF]">
+                          {maskName(b.user)}
                         </span>
                       </span>
                       <span className="font-semibold text-white/85">{b.amount}</span>
+
                       <span
                         className={`shrink-0 rounded-full px-1.5 py-[1px] text-[0.62rem] font-bold sm:px-2 sm:text-[0.65rem] ${
                           done
