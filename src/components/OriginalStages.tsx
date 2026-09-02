@@ -392,6 +392,11 @@ export function BalloonStage({
     null,
   ]);
   const [flash, setFlash] = useState<(null | { text: string; win: boolean })[]>([null, null]);
+  // one bet per round per panel
+  const [used, setUsed] = useState<[boolean, boolean]>([false, false]);
+  const usedRef = useRef(used);
+  usedRef.current = used;
+
   const airRef = useRef<HTMLAudioElement | null>(null);
   const apiTarget = Number(multiplier) || 0;
   const apiRef = useRef(apiTarget);
