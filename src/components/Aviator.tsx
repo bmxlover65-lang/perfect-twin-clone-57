@@ -831,17 +831,15 @@ export function Aviator() {
             </div>
           ) : null}
 
-          <div className="mt-2 grid grid-cols-[1fr_auto_auto_auto] gap-x-2 border-b sm:gap-x-3 border-white/10 pb-1 text-[0.62rem] font-semibold text-white/40">
+          <div className="mt-2 grid grid-cols-[minmax(0,1fr)_80px_66px_minmax(0,1fr)] gap-x-2 border-b border-white/10 px-2 pb-1 text-[0.65rem] font-semibold text-white/40">
             <span>{tab === "my" ? "Round" : "User"}</span>
             <span>Bet&nbsp;&nbsp;X</span>
             <span></span>
             <span className="text-right">Cash out</span>
           </div>
 
+          <div className="h-[340px] max-h-[340px] w-full min-w-0 flex-col space-y-[2px] overflow-y-auto overflow-x-hidden pt-1 [column-count:1] lg:h-[560px] lg:max-h-[560px]">
 
-
-
-          <div className="h-[340px] max-h-[340px] w-full min-w-0 flex-col space-y-[3px] overflow-y-auto overflow-x-hidden pt-1 [column-count:1] lg:h-[560px] lg:max-h-[560px]">
             {tab === "my"
               ? [
                   ...slots
