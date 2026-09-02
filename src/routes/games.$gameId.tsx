@@ -2013,7 +2013,7 @@ function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: bool
             <span
               key={`${r.roundId ?? ""}-${idx}`}
               title={`Round ${r.roundId}`}
-              className={`flex h-9 min-w-9 items-center justify-center rounded-full px-2 text-sm font-bold ${finalTone}`}
+              className={`flex h-9 min-w-9 shrink-0 items-center justify-center rounded-full px-2 text-sm font-bold ${finalTone}`}
             >
               {first || "-"}
             </span>
