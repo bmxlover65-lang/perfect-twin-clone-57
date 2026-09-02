@@ -60,6 +60,7 @@ type LiveBet = {
   user: string;
   amount: number;
   cashedAt?: number;
+  busted?: boolean;
   target: number;
 };
 
@@ -67,6 +68,15 @@ function maskName(n: string) {
   const s = n.replace(/\s+/g, "").toLowerCase();
   if (s.length < 3) return s;
   return `${s[0]}${"*".repeat(Math.max(3, Math.min(7, s.length - 2)))}${s[s.length - 1]}`;
+}
+
+// realistic cash-out target: most players bail early, a few chase big multipliers,
+// and a chunk never cash out at all (target far above any realistic crash).
+function makeTarget(r: number) {
+  if (r < 0.28) return 0; // greedy players who never cash out -> they bust
+  if (r < 0.72) return Math.round((1.15 + (r - 0.28) * 3.2) * 100) / 100;
+  if (r < 0.93) return Math.round((2.6 + (r - 0.72) * 22) * 100) / 100;
+  return Math.round((7 + (r - 0.93) * 260) * 100) / 100;
 }
 
 function makeBets(seed: number): LiveBet[] {
@@ -77,17 +87,19 @@ function makeBets(seed: number): LiveBet[] {
     const pick = base[(seed * 7 + i * 11) % base.length]!;
     // slight organic jitter so amounts don't look generated
     const amt = pick + ((seed * 13 + i * 17) % 5) * (pick >= 500 ? 10 : 1);
+    const r = ((seed * 37 + i * 61) % 1000) / 1000;
     out.push({
-      id: seed * 100 + i,
+      id: seed * 100 + i + Math.floor(Math.random() * 7),
       user: NAMES[(seed * 3 + i * 5) % NAMES.length]!,
       amount: amt,
-      target: 1.15 + ((seed * 13 + i * 29) % 850) / 100,
+      target: makeTarget(r),
     });
   }
   // biggest bets on top like the real lobby
   out.sort((a, b) => b.amount - a.amount);
   return out;
 }
+
 
 /* ---------------- bet panel ---------------- */
 
@@ -177,13 +189,13 @@ function BetPanel({
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-[5px]">
+      <div className="grid grid-cols-2 gap-[4px] sm:gap-[5px]">
         {QUICK.map((q) => (
           <button
             key={q}
             type="button"
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`rounded-full border bg-transparent py-[5px] text-center text-[0.72rem] font-semibold transition-colors ${
+            className={`rounded-full border bg-transparent py-[4px] text-center text-[0.66rem] sm:text-[0.72rem] font-semibold transition-colors ${
               state.amount === q
                 ? "border-[#18B800] text-white shadow-[0_0_0_1px_rgba(24,184,0,0.45)]"
                 : "border-[#4A4C52] text-[#C9CBD1] hover:text-white"
@@ -197,7 +209,7 @@ function BetPanel({
       <button
         type="button"
         onClick={press}
-        className={`rounded-[10px] py-[11px] text-center text-[1rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.35)] ${tone}`}
+        className={`rounded-[10px] py-[9px] text-center text-[0.86rem] sm:py-[11px] sm:text-[1rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.35)] ${tone}`}
       >
         {label}
         {canCash ? (
@@ -431,6 +443,9 @@ export function Aviator() {
   const [round, setRound] = useState(1);
   const [balance, setBalance] = useState(5000);
   const [bets, setBets] = useState<LiveBet[]>(() => makeBets(1));
+  const [feed, setFeed] = useState<{ id: number; text: string; kind: "join" | "leave" | "win" }[]>([]);
+  const [online, setOnline] = useState(1842);
+
 
   const [p1, setP1] = useState<PanelState>(() => initialPanel(100));
   const [p2, setP2] = useState<PanelState>(() => initialPanel(200));
@@ -488,6 +503,8 @@ export function Aviator() {
           setPhase("crashed");
           setHistory((h) => [crashRef.current, ...h].slice(0, 24));
           setRound((r) => r + 1);
+          // everyone who did not cash out before the crash loses the round
+          setBets((list) => list.map((b) => (b.cashedAt === undefined ? { ...b, busted: true } : b)));
           window.setTimeout(() => {
             if (mounted) beginBetting();
           }, CRASH_HOLD_MS);
@@ -495,8 +512,13 @@ export function Aviator() {
         }
         setMultiplier(m);
         setBets((list) =>
-          list.map((b) => (b.cashedAt === undefined && b.target <= m ? { ...b, cashedAt: m } : b)),
+          list.map((b) =>
+            b.cashedAt === undefined && b.target > 1 && b.target <= m
+              ? { ...b, cashedAt: Math.round(b.target * 100) / 100 }
+              : b,
+          ),
         );
+
         raf = requestAnimationFrame(tick);
       };
       raf = requestAnimationFrame(tick);
@@ -574,6 +596,50 @@ export function Aviator() {
     return () => window.clearInterval(id);
   }, [phase]);
 
+  // live join / leave ticker + online counter
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const name = maskName(NAMES[Math.floor(Math.random() * NAMES.length)]!);
+      const kind = Math.random() < 0.62 ? "join" : "leave";
+      const delta = kind === "join" ? 1 + Math.floor(Math.random() * 6) : -(1 + Math.floor(Math.random() * 5));
+      setOnline((o) => Math.max(900, Math.min(4800, o + delta)));
+      setFeed((f) =>
+        [
+          {
+            id: Date.now() + Math.random(),
+            kind: kind as "join" | "leave",
+            text: kind === "join" ? `${name} joined the table` : `${name} left the table`,
+          },
+          ...f,
+        ].slice(0, 20),
+      );
+    }, 1600);
+    return () => window.clearInterval(id);
+  }, []);
+
+  // announce real cash-outs in the feed
+  useEffect(() => {
+    if (phase !== "flying") return;
+    const id = window.setInterval(() => {
+      const done = bets.filter((b) => b.cashedAt !== undefined);
+      if (!done.length) return;
+      const b = done[Math.floor(Math.random() * done.length)]!;
+      setFeed((f) =>
+        [
+          {
+            id: Date.now() + Math.random(),
+            kind: "win" as const,
+            text: `${maskName(b.user)} cashed out ${fmt(b.cashedAt!)}x · ${fmt(b.amount * b.cashedAt!)}`,
+          },
+          ...f,
+        ].slice(0, 20),
+      );
+    }, 1400);
+    return () => window.clearInterval(id);
+  }, [phase, bets]);
+
+
+
   return (
     <div className="overflow-hidden rounded-[16px] border border-[#303238] bg-[#090A0C] p-1.5 sm:p-2">
       <div className="grid gap-2 lg:grid-cols-[400px_1fr]">
@@ -602,9 +668,13 @@ export function Aviator() {
                 <span className="text-[0.74rem] font-semibold text-white/60">{bets.length}</span>
               </span>
               <span className="flex flex-col items-end leading-tight">
-                Users
-                <span className="text-[0.74rem] font-semibold text-white/60">{myBets.length}</span>
+                <span className="flex items-center gap-1">
+                  <span className="h-[6px] w-[6px] rounded-full bg-[#18B800]" />
+                  Online
+                </span>
+                <span className="text-[0.74rem] font-semibold text-white/60">{online.toLocaleString()}</span>
               </span>
+
             </div>
           ) : null}
 
@@ -640,15 +710,17 @@ export function Aviator() {
                   return (
                     <div
                       key={b.id}
-                      className={`grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-2 px-2 sm:gap-x-3 py-[5px] text-[0.72rem] ${
+                      className={`grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-1.5 px-1.5 sm:px-2 sm:gap-x-3 py-[5px] text-[0.68rem] sm:text-[0.72rem] ${
                         done
                           ? "rounded-[7px] border border-[#3B8F20] bg-[#0D4206] text-white"
-                          : "border-b border-white/[0.06] bg-[#111315] text-white/70"
+                          : b.busted
+                            ? "rounded-[7px] border border-white/[0.06] bg-[#1A1113] text-white/45"
+                            : "border-b border-white/[0.06] bg-[#111315] text-white/70"
                       }`}
                     >
-                      <span className="flex min-w-0 items-center gap-2">
+                      <span className="flex min-w-0 items-center gap-1.5 sm:gap-2">
                         <span
-                          className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-[0.6rem] font-bold text-white"
+                          className="grid h-5 w-5 shrink-0 place-items-center rounded-full text-[0.58rem] font-bold text-white sm:h-6 sm:w-6 sm:text-[0.6rem]"
                           style={{
                             background: `conic-gradient(from 0deg, hsl(${(b.id * 47) % 360} 70% 45%), hsl(${(b.id * 91) % 360} 70% 40%))`,
                           }}
@@ -659,7 +731,7 @@ export function Aviator() {
                       </span>
                       <span className="font-semibold text-white/85">{b.amount}</span>
                       <span
-                        className={`shrink-0 rounded-full px-2 py-[1px] text-[0.65rem] font-bold ${
+                        className={`shrink-0 rounded-full px-1.5 py-[1px] text-[0.62rem] font-bold sm:px-2 sm:text-[0.65rem] ${
                           done
                             ? "border border-[#3B8F20]/60 bg-[#052208] text-[#7CFF56]"
                             : ""
@@ -673,6 +745,7 @@ export function Aviator() {
                     </div>
                   );
                 })}
+
 
             {tab === "my" && myBets.length === 0 ? (
               <p className="py-6 text-center text-[0.72rem] text-white/40">No bets yet</p>
@@ -707,7 +780,7 @@ export function Aviator() {
                 {(histOpen ? history : history.slice(0, 30)).map((h, i) => (
                   <span
                     key={`${h}-${i}`}
-                    className={`shrink-0 px-1 text-[0.72rem] font-bold sm:text-[0.82rem] ${toneFor(h)}`}
+                    className={`shrink-0 px-1 text-[0.66rem] font-bold sm:text-[0.82rem] ${toneFor(h)}`}
                   >
                     {fmt(h)}x
                   </span>
@@ -728,12 +801,71 @@ export function Aviator() {
                 />
               </button>
             </div>
+
+            {histOpen ? (
+              <div className="mt-2 border-t border-white/10 pt-2">
+                <div className="flex items-center justify-between text-[0.66rem] font-bold text-white/70">
+                  <span className="flex items-center gap-1">
+                    <span className="h-[6px] w-[6px] rounded-full bg-[#18B800]" />
+                    LIVE USERS
+                    <span className="text-white/45">{online.toLocaleString()}</span>
+                  </span>
+                  <span className="text-white/40">Round #{round}</span>
+                </div>
+                <div className="mt-1 max-h-[92px] space-y-[2px] overflow-y-auto pr-1">
+                  {feed.length === 0 ? (
+                    <p className="py-2 text-[0.64rem] text-white/35">Waiting for players…</p>
+                  ) : (
+                    feed.map((f) => (
+                      <p
+                        key={f.id}
+                        className={`truncate text-[0.64rem] ${
+                          f.kind === "win"
+                            ? "text-[#7CFF56]"
+                            : f.kind === "join"
+                              ? "text-white/55"
+                              : "text-white/30"
+                        }`}
+                      >
+                        {f.kind === "join" ? "→ " : f.kind === "leave" ? "← " : "★ "}
+                        {f.text}
+                      </p>
+                    ))
+                  )}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          {/* real-feel round ticker */}
+          <div className="flex items-center justify-between rounded-[10px] border border-[#303238] bg-[#0B0C0E] px-3 py-[5px] text-[0.66rem] font-bold sm:text-[0.72rem]">
+            <span className="text-white/50">ROUND #{round}</span>
+            <span
+              className={
+                phase === "betting"
+                  ? "text-[#20BFFF]"
+                  : phase === "flying"
+                    ? "text-[#18B800]"
+                    : "text-[#FF003C]"
+              }
+            >
+              {phase === "betting"
+                ? countdown <= 400
+                  ? "GO!"
+                  : `Next round in ${Math.ceil(countdown / 1000)}…`
+                : phase === "flying"
+                  ? "IN FLIGHT"
+                  : "FLEW AWAY"}
+            </span>
+            <span className="text-white/40">{bets.length} bets</span>
           </div>
 
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} />
 
 
-          <div className="flex items-start gap-2 rounded-[14px] border border-[#303238] bg-[#151618] p-2 sm:gap-3 sm:p-3">
+
+
+          <div className="flex items-start gap-1.5 rounded-[14px] border border-[#303238] bg-[#151618] p-1.5 sm:gap-3 sm:p-3">
             <BetPanel
               state={p1}
               setState={setP1}
@@ -743,7 +875,7 @@ export function Aviator() {
               balance={balance}
             />
 
-            <div className="flex w-[68px] shrink-0 flex-col gap-[6px] pt-[26px] sm:w-[86px]">
+            <div className="flex w-[58px] shrink-0 flex-col gap-[5px] pt-[24px] sm:w-[86px]">
               <button
                 type="button"
                 onClick={() => {
@@ -753,7 +885,7 @@ export function Aviator() {
                     setP2((p) => ({ ...p, amount: v }));
                   }
                 }}
-                className="rounded-[6px] bg-[#F59E0B] py-[6px] text-[0.78rem] font-bold text-white"
+                className="rounded-[6px] bg-[#F59E0B] py-[5px] text-[0.7rem] sm:py-[6px] sm:text-[0.78rem] font-bold text-white"
               >
                 Edit
               </button>
@@ -763,7 +895,7 @@ export function Aviator() {
                   setP1((p) => ({ ...p, amount: 10, staged: false }));
                   setP2((p) => ({ ...p, amount: 10, staged: false }));
                 }}
-                className="rounded-[6px] bg-[#EF0000] py-[6px] text-[0.78rem] font-bold text-white"
+                className="rounded-[6px] bg-[#EF0000] py-[5px] text-[0.7rem] sm:py-[6px] sm:text-[0.78rem] font-bold text-white"
               >
                 Clear
               </button>
@@ -773,7 +905,7 @@ export function Aviator() {
                   setP1((p) => ({ ...p, amount: 10 }));
                   setP2((p) => ({ ...p, amount: 10 }));
                 }}
-                className="rounded-[6px] border border-[#4A4C52] bg-transparent py-[6px] text-[0.78rem] font-semibold text-[#9CA3AF]"
+                className="rounded-[6px] border border-[#4A4C52] bg-transparent py-[5px] text-[0.7rem] sm:py-[6px] sm:text-[0.78rem] font-semibold text-[#9CA3AF]"
               >
                 Min
               </button>
@@ -783,7 +915,7 @@ export function Aviator() {
                   setP1((p) => ({ ...p, amount: 10000 }));
                   setP2((p) => ({ ...p, amount: 10000 }));
                 }}
-                className="rounded-[6px] border border-[#4A4C52] bg-transparent py-[6px] text-[0.78rem] font-semibold text-[#9CA3AF]"
+                className="rounded-[6px] border border-[#4A4C52] bg-transparent py-[5px] text-[0.7rem] sm:py-[6px] sm:text-[0.78rem] font-semibold text-[#9CA3AF]"
               >
                 Max
               </button>
