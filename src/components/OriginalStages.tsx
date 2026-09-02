@@ -818,13 +818,13 @@ export function BalloonStage({
                 >
                   Auto
                   <span
-                    className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors ${
+                    className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors sm:h-5 sm:w-10 ${
                       autos[i] ? "bg-[#2FA84F]" : "bg-[#D9D9D9]"
                     }`}
                   >
                     <span
-                      className={`absolute h-4 w-4 rounded-full bg-white shadow transition-all ${
-                        autos[i] ? "left-[1.35rem]" : "left-0.5"
+                      className={`absolute h-3 w-3 rounded-full bg-white shadow transition-all sm:h-4 sm:w-4 ${
+                        autos[i] ? "left-[1.1rem] sm:left-[1.35rem]" : "left-0.5"
                       }`}
                     />
                   </span>
