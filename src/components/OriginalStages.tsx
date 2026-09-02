@@ -490,16 +490,20 @@ export function BalloonStage({
     };
 
     const burst = (at: number) => {
-      target = at;
+      // the official result for this round wins over our animated estimate
+      const exact = curRound ? winnersRef.current.get(String(curRound)) : undefined;
+      const val = exact && exact > 0 ? exact : at;
+      target = val;
       ph = "crashed";
       setPhase("crashed");
-      setCrashAt(at);
-      setShown(at);
-      setHistory((h) => [at, ...h].slice(0, 10));
+      setCrashAt(val);
+      setShown(val);
+      setHistory((h) => (h[0] === val ? h : [val, ...h].slice(0, 10)));
       airRef.current?.pause();
       play(bonusSfx.url, 0.7);
       t = 2.4;
     };
+
 
     const tick = (now: number) => {
       const dt = Math.min(0.1, (now - last) / 1000);
