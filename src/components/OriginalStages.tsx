@@ -1004,9 +1004,17 @@ export function BallByBallBoard({
           ))}
         </div>
       </div>
-      <div className="bg-[#FFC800] py-[6px] text-center text-[0.95rem] font-bold text-black">
-        {news ?? "Results are based on stream only. Score board may be different or updated later"}
+      <div className="overflow-hidden bg-[#FFC800] py-[6px]">
+        <div className="marquee-track flex w-max gap-16 whitespace-nowrap text-[0.95rem] font-bold text-black">
+          {[0, 1].map((k) => (
+            <span key={k}>
+              {news ??
+                "Results are based on stream only. Score board may be different or updated later"}
+            </span>
+          ))}
+        </div>
       </div>
+
       {recent && recent.length ? (
         <div className="px-3 py-3">
           <p className="text-[0.95rem] font-bold text-black">Recent Result</p>
