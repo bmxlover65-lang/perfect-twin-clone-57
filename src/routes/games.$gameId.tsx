@@ -2163,7 +2163,10 @@ function ResultBanner({ results }: { results: CasinoResult[] }) {
   }, [key, winner]);
 
   if (!show || !winner) return null;
-  const label = /win/i.test(winner) ? winner.toUpperCase() : `${winner.toUpperCase()} WIN`;
+  const expanded = /^(player\s*)?[ab]$/i.test(winner)
+    ? `PLAYER ${winner.replace(/player\s*/i, "").toUpperCase()}`
+    : winner.toUpperCase();
+  const label = /win/i.test(expanded) ? expanded : `${expanded} WIN`;
   return (
     <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
       <span className="rounded-[6px] bg-[#F26A2E] px-4 py-2 text-[1.05rem] font-bold uppercase tracking-wide text-white shadow-[0_4px_14px_rgba(0,0,0,0.45)] [animation:scale-in_0.25s_ease-out]">
