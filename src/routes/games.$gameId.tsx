@@ -227,16 +227,14 @@ function PokerPanel({
     locked: boolean;
   }) => (
     <div
-      className={`flex h-[55px] w-[215px] -skew-x-[18deg] items-center justify-center rounded-[2px] shadow-[0_2px_5px_rgba(0,0,0,0.25)] ${
+      className={`flex h-[52px] w-full min-w-0 flex-1 -skew-x-[18deg] items-center justify-center rounded-[2px] shadow-[0_2px_5px_rgba(0,0,0,0.25)] ${
         locked
           ? "bg-gradient-to-b from-[#cdd7d2] to-[#b7c4be]"
           : "bg-gradient-to-br from-[#1f8f63] to-[#0a5b3b]"
       }`}
     >
       <div className="skew-x-[18deg] text-center leading-tight">
-        <p className={`text-[1.15rem] font-extrabold ${locked ? "text-white" : "text-white"}`}>
-          {fmtOdds(price)}
-        </p>
+        <p className="text-[1.05rem] font-extrabold text-white">{fmtOdds(price)}</p>
         <p className={`text-[0.62rem] font-semibold ${locked ? "text-[#7c8a85]" : "text-white/60"}`}>
           {fmtSize(size)}
         </p>
@@ -246,19 +244,19 @@ function PokerPanel({
 
 
   return (
-    <div className="mt-3 bg-[#ececec]">
-      <div className="flex items-center justify-between gap-4 px-3 py-4">
+    <div className="mt-3 bg-[#ececec] pb-3">
+      <div className="flex items-center justify-between gap-3 px-3 py-4">
         {["PLAYER A", "PLAYER B"].map((n) => (
           <div
             key={n}
-            className="flex h-[68px] w-[250px] items-center justify-center rounded-[4px] bg-gradient-to-br from-[#1f8f63] to-[#0a5b3b] text-[1.05rem] font-extrabold tracking-wide text-white shadow-[0_2px_5px_rgba(0,0,0,0.25)]"
+            className="flex h-[60px] min-w-0 flex-1 items-center justify-center rounded-[4px] bg-gradient-to-br from-[#1f8f63] to-[#0a5b3b] text-[0.95rem] font-extrabold tracking-wide text-white shadow-[0_2px_5px_rgba(0,0,0,0.25)]"
           >
             {n}
           </div>
         ))}
       </div>
 
-      <div>
+      <div className="flex flex-col gap-3">
         {markets.map((m) => {
           const names = m.runnersName ?? {};
           const runners = m.runners ?? [];
@@ -270,19 +268,19 @@ function PokerPanel({
           return (
             <div
               key={m.marketId}
-              className={`relative border-t border-[#c9c9c9] px-3 pb-6 pt-0 ${
+              className={`relative border-t border-[#c9c9c9] px-3 pb-4 pt-0 ${
                 isSusp ? "rounded-[14px] border border-[#e0403f]" : ""
               }`}
             >
               <div className="flex justify-center">
-                <div className="flex h-[42px] w-[305px] items-center justify-center gap-1.5 rounded-b-[22px] bg-white text-[0.82rem] font-extrabold uppercase tracking-wide text-[#333] shadow-[0_3px_5px_rgba(0,0,0,0.18)]">
+                <div className="flex h-[38px] w-full max-w-[305px] items-center justify-center gap-1.5 rounded-b-[22px] bg-white px-3 text-center text-[0.78rem] font-extrabold uppercase leading-tight tracking-wide text-[#333] shadow-[0_3px_5px_rgba(0,0,0,0.18)]">
                   {m.marketName}
-                  <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#5b8dab] text-[0.6rem] font-bold text-white">
+                  <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-[#5b8dab] text-[0.6rem] font-bold text-white">
                     i
                   </span>
                 </div>
               </div>
-              <div className="relative -mt-5 flex items-center justify-between">
+              <div className="relative mt-2 flex items-center gap-3">
                 <Plate
                   price={a?.price?.back?.[0]?.price}
                   size={a?.price?.back?.[0]?.size}
@@ -295,7 +293,7 @@ function PokerPanel({
                 />
                 {isSusp ? (
                   <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-                    <span className="text-[1.35rem] font-extrabold uppercase leading-none text-[#e0201c]">
+                    <span className="text-[1.2rem] font-extrabold uppercase leading-none text-[#e0201c]">
                       Suspended
                     </span>
                   </div>
@@ -310,6 +308,7 @@ function PokerPanel({
     </div>
   );
 }
+
 
 
 function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
