@@ -63,6 +63,8 @@ function OperatorPage() {
   const [balance, setBalance] = useState<string>("—");
   const [userId, setUserId] = useState("demo-user");
   const [err, setErr] = useState("");
+  const [tab, setTab] = useState<string>("overview");
+
 
   const run = async (fn: () => Promise<void>) => {
     setErr("");
