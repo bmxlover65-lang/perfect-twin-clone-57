@@ -12,16 +12,23 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Sports event markets (match odds, bookmaker, fancy, sportsbook) betting
 - [ ] Self-generated games (Balloon, Dream, Lucky 0-9, Coin, Aviator) — verify stake debit + payout credit against the real result
 
-## Phase 2 — Cloud backend
-- [ ] Enable Lovable Cloud
-- [ ] Tables: operators, api_keys, ip_whitelist, domain_whitelist, subscriptions,
-      rounds, results, bets, transactions, callback_logs, user_roles
-- [ ] RLS + grants; operator-scoped policies
+## Phase 2 — Cloud backend (done)
+- [x] Lovable Cloud enabled
+- [x] Tables: user_roles, operators, api_keys, ip_whitelist, domain_whitelist,
+      rounds, bets, transactions, callback_logs (RLS + grants, admin/operator scoped)
+- [x] API-key auth (sha256 hash) + IP/domain whitelist + plan-expiry check
+      (`src/lib/operator-auth.server.ts`)
+- [x] Callback wallet with HMAC signature + callback_logs
+      (`src/lib/callback-wallet.server.ts`)
+- [x] Public API: POST /api/public/v1/balance, POST /api/public/v1/bet (idempotent + rollback),
+      GET /api/public/v1/bets
+- [x] Admin server fns: operators, API keys, whitelist, manual result + settlement
+      (`src/lib/operator-admin.functions.ts`)
 
-## Phase 3 — Operator API (`/api/public/*`)
-- [ ] API-key auth + IP/domain whitelist + subscription expiry check
-- [ ] Launch URL minting, bet placement, settlement
-- [ ] Callback wallet: debit/credit against operator's site balance, signed + retried
+## Phase 3 — Wiring
+- [ ] Auth (email + Google) and first admin role grant
+- [ ] Launch URL minting + game session tokens
+- [ ] Settle real (non-manual) rounds automatically from the live feed
 
 ## Phase 4 — Panels
 - [ ] Admin panel: operators, keys, whitelist, monthly plan, bet ledger, manual result override
