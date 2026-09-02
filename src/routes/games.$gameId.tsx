@@ -1978,8 +1978,9 @@ function GamePage() {
 
 function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: boolean }) {
   return (
-      <div className="mt-4 flex flex-wrap items-center gap-2 rounded-md bg-ex-panel px-3 py-2">
-        <span className="mr-1 text-base font-bold text-ex-text">Recent Result</span>
+      <div className="mt-4 flex items-center gap-2 overflow-x-auto rounded-md bg-ex-panel px-3 py-2">
+        <span className="mr-1 shrink-0 text-base font-bold text-ex-text">Recent Result</span>
+
         {results.slice(0, 10).map((r, idx) => {
           const rr = r as CasinoResult & { result?: string; selectionName?: string };
           const raw = (rr.winner ?? rr.result ?? rr.selectionName ?? "-").toString().trim();
