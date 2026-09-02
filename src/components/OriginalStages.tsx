@@ -672,17 +672,17 @@ export function BalloonStage({
               flying
                 ? {
                     bottom: `${18 + grow * 58}%`,
-                    width: `${Math.max(22, 42 - grow * 14)}%`,
-                    minWidth: 160,
-                    maxWidth: 420,
+                    width: `${Math.max(24, 36 - grow * 10)}%`,
+                    minWidth: 170,
+                    maxWidth: 330,
                     transform: `translateX(calc(-50% + ${drift}px))`,
                     transition: "bottom 220ms linear, width 220ms linear, transform 220ms linear",
                   }
                 : {
                     bottom: "22%",
-                    width: "42%",
-                    minWidth: 220,
-                    maxWidth: 360,
+                    width: "36%",
+                    minWidth: 200,
+                    maxWidth: 330,
                     transform: "translateX(-50%)",
                   }
             }
