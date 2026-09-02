@@ -123,7 +123,7 @@ function SportsPage() {
 
   useEffect(() => {
     void load(sportId);
-    const t = setInterval(() => void load(sportId, true), 1000);
+    const t = setInterval(() => void load(sportId, true), 400);
     return () => clearInterval(t);
   }, [sportId, load]);
 

@@ -241,7 +241,7 @@ function EventPage() {
 
   useEffect(() => {
     void load();
-    const t = setInterval(() => void load(), 1000);
+    const t = setInterval(() => void load(), 400);
     const a = setInterval(() => setAge((v) => v + 1), 1000);
     return () => {
       clearInterval(t);
