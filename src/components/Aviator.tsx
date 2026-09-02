@@ -175,47 +175,11 @@ function BetPanel({
   };
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col gap-2">
-      <div className="flex items-center gap-2">
-        <span className="text-[0.72rem] font-semibold text-[#9CA3AF]">Auto</span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={state.auto}
-          onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
-          className={`relative h-[20px] w-[40px] rounded-full transition-colors ${
-            state.auto ? "bg-[#18B800]" : "bg-[#303238]"
-          }`}
-        >
-          <span
-            className={`absolute top-[2px] h-[16px] w-[16px] rounded-full bg-white transition-all ${
-              state.auto ? "left-[22px]" : "left-[2px]"
-            }`}
-          />
-        </button>
-      </div>
-
-      <div className="grid grid-cols-2 gap-[4px] sm:gap-[5px]">
-        {QUICK.map((q) => (
-          <button
-            key={q}
-            type="button"
-            onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`rounded-full border bg-transparent py-[4px] text-center text-[0.66rem] sm:text-[0.72rem] font-semibold transition-colors ${
-              state.amount === q
-                ? "border-[#18B800] text-white shadow-[0_0_0_1px_rgba(24,184,0,0.45)]"
-                : "border-[#4A4C52] text-[#C9CBD1] hover:text-white"
-            }`}
-          >
-            {q}
-          </button>
-        ))}
-      </div>
-
+    <div className="flex min-w-0 flex-col gap-[3px]">
       <button
         type="button"
         onClick={press}
-        className={`rounded-[10px] py-[9px] text-center text-[0.86rem] sm:py-[11px] sm:text-[1rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.35)] ${tone}`}
+        className={`rounded-[6px] py-[9px] text-center text-[0.86rem] font-bold text-white sm:py-[10px] sm:text-[0.95rem] ${tone}`}
       >
         {label}
         {canCash ? (
@@ -224,18 +188,20 @@ function BetPanel({
       </button>
 
       {state.cashedAt ? (
-        <p className="text-center text-[0.7rem] font-bold text-[#18B800]">
-          Cashed out {fmt(state.cashedAt)}x · {fmt(state.amount * state.cashedAt)} INR
+        <p className="text-center text-[0.62rem] font-bold text-[#18B800]">
+          {fmt(state.cashedAt)}x · {fmt(state.amount * state.cashedAt)}
         </p>
       ) : state.staged ? (
-        <p className="text-center text-[0.7rem] font-semibold text-[#9CA3AF]">
-          Waiting for next round
+        <p className="text-center text-[0.62rem] font-semibold text-[#9CA3AF]">
+          Waiting · {state.amount}
         </p>
+      ) : state.active ? (
+        <p className="text-center text-[0.62rem] font-semibold text-white/45">{state.amount}</p>
       ) : null}
-
     </div>
   );
 }
+
 
 
 /* ---------------- flight canvas ---------------- */
