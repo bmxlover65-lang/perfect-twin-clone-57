@@ -192,6 +192,7 @@ export function BetLayer({
       return;
     }
     busy.current = true;
+    saveLastStake(stake);
     const ok = placeBet({
       gameId,
       gameName,
