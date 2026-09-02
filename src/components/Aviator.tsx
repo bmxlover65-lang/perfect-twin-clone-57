@@ -6,6 +6,10 @@ import plane3 from "@/assets/aviator/plane-3.svg";
 import historyIcon from "@/assets/aviator/history.svg";
 import arrowIcon from "@/assets/aviator/arrow-down.svg";
 import fairIcon from "@/assets/aviator/provably-fair.svg";
+import bgSound from "@/assets/aviator/aviator-background.mp3.asset.json";
+import crashSound from "@/assets/aviator/plane-crash.mp3.asset.json";
+import beepSound from "@/assets/aviator/beep.mp3.asset.json";
+import winSound from "@/assets/aviator/win.mp3.asset.json";
 
 import { type AviatorControl, useAdminConfig } from "@/lib/admin";
 import { logBet, setBalance as saveBalance } from "@/lib/telemetry";
@@ -61,6 +65,7 @@ type LiveBet = {
   amount: number;
   cashedAt?: number;
   busted?: boolean;
+  bal: number;
   target: number;
 };
 
@@ -92,6 +97,7 @@ function makeBets(seed: number): LiveBet[] {
       id: seed * 100 + i + Math.floor(Math.random() * 7),
       user: NAMES[(seed * 3 + i * 5) % NAMES.length]!,
       amount: amt,
+      bal: 500 + ((seed * 91 + i * 137) % 96000),
       target: makeTarget(r),
     });
   }
@@ -238,13 +244,16 @@ function FlightStage({
   phase,
   multiplier,
   countdown,
+  muted,
+  setMuted,
 }: {
   phase: Phase;
   multiplier: number;
   countdown: number;
+  muted: boolean;
+  setMuted: (fn: (v: boolean) => boolean) => void;
 }) {
   const [frame, setFrame] = useState(0);
-  const [muted, setMuted] = useState(true);
   const [t, setT] = useState(0);
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -445,6 +454,21 @@ export function Aviator() {
   const [bets, setBets] = useState<LiveBet[]>(() => makeBets(1));
   const [feed, setFeed] = useState<{ id: number; text: string; kind: "join" | "leave" | "win" }[]>([]);
   const [online, setOnline] = useState(1842);
+  const [muted, setMuted] = useState(true);
+  const bgRef = useRef<HTMLAudioElement | null>(null);
+  const sfx = useCallback(
+    (src: string, vol = 0.6) => {
+      if (muted) return;
+      try {
+        const a = new Audio(src);
+        a.volume = vol;
+        void a.play();
+      } catch {
+        /* autoplay blocked */
+      }
+    },
+    [muted],
+  );
 
 
   const [p1, setP1] = useState<PanelState>(() => initialPanel(100));
@@ -455,7 +479,10 @@ export function Aviator() {
   const phaseRef = useRef<Phase>("betting");
   phaseRef.current = phase;
 
-  const win = useCallback((amt: number) => setBalance((b) => Math.round((b + amt) * 100) / 100), []);
+  const win = useCallback((amt: number) => {
+    setBalance((b) => Math.round((b + amt) * 100) / 100);
+    sfx(winSound.url, 0.65);
+  }, [sfx]);
 
   // round loop
   useEffect(() => {
@@ -504,7 +531,11 @@ export function Aviator() {
           setHistory((h) => [crashRef.current, ...h].slice(0, 24));
           setRound((r) => r + 1);
           // everyone who did not cash out before the crash loses the round
-          setBets((list) => list.map((b) => (b.cashedAt === undefined ? { ...b, busted: true } : b)));
+          setBets((list) =>
+            list.map((b) =>
+              b.cashedAt === undefined ? { ...b, busted: true, bal: Math.max(0, b.bal - b.amount) } : b,
+            ),
+          );
           window.setTimeout(() => {
             if (mounted) beginBetting();
           }, CRASH_HOLD_MS);
@@ -514,7 +545,11 @@ export function Aviator() {
         setBets((list) =>
           list.map((b) =>
             b.cashedAt === undefined && b.target > 1 && b.target <= m
-              ? { ...b, cashedAt: Math.round(b.target * 100) / 100 }
+              ? {
+                  ...b,
+                  cashedAt: Math.round(b.target * 100) / 100,
+                  bal: Math.round(b.bal + b.amount * (b.target - 1)),
+                }
               : b,
           ),
         );
@@ -581,6 +616,46 @@ export function Aviator() {
   useEffect(() => {
     saveBalance(balance);
   }, [balance]);
+
+  // engine loop while the plane is in the air
+  useEffect(() => {
+    if (muted) {
+      bgRef.current?.pause();
+      return;
+    }
+    if (phase === "flying") {
+      if (!bgRef.current) {
+        const a = new Audio(bgSound.url);
+        a.loop = true;
+        a.volume = 0.35;
+        bgRef.current = a;
+      }
+      void bgRef.current.play().catch(() => undefined);
+    } else {
+      bgRef.current?.pause();
+    }
+  }, [phase, muted]);
+
+  useEffect(() => () => bgRef.current?.pause(), []);
+
+  // crash sound
+  useEffect(() => {
+    if (phase === "crashed") sfx(crashSound.url, 0.7);
+  }, [phase, sfx]);
+
+  // countdown beeps 3..2..1
+  const beepRef = useRef(-1);
+  useEffect(() => {
+    if (phase !== "betting") {
+      beepRef.current = -1;
+      return;
+    }
+    const secs = Math.ceil(countdown / 1000);
+    if (secs <= 3 && secs >= 1 && beepRef.current !== secs) {
+      beepRef.current = secs;
+      sfx(beepSound.url, 0.5);
+    }
+  }, [countdown, phase, sfx]);
 
   // players keep joining while the plane flies (feels like a real lobby)
   useEffect(() => {
@@ -691,7 +766,22 @@ export function Aviator() {
 
           <div className="max-h-[340px] space-y-[3px] overflow-y-auto pt-1 lg:max-h-[560px]">
             {tab === "my"
-              ? myBets.map((b, i) => (
+              ? [
+                  ...[p1, p2]
+                    .filter((p) => p.staged || p.active)
+                    .map((p, i) => (
+                      <div
+                        key={`live-${i}`}
+                        className="grid grid-cols-[1fr_auto_auto] items-center gap-x-2 rounded-[6px] bg-[#12233A] px-1 py-[4px] text-[0.72rem] text-[#20BFFF] sm:gap-x-3"
+                      >
+                        <span>#{round} {p.staged ? "(queued)" : "(live)"}</span>
+                        <span className="font-semibold">{p.amount}</span>
+                        <span className="text-right font-bold">
+                          {p.cashedAt ? `${fmt(p.cashedAt)}x` : phase === "flying" ? `${fmt(multiplier)}x` : "—"}
+                        </span>
+                      </div>
+                    )),
+                  ...myBets.map((b, i) => (
                   <div
                     key={`${b.round}-${i}`}
                     className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-2 rounded-[6px] px-1 sm:gap-x-3 py-[4px] text-[0.72rem] ${
@@ -704,7 +794,8 @@ export function Aviator() {
                       {b.cashedAt ? `${fmt(b.cashedAt)}x` : `${fmt(b.crash)}x`}
                     </span>
                   </div>
-                ))
+                  )),
+                ]
               : bets.map((b) => {
                   const done = b.cashedAt !== undefined;
                   return (
@@ -727,7 +818,12 @@ export function Aviator() {
                         >
                           {b.user.slice(0, 1).toUpperCase()}
                         </span>
-                        <span className="truncate">{maskName(b.user)}</span>
+                        <span className="flex min-w-0 flex-col leading-tight">
+                          <span className="truncate">{maskName(b.user)}</span>
+                          <span className="truncate text-[0.58rem] text-white/35">
+                            {b.bal.toLocaleString()}
+                          </span>
+                        </span>
                       </span>
                       <span className="font-semibold text-white/85">{b.amount}</span>
                       <span
@@ -860,7 +956,7 @@ export function Aviator() {
             <span className="text-white/40">{bets.length} bets</span>
           </div>
 
-          <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} />
+          <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} />
 
 
 
