@@ -95,21 +95,28 @@ const mirrorCache = new Map<string, { at: number; data: unknown[] }>();
 
 async function mirrorResults(eventId: string): Promise<unknown[]> {
   const hit = mirrorCache.get(eventId);
-  if (hit && Date.now() - hit.at < 5000) return hit.data;
+  // keep a very short window only to collapse bursts; always re-fetch otherwise
+  if (hit && Date.now() - hit.at < 700) return hit.data;
   try {
     const res = await fetch(MIRROR_RESULTS, {
       method: "POST",
-      headers: { "content-type": "application/json", accept: "application/json" },
+      cache: "no-store",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json",
+        "cache-control": "no-cache",
+      },
       body: JSON.stringify({ eventId }),
     });
     const json = (await res.json().catch(() => ({}))) as { data?: unknown[] };
     const data = Array.isArray(json.data) ? json.data : [];
-    mirrorCache.set(eventId, { at: Date.now(), data });
-    return data;
+    if (data.length) mirrorCache.set(eventId, { at: Date.now(), data });
+    return data.length ? data : (hit?.data ?? []);
   } catch {
     return hit?.data ?? [];
   }
 }
+
 
 
 async function proxy(splat: string, search: string, body?: string, origin = "") {
@@ -145,7 +152,19 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
     }
 
     let token = await getToken();
+    const preMatch = /^games\/([^/]+)\/results$/.exec(splat);
+    if (preMatch) {
+      // official results mirror is the source of truth for casino events
+      const data = await mirrorResults(decodeURIComponent(preMatch[1]!));
+      if (data.length) {
+        return Response.json(
+          { data, source: "mirror" },
+          { status: 200, headers: { "cache-control": "no-store" } },
+        );
+      }
+    }
     let res = await upstream(splat, search, token, body);
+
     if (res.status === 401 || res.status === 403) {
       token = await getToken(true);
       res = await upstream(splat, search, token, body);
