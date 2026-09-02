@@ -441,7 +441,7 @@ export function BalloonStage({
       setHistory((h) => [at, ...h].slice(0, 10));
       airRef.current?.pause();
       play(bonusSfx.url, 0.7);
-      t = 1.8;
+      t = 2.4;
     };
 
     const tick = (now: number) => {
