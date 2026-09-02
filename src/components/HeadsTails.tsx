@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import headsCoin from "@/assets/coin/heads.png.asset.json";
 import tailsCoin from "@/assets/coin/tails.png.asset.json";
-import headPlate from "@/assets/coin/head-bet.jpg.asset.json";
-import tailPlate from "@/assets/coin/tails-bet.jpg.asset.json";
 import coinSound from "@/assets/coin/coinsound.mp3.asset.json";
 import headWinSound from "@/assets/coin/headwin.mp3.asset.json";
 import tailWinSound from "@/assets/coin/tailwin.mp3.asset.json";
@@ -39,7 +37,6 @@ export function CoinStageImage({
   suspended: boolean;
   leftSec?: number | undefined;
 }) {
-  // phase: betting -> flipping (result locked, coin spins ~8s) -> reveal
   const [flipping, setFlipping] = useState(false);
   const [shown, setShown] = useState<CoinSide>("HEADS");
   const [face, setFace] = useState<CoinSide>("HEADS");
@@ -56,7 +53,6 @@ export function CoinStageImage({
     }
   };
 
-  // Start the flip the moment the round is suspended (result is being drawn).
   useEffect(() => {
     if (!suspended || !winner || !roundId) return;
     if (flipKey.current === roundId) return;
@@ -76,7 +72,6 @@ export function CoinStageImage({
     if (!flipping && winner && !suspended) setShown(winner);
   }, [flipping, winner, suspended]);
 
-  // Alternate faces quickly while flipping so it reads as a real toss.
   useEffect(() => {
     if (!flipping) {
       setFace(shown);
@@ -90,13 +85,11 @@ export function CoinStageImage({
   }, [flipping, shown]);
 
   return (
-    <div className="relative flex w-full items-center justify-center bg-black py-6">
+    <div className="relative flex w-full items-center justify-center bg-black py-4">
       <img
         src={face === "HEADS" ? headsCoin.url : tailsCoin.url}
         alt={`${face} coin`}
-        width={240}
-        height={240}
-        className="h-[260px] w-[260px] select-none object-contain drop-shadow-[0_8px_20px_rgba(0,0,0,0.6)]"
+        className="h-[min(320px,78vw)] w-[min(320px,78vw)] select-none object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.65)]"
         draggable={false}
         style={flipping ? { animation: "uapi-coin-flip 0.28s linear infinite" } : undefined}
       />
@@ -115,7 +108,6 @@ export function CoinStageImage({
   );
 }
 
-
 export type CoinRunner = {
   id: string;
   label: string;
@@ -124,20 +116,44 @@ export type CoinRunner = {
   open: boolean;
 };
 
-function Plate({ r }: { r: CoinRunner; active: boolean }) {
+function formatOdds(n?: number) {
+  if (n == null || Number.isNaN(n)) return "—";
+  return n.toFixed(2);
+}
+
+function Plate({ r }: { r: CoinRunner }) {
   const heads = r.label.toUpperCase().startsWith("H");
+  const base =
+    "relative flex flex-col items-center justify-center gap-2 rounded-[10px] border-2 p-3 text-white shadow-[0_4px_14px_rgba(0,0,0,0.45)] transition-transform active:scale-[0.98]";
+  const theme = heads
+    ? "border-[#C4B5FD] bg-gradient-to-b from-[#A78BFA] to-[#7C3AED]"
+    : "border-[#93C5FD] bg-gradient-to-b from-[#60A5FA] to-[#2563EB]";
+
   return (
-    <div className="relative">
-      <img
-        src={heads ? headPlate.url : tailPlate.url}
-        alt={r.label}
-        width={260}
-        height={92}
-        className="h-auto w-full select-none rounded-[6px] object-contain"
-        draggable={false}
-      />
+    <div className={`${base} ${theme} ${!r.open ? "opacity-60" : ""}`}>
+      {/* decorative side dots */}
+      <span className="pointer-events-none absolute left-2 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-white/40" />
+      <span className="pointer-events-none absolute right-2 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-white/40" />
+
+      <div className="grid h-[58px] w-[58px] place-items-center rounded-full bg-black/25 shadow-inner">
+        <span className="text-center text-[0.75rem] font-black leading-tight tracking-wide drop-shadow">
+          {r.label.toUpperCase()}
+        </span>
+      </div>
+
+      <div className="flex flex-col items-center">
+        <span className="text-[1.15rem] font-black leading-none drop-shadow">
+          {formatOdds(r.price)}
+        </span>
+        {r.size != null ? (
+          <span className="text-[0.6rem] font-semibold text-white/70">
+            {Math.round(r.size).toLocaleString("en-IN")}
+          </span>
+        ) : null}
+      </div>
+
       {!r.open ? (
-        <span className="absolute inset-0 flex items-center justify-center rounded-[6px] bg-black/50 text-[1.2rem]">
+        <span className="absolute inset-0 grid place-items-center rounded-[10px] bg-black/55 text-[1.2rem]">
           🔒
         </span>
       ) : null}
@@ -157,12 +173,12 @@ export function HeadsTailsPanel({
   const [chip, setChip] = useState("1k");
   return (
     <div className="bg-black p-2">
-      <p className="mb-1 text-right text-[0.62rem] font-semibold text-white/40">
+      <p className="mb-2 text-right text-[0.62rem] font-semibold text-white/40">
         Min:{min} Max:{max}
       </p>
       <div className="grid grid-cols-2 gap-3">
         {runners.map((r) => (
-          <Plate key={r.id} r={r} active={r.open} />
+          <Plate key={r.id} r={r} />
         ))}
       </div>
       <div className="mt-3 flex flex-nowrap items-center gap-2 overflow-x-auto bg-black px-2 py-2">
