@@ -37,6 +37,7 @@ function toneFor(m: number) {
   return "text-[#C017B4]";
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function chipTone(m: number) {
   if (m < 2) return "border-[#20BFFF]/40 text-[#20BFFF]";
   if (m < 10) return "border-[#913EF8]/40 text-[#913EF8]";
@@ -58,6 +59,12 @@ type LiveBet = {
   cashedAt?: number;
   target: number;
 };
+
+function maskName(n: string) {
+  const s = n.replace(/\s+/g, "").toLowerCase();
+  if (s.length < 3) return s;
+  return `${s[0]}${"*".repeat(Math.max(3, Math.min(7, s.length - 2)))}${s[s.length - 1]}`;
+}
 
 function makeBets(seed: number): LiveBet[] {
   const out: LiveBet[] = [];
@@ -168,10 +175,10 @@ function BetPanel({
             key={q}
             type="button"
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`rounded-[8px] border bg-[#1B1C1F] py-[5px] text-center text-[0.72rem] font-semibold transition-colors ${
+            className={`rounded-full border bg-transparent py-[5px] text-center text-[0.72rem] font-semibold transition-colors ${
               state.amount === q
                 ? "border-[#18B800] text-white shadow-[0_0_0_1px_rgba(24,184,0,0.45)]"
-                : "border-[#303238] text-[#9CA3AF] hover:text-white"
+                : "border-[#4A4C52] text-[#C9CBD1] hover:text-white"
             }`}
           >
             {q}
@@ -552,7 +559,7 @@ export function Aviator() {
           {history.map((h, i) => (
             <span
               key={`${h}-${i}`}
-              className={`shrink-0 rounded-full border bg-[#151618] px-2 py-[2px] text-[0.66rem] font-bold sm:text-[0.75rem] ${chipTone(h)}`}
+              className={`shrink-0 px-1 text-[0.7rem] font-bold sm:text-[0.78rem] ${toneFor(h)}`}
             >
               {fmt(h)}x
             </span>
@@ -648,7 +655,7 @@ export function Aviator() {
                         >
                           {b.user.slice(0, 1).toUpperCase()}
                         </span>
-                        <span className="truncate">{b.user}</span>
+                        <span className="truncate">{maskName(b.user)}</span>
                       </span>
                       <span className="font-semibold text-white/85">{b.amount}</span>
                       <span
@@ -710,7 +717,7 @@ export function Aviator() {
                     setP2((p) => ({ ...p, amount: v }));
                   }
                 }}
-                className="rounded-[8px] bg-[#F59E0B] py-[6px] text-[0.78rem] font-bold text-white"
+                className="rounded-[6px] bg-[#F59E0B] py-[6px] text-[0.78rem] font-bold text-white"
               >
                 Edit
               </button>
@@ -720,7 +727,7 @@ export function Aviator() {
                   setP1((p) => ({ ...p, amount: 10, staged: false }));
                   setP2((p) => ({ ...p, amount: 10, staged: false }));
                 }}
-                className="rounded-[8px] bg-[#EF0000] py-[6px] text-[0.78rem] font-bold text-white"
+                className="rounded-[6px] bg-[#EF0000] py-[6px] text-[0.78rem] font-bold text-white"
               >
                 Clear
               </button>
@@ -730,7 +737,7 @@ export function Aviator() {
                   setP1((p) => ({ ...p, amount: 10 }));
                   setP2((p) => ({ ...p, amount: 10 }));
                 }}
-                className="rounded-[8px] border border-[#303238] bg-[#1B1C1F] py-[6px] text-[0.78rem] font-semibold text-[#9CA3AF]"
+                className="rounded-[6px] border border-[#4A4C52] bg-transparent py-[6px] text-[0.78rem] font-semibold text-[#9CA3AF]"
               >
                 Min
               </button>
@@ -740,7 +747,7 @@ export function Aviator() {
                   setP1((p) => ({ ...p, amount: 10000 }));
                   setP2((p) => ({ ...p, amount: 10000 }));
                 }}
-                className="rounded-[8px] border border-[#303238] bg-[#1B1C1F] py-[6px] text-[0.78rem] font-semibold text-[#9CA3AF]"
+                className="rounded-[6px] border border-[#4A4C52] bg-transparent py-[6px] text-[0.78rem] font-semibold text-[#9CA3AF]"
               >
                 Max
               </button>
