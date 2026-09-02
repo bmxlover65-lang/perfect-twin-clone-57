@@ -301,8 +301,8 @@ function EventPage() {
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
         Source: Universal API <code className="font-mono">GET /sports/{sportId}/{eventId}/odds</code>{" "}
-        via server proxy, polled every 1s · TV &amp; scoreboard iframes minted with a live session
-        token
+        via server proxy, polled every 1s · TV &amp; scoreboard served through the same server
+        proxy (whitelisted host + session token)
       </p>
 
 
@@ -328,7 +328,7 @@ function EventPage() {
           </header>
           <iframe
             title="Scoreboard"
-            src={`/api/public/uapi/tv/sports/scoreboard?sportId=${sportId}&exEventId=${eventId}`}
+            src={`/api/public/uapi/tv/sports/scoreboard?sportId=${sportId}&exEventId=${eventId}&tv=true`}
             className="h-[340px] w-full border-0 bg-black"
           />
         </div>
