@@ -831,24 +831,23 @@ export function Aviator() {
             </div>
           ) : null}
 
-          <div className="mt-2 grid grid-cols-[1fr_64px_58px_72px] gap-x-2 border-b border-white/10 px-2 pb-1 text-[0.65rem] font-semibold text-white/40">
+          <div className="mt-2 grid grid-cols-[1fr_46px_50px_62px] gap-x-2 border-b border-white/10 px-2 pb-1 text-[0.65rem] font-semibold text-white/40">
             <span>{tab === "my" ? "Round" : "User"}</span>
-            <span>Bet&nbsp;&nbsp;X</span>
-            <span></span>
+            <span>Bet</span>
+            <span>X</span>
             <span className="text-right">Cash out</span>
           </div>
 
           <div
-            className="flex h-[340px] max-h-[340px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-1 lg:h-auto lg:max-h-none lg:min-h-0"
+            className="flex h-[340px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-1 lg:h-0 lg:min-h-0"
             style={{
               overscrollBehavior: "contain",
               WebkitOverflowScrolling: "touch",
-              columnCount: 1,
-              columns: "1 auto",
               display: "flex",
               flexDirection: "column",
             }}
           >
+
 
             {tab === "my"
               ? [
