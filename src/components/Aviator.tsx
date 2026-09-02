@@ -32,16 +32,17 @@ function fmt(n: number) {
 }
 
 function toneFor(m: number) {
-  if (m < 2) return "text-[#34B3F1]";
+  if (m < 2) return "text-[#20BFFF]";
   if (m < 10) return "text-[#913EF8]";
   return "text-[#C017B4]";
 }
 
 function chipTone(m: number) {
-  if (m < 2) return "border-[#34B3F1]/40 text-[#34B3F1]";
+  if (m < 2) return "border-[#20BFFF]/40 text-[#20BFFF]";
   if (m < 10) return "border-[#913EF8]/40 text-[#913EF8]";
   return "border-[#C017B4]/40 text-[#C017B4]";
 }
+
 
 /* ---------------- fake live bets ---------------- */
 
