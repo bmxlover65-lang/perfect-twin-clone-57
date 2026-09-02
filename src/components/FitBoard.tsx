@@ -55,6 +55,7 @@ export function FitBoard({
           ref={inner}
           style={{
             width: designWidth,
+            maxWidth: designWidth,
             transform: `scale(${scale})`,
             transformOrigin: "top left",
           }}
