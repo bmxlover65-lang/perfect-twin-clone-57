@@ -157,6 +157,7 @@ export type Database = {
       }
       domain_whitelist: {
         Row: {
+          api_key_id: string | null
           created_at: string
           domain: string
           id: string
@@ -164,6 +165,7 @@ export type Database = {
           operator_id: string
         }
         Insert: {
+          api_key_id?: string | null
           created_at?: string
           domain: string
           id?: string
@@ -171,6 +173,7 @@ export type Database = {
           operator_id: string
         }
         Update: {
+          api_key_id?: string | null
           created_at?: string
           domain?: string
           id?: string
@@ -178,6 +181,13 @@ export type Database = {
           operator_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "domain_whitelist_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "api_keys"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "domain_whitelist_operator_id_fkey"
             columns: ["operator_id"]
@@ -189,6 +199,7 @@ export type Database = {
       }
       ip_whitelist: {
         Row: {
+          api_key_id: string | null
           created_at: string
           id: string
           ip: string
@@ -196,6 +207,7 @@ export type Database = {
           operator_id: string
         }
         Insert: {
+          api_key_id?: string | null
           created_at?: string
           id?: string
           ip: string
@@ -203,6 +215,7 @@ export type Database = {
           operator_id: string
         }
         Update: {
+          api_key_id?: string | null
           created_at?: string
           id?: string
           ip?: string
@@ -210,6 +223,13 @@ export type Database = {
           operator_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "ip_whitelist_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "api_keys"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ip_whitelist_operator_id_fkey"
             columns: ["operator_id"]

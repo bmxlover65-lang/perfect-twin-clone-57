@@ -121,6 +121,7 @@ export const addWhitelist = createServerFn({ method: "POST" })
     z
       .object({
         operatorId: z.string().uuid(),
+        apiKeyId: z.string().uuid(),
         kind: z.enum(["ip", "domain"]),
         value: z.string().min(3).max(120),
       })
@@ -130,8 +131,12 @@ export const addWhitelist = createServerFn({ method: "POST" })
     const table = data.kind === "ip" ? "ip_whitelist" : "domain_whitelist";
     const payload =
       data.kind === "ip"
-        ? { operator_id: data.operatorId, ip: data.value.trim() }
-        : { operator_id: data.operatorId, domain: data.value.trim().toLowerCase().replace(/^www\./, "") };
+        ? { operator_id: data.operatorId, api_key_id: data.apiKeyId, ip: data.value.trim() }
+        : {
+            operator_id: data.operatorId,
+            api_key_id: data.apiKeyId,
+            domain: data.value.trim().toLowerCase().replace(/^www\./, "").replace(/^https?:\/\//, ""),
+          };
     const { error } = await context.supabase.from(table).insert(payload as never);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -156,7 +161,11 @@ export const listWhitelist = createServerFn({ method: "POST" })
     const [ips, domains, keys] = await Promise.all([
       context.supabase.from("ip_whitelist").select("*").eq("operator_id", data.operatorId),
       context.supabase.from("domain_whitelist").select("*").eq("operator_id", data.operatorId),
-      context.supabase.from("api_keys").select("id, label, key_prefix, active, last_used_at, created_at").eq("operator_id", data.operatorId),
+      context.supabase
+        .from("api_keys")
+        .select("id, label, key_prefix, active, last_used_at, created_at")
+        .eq("operator_id", data.operatorId)
+        .order("created_at", { ascending: false }),
     ]);
     return { ips: ips.data ?? [], domains: domains.data ?? [], keys: keys.data ?? [] };
   });

@@ -72,7 +72,8 @@ export async function authenticateOperator(request: Request): Promise<AuthResult
   const { data: ips } = await supabaseAdmin
     .from("ip_whitelist")
     .select("ip")
-    .eq("operator_id", operator.id);
+    .eq("operator_id", operator.id)
+    .or(`api_key_id.eq.${keyRow.id},api_key_id.is.null`);
   if (ips && ips.length > 0 && !ips.some((r) => r.ip === ip)) {
     return { ok: false, status: 403, code: "ip_not_allowed", error: `IP ${ip} not whitelisted` };
   }
@@ -80,7 +81,8 @@ export async function authenticateOperator(request: Request): Promise<AuthResult
   const { data: domains } = await supabaseAdmin
     .from("domain_whitelist")
     .select("domain")
-    .eq("operator_id", operator.id);
+    .eq("operator_id", operator.id)
+    .or(`api_key_id.eq.${keyRow.id},api_key_id.is.null`);
   if (domains && domains.length > 0) {
     const origin = hostOf(request.headers.get("origin") ?? request.headers.get("referer"));
     const allowed = domains.map((d) => d.domain.toLowerCase().replace(/^www\./, ""));

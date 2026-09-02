@@ -69,14 +69,11 @@ import { GameControl } from "@/components/game-control";
 const TABS = [
   { id: "overview", label: "Overview" },
   { id: "operators", label: "Operators" },
-  { id: "keys", label: "API keys" },
-  { id: "whitelist", label: "IP / Domain" },
-  { id: "results", label: "Results" },
+  { id: "keys", label: "API keys & access" },
   { id: "gamecontrol", label: "Game control" },
   { id: "wallet", label: "Callback wallet" },
   { id: "bets", label: "Bet history" },
   { id: "guide", label: "Guide / Kit" },
-
 ];
 
 
@@ -329,21 +326,31 @@ function ConsolePage() {
       {sel ? (
         <>
           {tab === "keys" ? (
-          <Panel title="API keys">
-
-            <div className="flex flex-wrap gap-2">
-              <button
-                className={btn}
-                onClick={() =>
-                  run(async () => {
-                    const r = await issue({ data: { operatorId: sel, label: "default" } });
+          <Panel title="API keys & access">
+            <p className="text-xs text-muted-foreground">
+              Har operator ko key issue karo. IP aur domain whitelist us key ke andar hi set hoti hai —
+              key ke saath sirf wahi IP / domain kaam karenge. Whitelist khali chhodo to us key par koi
+              restriction nahi.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <form
+                className="flex gap-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const f = new FormData(e.currentTarget as HTMLFormElement);
+                  (e.currentTarget as HTMLFormElement).reset();
+                  void run(async () => {
+                    const r = await issue({
+                      data: { operatorId: sel, label: String(f.get("lb") || "") || "default" },
+                    });
                     setNote(`New API key (shown once): ${r.apiKey}`);
                     await loadDetail(sel);
-                  })
-                }
+                  });
+                }}
               >
-                Issue key
-              </button>
+                <input name="lb" placeholder="key label e.g. production" className={input} />
+                <button className={btn}>Issue key</button>
+              </form>
               <form
                 className="flex gap-2"
                 onSubmit={(e) => {
@@ -360,102 +367,105 @@ function ConsolePage() {
                 <button className={ghost}>Link owner</button>
               </form>
             </div>
-            <ul className="mt-3 space-y-1 text-xs">
-              {(detail?.keys ?? []).map((k: any) => (
-                <li key={k.id} className="flex items-center justify-between border-t border-border py-2">
-                  <span className="text-foreground">
-                    {k.key_prefix}… · {k.label} · {k.active ? "active" : "revoked"}
-                  </span>
-                  {k.active ? (
-                    <button
-                      className={ghost}
-                      onClick={() => run(async () => { await revoke({ data: { id: k.id } }); await loadDetail(sel); })}
-                    >
-                      Revoke
-                    </button>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-          </Panel>
-          ) : null}
 
-          {tab === "whitelist" ? (
-          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="mt-4 space-y-3">
+              {(detail?.keys ?? []).map((k: any) => {
+                const ips = (detail?.ips ?? []).filter((r: any) => r.api_key_id === k.id);
+                const domains = (detail?.domains ?? []).filter((r: any) => r.api_key_id === k.id);
+                return (
+                  <div key={k.id} className="rounded-xl border border-border bg-muted/30 p-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="font-mono text-xs font-bold text-foreground">
+                        {k.key_prefix}…{" "}
+                        <span className="font-sans font-normal text-muted-foreground">
+                          {k.label} · {k.active ? "active" : "revoked"} ·{" "}
+                          {k.last_used_at ? `used ${new Date(k.last_used_at).toLocaleString()}` : "never used"}
+                        </span>
+                      </span>
+                      {k.active ? (
+                        <button
+                          className={ghost}
+                          onClick={() =>
+                            run(async () => {
+                              await revoke({ data: { id: k.id } });
+                              await loadDetail(sel);
+                            })
+                          }
+                        >
+                          Revoke
+                        </button>
+                      ) : null}
+                    </div>
 
-            {(["ip", "domain"] as const).map((kind) => (
-              <Panel key={kind} title={`${kind === "ip" ? "IP" : "Domain"} whitelist`}>
-                <form
-                  className="flex gap-2"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const f = new FormData(e.currentTarget as HTMLFormElement);
-                    (e.currentTarget as HTMLFormElement).reset();
-                    void run(async () => {
-                      await addWl({ data: { operatorId: sel, kind, value: String(f.get("v")) } });
-                      await loadDetail(sel);
-                    });
-                  }}
-                >
-                  <input name="v" required placeholder={kind === "ip" ? "1.2.3.4" : "site.com"} className={input} />
-                  <button className={btn}>Add</button>
-                </form>
-                <ul className="mt-2 space-y-1 text-xs">
-                  {((kind === "ip" ? detail?.ips : detail?.domains) ?? []).map((row: any) => (
-                    <li key={row.id} className="flex items-center justify-between border-t border-border py-1.5">
-                      <span className="text-foreground">{row.ip ?? row.domain}</span>
-                      <button
-                        className={ghost}
-                        onClick={() => run(async () => { await rmWl({ data: { id: row.id, kind } }); await loadDetail(sel); })}
-                      >
-                        Remove
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </Panel>
-            ))}
-          </div>
-          ) : null}
-
-          {tab === "results" ? (
-          <Panel title="Manual result declare">
-
-            <form
-              className="grid gap-2 sm:grid-cols-4"
-              onSubmit={(e) => {
-                e.preventDefault();
-                const f = new FormData(e.currentTarget as HTMLFormElement);
-                void run(async () => {
-                  const r = await declare({
-                    data: {
-                      gameId: String(f.get("g")),
-                      roundId: String(f.get("r")),
-                      winners: String(f.get("w"))
-                        .split(",")
-                        .map((s) => s.trim())
-                        .filter(Boolean),
-                      manual: true,
-                    },
-                  });
-                  setNote(`Result declared · ${r.settled} bet(s) settled and credited.`);
-                  await loadDetail(sel);
-                });
-              }}
-            >
-              <input name="g" required placeholder="gameId e.g. 99.0007" className={input} />
-              <input name="r" required placeholder="roundId" className={input} />
-              <input name="w" required placeholder="winners e.g. Player A" className={input} />
-              <button className={btn}>Declare & settle</button>
-            </form>
-            <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
-              {roundRows.map((r) => (
-                <li key={r.id}>
-                  {r.game_id} · {r.round_id} · {r.status} · {r.manual ? "manual" : "live"} ·{" "}
-                  {JSON.stringify(r.result)}
-                </li>
-              ))}
-            </ul>
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                      {(["ip", "domain"] as const).map((kind) => (
+                        <div key={kind}>
+                          <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+                            {kind === "ip" ? "IP whitelist" : "Domain whitelist"}
+                          </p>
+                          <form
+                            className="mt-1 flex gap-2"
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              const f = new FormData(e.currentTarget as HTMLFormElement);
+                              (e.currentTarget as HTMLFormElement).reset();
+                              void run(async () => {
+                                await addWl({
+                                  data: {
+                                    operatorId: sel,
+                                    apiKeyId: k.id,
+                                    kind,
+                                    value: String(f.get("v")),
+                                  },
+                                });
+                                await loadDetail(sel);
+                              });
+                            }}
+                          >
+                            <input
+                              name="v"
+                              required
+                              placeholder={kind === "ip" ? "1.2.3.4" : "site.com"}
+                              className={input}
+                            />
+                            <button className={btn}>Add</button>
+                          </form>
+                          <ul className="mt-1 space-y-1 text-xs">
+                            {(kind === "ip" ? ips : domains).map((row: any) => (
+                              <li
+                                key={row.id}
+                                className="flex items-center justify-between border-t border-border py-1.5"
+                              >
+                                <span className="text-foreground">{row.ip ?? row.domain}</span>
+                                <button
+                                  className={ghost}
+                                  onClick={() =>
+                                    run(async () => {
+                                      await rmWl({ data: { id: row.id, kind } });
+                                      await loadDetail(sel);
+                                    })
+                                  }
+                                >
+                                  Remove
+                                </button>
+                              </li>
+                            ))}
+                            {!(kind === "ip" ? ips : domains).length ? (
+                              <li className="py-1.5 text-muted-foreground">
+                                No restriction — sab {kind === "ip" ? "IPs" : "domains"} allowed.
+                              </li>
+                            ) : null}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+              {!(detail?.keys ?? []).length ? (
+                <p className="text-xs text-muted-foreground">Is operator ke liye abhi koi key nahi hai.</p>
+              ) : null}
+            </div>
           </Panel>
           ) : null}
 
