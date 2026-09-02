@@ -48,6 +48,26 @@ function chipTone(m: number) {
   return "text-[#FF2DAA]";
 }
 
+function HistToggle({ open, onClick }: { open: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-expanded={open}
+      aria-label="Round history"
+      className="flex h-[22px] w-[36px] shrink-0 items-center justify-center gap-[3px] rounded-full border border-[#FF003C]/70 bg-[#141517]"
+    >
+      <img src={historyIcon} alt="" className="h-[12px] w-[13px]" />
+      <img
+        src={arrowIcon}
+        alt=""
+        className={`h-[6px] w-[8px] transition-transform ${open ? "rotate-180" : ""}`}
+      />
+    </button>
+  );
+}
+
+
 
 /* ---------------- fake live bets ---------------- */
 
