@@ -60,6 +60,7 @@ type LiveBet = {
   user: string;
   amount: number;
   cashedAt?: number;
+  busted?: boolean;
   target: number;
 };
 
@@ -67,6 +68,15 @@ function maskName(n: string) {
   const s = n.replace(/\s+/g, "").toLowerCase();
   if (s.length < 3) return s;
   return `${s[0]}${"*".repeat(Math.max(3, Math.min(7, s.length - 2)))}${s[s.length - 1]}`;
+}
+
+// realistic cash-out target: most players bail early, a few chase big multipliers,
+// and a chunk never cash out at all (target far above any realistic crash).
+function makeTarget(r: number) {
+  if (r < 0.28) return 0; // greedy players who never cash out -> they bust
+  if (r < 0.72) return Math.round((1.15 + (r - 0.28) * 3.2) * 100) / 100;
+  if (r < 0.93) return Math.round((2.6 + (r - 0.72) * 22) * 100) / 100;
+  return Math.round((7 + (r - 0.93) * 260) * 100) / 100;
 }
 
 function makeBets(seed: number): LiveBet[] {
@@ -77,17 +87,19 @@ function makeBets(seed: number): LiveBet[] {
     const pick = base[(seed * 7 + i * 11) % base.length]!;
     // slight organic jitter so amounts don't look generated
     const amt = pick + ((seed * 13 + i * 17) % 5) * (pick >= 500 ? 10 : 1);
+    const r = ((seed * 37 + i * 61) % 1000) / 1000;
     out.push({
-      id: seed * 100 + i,
+      id: seed * 100 + i + Math.floor(Math.random() * 7),
       user: NAMES[(seed * 3 + i * 5) % NAMES.length]!,
       amount: amt,
-      target: 1.15 + ((seed * 13 + i * 29) % 850) / 100,
+      target: makeTarget(r),
     });
   }
   // biggest bets on top like the real lobby
   out.sort((a, b) => b.amount - a.amount);
   return out;
 }
+
 
 /* ---------------- bet panel ---------------- */
 
