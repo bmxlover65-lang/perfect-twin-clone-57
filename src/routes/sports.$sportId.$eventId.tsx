@@ -269,7 +269,7 @@ function EventPage() {
     const results: { label: string; won: boolean }[] = [];
     for (const m of [...matchOdds, ...bookmakers, ...fancy, ...sportsbook]) {
       const names = m.runnersData ?? {};
-      for (const r of m.oddsData?.runners ?? m.runners ?? []) {
+      for (const r of m.oddsData?.runners ?? []) {
         const st = String(r.status ?? "").toUpperCase();
         if (st !== "WINNER" && st !== "LOSER") continue;
         const label = names[String(r.selectionId)] ?? String(r.selectionId);
