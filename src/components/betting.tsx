@@ -37,16 +37,26 @@ function extractPick(target: HTMLElement, root: HTMLElement): Pick | null {
   }
   if (odds == null || !node) return null;
 
+  // Side (A/B/1/2) from the cell's position when a row holds several odds cells.
+  let side = "";
+  const cellParent = node.parentElement;
+  if (cellParent) {
+    const cells = Array.from(cellParent.children).filter((c) => oddsOf(c) != null);
+    if (cells.length === 2) side = cells.indexOf(node) === 0 ? "A" : "B";
+  }
+
   let row: HTMLElement | null = node.parentElement;
   for (let i = 0; i < 6 && row && row !== root.parentElement; i++, row = row.parentElement) {
     const txt = (row.textContent ?? "").replace(/\s+/g, " ").trim();
-    const lab = txt.match(/[A-Za-z][A-Za-z0-9 .'&+-]{0,26}/);
-    if (lab && lab[0].trim().length > 1) {
-      return { label: lab[0].trim(), odds };
+    const lab = txt.match(/[A-Za-z]{3,}[A-Za-z0-9 .'&+-]{0,24}/);
+    if (lab) {
+      const base = lab[0].trim().replace(/\s+i$/i, "");
+      return { label: side ? `${base} ${side}` : base, odds };
     }
   }
-  return { label: "Selection", odds };
+  return { label: side ? `Player ${side}` : "Selection", odds };
 }
+
 
 
 /** Red error toast used by the whole casino (insufficient balance, double bet…). */
