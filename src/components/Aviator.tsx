@@ -174,10 +174,10 @@ function BetPanel({
             key={q}
             type="button"
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`rounded-[8px] border bg-[#1B1C1F] py-[5px] text-center text-[0.72rem] font-semibold transition-colors ${
+            className={`rounded-full border bg-transparent py-[5px] text-center text-[0.72rem] font-semibold transition-colors ${
               state.amount === q
                 ? "border-[#18B800] text-white shadow-[0_0_0_1px_rgba(24,184,0,0.45)]"
-                : "border-[#303238] text-[#9CA3AF] hover:text-white"
+                : "border-[#4A4C52] text-[#C9CBD1] hover:text-white"
             }`}
           >
             {q}
