@@ -1,10 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
-  embedUrl,
   fetchOdds,
-  fetchSessionToken,
   fmtInt,
   fmtOdds,
   fmtSize,
@@ -13,7 +11,7 @@ import {
   type OddsResponse,
 } from "@/lib/uapi";
 import { BalanceChip, BetLayer, MyBets } from "@/components/betting";
-import { settleFromRunners } from "@/lib/wallet";
+import { settleFromRunners, voidOpen } from "@/lib/wallet";
 
 export const Route = createFileRoute("/sports/$sportId/$eventId")({
   head: ({ params }) => {
@@ -227,7 +225,7 @@ function EventPage() {
   const { sportId, eventId } = Route.useParams();
   const [data, setData] = useState<OddsResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const closedSince = useRef<number>(0);
   const [age, setAge] = useState(0);
 
   const load = useCallback(async () => {
@@ -251,12 +249,6 @@ function EventPage() {
     };
   }, [load]);
 
-  useEffect(() => {
-    fetchSessionToken()
-      .then((r) => setToken(r.sessionToken))
-      .catch(() => undefined);
-  }, []);
-
   const matchOdds = data?.matchOdds ?? [];
   const bookmakers = data?.bookmakers ?? [];
   const fancy = data?.fancy ?? [];
@@ -277,6 +269,16 @@ function EventPage() {
       }
     }
     settleFromRunners(`sports-${eventId}`, results);
+
+    // Feed no longer serves any market for this event (match over / removed):
+    // after 30s of an empty feed, refund whatever is still open.
+    const live = matchOdds.length + bookmakers.length + fancy.length + sportsbook.length;
+    if (live === 0) {
+      if (!closedSince.current) closedSince.current = Date.now();
+      else if (Date.now() - closedSince.current > 30_000) voidOpen(`sports-${eventId}`);
+    } else {
+      closedSince.current = 0;
+    }
   }, [data, eventId, matchOdds, bookmakers, fancy, sportsbook]);
 
 
@@ -311,30 +313,24 @@ function EventPage() {
           <header className="bg-ex-header px-4 py-2.5 text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-ex-text">
             Live TV
           </header>
-          {token ? (
-            <iframe
-              title="Live TV"
-              src={embedUrl("tv", sportId, eventId, token)}
-              className="h-[340px] w-full border-0 bg-black"
-            />
-          ) : (
-            <div className="h-[340px] w-full bg-black" />
-          )}
+          <iframe
+            title="Live TV"
+            src={`/api/public/uapi/tv/sports/player?sportId=${sportId}&exEventId=${eventId}&tv=true`}
+            allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+            allowFullScreen
+            className="h-[340px] w-full border-0 bg-black"
+          />
         </div>
 
         <div className="overflow-hidden rounded-lg bg-ex-panel">
           <header className="bg-ex-header px-4 py-2.5 text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-ex-text">
             Scoreboard
           </header>
-          {token ? (
-            <iframe
-              title="Scoreboard"
-              src={embedUrl("scoreboard", sportId, eventId, token)}
-              className="h-[340px] w-full border-0 bg-black"
-            />
-          ) : (
-            <div className="h-[340px] w-full bg-black" />
-          )}
+          <iframe
+            title="Scoreboard"
+            src={`/api/public/uapi/tv/sports/scoreboard?sportId=${sportId}&exEventId=${eventId}`}
+            className="h-[340px] w-full border-0 bg-black"
+          />
         </div>
       </div>
 

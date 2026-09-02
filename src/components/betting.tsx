@@ -347,9 +347,12 @@ export function MyBets({ gameId }: { gameId: string }) {
                   <span className="text-[#E8871E]">OPEN</span>
                 ) : b.status === "won" ? (
                   <span className="text-[#1F9D45]">+{b.payout.toLocaleString("en-IN")}</span>
+                ) : b.status === "void" ? (
+                  <span className="text-[#8A93A6]">VOID ↩ {b.stake.toLocaleString("en-IN")}</span>
                 ) : (
                   <span className="text-[#C93A3A]">-{b.stake.toLocaleString("en-IN")}</span>
                 )}
+
               </td>
             </tr>
           ))}

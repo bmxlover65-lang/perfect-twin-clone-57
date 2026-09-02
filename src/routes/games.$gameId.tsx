@@ -1790,6 +1790,11 @@ function GamePage() {
   }, [roundKey, gameId, admin, cfg]);
 
 
+  const feedStatus = (state?.data?.status ?? "").toUpperCase();
+
+  // Result polling. Any feed trigger — new roundId or a status change
+  // (OPEN -> SUSPENDED/CLOSED) — instantly refreshes the result plates,
+  // plus a short burst so the declared winner lands without a manual reload.
   useEffect(() => {
     let alive = true;
     const run = () =>
@@ -1797,12 +1802,14 @@ function GamePage() {
         .then((r) => alive && setResults(r.data ?? []))
         .catch(() => undefined);
     void run();
+    const burst = [300, 800, 1500, 2500].map((ms) => setTimeout(run, ms));
     const t = setInterval(run, 1500);
     return () => {
       alive = false;
+      burst.forEach(clearTimeout);
       clearInterval(t);
     };
-  }, [gameId, roundKey]);
+  }, [gameId, roundKey, feedStatus]);
 
   // auto settlement — every finished round settles my open bets
   useEffect(() => {
