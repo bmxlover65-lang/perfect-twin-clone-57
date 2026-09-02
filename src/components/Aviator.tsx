@@ -500,6 +500,8 @@ export function Aviator() {
           setPhase("crashed");
           setHistory((h) => [crashRef.current, ...h].slice(0, 24));
           setRound((r) => r + 1);
+          // everyone who did not cash out before the crash loses the round
+          setBets((list) => list.map((b) => (b.cashedAt === undefined ? { ...b, busted: true } : b)));
           window.setTimeout(() => {
             if (mounted) beginBetting();
           }, CRASH_HOLD_MS);
@@ -507,8 +509,13 @@ export function Aviator() {
         }
         setMultiplier(m);
         setBets((list) =>
-          list.map((b) => (b.cashedAt === undefined && b.target <= m ? { ...b, cashedAt: m } : b)),
+          list.map((b) =>
+            b.cashedAt === undefined && b.target > 1 && b.target <= m
+              ? { ...b, cashedAt: Math.round(b.target * 100) / 100 }
+              : b,
+          ),
         );
+
         raf = requestAnimationFrame(tick);
       };
       raf = requestAnimationFrame(tick);
