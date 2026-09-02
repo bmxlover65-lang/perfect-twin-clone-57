@@ -400,12 +400,14 @@ function FlightStage({
   countdown,
   muted,
   setMuted,
+  feedLive,
 }: {
   phase: Phase;
   multiplier: number;
   countdown: number;
   muted: boolean;
   setMuted: (fn: (v: boolean) => boolean) => void;
+  feedLive: boolean | null;
 }) {
   const [t, setT] = useState(0);
   useEffect(() => {
@@ -485,7 +487,7 @@ function FlightStage({
       <svg
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
-        className="relative block h-[300px] w-full sm:h-[360px] lg:h-[440px]"
+        className="relative block h-[340px] w-full sm:h-[400px] lg:h-[470px]"
       >
         <defs>
           <linearGradient id="av-area" x1="0" y1="0" x2="0" y2="1">
@@ -562,6 +564,15 @@ function FlightStage({
           </>
         ) : null}
       </svg>
+
+      <div className="pointer-events-none absolute right-3 top-2 z-10 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] sm:text-[11px]">
+        <span
+          className={`h-1.5 w-1.5 rounded-full ${feedLive ? "bg-[#22C55E]" : feedLive === false ? "bg-[#EF1B2E]" : "bg-white/40"}`}
+        />
+        <span className={feedLive ? "text-[#22C55E]" : feedLive === false ? "text-[#FF6B7A]" : "text-white/50"}>
+          {feedLive ? "Live results" : feedLive === false ? "Feed offline · demo rounds" : "Connecting…"}
+        </span>
+      </div>
 
       <button
         type="button"
@@ -695,6 +706,7 @@ export function Aviator() {
   const queueRef = useRef<number[]>([]); // unused official winners, oldest first
   const officialRef = useRef(false);
   const bootedRef = useRef(false);
+  const [feedLive, setFeedLive] = useState<boolean | null>(null);
 
 
   useEffect(() => {
@@ -713,7 +725,8 @@ export function Aviator() {
         window.clearTimeout(to);
         const json = (await res.json()) as { data?: { roundId?: string; winner?: string }[] };
         const rows = Array.isArray(json?.data) ? json.data : [];
-        if (!rows.length) return;
+        if (!rows.length) { setFeedLive(false); return; }
+        setFeedLive(true);
         // newest first from upstream
         const fresh: number[] = [];
         for (const r of rows) {
@@ -736,7 +749,7 @@ export function Aviator() {
           .slice(0, 24);
         if (strip.length) setHistory(strip);
       } catch {
-        /* keep last known results */
+        setFeedLive(false);
       } finally {
         busy = false;
         if (!stop) window.setTimeout(pull, 1500);
@@ -1222,7 +1235,7 @@ export function Aviator() {
 
 
 
-          <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} />
+          <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} feedLive={feedLive} />
 
           <div className="rounded-[12px] border border-[#292D32] bg-[#111315] p-[10px] sm:p-3">
             <div className="mx-auto mb-2 flex w-[200px] rounded-full bg-[#0B0C0E] p-[3px] text-[0.72rem] font-bold text-white/55">
