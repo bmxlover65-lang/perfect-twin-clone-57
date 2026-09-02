@@ -145,11 +145,6 @@ function Plate({ r }: { r: CoinRunner }) {
         <span className="text-[1.15rem] font-black leading-none drop-shadow">
           {formatOdds(r.price)}
         </span>
-        {r.size != null ? (
-          <span className="text-[0.6rem] font-semibold text-white/70">
-            {Math.round(r.size).toLocaleString("en-IN")}
-          </span>
-        ) : null}
       </div>
 
       {!r.open ? (
