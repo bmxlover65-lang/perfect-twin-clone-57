@@ -484,9 +484,14 @@ export function BalloonStage({
           .filter((n) => n > 0);
         // the official results feed is the source of truth for the strip
         if (recent.length) setHistory(recent);
-        // if the round already burst on an estimate, correct it to the official value
+        // if the round already burst on the live value, correct it once the
+        // official result for that round is published
         const cur = roundRef.current ? winnersRef.current.get(String(roundRef.current)) : undefined;
-        if (phaseRef.current === "crashed" && cur && cur > 0) setCrashAt(cur);
+        if (phaseRef.current === "crashed" && cur && cur > 0) {
+          setCrashAt(cur);
+          setShown(cur);
+        }
+
 
 
 
@@ -617,12 +622,14 @@ export function BalloonStage({
           if (goal - v < 0.005) v = goal;
           setShown(v);
           setCrashAt(goal);
-          // feed says the round is over → wait a moment for the official winner
-          // (results feed) before bursting so we never crash ahead of the real round
-          if ((suspRef.current || stall > 1.6) && peak > 1 && stall > 6) {
+          // the live feed's own multiplier is the round result: as soon as the
+          // feed suspends the round (or stops advancing) we burst on that value
+          if (peak > 1 && (suspRef.current ? stall > 0.4 : stall > 2.2)) {
             v = peak;
+            setShown(peak);
             burst(peak);
           }
+
 
 
         } else {
