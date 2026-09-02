@@ -54,19 +54,25 @@ type Operator = {
   owner_id: string | null;
 };
 
-const input =
-  "h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground";
-const btn = "h-9 rounded-md bg-primary px-3 text-xs font-bold text-primary-foreground";
-const ghost = "h-8 rounded-md border border-border px-2 text-xs font-semibold text-foreground";
+import {
+  DashShell,
+  Panel,
+  Stat,
+  dashBtn as btn,
+  dashGhost as ghost,
+  dashInput as input,
+} from "@/components/dash";
 
-function Panel({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-lg border border-border bg-card p-4">
-      <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-foreground">{title}</h2>
-      {children}
-    </section>
-  );
-}
+const TABS = [
+  { id: "overview", label: "Overview" },
+  { id: "operators", label: "Operators" },
+  { id: "keys", label: "API keys" },
+  { id: "whitelist", label: "IP / Domain" },
+  { id: "results", label: "Results" },
+  { id: "wallet", label: "Callback wallet" },
+  { id: "bets", label: "Bet history" },
+];
+
 
 function ConsolePage() {
   const navigate = useNavigate();
@@ -95,6 +101,8 @@ function ConsolePage() {
   const [roundRows, setRoundRows] = useState<any[]>([]);
   const [note, setNote] = useState<string>("");
   const [err, setErr] = useState<string>("");
+  const [tab, setTab] = useState<string>("overview");
+
 
   const run = async (fn: () => Promise<void>) => {
     setErr("");
@@ -138,16 +146,20 @@ function ConsolePage() {
     void navigate({ to: "/auth", replace: true });
   };
 
+  const staked = bets.reduce((s, b) => s + Number(b.stake), 0);
+  const paid = bets.reduce((s, b) => s + Number(b.payout), 0);
+  const openBets = bets.filter((b) => b.status === "open").length;
+
   return (
-    <div className="mx-auto max-w-[1100px] space-y-4 px-3 py-5">
-      <header className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">Admin console</h1>
-          <p className="text-xs text-muted-foreground">
-            {info?.email} · {info?.isAdmin ? "admin" : "operator"}
-          </p>
-        </div>
-        <div className="flex gap-2">
+    <DashShell
+      title="Admin"
+      subtitle={`${info?.email ?? ""} · ${info?.isAdmin ? "administrator" : "no admin role"}`}
+      accent="#123A73"
+      tabs={TABS}
+      active={tab}
+      onSelect={setTab}
+      actions={
+        <>
           {info && !info.isAdmin ? (
             <button
               className={ghost}
@@ -156,16 +168,55 @@ function ConsolePage() {
               Claim admin
             </button>
           ) : null}
+          <button className={ghost} onClick={() => run(refresh)}>
+            Refresh
+          </button>
           <button className={ghost} onClick={signOut}>
             Sign out
           </button>
-        </div>
-      </header>
-
+        </>
+      }
+    >
       {err ? <p className="rounded-md bg-destructive/15 px-3 py-2 text-sm text-destructive">{err}</p> : null}
-      {note ? <p className="rounded-md bg-primary/10 px-3 py-2 text-sm text-foreground">{note}</p> : null}
+      {note ? <p className="rounded-md bg-primary/10 px-3 py-2 text-sm text-foreground break-words">{note}</p> : null}
 
+      {ops.length ? (
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-muted-foreground">Operator</span>
+          <select className={`${input} max-w-[260px]`} value={sel} onChange={(e) => setSel(e.target.value)}>
+            {ops.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
+
+      {tab === "overview" ? (
+        <>
+          <div className="grid gap-3 sm:grid-cols-4">
+            <Stat label="Operators" value={String(ops.length)} />
+            <Stat label="Staked" value={`₹${staked.toLocaleString("en-IN")}`} />
+            <Stat label="Paid out" value={`₹${paid.toLocaleString("en-IN")}`} />
+            <Stat label="Open bets" value={String(openBets)} />
+          </div>
+          <Panel title="Latest rounds">
+            <ul className="space-y-1 text-xs text-muted-foreground">
+              {roundRows.slice(0, 10).map((r) => (
+                <li key={r.id}>
+                  {r.game_id} · {r.round_id} · {r.status} · {r.manual ? "manual" : "live"}
+                </li>
+              ))}
+              {!roundRows.length ? <li>No rounds yet.</li> : null}
+            </ul>
+          </Panel>
+        </>
+      ) : null}
+
+      {tab === "operators" ? (
       <Panel title="Operators">
+
         <form
           className="grid gap-2 sm:grid-cols-5"
           onSubmit={(e) => {
@@ -267,10 +318,13 @@ function ConsolePage() {
           </table>
         </div>
       </Panel>
+      ) : null}
 
       {sel ? (
         <>
+          {tab === "keys" ? (
           <Panel title="API keys">
+
             <div className="flex flex-wrap gap-2">
               <button
                 className={btn}
@@ -318,8 +372,11 @@ function ConsolePage() {
               ))}
             </ul>
           </Panel>
+          ) : null}
 
+          {tab === "whitelist" ? (
           <div className="grid gap-4 sm:grid-cols-2">
+
             {(["ip", "domain"] as const).map((kind) => (
               <Panel key={kind} title={`${kind === "ip" ? "IP" : "Domain"} whitelist`}>
                 <form
@@ -353,8 +410,11 @@ function ConsolePage() {
               </Panel>
             ))}
           </div>
+          ) : null}
 
+          {tab === "results" ? (
           <Panel title="Manual result declare">
+
             <form
               className="grid gap-2 sm:grid-cols-4"
               onSubmit={(e) => {
@@ -391,8 +451,11 @@ function ConsolePage() {
               ))}
             </ul>
           </Panel>
+          ) : null}
 
+          {tab === "wallet" ? (
           <Panel title="Callback wallet test">
+
             <form
               className="grid gap-2 sm:grid-cols-5"
               onSubmit={(e) => {
@@ -435,8 +498,11 @@ function ConsolePage() {
               ))}
             </ul>
           </Panel>
+          ) : null}
 
+          {tab === "bets" ? (
           <Panel title="Bet ledger">
+
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead className="text-muted-foreground">
@@ -475,8 +541,10 @@ function ConsolePage() {
               </table>
             </div>
           </Panel>
+          ) : null}
         </>
       ) : null}
-    </div>
+    </DashShell>
+
   );
 }

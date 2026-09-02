@@ -26,18 +26,24 @@ export const Route = createFileRoute("/_authenticated/operator")({
   }),
 });
 
-const input = "h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground";
-const btn = "h-9 rounded-md bg-primary px-3 text-xs font-bold text-primary-foreground";
-const ghost = "h-8 rounded-md border border-border px-2 text-xs font-semibold text-foreground";
+import {
+  DashShell,
+  Panel,
+  Stat,
+  dashBtn as btn,
+  dashGhost as ghost,
+  dashInput as input,
+} from "@/components/dash";
 
-function Panel({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-lg border border-border bg-card p-4">
-      <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-foreground">{title}</h2>
-      {children}
-    </section>
-  );
-}
+const TABS = [
+  { id: "overview", label: "Overview" },
+  { id: "wallet", label: "Callback wallet" },
+  { id: "bets", label: "My bet history" },
+  { id: "rounds", label: "Rounds" },
+  { id: "keys", label: "Keys & whitelist" },
+  { id: "logs", label: "Callback logs" },
+];
+
 
 function OperatorPage() {
   const navigate = useNavigate();
@@ -57,6 +63,8 @@ function OperatorPage() {
   const [balance, setBalance] = useState<string>("—");
   const [userId, setUserId] = useState("demo-user");
   const [err, setErr] = useState("");
+  const [tab, setTab] = useState<string>("overview");
+
 
   const run = async (fn: () => Promise<void>) => {
     setErr("");
@@ -102,15 +110,19 @@ function OperatorPage() {
   const paid = bets.reduce((s, b) => s + Number(b.payout), 0);
 
   return (
-    <div className="mx-auto max-w-[1000px] space-y-4 px-3 py-5">
-      <header className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">Operator panel</h1>
-          <p className="text-xs text-muted-foreground">
-            {op ? `${op.name} · ${op.status} · plan till ${op.plan_expires_at ? new Date(op.plan_expires_at).toLocaleDateString() : "—"}` : "No operator linked to this login yet."}
-          </p>
-        </div>
-        <div className="flex gap-2">
+    <DashShell
+      title="Operator"
+      subtitle={
+        op
+          ? `${op.name} · ${op.status} · plan till ${op.plan_expires_at ? new Date(op.plan_expires_at).toLocaleDateString() : "—"}`
+          : "No operator linked to this login yet."
+      }
+      accent="#0F7A5A"
+      tabs={TABS}
+      active={tab}
+      onSelect={setTab}
+      actions={
+        <>
           {ops.length > 1 ? (
             <select className={input} value={sel} onChange={(e) => setSel(e.target.value)}>
               {ops.map((o) => (
@@ -120,17 +132,30 @@ function OperatorPage() {
               ))}
             </select>
           ) : null}
+          <button className={ghost} onClick={() => sel && run(() => load(sel))}>
+            Refresh
+          </button>
           <button className={ghost} onClick={signOut}>
             Sign out
           </button>
-        </div>
-      </header>
-
+        </>
+      }
+    >
       {err ? <p className="rounded-md bg-destructive/15 px-3 py-2 text-sm text-destructive">{err}</p> : null}
 
       {sel ? (
         <>
+          {tab === "overview" ? (
+            <div className="grid gap-3 sm:grid-cols-3">
+              <Stat label="Staked" value={`₹${staked.toLocaleString("en-IN")}`} />
+              <Stat label="Paid out" value={`₹${paid.toLocaleString("en-IN")}`} />
+              <Stat label="Net P/L" value={`₹${(staked - paid).toLocaleString("en-IN")}`} />
+            </div>
+          ) : null}
+
+          {tab === "wallet" ? (
           <Panel title="Callback wallet">
+
             <div className="flex flex-wrap items-center gap-2">
               <input
                 value={userId}
@@ -159,21 +184,9 @@ function OperatorPage() {
               callback secret and logged below.
             </p>
           </Panel>
+          ) : null}
 
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Panel title="Staked">
-              <p className="text-lg font-bold text-foreground">₹{staked.toLocaleString("en-IN")}</p>
-            </Panel>
-            <Panel title="Paid out">
-              <p className="text-lg font-bold text-foreground">₹{paid.toLocaleString("en-IN")}</p>
-            </Panel>
-            <Panel title="Net P/L">
-              <p className="text-lg font-bold text-foreground">
-                ₹{(staked - paid).toLocaleString("en-IN")}
-              </p>
-            </Panel>
-          </div>
-
+          {tab === "rounds" ? (
           <Panel title="Rounds">
             <ul className="space-y-1 text-xs text-muted-foreground">
               {roundRows.map((r) => (
@@ -185,6 +198,10 @@ function OperatorPage() {
               {!roundRows.length ? <li>No rounds settled yet.</li> : null}
             </ul>
           </Panel>
+          ) : null}
+
+          {tab === "bets" ? (
+
 
           <Panel title="Bets">
             <div className="overflow-x-auto">
@@ -225,7 +242,9 @@ function OperatorPage() {
               </table>
             </div>
           </Panel>
+          ) : null}
 
+          {tab === "keys" ? (
           <Panel title="Whitelists & keys">
             <p className="text-xs text-muted-foreground">
               IPs: {(detail?.ips ?? []).map((i: any) => i.ip).join(", ") || "—"}
@@ -237,7 +256,9 @@ function OperatorPage() {
               Keys: {(detail?.keys ?? []).map((k: any) => `${k.key_prefix}…${k.active ? "" : " (revoked)"}`).join(", ") || "—"}
             </p>
           </Panel>
+          ) : null}
 
+          {tab === "logs" ? (
           <Panel title="Callback logs">
             <ul className="space-y-1 text-xs">
               {cbLogs.map((l) => (
@@ -249,8 +270,10 @@ function OperatorPage() {
               {!cbLogs.length ? <li className="text-muted-foreground">No callbacks yet.</li> : null}
             </ul>
           </Panel>
+          ) : null}
         </>
       ) : null}
-    </div>
+    </DashShell>
+
   );
 }
