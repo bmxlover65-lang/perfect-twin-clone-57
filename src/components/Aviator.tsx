@@ -68,7 +68,7 @@ function maskName(n: string) {
 
 function makeBets(seed: number): LiveBet[] {
   const out: LiveBet[] = [];
-  const n = 9 + (seed % 6);
+  const n = 28 + (seed % 18);
   for (let i = 0; i < n; i += 1) {
     const amt = [50, 100, 200, 500, 1000, 2500][(seed + i * 7) % 6]!;
     out.push({
