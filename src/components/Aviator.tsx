@@ -920,99 +920,91 @@ export function Aviator() {
             ) : null}
           </div>
 
-          {/* real-feel round ticker */}
-          <div className="flex items-center justify-between rounded-[10px] border border-[#303238] bg-[#0B0C0E] px-3 py-[5px] text-[0.66rem] font-bold sm:text-[0.72rem]">
-            <span className="text-white/50">ROUND #{round}</span>
-            <span
-              className={
-                phase === "betting"
-                  ? "text-[#20BFFF]"
-                  : phase === "flying"
-                    ? "text-[#18B800]"
-                    : "text-[#FF003C]"
-              }
-            >
-              {phase === "betting"
-                ? countdown <= 400
-                  ? "GO!"
-                  : `Next round in ${Math.ceil(countdown / 1000)}…`
-                : phase === "flying"
-                  ? "IN FLIGHT"
-                  : "FLEW AWAY"}
-            </span>
-            <span className="text-white/40">{bets.length} bets</span>
-          </div>
-
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} />
 
+          <div className="rounded-[14px] border border-[#303238] bg-[#151618] p-2 sm:p-3">
+            <div className="mx-auto mb-2 flex w-[200px] rounded-full bg-[#0B0C0E] p-[3px] text-[0.72rem] font-bold text-white/55">
+              {(["bet", "auto"] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => {
+                    setMode(m);
+                    setAllSlots((p) => ({ ...p, auto: m === "auto" }));
+                  }}
+                  className={`flex-1 rounded-full py-[4px] capitalize ${
+                    mode === m ? "bg-[#2C2D30] text-white" : ""
+                  }`}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
 
+            <div className="grid grid-cols-4 gap-[6px] sm:gap-[8px]">
+              {QUICK.map((q) => (
+                <button
+                  key={q}
+                  type="button"
+                  onClick={() => setAllSlots((p) => ({ ...p, amount: q }))}
+                  className={`rounded-full border bg-transparent py-[5px] text-center text-[0.68rem] font-semibold transition-colors sm:py-[7px] sm:text-[0.82rem] ${
+                    slots[0]!.amount === q
+                      ? "border-[#18B800] text-white"
+                      : "border-[#4A4C52] text-[#C9CBD1] hover:text-white"
+                  }`}
+                >
+                  {q}
+                </button>
+              ))}
 
-
-          <div className="flex items-start gap-1.5 rounded-[14px] border border-[#303238] bg-[#151618] p-1.5 sm:gap-3 sm:p-3">
-            <BetPanel
-              state={p1}
-              setState={setP1}
-              phase={phase}
-              multiplier={multiplier}
-              onWin={win}
-              balance={balance}
-            />
-
-            <div className="flex w-[58px] shrink-0 flex-col gap-[5px] pt-[24px] sm:w-[86px]">
               <button
                 type="button"
-                onClick={() => {
-                  const v = Number(window.prompt("Custom stake", String(p1.amount)) ?? "");
-                  if (Number.isFinite(v) && v >= 10) {
-                    setP1((p) => ({ ...p, amount: v }));
-                    setP2((p) => ({ ...p, amount: v }));
-                  }
-                }}
-                className="rounded-[6px] bg-[#F59E0B] py-[5px] text-[0.7rem] sm:py-[6px] sm:text-[0.78rem] font-bold text-white"
-              >
-                Edit
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setP1((p) => ({ ...p, amount: 10, staged: false }));
-                  setP2((p) => ({ ...p, amount: 10, staged: false }));
-                }}
-                className="rounded-[6px] bg-[#EF0000] py-[5px] text-[0.7rem] sm:py-[6px] sm:text-[0.78rem] font-bold text-white"
-              >
-                Clear
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setP1((p) => ({ ...p, amount: 10 }));
-                  setP2((p) => ({ ...p, amount: 10 }));
-                }}
-                className="rounded-[6px] border border-[#4A4C52] bg-transparent py-[5px] text-[0.7rem] sm:py-[6px] sm:text-[0.78rem] font-semibold text-[#9CA3AF]"
+                onClick={() => setAllSlots((p) => ({ ...p, amount: 10 }))}
+                className="rounded-full border border-[#4A4C52] py-[5px] text-[0.68rem] font-semibold text-[#9CA3AF] sm:py-[7px] sm:text-[0.82rem]"
               >
                 Min
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setP1((p) => ({ ...p, amount: 10000 }));
-                  setP2((p) => ({ ...p, amount: 10000 }));
-                }}
-                className="rounded-[6px] border border-[#4A4C52] bg-transparent py-[5px] text-[0.7rem] sm:py-[6px] sm:text-[0.78rem] font-semibold text-[#9CA3AF]"
+                onClick={() => setAllSlots((p) => ({ ...p, amount: 10000 }))}
+                className="rounded-full border border-[#4A4C52] py-[5px] text-[0.68rem] font-semibold text-[#9CA3AF] sm:py-[7px] sm:text-[0.82rem]"
               >
                 Max
               </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const v = Number(window.prompt("Custom stake", String(slots[0]!.amount)) ?? "");
+                  if (Number.isFinite(v) && v >= 10) setAllSlots((p) => ({ ...p, amount: v }));
+                }}
+                className="rounded-full bg-[#F59E0B] py-[5px] text-[0.68rem] font-bold text-white sm:py-[7px] sm:text-[0.82rem]"
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => setAllSlots((p) => ({ ...p, amount: 10, staged: false }))}
+                className="rounded-full bg-[#EF0000] py-[5px] text-[0.68rem] font-bold text-white sm:py-[7px] sm:text-[0.82rem]"
+              >
+                Clear
+              </button>
             </div>
 
-            <BetPanel
-              state={p2}
-              setState={setP2}
-              phase={phase}
-              multiplier={multiplier}
-              onWin={win}
-              balance={balance}
-            />
+            <div className="mt-2 grid grid-cols-2 gap-[6px] sm:mt-3 sm:grid-cols-4 sm:gap-[8px]">
+              {slots.map((s, i) => (
+                <BetPanel
+                  key={i}
+                  state={s}
+                  setState={(fn) => setSlot(i, fn)}
+                  phase={phase}
+                  multiplier={multiplier}
+                  onWin={win}
+                  balance={balance}
+                />
+              ))}
+            </div>
           </div>
+
 
         </div>
       </div>
