@@ -685,7 +685,7 @@ export function BalloonStage({
             <div
               className="pointer-events-none absolute left-1/2 z-20"
               style={{
-                bottom: "25.5%",
+                bottom: "22%",
                 transform: "translateX(-50%)",
                 width: "11%",
                 minWidth: 22,
