@@ -93,7 +93,7 @@ export function Scoreboard({ sportId, eventId }: { sportId: string; eventId: str
         .scoreboard-embed .stat.score { font-size: 17px; font-weight: 800; color: var(--mc-fg); }
         .scoreboard-embed .head-label { visibility: hidden; height: 20px; }
         .scoreboard-embed .team-line { gap: 7px; }
-        .scoreboard-embed .team-name { font-size: 14px; font-weight: 800; }
+        .scoreboard-embed .team-name { font-size: 18px !important; font-weight: 900 !important; color: #000000 !important; }
         .scoreboard-embed .player { display: none; }
         .scoreboard-embed .role { font-size: 10px; font-weight: 800; padding: 2px 5px; border-radius: 3px; }
         .scoreboard-embed .status { margin-top: 12px; font-size: 13px; text-align: center; }
