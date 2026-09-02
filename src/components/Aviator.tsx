@@ -545,14 +545,14 @@ export function Aviator() {
   }, [balance]);
 
   return (
-    <div className="rounded-[16px] border border-white/10 bg-[#141516] p-1.5 sm:p-2">
+    <div className="overflow-hidden rounded-[16px] border border-[#303238] bg-[#090A0C] p-1.5 sm:p-2">
       {/* history strip */}
-      <div className="mb-2 flex items-center gap-2 rounded-[12px] bg-[#1B1C1D] px-2 py-[6px]">
-        <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto sm:gap-3">
+      <div className="mb-2 flex items-center gap-2 rounded-[12px] border border-[#303238] bg-[#0B0C0E] px-2 py-[6px]">
+        <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-[6px] overflow-x-auto whitespace-nowrap sm:gap-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {history.map((h, i) => (
             <span
               key={`${h}-${i}`}
-              className={`shrink-0 text-[0.68rem] font-bold sm:text-[0.78rem] ${chipTone(h)}`}
+              className={`shrink-0 rounded-full border bg-[#151618] px-2 py-[2px] text-[0.66rem] font-bold sm:text-[0.75rem] ${chipTone(h)}`}
             >
               {fmt(h)}x
             </span>
@@ -560,7 +560,7 @@ export function Aviator() {
         </div>
         <button
           type="button"
-          className="flex h-[26px] shrink-0 items-center gap-1 rounded-full border border-[#E01E1E]/60 px-2"
+          className="flex h-[26px] shrink-0 items-center gap-1 rounded-full border border-[#FF003C]/60 px-2"
           aria-label="Round history"
         >
           <img src={historyIcon} alt="" className="h-[14px] w-[15px]" />
@@ -571,7 +571,8 @@ export function Aviator() {
 
       <div className="grid gap-2 lg:grid-cols-[320px_1fr]">
         {/* bets + chat */}
-        <div className="order-2 min-w-0 rounded-[14px] bg-[#1B1C1D] p-1.5 lg:order-1 sm:p-2">
+        <div className="order-2 min-w-0 rounded-[14px] border border-[#303238] bg-[#151618] p-1.5 lg:order-1 sm:p-2">
+
           <div className="mx-auto flex w-full max-w-[280px] rounded-full bg-[#101112] p-[3px] text-[0.68rem] font-bold text-white/55 sm:w-[86%] sm:text-[0.72rem]">
             {([["all", "All Bets"], ["my", "My Bets"]] as const).map(([k, l]) => (
               <button
