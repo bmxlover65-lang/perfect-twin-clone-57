@@ -716,7 +716,7 @@ export function Aviator() {
                     setP2((p) => ({ ...p, amount: v }));
                   }
                 }}
-                className="rounded-[8px] bg-[#F59E0B] py-[6px] text-[0.78rem] font-bold text-white"
+                className="rounded-[6px] bg-[#F59E0B] py-[6px] text-[0.78rem] font-bold text-white"
               >
                 Edit
               </button>
