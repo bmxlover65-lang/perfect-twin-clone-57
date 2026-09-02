@@ -357,9 +357,23 @@ function FlightStage({
 
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         {phase === "betting" ? (
-          <p className="px-4 text-center text-[0.82rem] font-bold uppercase tracking-[0.04em] text-white sm:text-[1.35rem]">
-            Waiting for next round
-          </p>
+          <>
+            <img
+              src={PLANE_FRAMES[frame]}
+              alt=""
+              className="mb-3 h-[26px] w-[52px] opacity-90 sm:h-[32px] sm:w-[64px]"
+            />
+            <p className="px-4 text-center text-[0.95rem] font-bold uppercase tracking-[0.05em] text-white sm:text-[1.35rem]">
+              Waiting for next round
+            </p>
+            <div className="mt-3 h-[4px] w-[168px] overflow-hidden rounded-full bg-white/10 sm:w-[220px]">
+              <div
+                className="h-full rounded-full bg-[#FF003C]"
+                style={{ width: `${Math.max(0, Math.min(100, (countdown / BET_MS) * 100))}%` }}
+              />
+            </div>
+          </>
+
         ) : phase === "crashed" ? (
           <>
             <p className="text-[0.8rem] font-extrabold uppercase tracking-[0.18em] text-[#E01E1E] sm:text-[1.15rem]">
