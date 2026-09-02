@@ -159,12 +159,15 @@ export const Route = createFileRoute("/api/public/uapi/$")({
     handlers: {
       GET: async ({ request, params }) => {
         const splat = (params as { _splat?: string })._splat ?? "";
-        return proxy(splat, new URL(request.url).search);
+        const url = new URL(request.url);
+        return proxy(splat, url.search, undefined, url.origin);
       },
       POST: async ({ request, params }) => {
         const splat = (params as { _splat?: string })._splat ?? "";
+        const url = new URL(request.url);
         const body = await request.text().catch(() => "{}");
-        return proxy(splat, new URL(request.url).search, body || "{}");
+        return proxy(splat, url.search, body || "{}", url.origin);
+
       },
     },
   },
