@@ -691,7 +691,7 @@ export function BalloonStage({
                 minWidth: 42,
               }}
             >
-              <svg viewBox="0 0 60 90" className="w-full animate-[flameFlicker_0.9s_ease-in-out_infinite_alternate]">
+              <svg viewBox="0 0 60 90" className="w-full animate-[flame-flicker_0.9s_ease-in-out_infinite_alternate]">
                 <defs>
                   <linearGradient id="flameGrad" x1="0" y1="1" x2="0" y2="0">
                     <stop offset="0%" stopColor="#F5A623" />
