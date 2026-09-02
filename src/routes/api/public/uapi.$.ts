@@ -135,13 +135,16 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
         { status: 200, headers: { "cache-control": "no-store" } },
       );
     }
-    return new Response(text, {
+    const contentType = res.headers.get("content-type") ?? "application/json";
+    const out = splat.startsWith("tv/") ? rewriteTvHtml(text, origin) : text;
+    return new Response(out, {
       status: res.status,
       headers: {
-        "content-type": res.headers.get("content-type") ?? "application/json",
+        "content-type": contentType,
         "cache-control": "no-store",
       },
     });
+
   } catch (error) {
     return Response.json(
       { error: error instanceof Error ? error.message : "Upstream request failed", data: [] },
