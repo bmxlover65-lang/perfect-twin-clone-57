@@ -607,28 +607,40 @@ export function BalloonStage({
             {/* burner flame under the basket while the balloon is flying */}
             {flying ? (
               <span
-                className="pointer-events-none absolute left-1/2 top-full -translate-x-1/2 -translate-y-[55%]"
+                className="pointer-events-none absolute left-1/2 top-full -translate-x-1/2"
                 aria-hidden
+                style={{
+                  marginTop: -6,
+                  filter: "drop-shadow(0 0 14px rgba(255,110,0,0.95)) drop-shadow(0 0 28px rgba(255,60,0,0.65))",
+                }}
               >
                 <span
-                  className="block h-7 w-5 sm:h-9 sm:w-6"
+                  className="block h-10 w-7 sm:h-12 sm:w-8"
                   style={{
                     background:
-                      "radial-gradient(50% 65% at 50% 70%, #FFF6C8 0%, #FFD23E 35%, #FF8A1E 62%, #F43F0B 85%, transparent 100%)",
+                      "radial-gradient(55% 70% at 50% 75%, #FFFCE8 0%, #FFEA6B 18%, #FF9A1E 45%, #F74A0B 72%, #C01A00 92%, transparent 100%)",
                     borderRadius: "50% 50% 50% 50% / 62% 62% 38% 38%",
                     transformOrigin: "50% 100%",
-                    animation: "flame-flicker 180ms ease-in-out infinite alternate",
-                    filter: "drop-shadow(0 0 8px rgba(255,140,30,0.85))",
+                    animation: "flame-flicker 120ms ease-in-out infinite alternate",
                   }}
                 />
                 <span
-                  className="absolute inset-x-[22%] bottom-0 block h-[58%]"
+                  className="absolute inset-x-[18%] bottom-0 block h-[62%]"
                   style={{
                     background:
-                      "radial-gradient(50% 60% at 50% 75%, #FFFDE8 0%, #FFE45E 55%, transparent 100%)",
+                      "radial-gradient(55% 65% at 50% 80%, #FFFFFF 0%, #FFF5A8 35%, #FFD23E 65%, transparent 100%)",
                     borderRadius: "50% 50% 50% 50% / 60% 60% 40% 40%",
                     transformOrigin: "50% 100%",
-                    animation: "flame-flicker 140ms ease-in-out infinite alternate-reverse",
+                    animation: "flame-flicker 90ms ease-in-out infinite alternate-reverse",
+                    opacity: 0.95,
+                  }}
+                />
+                {/* outer glow halo */}
+                <span
+                  className="absolute left-1/2 top-1/2 block h-16 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                  style={{
+                    background: "radial-gradient(50% 50% at 50% 60%, rgba(255,130,0,0.45) 0%, transparent 70%)",
+                    animation: "flame-flicker 160ms ease-in-out infinite alternate",
                   }}
                 />
               </span>
