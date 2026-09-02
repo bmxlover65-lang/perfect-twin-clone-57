@@ -311,6 +311,20 @@
   50% { transform: translateX(4px) rotate(1.5deg); }
 }
 
+@keyframes cloudDrift {
+  0% { transform: translate3d(0, -30%, 0); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate3d(-8%, 130%, 0); opacity: 0; }
+}
+
+@keyframes planeCross {
+  0% { transform: translate3d(-20%, 10%, 0) scaleX(-1); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate3d(115vw, -30%, 0) scaleX(-1); opacity: 0; }
+}
+
 @keyframes scale-in {
   from { transform: scale(0.6); opacity: 0; }
   to { transform: scale(1); opacity: 1; }

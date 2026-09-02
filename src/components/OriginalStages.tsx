@@ -591,7 +591,7 @@ export function BalloonStage({
 
       if (ph === "flying") {
         // the balloon keeps rising through the whole flight (time based)
-        setClimb((c) => Math.min(1, c + dt / 9));
+        setClimb((c) => Math.min(1, c + dt / 5.5));
         if (live) {
           // official winner for this round (once published) is the crash point
           const official = curRound ? winnersRef.current.get(String(curRound)) : undefined;
@@ -773,7 +773,7 @@ export function BalloonStage({
   const flying = phase === "flying";
 
   const popped = phase === "crashed";
-  const grow = Math.min(1, climb * 0.65 + (Math.log(Math.max(1, shown)) / Math.log(12)) * 0.35);
+  const grow = Math.min(1, climb * 0.78 + (Math.log(Math.max(1, shown)) / Math.log(10)) * 0.35);
 
   const bgIndex = Math.abs(hashStr(roundId ?? "0")) % LOCATIONS.length;
 
@@ -801,12 +801,52 @@ export function BalloonStage({
             alt=""
             className="absolute inset-x-0 bottom-0 h-[210%] w-full object-cover object-bottom opacity-95"
             style={{
-              transform: `translateY(${grow * 96}%)`,
-              transition: "transform 240ms linear",
+              transform: `translateY(${grow * 150}%)`,
+              transition: "transform 200ms linear",
             }}
           />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(79,182,206,0.55)_0%,rgba(122,203,214,0.18)_38%,rgba(247,239,210,0)_70%)]" />
+          {/* high altitude: the landscape is gone and only open blue sky is left */}
+          <div
+            className="absolute inset-0 bg-[linear-gradient(180deg,#1FA5DE_0%,#37B6E8_55%,#7FD3F0_100%)]"
+            style={{
+              opacity: Math.max(0, Math.min(1, (grow - 0.45) / 0.35)),
+              transition: "opacity 240ms linear",
+            }}
+          />
+          {/* clouds streaming past while climbing */}
+          {flying
+            ? [
+                { top: 12, size: 32, dur: 5.5, delay: 0 },
+                { top: 34, size: 22, dur: 7, delay: 1.4 },
+                { top: 58, size: 40, dur: 6.2, delay: 2.6 },
+                { top: 74, size: 18, dur: 8, delay: 0.8 },
+              ].map((c, i) => (
+                <span
+                  key={i}
+                  className="pointer-events-none absolute rounded-full bg-white/70 blur-[1px]"
+                  style={{
+                    top: `${c.top}%`,
+                    left: `${i % 2 === 0 ? 8 + i * 9 : 62 - i * 6}%`,
+                    width: `${c.size}%`,
+                    height: `${c.size * 0.32}%`,
+                    opacity: 0.15 + grow * 0.45,
+                    animation: `cloudDrift ${c.dur}s linear ${c.delay}s infinite`,
+                  }}
+                />
+              ))
+            : null}
+          {/* a small plane crosses the sky high up, like the original */}
+          {flying && grow > 0.55 ? (
+            <span
+              className="pointer-events-none absolute text-[clamp(1.2rem,4vw,2.2rem)]"
+              style={{ top: "46%", animation: "planeCross 6s linear infinite" }}
+            >
+              ✈️
+            </span>
+          ) : null}
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(79,182,206,0.35)_0%,rgba(122,203,214,0.12)_38%,rgba(247,239,210,0)_70%)]" />
         </div>
+
 
         {/* balloon — large, centered, scenic; climbs through the middle/upper area */}
         {popped ? (
@@ -836,14 +876,14 @@ export function BalloonStage({
           </div>
         ) : (
           <div
-            className="absolute left-1/2 z-10 w-[44%] min-w-[130px] max-w-[240px] sm:w-[30%] sm:min-w-[170px]"
+            className="absolute left-1/2 z-10 w-[62%] min-w-[160px] max-w-[420px] sm:w-[34%] sm:min-w-[200px]"
             style={{
-              bottom: "28%",
-              transform: "translateX(-50%)",
+              bottom: `${20 + grow * 12}%`,
+              transform: `translateX(-50%) scale(${flying ? 1 + grow * 0.18 : 1})`,
+              transition: "bottom 240ms linear, transform 240ms linear",
             }}
-
-
           >
+
 
             <img
               src={balloonImg.url}
