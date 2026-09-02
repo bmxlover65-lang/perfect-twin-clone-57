@@ -791,7 +791,7 @@ export function Aviator() {
         if (m >= crashRef.current) {
           setMultiplier(crashRef.current);
           setPhase("crashed");
-          setHistory((h) => [crashRef.current, ...h].slice(0, 24));
+          if (!officialRef.current) setHistory((h) => [crashRef.current, ...h].slice(0, 24));
           setRound((r) => r + 1);
           // everyone who did not cash out before the crash loses the round
           setBets((list) =>
