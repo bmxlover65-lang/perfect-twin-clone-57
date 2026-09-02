@@ -48,8 +48,11 @@ function chipTone(m: number) {
 /* ---------------- fake live bets ---------------- */
 
 const NAMES = [
-  "d***5", "R***a", "k***9", "S***h", "m***t", "A***v", "p***l", "N***i",
-  "b***7", "V***y", "j***n", "T***u", "z***3", "H***k", "y***s", "L***o",
+  "dhruv5", "Rohan22", "kabir9", "Simran", "monty", "Arjunv", "poojal", "Nikkii",
+  "bunny7", "Vikky", "jassn", "Tanuu", "zoya3", "Harryk", "yashs", "Luckyoo",
+  "shiva88", "prem01", "kajalr", "imrank", "deepu", "sanjayy", "meena4", "rockz",
+  "gagan2", "heena7", "tushar", "vandna", "amit91", "rani12", "sonuk", "priya5",
+  "mannu3", "jyoti8", "farhan", "neha01", "gulshan", "riya09", "sameer", "kiranp",
 ];
 
 type LiveBet = {
@@ -68,16 +71,21 @@ function maskName(n: string) {
 
 function makeBets(seed: number): LiveBet[] {
   const out: LiveBet[] = [];
-  const n = 28 + (seed % 18);
+  const n = 46 + (seed % 24);
+  const base = [50, 100, 200, 310, 500, 881, 1000, 2500, 5000];
   for (let i = 0; i < n; i += 1) {
-    const amt = [50, 100, 200, 500, 1000, 2500][(seed + i * 7) % 6]!;
+    const pick = base[(seed * 7 + i * 11) % base.length]!;
+    // slight organic jitter so amounts don't look generated
+    const amt = pick + ((seed * 13 + i * 17) % 5) * (pick >= 500 ? 10 : 1);
     out.push({
       id: seed * 100 + i,
       user: NAMES[(seed * 3 + i * 5) % NAMES.length]!,
       amount: amt,
-      target: 1.2 + ((seed * 13 + i * 29) % 700) / 100,
+      target: 1.15 + ((seed * 13 + i * 29) % 850) / 100,
     });
   }
+  // biggest bets on top like the real lobby
+  out.sort((a, b) => b.amount - a.amount);
   return out;
 }
 
@@ -418,7 +426,8 @@ export function Aviator() {
   const [phase, setPhase] = useState<Phase>("betting");
   const [multiplier, setMultiplier] = useState(1);
   const [countdown, setCountdown] = useState(BET_MS);
-  const [history, setHistory] = useState<number[]>([2.31, 1.14, 5.62, 1.02, 11.4, 1.87, 3.05, 1.45]);
+  const [histOpen, setHistOpen] = useState(false);
+  const [history, setHistory] = useState<number[]>([2.31, 1.14, 5.62, 1.02, 11.4, 1.87, 3.05, 1.45, 4.35, 23.12, 2.53, 1.46, 3.53, 1.4, 14.99, 11.63, 3.68, 3.1, 1.75, 7.28, 1.79, 1.02, 1.0, 1.78, 27.0, 2.03, 2.45, 2.3, 2.48, 4.03]);
   const [round, setRound] = useState(1);
   const [balance, setBalance] = useState(5000);
   const [bets, setBets] = useState<LiveBet[]>(() => makeBets(1));
@@ -551,32 +560,55 @@ export function Aviator() {
     saveBalance(balance);
   }, [balance]);
 
+  // players keep joining while the plane flies (feels like a real lobby)
+  useEffect(() => {
+    if (phase !== "flying") return;
+    const id = window.setInterval(() => {
+      setBets((list) => {
+        if (list.length > 110) return list;
+        const seed = Math.floor(Math.random() * 9999);
+        const extra = makeBets(seed).slice(0, 1 + (seed % 3));
+        return [...list, ...extra];
+      });
+    }, 900);
+    return () => window.clearInterval(id);
+  }, [phase]);
+
   return (
     <div className="overflow-hidden rounded-[16px] border border-[#303238] bg-[#090A0C] p-1.5 sm:p-2">
       {/* history strip */}
       <div className="mb-2 rounded-[12px] border border-[#303238] bg-[#141518] px-3 py-[6px]">
-        <div className="mb-[4px] flex items-center justify-between">
-          <span className="text-[0.62rem] font-bold tracking-[0.08em] text-white/70 sm:text-[0.7rem]">
-            ROUND HISTORY
-          </span>
+        <div className="flex items-center gap-2">
+          <div
+            className={`flex min-w-0 flex-1 items-center gap-[6px] sm:gap-2 ${
+              histOpen
+                ? "max-h-[120px] flex-wrap overflow-y-auto"
+                : "flex-nowrap overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            }`}
+          >
+            {(histOpen ? history : history.slice(0, 30)).map((h, i) => (
+              <span
+                key={`${h}-${i}`}
+                className={`shrink-0 rounded-full bg-[#0B0C0E] px-2.5 py-[3px] text-[0.72rem] font-bold sm:text-[0.82rem] ${toneFor(h)}`}
+              >
+                {fmt(h)}x
+              </span>
+            ))}
+          </div>
           <button
             type="button"
-            className="flex h-[24px] items-center gap-1 rounded-full border border-[#FF003C]/60 px-2"
+            onClick={() => setHistOpen((v) => !v)}
+            aria-expanded={histOpen}
+            className="flex h-[26px] shrink-0 items-center gap-1 rounded-full border border-[#FF003C]/60 px-2"
             aria-label="Round history"
           >
             <img src={historyIcon} alt="" className="h-[13px] w-[14px]" />
-            <img src={arrowIcon} alt="" className="h-[8px] w-[10px]" />
+            <img
+              src={arrowIcon}
+              alt=""
+              className={`h-[8px] w-[10px] transition-transform ${histOpen ? "rotate-180" : ""}`}
+            />
           </button>
-        </div>
-        <div className="flex min-w-0 flex-wrap items-center gap-[6px] sm:gap-2">
-          {history.map((h, i) => (
-            <span
-              key={`${h}-${i}`}
-              className={`shrink-0 rounded-full bg-[#0B0C0E] px-2.5 py-[3px] text-[0.72rem] font-bold sm:text-[0.82rem] ${toneFor(h)}`}
-            >
-              {fmt(h)}x
-            </span>
-          ))}
         </div>
       </div>
 
