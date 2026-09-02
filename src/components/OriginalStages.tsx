@@ -773,7 +773,7 @@ export function BalloonStage({
   const flying = phase === "flying";
 
   const popped = phase === "crashed";
-  const grow = Math.min(1, climb * 0.65 + (Math.log(Math.max(1, shown)) / Math.log(12)) * 0.35);
+  const grow = Math.min(1, climb * 0.78 + (Math.log(Math.max(1, shown)) / Math.log(10)) * 0.35);
 
   const bgIndex = Math.abs(hashStr(roundId ?? "0")) % LOCATIONS.length;
 
