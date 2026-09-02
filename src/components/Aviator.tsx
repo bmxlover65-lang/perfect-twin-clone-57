@@ -500,8 +500,14 @@ export function Aviator() {
 
     const beginFlight = () => {
       // stage bets
-      setP1((p) => (p.staged ? { ...p, staged: false, active: true, cashedAt: null } : { ...p, active: false, cashedAt: null }));
-      setP2((p) => (p.staged ? { ...p, staged: false, active: true, cashedAt: null } : { ...p, active: false, cashedAt: null }));
+      setSlots((list) =>
+        list.map((p) =>
+          p.staged
+            ? { ...p, staged: false, active: true, cashedAt: null }
+            : { ...p, active: false, cashedAt: null },
+        ),
+      );
+
       setBalance((b) => b);
       startRef.current = performance.now();
       setPhase("flying");
