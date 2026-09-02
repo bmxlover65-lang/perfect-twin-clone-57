@@ -35,6 +35,8 @@ import {
   dashInput as input,
 } from "@/components/dash";
 
+import { OperatorGuide } from "@/components/dash-guide";
+
 const TABS = [
   { id: "overview", label: "Overview" },
   { id: "wallet", label: "Callback wallet" },
@@ -42,7 +44,9 @@ const TABS = [
   { id: "rounds", label: "Rounds" },
   { id: "keys", label: "Keys & whitelist" },
   { id: "logs", label: "Callback logs" },
+  { id: "guide", label: "Guide / Kit" },
 ];
+
 
 
 function OperatorPage() {
@@ -258,7 +262,10 @@ function OperatorPage() {
           </Panel>
           ) : null}
 
+          {tab === "guide" ? <OperatorGuide /> : null}
+
           {tab === "logs" ? (
+
           <Panel title="Callback logs">
             <ul className="space-y-1 text-xs">
               {cbLogs.map((l) => (
