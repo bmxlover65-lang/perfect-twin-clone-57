@@ -139,42 +139,44 @@ function BetPanel({
     setState((p) => ({ ...p, amount: Math.max(10, Math.round((p.amount + delta) * 100) / 100) }));
 
   return (
-    <div className="rounded-[14px] border border-white/10 bg-[#1B1C1D] p-2">
+    <div className="rounded-[14px] border border-white/10 bg-[#1B1C1D] p-1.5 sm:p-2">
       <div className="mb-2 flex justify-center">
-        <div className="flex rounded-full bg-[#141516] p-[3px] text-[0.65rem] font-bold text-white/60">
+        <div className="flex rounded-full bg-[#141516] p-[3px] text-[0.6rem] font-bold text-white/60 sm:text-[0.65rem]">
           <span className="rounded-full bg-[#2C2D30] px-3 py-[2px] text-white">Bet</span>
           <span className="px-3 py-[2px]">Auto</span>
         </div>
       </div>
 
-      <div className="flex items-stretch gap-2">
-        <div className="flex-1">
-          <div className="flex items-center justify-between rounded-full bg-[#0E0F10] px-2 py-1">
+      <div className="flex items-stretch gap-1.5 sm:gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-1 rounded-full bg-[#0E0F10] px-1.5 py-1 sm:px-2">
             <button
               type="button"
               onClick={() => bump(-100)}
-              className="h-6 w-6 rounded-full bg-[#2C2D30] text-white/70"
+              className="h-6 w-6 shrink-0 rounded-full bg-[#2C2D30] text-white/70"
               aria-label="decrease"
             >
               −
             </button>
-            <span className="text-[1.05rem] font-bold text-white">{fmt(state.amount)}</span>
+            <span className="truncate text-[0.9rem] font-bold text-white sm:text-[1.05rem]">
+              {fmt(state.amount)}
+            </span>
             <button
               type="button"
               onClick={() => bump(100)}
-              className="h-6 w-6 rounded-full bg-[#2C2D30] text-white/70"
+              className="h-6 w-6 shrink-0 rounded-full bg-[#2C2D30] text-white/70"
               aria-label="increase"
             >
               +
             </button>
           </div>
-          <div className="mt-1 grid grid-cols-4 gap-1">
+          <div className="mt-1 grid grid-cols-4 gap-[3px] sm:gap-1">
             {QUICK.map((q) => (
               <button
                 key={q}
                 type="button"
                 onClick={() => setState((p) => ({ ...p, amount: q }))}
-                className="rounded-full border border-white/10 bg-[#0E0F10] py-[3px] text-[0.7rem] font-semibold text-white/70 hover:text-white"
+                className="rounded-full border border-white/10 bg-[#0E0F10] py-[3px] text-[0.62rem] font-semibold text-white/70 hover:text-white sm:text-[0.7rem]"
               >
                 {q}
               </button>
@@ -185,14 +187,15 @@ function BetPanel({
         <button
           type="button"
           onClick={press}
-          className={`w-[46%] rounded-[18px] border-2 px-2 py-2 text-center font-extrabold uppercase text-white ${tone}`}
+          className={`w-[42%] shrink-0 rounded-[18px] border-2 px-1.5 py-2 text-center font-extrabold uppercase text-white sm:w-[46%] sm:px-2 ${tone}`}
         >
-          <span className="block text-[0.95rem] leading-tight">{label}</span>
-          <span className="block text-[0.85rem] leading-tight">
+          <span className="block text-[0.82rem] leading-tight sm:text-[0.95rem]">{label}</span>
+          <span className="block text-[0.72rem] leading-tight sm:text-[0.85rem]">
             {canCash ? `${fmt(state.amount * multiplier)} INR` : `${fmt(state.amount)} INR`}
           </span>
         </button>
       </div>
+
 
       {state.cashedAt ? (
         <p className="mt-1 text-center text-[0.72rem] font-bold text-[#28A909]">
