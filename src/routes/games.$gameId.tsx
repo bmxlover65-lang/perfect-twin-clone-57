@@ -1327,17 +1327,20 @@ function NumberPanel({
     }
     return (
       <div
-        className={`relative flex h-[68px] flex-col items-center justify-center rounded-[6px] border border-white/10 ${
+        className={`relative flex h-[54px] flex-col items-center justify-center rounded-[6px] border border-white/10 sm:h-[68px] ${
           (dream ? DREAM_TONE[t.label.trim()] : undefined) ?? tileTone(t.label)
         }`}
       >
-        <span className="text-[1.1rem] font-extrabold leading-none">{t.label}</span>
-        <span className="mt-1 text-[0.72rem] font-bold leading-none">
+        <span className="text-[0.95rem] font-extrabold leading-none sm:text-[1.1rem]">
+          {t.label}
+        </span>
+        <span className="mt-1 text-[0.66rem] font-bold leading-none sm:text-[0.72rem]">
           {t.price ? t.price.toFixed(2) : "—"}
         </span>
-        <span className="mt-[3px] text-[0.66rem] font-semibold leading-none opacity-60">
+        <span className="mt-[3px] text-[0.6rem] font-semibold leading-none opacity-60 sm:text-[0.66rem]">
           {t.size ? Math.round(t.size) : ""}
         </span>
+
         {!t.open ? <div className="absolute inset-0 rounded-[6px] bg-black/45" /> : null}
       </div>
     );
