@@ -940,8 +940,8 @@ export function Aviator() {
                       >
                         {done ? `${fmt(b.cashedAt!)}x` : ""}
                       </span>
-                      <span className={`text-right font-bold ${done ? "text-white" : ""}`}>
-                        {done ? fmt(b.amount * b.cashedAt!) : ""}
+                      <span className={`text-right font-bold ${done ? "text-white" : "text-white/25"}`}>
+                        {done ? fmt(b.amount * b.cashedAt!) : "—"}
                       </span>
                     </div>
                   );
