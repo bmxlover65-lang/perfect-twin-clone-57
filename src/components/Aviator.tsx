@@ -596,6 +596,50 @@ export function Aviator() {
     return () => window.clearInterval(id);
   }, [phase]);
 
+  // live join / leave ticker + online counter
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const name = maskName(NAMES[Math.floor(Math.random() * NAMES.length)]!);
+      const kind = Math.random() < 0.62 ? "join" : "leave";
+      const delta = kind === "join" ? 1 + Math.floor(Math.random() * 6) : -(1 + Math.floor(Math.random() * 5));
+      setOnline((o) => Math.max(900, Math.min(4800, o + delta)));
+      setFeed((f) =>
+        [
+          {
+            id: Date.now() + Math.random(),
+            kind: kind as "join" | "leave",
+            text: kind === "join" ? `${name} joined the table` : `${name} left the table`,
+          },
+          ...f,
+        ].slice(0, 20),
+      );
+    }, 1600);
+    return () => window.clearInterval(id);
+  }, []);
+
+  // announce real cash-outs in the feed
+  useEffect(() => {
+    if (phase !== "flying") return;
+    const id = window.setInterval(() => {
+      const done = bets.filter((b) => b.cashedAt !== undefined);
+      if (!done.length) return;
+      const b = done[Math.floor(Math.random() * done.length)]!;
+      setFeed((f) =>
+        [
+          {
+            id: Date.now() + Math.random(),
+            kind: "win" as const,
+            text: `${maskName(b.user)} cashed out ${fmt(b.cashedAt!)}x · ${fmt(b.amount * b.cashedAt!)}`,
+          },
+          ...f,
+        ].slice(0, 20),
+      );
+    }, 1400);
+    return () => window.clearInterval(id);
+  }, [phase, bets]);
+
+
+
   return (
     <div className="overflow-hidden rounded-[16px] border border-[#303238] bg-[#090A0C] p-1.5 sm:p-2">
       <div className="grid gap-2 lg:grid-cols-[400px_1fr]">
