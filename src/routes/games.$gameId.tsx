@@ -2091,7 +2091,7 @@ function GamePage() {
         </div>
         {!suspended && (d?.leftSec ?? 0) > 0 ? (
           <span className="pointer-events-none absolute right-2 top-2 rounded bg-black/60 px-2 py-1 text-[0.72rem] font-bold text-white">
-            {status || "—"} · {d.leftSec}s
+            {status || "—"} · {d?.leftSec ?? 0}s
           </span>
         ) : null}
         <ResultBanner results={results} />
