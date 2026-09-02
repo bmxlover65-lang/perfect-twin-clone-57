@@ -372,8 +372,11 @@ function ConsolePage() {
               ))}
             </ul>
           </Panel>
+          ) : null}
 
+          {tab === "whitelist" ? (
           <div className="grid gap-4 sm:grid-cols-2">
+
             {(["ip", "domain"] as const).map((kind) => (
               <Panel key={kind} title={`${kind === "ip" ? "IP" : "Domain"} whitelist`}>
                 <form
