@@ -681,34 +681,42 @@ export function BalloonStage({
               className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
               style={{ filter: "drop-shadow(0 14px 20px rgba(0,0,0,0.28))" }}
             />
-            {/* burner flame */}
+            {/* burner flame — small, centered at the basket burner */}
             <div
               className="pointer-events-none absolute left-1/2 z-20"
               style={{
-                bottom: "10%",
+                bottom: "7%",
                 transform: "translateX(-50%)",
-                width: "22%",
-                minWidth: 42,
+                width: "14%",
+                minWidth: 28,
+                maxWidth: 44,
               }}
             >
-              <svg viewBox="0 0 60 90" className="w-full animate-[flame-flicker_0.9s_ease-in-out_infinite_alternate]">
+              <svg viewBox="0 0 40 60" className="w-full animate-[flame-flicker_0.75s_ease-in-out_infinite_alternate]">
                 <defs>
                   <linearGradient id="flameGrad" x1="0" y1="1" x2="0" y2="0">
-                    <stop offset="0%" stopColor="#F5A623" />
-                    <stop offset="40%" stopColor="#FF4D1C" />
-                    <stop offset="80%" stopColor="#FF9A1A" stopOpacity="0.95" />
-                    <stop offset="100%" stopColor="#FFE484" stopOpacity="0.7" />
+                    <stop offset="0%" stopColor="#E65100" />
+                    <stop offset="35%" stopColor="#FF6F00" />
+                    <stop offset="70%" stopColor="#FFB300" />
+                    <stop offset="100%" stopColor="#FFEB3B" stopOpacity="0.85" />
                   </linearGradient>
+                  <filter id="flameGlow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="2.5" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
                 </defs>
                 <path
-                  d="M30 88 C10 70 0 45 18 22 C22 16 26 8 30 0 C34 8 38 16 42 22 C60 45 50 70 30 88 Z"
+                  d="M20 58 C6 46 2 32 10 20 C12 14 16 8 20 2 C24 8 28 14 30 20 C38 32 34 46 20 58 Z"
                   fill="url(#flameGrad)"
-                  style={{ filter: "drop-shadow(0 0 10px rgba(255,77,28,0.85))" }}
+                  filter="url(#flameGlow)"
                 />
                 <path
-                  d="M30 78 C18 64 12 48 24 32 C26 28 28 22 30 16 C32 22 34 28 36 32 C48 48 42 64 30 78 Z"
-                  fill="#FFF3B0"
-                  fillOpacity="0.85"
+                  d="M20 50 C13 42 11 34 16 26 C17 23 19 19 20 15 C21 19 23 23 24 26 C29 34 27 42 20 50 Z"
+                  fill="#FFF8E1"
+                  fillOpacity="0.9"
                 />
               </svg>
             </div>
