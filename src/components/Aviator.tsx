@@ -136,6 +136,7 @@ function BetPanel({
   multiplier,
   onWin,
   balance,
+  mode,
 }: {
   state: PanelState;
   setState: (fn: (p: PanelState) => PanelState) => void;
@@ -143,6 +144,7 @@ function BetPanel({
   multiplier: number;
   onWin: (amount: number) => void;
   balance: number;
+  mode: "bet" | "auto";
 }) {
   const canCash = phase === "flying" && state.active && state.cashedAt === null;
 
@@ -175,7 +177,7 @@ function BetPanel({
   };
 
   return (
-    <div className="flex min-w-0 flex-col gap-[3px]">
+    <div className="flex min-w-0 flex-col gap-[5px]">
       <button
         type="button"
         onClick={press}
@@ -186,6 +188,46 @@ function BetPanel({
           <span className="ml-1 text-[0.8rem]">{fmt(state.amount * multiplier)}</span>
         ) : null}
       </button>
+
+      {mode === "auto" ? (
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
+            aria-pressed={state.auto}
+            className={`relative h-[20px] w-[40px] shrink-0 rounded-full transition-colors ${
+              state.auto ? "bg-[#18B800]" : "bg-[#2A2C30]"
+            }`}
+          >
+            <span
+              className={`absolute top-[2px] h-[16px] w-[16px] rounded-full bg-white transition-all ${
+                state.auto ? "left-[22px]" : "left-[2px]"
+              }`}
+            />
+          </button>
+          <div className="flex min-w-0 flex-1 items-center gap-1 rounded-full bg-[#0B0C0E] px-3 py-[3px]">
+            <input
+              type="number"
+              step="0.01"
+              min="1.01"
+              value={state.autoCashout}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                setState((p) => ({ ...p, autoCashout: Number.isFinite(v) ? v : p.autoCashout }));
+              }}
+              className="min-w-0 flex-1 bg-transparent text-center text-[0.78rem] font-bold text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+            />
+            <button
+              type="button"
+              onClick={() => setState((p) => ({ ...p, autoCashout: 1.1, auto: false }))}
+              aria-label="Clear auto cashout"
+              className="shrink-0 text-[0.8rem] leading-none text-white/45 hover:text-white"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {state.cashedAt ? (
         <p className="text-center text-[0.62rem] font-bold text-[#18B800]">
@@ -201,6 +243,7 @@ function BetPanel({
     </div>
   );
 }
+
 
 
 
