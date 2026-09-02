@@ -2177,7 +2177,18 @@ function GamePage() {
 
 
 /** "RESULT DECLARED" overlay — shows the winning selection right after a round settles. */
-function ResultBanner({ results }: { results: CasinoResult[] }) {
+const LUCKY7_GAMES = ["99.0030", "99.0010", "99.0019"];
+
+function lucky7Label(winner: string): string | null {
+  const w = winner.trim().toUpperCase();
+  if (/^(H|HIGH)\b|HIGH\s*CARD|8\s*TO\s*K/.test(w)) return "HIGH CARD ( 8 TO K ) WIN";
+  if (/^(L|LOW)\b|LOW\s*CARD|A\s*TO\s*6/.test(w)) return "LOW CARD ( A TO 6 ) WIN";
+  if (/^(TIE|DRAW|7)$/.test(w) || /TIE/.test(w)) return "TIE";
+  return null;
+}
+
+function ResultBanner({ results, gameId }: { results: CasinoResult[]; gameId?: string }) {
+
   const top = results[0] as (CasinoResult & { _id?: string; result?: string; selectionName?: string }) | undefined;
   const key = String(top?.roundId ?? top?._id ?? "");
   const winner = (top?.winner ?? top?.result ?? top?.selectionName ?? "").toString().trim();
