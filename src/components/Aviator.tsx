@@ -6,6 +6,7 @@ import plane3 from "@/assets/aviator/plane-3.svg";
 import historyIcon from "@/assets/aviator/history.svg";
 import arrowIcon from "@/assets/aviator/arrow-down.svg";
 import fairIcon from "@/assets/aviator/provably-fair.svg";
+import propellerImg from "@/assets/aviator/propeller.png.asset.json";
 import av1 from "@/assets/aviator/av1.png";
 import av2 from "@/assets/aviator/av2.png";
 import av3 from "@/assets/aviator/av3.png";
@@ -406,11 +407,9 @@ function FlightStage({
   muted: boolean;
   setMuted: (fn: (v: boolean) => boolean) => void;
 }) {
-  const [frame, setFrame] = useState(0);
   const [t, setT] = useState(0);
   useEffect(() => {
     const id = window.setInterval(() => {
-      setFrame((f) => (f + 1) % 4);
       setT(Date.now());
     }, 50);
     return () => window.clearInterval(id);
