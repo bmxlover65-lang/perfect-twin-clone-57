@@ -152,7 +152,19 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
     }
 
     let token = await getToken();
+    const preMatch = /^games\/([^/]+)\/results$/.exec(splat);
+    if (preMatch) {
+      // official results mirror is the source of truth for casino events
+      const data = await mirrorResults(decodeURIComponent(preMatch[1]!));
+      if (data.length) {
+        return Response.json(
+          { data, source: "mirror" },
+          { status: 200, headers: { "cache-control": "no-store" } },
+        );
+      }
+    }
     let res = await upstream(splat, search, token, body);
+
     if (res.status === 401 || res.status === 403) {
       token = await getToken(true);
       res = await upstream(splat, search, token, body);
