@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CasinoDocsRouteImport } from './routes/casino-docs'
 import { Route as SportsDocsRouteImport } from './routes/sports-docs'
 import { Route as AuthenticatedConsoleRouteImport } from './routes/_authenticated/console'
+import { Route as AuthenticatedOperatorRouteImport } from './routes/_authenticated/operator'
 import { Route as GamesGameIdRouteImport } from './routes/games.$gameId'
 import { Route as SportsIndexRouteImport } from './routes/sports.index'
 import { Route as SportsSportIdEventIdRouteImport } from './routes/sports.$sportId.$eventId'
@@ -56,6 +57,11 @@ const SportsDocsRoute = SportsDocsRouteImport.update({
 const AuthenticatedConsoleRoute = AuthenticatedConsoleRouteImport.update({
   id: '/console',
   path: '/console',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOperatorRoute = AuthenticatedOperatorRouteImport.update({
+  id: '/operator',
+  path: '/operator',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const GamesGameIdRoute = GamesGameIdRouteImport.update({
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/casino-docs': typeof CasinoDocsRoute
   '/sports-docs': typeof SportsDocsRoute
   '/console': typeof AuthenticatedConsoleRoute
+  '/operator': typeof AuthenticatedOperatorRoute
   '/games/$gameId': typeof GamesGameIdRoute
   '/sports/': typeof SportsIndexRoute
   '/sports/$sportId/$eventId': typeof SportsSportIdEventIdRoute
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/casino-docs': typeof CasinoDocsRoute
   '/sports-docs': typeof SportsDocsRoute
   '/console': typeof AuthenticatedConsoleRoute
+  '/operator': typeof AuthenticatedOperatorRoute
   '/games/$gameId': typeof GamesGameIdRoute
   '/sports': typeof SportsIndexRoute
   '/sports/$sportId/$eventId': typeof SportsSportIdEventIdRoute
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/casino-docs': typeof CasinoDocsRoute
   '/sports-docs': typeof SportsDocsRoute
   '/_authenticated/console': typeof AuthenticatedConsoleRoute
+  '/_authenticated/operator': typeof AuthenticatedOperatorRoute
   '/games/$gameId': typeof GamesGameIdRoute
   '/sports/': typeof SportsIndexRoute
   '/sports/$sportId/$eventId': typeof SportsSportIdEventIdRoute
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/casino-docs'
     | '/sports-docs'
     | '/console'
+    | '/operator'
     | '/games/$gameId'
     | '/sports/'
     | '/sports/$sportId/$eventId'
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/casino-docs'
     | '/sports-docs'
     | '/console'
+    | '/operator'
     | '/games/$gameId'
     | '/sports'
     | '/sports/$sportId/$eventId'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/casino-docs'
     | '/sports-docs'
     | '/_authenticated/console'
+    | '/_authenticated/operator'
     | '/games/$gameId'
     | '/sports/'
     | '/sports/$sportId/$eventId'
@@ -257,6 +269,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConsoleRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/operator': {
+      id: '/_authenticated/operator'
+      path: '/operator'
+      fullPath: '/operator'
+      preLoaderRoute: typeof AuthenticatedOperatorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/games/$gameId': {
       id: '/games/$gameId'
       path: '/games/$gameId'
@@ -311,10 +330,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedConsoleRoute: typeof AuthenticatedConsoleRoute
+  AuthenticatedOperatorRoute: typeof AuthenticatedOperatorRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConsoleRoute: AuthenticatedConsoleRoute,
+  AuthenticatedOperatorRoute: AuthenticatedOperatorRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
