@@ -633,10 +633,10 @@ export function Aviator() {
                   return (
                     <div
                       key={b.id}
-                      className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-2 px-1 sm:gap-x-3 py-[5px] text-[0.72rem] ${
+                      className={`grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-2 px-2 sm:gap-x-3 py-[5px] text-[0.72rem] ${
                         done
-                          ? "rounded-[6px] border border-[#18B800]/60 bg-[#123A18] text-white"
-                          : "border-b border-white/[0.06] text-white/70"
+                          ? "rounded-[7px] border border-[#3B8F20] bg-[#0D4206] text-white"
+                          : "border-b border-white/[0.06] bg-[#111315] text-white/70"
                       }`}
                     >
                       <span className="flex min-w-0 items-center gap-2">
@@ -648,16 +648,19 @@ export function Aviator() {
                         >
                           {b.user.slice(0, 1).toUpperCase()}
                         </span>
-                        {done ? (
-                          <span className="rounded-full bg-black/40 px-2 py-[1px] text-[0.68rem] font-bold text-white">
-                            {fmt(b.cashedAt!)}x
-                          </span>
-                        ) : (
-                          <span className="truncate">{b.user}</span>
-                        )}
+                        <span className="truncate">{b.user}</span>
                       </span>
-                      <span className="font-semibold text-white/85">{done ? "" : b.amount}</span>
-                      <span className="text-right font-bold">
+                      <span className="font-semibold text-white/85">{b.amount}</span>
+                      <span
+                        className={`shrink-0 rounded-full px-2 py-[1px] text-[0.65rem] font-bold ${
+                          done
+                            ? "border border-[#3B8F20]/60 bg-[#052208] text-[#7CFF56]"
+                            : ""
+                        }`}
+                      >
+                        {done ? `${fmt(b.cashedAt!)}x` : ""}
+                      </span>
+                      <span className={`text-right font-bold ${done ? "text-white" : ""}`}>
                         {done ? fmt(b.amount * b.cashedAt!) : ""}
                       </span>
                     </div>
