@@ -335,37 +335,26 @@ function FlightStage({
         ) : null}
       </svg>
 
-      <img
-        src={aviatorText}
-        alt="Aviator"
-        className="pointer-events-none absolute left-3 top-3 h-[18px] w-auto opacity-90 sm:h-[22px]"
-      />
+      <button
+        type="button"
+        onClick={() => setMuted((v) => !v)}
+        aria-label={muted ? "Unmute" : "Mute"}
+        className="absolute left-3 top-2 z-10 text-[1.05rem] font-bold text-white/85"
+      >
+        {muted ? "🔇" : "🔊"}
+      </button>
 
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         {phase === "betting" ? (
-          <>
-            <div
-              className="h-[54px] w-[54px] rounded-full border-[3px] border-white/10 border-t-[#E01E1E]"
-              style={{ animation: "av-prop 0.7s linear infinite" }}
-            />
-            <p className="mt-3 text-[0.72rem] font-bold uppercase tracking-[0.22em] text-white/85 sm:text-[0.8rem]">
-              Waiting for next round
-            </p>
-            <div className="mt-2 h-[6px] w-[200px] overflow-hidden rounded-full bg-white/15 sm:w-[240px]">
-              <div
-                className="h-full rounded-full bg-[#E01E1E] transition-[width] duration-100"
-                style={{ width: `${Math.max(0, Math.min(100, (countdown / BET_MS) * 100))}%` }}
-              />
-            </div>
-            <p className="mt-2 text-[1.35rem] font-extrabold text-white sm:text-[1.6rem]">
-              {(countdown / 1000).toFixed(1)}s
-            </p>
-          </>
+          <p className="text-[1.05rem] font-bold uppercase tracking-[0.04em] text-white sm:text-[1.35rem]">
+            Waiting for next round
+          </p>
         ) : phase === "crashed" ? (
           <>
             <p className="text-[1rem] font-extrabold uppercase tracking-[0.18em] text-[#E01E1E] sm:text-[1.15rem]">
               Flew Away!
             </p>
+
             <p className="text-[2.6rem] font-extrabold leading-none text-[#E01E1E] drop-shadow-[0_4px_14px_rgba(0,0,0,.7)] sm:text-[3.4rem]">
               {fmt(multiplier)}x
             </p>
