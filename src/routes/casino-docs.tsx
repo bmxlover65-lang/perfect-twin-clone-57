@@ -651,7 +651,104 @@ async function loadVideo(eventId) {
             ]}
           />
 
+          {/* Betting & wallet */}
+          <H2 id="betting-wallet">Betting &amp; wallet (seat API)</H2>
+          <P>
+            These endpoints let your platform place real bets on Universal API rounds. Player money
+            always stays in <strong>your</strong> wallet: we call your callback URL to debit stake
+            and credit winnings. All three endpoints use the same{" "}
+            <Code>x-api-key</Code> header and respect your IP / domain whitelist.
+          </P>
+
+          <H3>Place a bet</H3>
+          <Endpoint method="POST" path="/api/public/v1/bet" auth="API key" />
+          <Block
+            label="Request"
+            code={`POST /api/public/v1/bet
+x-api-key: <your key>
+content-type: application/json
+
+{
+  "userId": "player-1042",
+  "gameId": "99.0010",
+  "roundId": "1725312001",
+  "market": "Lucky 7",
+  "selection": "LOW",
+  "odds": 1.98,
+  "stake": 500,
+  "reference": "your-unique-txn-id"
+}`}
+          />
+          <Block
+            label="Response"
+            code={`{ "status": "ok", "betId": "…", "reference": "your-unique-txn-id", "balance": 9500, "currency": "INR" }`}
+          />
+          <Note>
+            <strong>Idempotent:</strong> resending the same <Code>reference</Code> returns the
+            original bet with <Code>duplicate: true</Code> — never double-debits.
+          </Note>
+
+          <H3>Player balance</H3>
+          <Endpoint method="POST" path="/api/public/v1/balance" auth="API key" />
+          <Block label="Request" code={`{ "userId": "player-1042" }`} />
+          <Block label="Response" code={`{ "status": "ok", "currency": "INR", "balance": 9500 }`} />
+
+          <H3>Bet history</H3>
+          <Endpoint method="GET" path="/api/public/v1/bets?userId=&gameId=&limit=50" auth="API key" />
+          <Block
+            label="Response"
+            code={`{ "status": "ok", "count": 2, "bets": [
+  { "operator_user_id": "player-1042", "game_id": "99.0010", "round_id": "1725312001",
+    "selection": "LOW", "odds": 1.98, "stake": 500, "payout": 990,
+    "status": "won", "reference": "your-unique-txn-id", "settled_at": "…" }
+] }`}
+          />
+
+          <H3>Your wallet callback</H3>
+          <P>
+            Set your callback base URL in the operator panel. We POST to{" "}
+            <Code>{"<callback>/balance"}</Code>, <Code>{"<callback>/debit"}</Code>,{" "}
+            <Code>{"<callback>/credit"}</Code> and <Code>{"<callback>/rollback"}</Code>.
+          </P>
+          <Block
+            label="Body we send"
+            code={`{
+  "action": "debit",
+  "operatorId": "…",
+  "currency": "INR",
+  "userId": "player-1042",
+  "amount": 500,
+  "reference": "your-unique-txn-id",
+  "gameId": "99.0010",
+  "roundId": "1725312001",
+  "betId": "…",
+  "timestamp": "2026-09-02T23:10:00.000Z"
+}`}
+          />
+          <P>
+            Headers: <Code>x-universal-operator</Code> (your operator id) and{" "}
+            <Code>x-universal-signature</Code> = HMAC-SHA256 of the <em>raw</em> body using your
+            callback secret (hex). Verify it before touching balances.
+          </P>
+          <Block
+            label="Verify (Node.js)"
+            code={`const expected = crypto.createHmac("sha256", CALLBACK_SECRET)
+  .update(rawBody).digest("hex");
+if (expected !== req.headers["x-universal-signature"]) return res.status(401).end();`}
+          />
+          <Block
+            label="Your reply"
+            code={`{ "status": "ok", "balance": 9500, "reference": "your-unique-txn-id" }`}
+          />
+          <Note>
+            Reply non-2xx or <Code>{'{ "status": "failed" }'}</Code> to reject a debit (e.g.
+            insufficient funds) — the bet is then rejected and logged in your panel. Settlement
+            credits are sent automatically when the round result arrives; failed inserts trigger a{" "}
+            <Code>rollback</Code>.
+          </Note>
+
           {/* Errors */}
+
           <H2 id="errors">Errors</H2>
           <P>Every error response uses this shape:</P>
           <Block label="Error body" code={`{ "error": "Human-readable message" }`} />
