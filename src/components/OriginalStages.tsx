@@ -348,6 +348,7 @@ export function BalloonStage({
   const [stake, setStake] = useState(100);
   const [phase, setPhase] = useState<"waiting" | "flying" | "crashed">("waiting");
   const [shown, setShown] = useState(1);
+  const [climb, setClimb] = useState(0);
   const [wait, setWait] = useState(5);
   const [crashAt, setCrashAt] = useState(2);
   const [history, setHistory] = useState<number[]>([]);
