@@ -202,53 +202,6 @@ function SportsPage() {
         </p>
       ) : null}
 
-      {isAdmin ? (
-      <section className="mt-6 rounded-2xl border border-border/60 bg-card p-4">
-        <header className="flex items-center justify-between px-1 pb-3">
-          <h2 className="text-sm font-bold text-foreground">Feed health (admin)</h2>
-          <span
-            className={`flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold ${
-              error ? "bg-live-lose/20 text-live-lose" : "bg-live-pill text-live-pill-foreground"
-            }`}
-          >
-            <span className="h-2 w-2 rounded-full bg-current" />
-            {error ? "Degraded" : "Operational"}
-          </span>
-        </header>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
-          {[
-            ["API status", error ? "error" : "200 OK"],
-            ["Auth mode", health ? (health.keyConfigured ? "B2B API key" : "public session") : "—"],
-            ["Last poll", lastPoll ? lastPoll.toLocaleTimeString() : "—"],
-            ["Latency", `${latency} ms`],
-            ["Live (in-play)", String(inplay.length)],
-            ["Polls / errors", `${pollCount} / ${errorLog.length}`],
-          ].map(([k, v]) => (
-            <div key={k} className="rounded-lg bg-muted px-3 py-2">
-              <p className="text-[0.68rem] uppercase tracking-wide text-muted-foreground">{k}</p>
-              <p className="text-sm font-bold text-foreground">{v}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-3 rounded-lg bg-muted p-3">
-          <p className="text-[0.68rem] uppercase tracking-wide text-muted-foreground">Error log</p>
-          {errorLog.length ? (
-            <ul className="mt-1 space-y-1">
-              {errorLog.map((l, i) => (
-                <li key={`${l.at}-${i}`} className="font-mono text-xs text-live-lose">
-                  [{l.at}] {l.message}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-1 font-mono text-xs text-muted-foreground">
-              No errors recorded in this session.
-            </p>
-          )}
-        </div>
-      </section>
-      ) : null}
 
       <section className="mt-6 rounded-2xl border border-border/60 bg-card p-4">
         <header className="flex items-center justify-between px-1 pb-3">
