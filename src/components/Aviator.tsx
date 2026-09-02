@@ -907,7 +907,7 @@ export function Aviator() {
                     </div>
                   )),
                 ]
-              : bets.map((b) => {
+              : bets.slice(0, 80).map((b) => {
                   const done = b.cashedAt !== undefined;
                   return (
                     <div
