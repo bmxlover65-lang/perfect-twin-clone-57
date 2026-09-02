@@ -807,10 +807,16 @@ export function BalloonStage({
                 {shown.toFixed(2)}x
               </p>
             ) : (
-              <p className="absolute left-1/2 top-[40%] w-[150%] -translate-x-1/2 text-center text-[clamp(0.85rem,1.7vw,1.25rem)] font-extrabold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
-                Next round in {wait}s
-              </p>
+              <div className="absolute left-1/2 top-[30%] w-[150%] -translate-x-1/2 text-center">
+                <p className="text-[clamp(0.8rem,1.6vw,1.2rem)] font-extrabold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
+                  Waiting For Next Round
+                </p>
+                <span className="mt-2 inline-grid h-9 w-9 place-items-center rounded-full bg-black/25 text-[1.05rem] font-extrabold text-white sm:h-11 sm:w-11 sm:text-[1.3rem]">
+                  {wait}
+                </span>
+              </div>
             )}
+
           </div>
         )}
 
