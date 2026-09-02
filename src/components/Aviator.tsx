@@ -406,7 +406,7 @@ function FlightStage({
           />
         ) : null}
 
-        {phase !== "betting" ? (
+        {phase === "flying" ? (
           <>
             <path d={area} fill="url(#av-area)" />
             <path
