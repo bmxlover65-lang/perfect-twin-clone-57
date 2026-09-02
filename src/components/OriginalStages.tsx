@@ -681,6 +681,37 @@ export function BalloonStage({
               className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
               style={{ filter: "drop-shadow(0 14px 20px rgba(0,0,0,0.28))" }}
             />
+            {/* burner flame */}
+            <div
+              className="pointer-events-none absolute left-1/2 z-20"
+              style={{
+                bottom: "10%",
+                transform: "translateX(-50%)",
+                width: "22%",
+                minWidth: 42,
+              }}
+            >
+              <svg viewBox="0 0 60 90" className="w-full animate-[flameFlicker_0.9s_ease-in-out_infinite_alternate]">
+                <defs>
+                  <linearGradient id="flameGrad" x1="0" y1="1" x2="0" y2="0">
+                    <stop offset="0%" stopColor="#F5A623" />
+                    <stop offset="40%" stopColor="#FF4D1C" />
+                    <stop offset="80%" stopColor="#FF9A1A" stopOpacity="0.95" />
+                    <stop offset="100%" stopColor="#FFE484" stopOpacity="0.7" />
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M30 88 C10 70 0 45 18 22 C22 16 26 8 30 0 C34 8 38 16 42 22 C60 45 50 70 30 88 Z"
+                  fill="url(#flameGrad)"
+                  style={{ filter: "drop-shadow(0 0 10px rgba(255,77,28,0.85))" }}
+                />
+                <path
+                  d="M30 78 C18 64 12 48 24 32 C26 28 28 22 30 16 C32 22 34 28 36 32 C48 48 42 64 30 78 Z"
+                  fill="#FFF3B0"
+                  fillOpacity="0.85"
+                />
+              </svg>
+            </div>
             {flying ? (
               <p className="absolute left-1/2 top-[38%] w-[120%] -translate-x-1/2 text-center text-[clamp(1.8rem,4.8vw,3.6rem)] font-extrabold leading-none text-white drop-shadow-[0_3px_10px_rgba(0,0,0,0.45)]">
                 {shown.toFixed(2)}x
