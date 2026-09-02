@@ -573,23 +573,14 @@ function FlightStage({
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         {phase === "betting" ? (
           <>
-            <svg
-              viewBox="0 0 120 120"
-              className="mb-2 h-[64px] w-[64px] sm:mb-3 sm:h-[110px] sm:w-[110px]"
-              fill="none"
-              stroke="#EF1B2E"
-              strokeWidth="6"
-              strokeLinecap="round"
+            <img
+              src={propellerImg.url}
+              alt=""
               aria-hidden="true"
-            >
-              <path d="M60 60 L96 16 C104 26 100 44 74 56 Z" />
-              <path d="M60 60 L24 104 C16 94 20 76 46 64 Z" />
-              <circle cx="60" cy="60" r="6" fill="#EF1B2E" stroke="none" />
-              <path d="M40 30 A34 34 0 0 1 66 18" />
-              <path d="M30 44 A44 44 0 0 1 52 10" />
-              <path d="M80 90 A34 34 0 0 1 54 102" />
-              <path d="M90 76 A44 44 0 0 1 68 110" />
-            </svg>
+              className="mb-2 h-[64px] w-[64px] sm:mb-3 sm:h-[110px] sm:w-[110px]"
+              style={{ animation: "av-prop 2.6s linear infinite" }}
+            />
+
             <p className="px-4 text-center text-[1.15rem] uppercase tracking-[0.02em] text-white sm:text-[2rem]">
               Waiting for next round
             </p>
