@@ -1280,7 +1280,7 @@ export function Aviator() {
               </button>
             </div>
 
-            <div className="mt-2 grid grid-cols-4 gap-[6px] sm:mt-3 sm:gap-[8px]">
+            <div className="mt-2 hidden grid-cols-4 gap-[6px] sm:mt-3 sm:grid sm:gap-[8px]">
               {slots.map((s, i) => (
                 <BetPanel
                   key={i}
