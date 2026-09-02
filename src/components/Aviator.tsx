@@ -898,18 +898,6 @@ export function Aviator() {
                       </span>
                     </div>
                   )),
-
-                    className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-2 rounded-[6px] px-1 sm:gap-x-3 py-[4px] text-[0.72rem] ${
-                      b.cashedAt ? "bg-[#123A18] text-[#8CFF6B]" : "bg-[#3A1212] text-[#F98080]"
-                    }`}
-                  >
-                    <span>#{b.round}</span>
-                    <span className="font-semibold">{b.amount}</span>
-                    <span className="text-right font-bold">
-                      {b.cashedAt ? `${fmt(b.cashedAt)}x` : `${fmt(b.crash)}x`}
-                    </span>
-                  </div>
-                  )),
                 ]
               : bets.map((b) => {
                   const done = b.cashedAt !== undefined;
