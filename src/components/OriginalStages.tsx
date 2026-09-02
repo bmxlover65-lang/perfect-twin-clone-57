@@ -224,14 +224,30 @@ export function DreamWheel({
 
   return (
     <div
-      className="relative flex w-full items-center justify-center overflow-hidden rounded-[4px] py-6"
+      className="relative flex w-full items-center justify-center overflow-hidden rounded-[4px] py-8"
       style={{
         backgroundImage: `url(${dreamBg.url})`,
         backgroundSize: "cover",
         backgroundPosition: "center top",
       }}
     >
+      {roundId ? (
+        <span className="pointer-events-none absolute left-2 top-2 text-[0.72rem] font-extrabold text-black/85">
+          RID: {roundId}
+        </span>
+      ) : null}
+      {leftSec != null ? (
+        <span
+          className="pointer-events-none absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-full bg-[#1B1B1B] text-[1.05rem] font-extrabold text-white"
+          style={{
+            boxShadow: `0 0 0 3px ${suspended || leftSec <= 5 ? "#D33" : "#22B14C"}`,
+          }}
+        >
+          {suspended ? 0 : leftSec}
+        </span>
+      ) : null}
       <div className="relative">
+
         <div
           className="relative"
           style={{
@@ -279,14 +295,10 @@ export function DreamWheel({
           className="pointer-events-none absolute left-1/2 top-1/2 h-[92px] w-[92px] -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-[128px] sm:w-[128px]"
         />
 
-        <span className="pointer-events-none absolute left-1/2 top-[-10px] -translate-x-1/2 text-[1.6rem] leading-none text-[#F2C500] drop-shadow">
+        <span className="pointer-events-none absolute left-1/2 top-[-14px] -translate-x-1/2 text-[1.7rem] leading-none text-[#F2C500] drop-shadow">
           ▼
         </span>
-        {!suspended && leftSec != null ? (
-          <span className="pointer-events-none absolute bottom-2 right-2 flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#F2C500] bg-black/45 text-[1.05rem] font-extrabold text-[#F2C500]">
-            {leftSec}
-          </span>
-        ) : null}
+
         {showWin && winner ? (
           <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-[#F2C500] px-4 py-1 text-[0.8rem] font-extrabold uppercase text-black">
             {winner}x wins
