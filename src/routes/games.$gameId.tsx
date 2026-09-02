@@ -9,7 +9,7 @@ import { logResult } from "@/lib/telemetry";
 import { BalanceChip, BetLayer, MyBets } from "@/components/betting";
 import { settleLatest, settleRound } from "@/lib/wallet";
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
-import { cardImage } from "@/lib/card-assets";
+import { cardImage, CARD_BACK } from "@/lib/card-assets";
 
 import dream1x from "@/assets/dream/note1.png.asset.json";
 import dream2x from "@/assets/dream/note2.png.asset.json";
@@ -76,7 +76,8 @@ const CARD_SIZE =
 
 function Card({ code }: { code: string }) {
   const clean = code.replace(/_+$/, "");
-  const img = cardImage(clean);
+  const hidden = !clean || clean === "0" || clean === "1";
+  const img = hidden ? CARD_BACK : cardImage(clean);
   if (img) {
     return (
       <img
@@ -106,7 +107,7 @@ function Card({ code }: { code: string }) {
 
 
 function Cards({ hand, title }: { hand: Record<string, string>; title: string }) {
-  const codes = Object.values(hand).filter(Boolean);
+  const codes = Object.values(hand).filter((c) => c !== undefined && c !== null);
   if (!codes.length) return null;
   return (
     <div>
@@ -2108,9 +2109,16 @@ function GamePage() {
           <p className="text-[0.75rem] font-black uppercase tracking-wide text-white drop-shadow sm:text-xs">
             RID: {d?.roundId ?? "—"}
           </p>
-          {Object.entries(cards).map(([k, v]) =>
-            typeof v === "object" ? <Cards key={k} title={k} hand={v} /> : null,
-          )}
+          {Object.entries(cards).some(([, v]) => typeof v === "object" && v) ? (
+            Object.entries(cards).map(([k, v]) =>
+              typeof v === "object" && v ? <Cards key={k} title={k} hand={v} /> : null,
+            )
+          ) : Object.keys(cards).length ? (
+            <Cards
+              title={d?.eventName?.toUpperCase().startsWith("LUCKY") ? "LUCKY CARD" : "CARD"}
+              hand={cards as unknown as Record<string, string>}
+            />
+          ) : null}
         </div>
         {!suspended && (d?.leftSec ?? 0) > 0 ? (
           <span className="pointer-events-none absolute right-2 top-2 rounded bg-black/60 px-2 py-1 text-[0.72rem] font-bold text-white">
