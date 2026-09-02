@@ -389,18 +389,22 @@ function FlightStage({
               strokeLinecap="round"
               filter="url(#av-glow)"
             />
-            <image
-              href={PLANE_FRAMES[phase === "crashed" ? 0 : frame]}
-              x={px - planeW * 0.72}
-              y={py - planeH * 0.62}
-              width={planeW}
-              height={planeH}
-              opacity={phase === "crashed" ? 0 : 1}
-              style={{
-                transition:
-                  phase === "crashed" ? "opacity 1.1s linear, x 1.1s linear, y 1.1s linear" : "none",
-              }}
-            />
+            {PLANE_FRAMES.map((src, i) => (
+              <image
+                key={src}
+                href={src}
+                x={px - planeW * 0.72}
+                y={py - planeH * 0.62}
+                width={planeW}
+                height={planeH}
+                opacity={phase === "crashed" ? 0 : (phase === "crashed" ? 0 : i === frame ? 1 : 0)}
+                style={{
+                  transition:
+                    phase === "crashed" ? "opacity 1.1s linear, x 1.1s linear, y 1.1s linear" : "none",
+                }}
+              />
+            ))}
+
           </>
         ) : null}
       </svg>
