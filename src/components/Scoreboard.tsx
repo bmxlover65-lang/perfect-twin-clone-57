@@ -42,44 +42,44 @@ export function Scoreboard({ sportId, eventId }: { sportId: string; eventId: str
   return (
     <div className="scoreboard-embed">
       <style>{`
-        .scoreboard-embed { --mc-bg: transparent; }
+        .scoreboard-embed { --mc-bg: transparent; background: #000000; }
         .scoreboard-embed :where(html, body) { background: transparent !important; }
         ${css}
         .scoreboard-embed .board {
-          background: transparent !important;
-          padding: 14px 14px 18px;
+          background: #000000 !important;
+          padding: 12px 14px 16px;
           font-family: inherit;
         }
         /* shared grid: TEAM | SCORE | OVS | RR | 4S | 6S | WD */
         .scoreboard-embed .header-row,
         .scoreboard-embed .team-row {
           display: grid !important;
-          grid-template-columns: minmax(96px, 1.6fr) minmax(66px, 0.9fr) minmax(54px, 0.7fr) minmax(56px, 0.7fr) minmax(34px, 0.45fr) minmax(34px, 0.45fr) minmax(38px, 0.5fr);
+          grid-template-columns: minmax(110px, 2.2fr) 76px 62px 72px 40px 40px 44px;
           align-items: center !important;
-          gap: 4px !important;
+          gap: 0 !important;
           padding: 0 2px;
         }
         .scoreboard-embed .team-row {
-          min-height: 46px;
-          padding: 6px 2px;
-          border-bottom: 1px solid rgba(255,255,255,0.08);
+          min-height: 42px;
+          padding: 4px 2px;
+          border-bottom: 1px solid #1D1D1D;
         }
         .scoreboard-embed .team-row:last-of-type { border-bottom: 0; }
         .scoreboard-embed .header-row {
           margin-bottom: 2px;
           font-size: 13px;
           font-weight: 700;
-          color: var(--mc-add);
+          color: #FFFFFF;
         }
         .scoreboard-embed .team-meta,
         .scoreboard-embed .stats { width: auto !important; }
-        .scoreboard-embed .stats {
-          display: contents !important;
-        }
+        .scoreboard-embed .stats { display: contents !important; }
         .scoreboard-embed .stat {
           text-align: center;
           font-size: 14px;
           font-weight: 600;
+          color: #E6E6E6;
+          min-width: 0;
           overflow: visible !important;
           text-overflow: clip !important;
           white-space: nowrap;
@@ -88,18 +88,23 @@ export function Scoreboard({ sportId, eventId }: { sportId: string; eventId: str
           font-size: 13px;
           font-weight: 700;
           text-transform: uppercase;
-          color: var(--mc-add);
+          color: #FFFFFF;
         }
-        .scoreboard-embed .stat.score { font-size: 17px; font-weight: 800; color: var(--mc-fg); }
-        .scoreboard-embed .head-label { visibility: hidden; height: 20px; }
+        .scoreboard-embed .stat.score { font-size: 17px; font-weight: 800; color: #FFFFFF; }
+        .scoreboard-embed .head-label { visibility: hidden; height: 18px; }
         .scoreboard-embed .team-line { gap: 7px; }
-        .scoreboard-embed .team-name { font-size: 18px !important; font-weight: 900 !important; color: #000000 !important; }
+        .scoreboard-embed .team-name { font-size: 14px !important; font-weight: 700 !important; color: #FFFFFF !important; }
         .scoreboard-embed .player { display: none; }
-        .scoreboard-embed .role { font-size: 10px; font-weight: 800; padding: 2px 5px; border-radius: 3px; }
-        .scoreboard-embed .status { margin-top: 12px; font-size: 13px; text-align: center; }
-        .scoreboard-embed .balls { margin-top: 10px; gap: 8px; }
-        .scoreboard-embed .ball { width: 29px; height: 29px; font-size: 11px; font-weight: 800; }
+        .scoreboard-embed .role {
+          min-width: 29px; height: 17px; display: inline-flex; align-items: center; justify-content: center;
+          font-size: 10px; font-weight: 800; padding: 0 4px; border-radius: 3px;
+          background: #1E90FF !important; color: #FFFFFF !important;
+        }
+        .scoreboard-embed .status { margin-top: 13px; font-size: 13px; text-align: center; color: #D8D8D8; }
+        .scoreboard-embed .balls { margin-top: 10px; gap: 7px; }
+        .scoreboard-embed .ball { width: 28px; height: 28px; font-size: 11px; font-weight: 800; color: #fff; }
       `}</style>
+
       {html ? (
         <div dangerouslySetInnerHTML={{ __html: html }} />
       ) : (
