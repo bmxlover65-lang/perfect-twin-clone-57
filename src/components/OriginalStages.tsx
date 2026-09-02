@@ -501,7 +501,7 @@ export function BalloonStage({
           if (ph === "crashed") {
             ph = "waiting";
             setPhase("waiting");
-            t = 3;
+            t = 5;
           } else {
             // waiting over: feed never advanced while we waited → mark stale
             // and start a local round; a new feed id will resync automatically
