@@ -5,7 +5,7 @@ import { FitBoard } from "@/components/FitBoard";
 import { applyOverride, useAdminConfig } from "@/lib/admin";
 import { logResult } from "@/lib/telemetry";
 import { BalanceChip, BetLayer, MyBets } from "@/components/betting";
-import { settleRound } from "@/lib/wallet";
+import { settleLatest, settleRound } from "@/lib/wallet";
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
 import dream1x from "@/assets/dream/dream1x.png.asset.json";
 import dream2x from "@/assets/dream/dream2x.png.asset.json";
@@ -1651,8 +1651,14 @@ function GamePage() {
     results.slice(0, 6).forEach((r) => {
       const rr = r as CasinoResult & { result?: string; selectionName?: string };
       const winner = (rr.winner ?? rr.result ?? rr.selectionName ?? "").toString().trim();
-      settleRound(gameId, String(r.roundId ?? ""), winner);
+      const rid = String(r.roundId ?? "");
+      if (rid) settleRound(gameId, rid, winner);
     });
+    const top = results[0] as (CasinoResult & { _id?: string; result?: string; selectionName?: string }) | undefined;
+    if (top && !top.roundId) {
+      const winner = (top.winner ?? top.result ?? top.selectionName ?? "").toString().trim();
+      settleLatest(gameId, String(top._id ?? winner), winner);
+    }
   }, [results, gameId]);
 
 
@@ -1690,7 +1696,9 @@ function GamePage() {
           <span className="text-[0.95rem] font-bold uppercase text-white">
             {d?.eventName ?? "Ball By Ball"}
           </span>
-          <span className="text-[0.85rem] font-bold text-white">{d?.roundId ?? "—"}</span>
+          <span className="flex items-center gap-2 text-[0.85rem] font-bold text-white">
+            {d?.roundId ?? "—"} <BalanceChip />
+          </span>
         </div>
         <img
           src={ballByBallBanner.url}
@@ -1698,23 +1706,31 @@ function GamePage() {
           loading="lazy"
           className="block w-full"
         />
-        <FitBoard designWidth={860}>
-          <BallByBallBoard
-            runners={raw.runners ?? []}
-            min={raw.min ?? 100}
-            max={raw.max ?? 100000}
-            news={raw.news}
-            recent={results.slice(0, 10).map((r) => {
-              const rr = r as CasinoResult & { result?: string; selectionName?: string };
-              const s = (rr.winner ?? rr.result ?? rr.selectionName ?? "-").toString().trim();
-              if (/^EXTRA/i.test(s)) return "EX";
-              if (/^WICKET/i.test(s)) return "W";
-              return s.match(/^\d+/)?.[0] ?? s;
-            })}
-          />
-        </FitBoard>
-
+        <BetLayer
+          gameId={gameId}
+          gameName={d?.eventName ?? "Ball By Ball"}
+          round={String(d?.roundId ?? "")}
+          disabled={!(raw.runners ?? []).some((r) => (r.status ?? "").toUpperCase() === "ACTIVE")}
+        >
+          <FitBoard designWidth={860}>
+            <BallByBallBoard
+              runners={raw.runners ?? []}
+              min={raw.min ?? 100}
+              max={raw.max ?? 100000}
+              news={raw.news}
+              recent={results.slice(0, 10).map((r) => {
+                const rr = r as CasinoResult & { result?: string; selectionName?: string };
+                const s = (rr.winner ?? rr.result ?? rr.selectionName ?? "-").toString().trim();
+                if (/^EXTRA/i.test(s)) return "EX";
+                if (/^WICKET/i.test(s)) return "W";
+                return s.match(/^\d+/)?.[0] ?? s;
+              })}
+            />
+          </FitBoard>
+        </BetLayer>
+        <MyBets gameId={gameId} />
       </div>
+
     );
   }
 

@@ -126,3 +126,24 @@ export function useWallet(): Wallet {
   }, []);
   return w;
 }
+
+/** Settle every open bet of a game against a single result (feeds without roundId). */
+export function settleLatest(gameId: string, key: string, winner: string) {
+  if (typeof window === "undefined" || !key || !winner) return;
+  const seenKey = `uapi_settled_${gameId}`;
+  if (window.localStorage.getItem(seenKey) === key) return;
+  window.localStorage.setItem(seenKey, key);
+  const w = readWallet();
+  let credited = 0;
+  let touched = false;
+  const bets = w.bets.map((b) => {
+    if (b.status !== "open" || b.gameId !== gameId) return b;
+    touched = true;
+    const won = isWin(b.label, winner);
+    const payout = won ? Math.round(b.stake * b.odds) : 0;
+    credited += payout;
+    return { ...b, status: won ? ("won" as const) : ("lost" as const), payout };
+  });
+  if (!touched) return;
+  write({ balance: w.balance + credited, bets });
+}
