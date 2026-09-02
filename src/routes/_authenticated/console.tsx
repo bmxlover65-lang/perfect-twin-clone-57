@@ -506,6 +506,8 @@ function ConsolePage() {
           </Panel>
           ) : null}
 
+          {tab === "gamecontrol" ? <GameControl /> : null}
+
           {tab === "guide" ? <AdminGuide /> : null}
 
           {tab === "bets" ? (
