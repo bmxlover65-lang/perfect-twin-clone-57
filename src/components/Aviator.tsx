@@ -494,19 +494,20 @@ function FlightStage({
 
         ) : phase === "crashed" ? (
           <>
-            <p className="text-[1.3rem] font-bold uppercase tracking-[0.01em] text-white sm:text-[2.1rem]">
+            <p className="text-[1.35rem] font-medium uppercase tracking-[0.01em] text-white sm:text-[2.1rem]">
               Flew Away!
             </p>
 
-            <p className="mt-1 text-[2.6rem] font-extrabold leading-none text-[#E01E1E] drop-shadow-[0_4px_14px_rgba(0,0,0,.7)] sm:text-[4.2rem]">
+            <p className="mt-1 text-[2.8rem] font-extrabold leading-none text-[#FF1238] drop-shadow-[0_4px_14px_rgba(0,0,0,.7)] sm:text-[4.6rem] lg:text-[5.6rem]">
               {fmt(multiplier)}x
             </p>
           </>
         ) : (
-          <p className="text-[2.6rem] font-extrabold leading-none text-white drop-shadow-[0_4px_22px_rgba(0,0,0,.6)] sm:text-[4.4rem]">
+          <p className="text-[2.9rem] font-extrabold leading-none text-white drop-shadow-[0_6px_26px_rgba(0,0,0,.65)] sm:text-[4.8rem] lg:text-[6.4rem]">
             {fmt(multiplier)}x
           </p>
         )}
+
 
       </div>
     </div>
