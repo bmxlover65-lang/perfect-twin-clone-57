@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { creditWin, debit, useWallet } from "@/lib/wallet";
 import luckyBg from "@/assets/lucky-bg.gif.asset.json";
+import dreamBg from "@/assets/dream/dreambg.png.asset.json";
+import dreamHub from "@/assets/dream/wheelhub.png.asset.json";
 import balloonImg from "@/assets/balloon/balloon.png.asset.json";
 import heatIcon from "@/assets/balloon/heat-icon.webp.asset.json";
 import arrowDown from "@/assets/balloon/ArrowDown.webp.asset.json";
