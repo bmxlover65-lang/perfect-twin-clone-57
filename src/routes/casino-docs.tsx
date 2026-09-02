@@ -32,7 +32,9 @@ const TOC = [
   ["historical-results", "Historical results"],
   ["tv-video", "TV & video"],
   ["iframe-embed", "Iframe embed"],
+  ["betting-wallet", "Betting & wallet"],
   ["response-fields", "Response fields"],
+
   ["errors", "Errors"],
   ["integration-guide", "Integration guide"],
   ["game-ui", "Game UI (HTML/CSS)"],
