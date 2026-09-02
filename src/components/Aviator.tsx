@@ -746,7 +746,7 @@ export function Aviator() {
                   setP1((p) => ({ ...p, amount: 10000 }));
                   setP2((p) => ({ ...p, amount: 10000 }));
                 }}
-                className="rounded-[8px] border border-[#303238] bg-[#1B1C1F] py-[6px] text-[0.78rem] font-semibold text-[#9CA3AF]"
+                className="rounded-[6px] border border-[#4A4C52] bg-transparent py-[6px] text-[0.78rem] font-semibold text-[#9CA3AF]"
               >
                 Max
               </button>
