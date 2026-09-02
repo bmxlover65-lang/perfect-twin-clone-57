@@ -685,11 +685,11 @@ export function BalloonStage({
             <div
               className="pointer-events-none absolute left-1/2 z-20"
               style={{
-                bottom: "17%",
+                bottom: "13%",
                 transform: "translateX(-50%)",
-                width: "11%",
-                minWidth: 22,
-                maxWidth: 36,
+                width: "9%",
+                minWidth: 18,
+                maxWidth: 30,
               }}
             >
               <svg viewBox="0 0 34 52" className="w-full animate-[flame-flicker_0.75s_ease-in-out_infinite_alternate]">
