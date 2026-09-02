@@ -251,7 +251,7 @@ function PokerPanel({
         {["PLAYER A", "PLAYER B"].map((n) => (
           <div
             key={n}
-            className="flex h-[68px] w-[250px] items-center justify-center rounded-[4px] bg-gradient-to-br from-[#1a7f5a] to-[#0b5c3c] text-[1.05rem] font-extrabold tracking-wide text-[#16261f] shadow-[0_2px_5px_rgba(0,0,0,0.25)]"
+            className="flex h-[68px] w-[250px] items-center justify-center rounded-[4px] bg-gradient-to-br from-[#1f8f63] to-[#0a5b3b] text-[1.05rem] font-extrabold tracking-wide text-white shadow-[0_2px_5px_rgba(0,0,0,0.25)]"
           >
             {n}
           </div>
