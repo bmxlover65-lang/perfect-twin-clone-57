@@ -498,8 +498,11 @@ function ConsolePage() {
               ))}
             </ul>
           </Panel>
+          ) : null}
 
+          {tab === "bets" ? (
           <Panel title="Bet ledger">
+
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead className="text-muted-foreground">
