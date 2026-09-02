@@ -462,7 +462,10 @@ export function BalloonStage({
       const live = !!apiRound && !stale;
 
       if (ph === "flying") {
+        // the balloon keeps rising through the whole flight (time based)
+        setClimb((c) => Math.min(1, c + dt / 9));
         if (live) {
+
           // chase the feed value; it is the single source of truth
           if (api > peak + 0.0001) {
             peak = api;
