@@ -6,6 +6,12 @@ import plane3 from "@/assets/aviator/plane-3.svg";
 import historyIcon from "@/assets/aviator/history.svg";
 import arrowIcon from "@/assets/aviator/arrow-down.svg";
 import fairIcon from "@/assets/aviator/provably-fair.svg";
+import av1 from "@/assets/aviator/av1.png";
+import av2 from "@/assets/aviator/av2.png";
+import av3 from "@/assets/aviator/av3.png";
+import av4 from "@/assets/aviator/av4.png";
+import av5 from "@/assets/aviator/av5.png";
+import av6 from "@/assets/aviator/av6.png";
 import bgSound from "@/assets/aviator/aviator-background.mp3.asset.json";
 import crashSound from "@/assets/aviator/plane-crash.mp3.asset.json";
 import beepSound from "@/assets/aviator/beep.mp3.asset.json";
@@ -15,6 +21,7 @@ import { type AviatorControl, useAdminConfig } from "@/lib/admin";
 import { logBet, setBalance as saveBalance } from "@/lib/telemetry";
 
 const PLANE_FRAMES = [plane0, plane1, plane2, plane3];
+const AVATARS = [av1, av2, av3, av4, av5, av6];
 
 /* ---------------- round engine ---------------- */
 
@@ -35,13 +42,6 @@ function fmt(n: number) {
   return n.toFixed(2);
 }
 
-function toneFor(m: number) {
-  if (m < 2) return "text-[#20BFFF]";
-  if (m < 10) return "text-[#913EF8]";
-  return "text-[#C017B4]";
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function chipTone(m: number) {
   if (m < 2) return "border-[#20BFFF]/40 text-[#20BFFF]";
   if (m < 10) return "border-[#913EF8]/40 text-[#913EF8]";
@@ -124,7 +124,7 @@ const initialPanel = (amount: number): PanelState => ({
   active: false,
   cashedAt: null,
   auto: false,
-  autoCashout: 2,
+  autoCashout: 1.1,
 });
 
 const QUICK = [10, 50, 100, 500, 1000, 2500, 5000, 10000];
@@ -136,6 +136,7 @@ function BetPanel({
   multiplier,
   onWin,
   balance,
+  mode,
 }: {
   state: PanelState;
   setState: (fn: (p: PanelState) => PanelState) => void;
@@ -143,6 +144,7 @@ function BetPanel({
   multiplier: number;
   onWin: (amount: number) => void;
   balance: number;
+  mode: "bet" | "auto";
 }) {
   const canCash = phase === "flying" && state.active && state.cashedAt === null;
 
@@ -175,7 +177,7 @@ function BetPanel({
   };
 
   return (
-    <div className="flex min-w-0 flex-col gap-[3px]">
+    <div className="flex min-w-0 flex-col gap-[5px]">
       <button
         type="button"
         onClick={press}
@@ -186,6 +188,46 @@ function BetPanel({
           <span className="ml-1 text-[0.8rem]">{fmt(state.amount * multiplier)}</span>
         ) : null}
       </button>
+
+      {mode === "auto" ? (
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
+            aria-pressed={state.auto}
+            className={`relative h-[20px] w-[40px] shrink-0 rounded-full transition-colors ${
+              state.auto ? "bg-[#18B800]" : "bg-[#2A2C30]"
+            }`}
+          >
+            <span
+              className={`absolute top-[2px] h-[16px] w-[16px] rounded-full bg-white transition-all ${
+                state.auto ? "left-[22px]" : "left-[2px]"
+              }`}
+            />
+          </button>
+          <div className="flex min-w-0 flex-1 items-center gap-1 rounded-full bg-[#0B0C0E] px-3 py-[3px]">
+            <input
+              type="number"
+              step="0.01"
+              min="1.01"
+              value={state.autoCashout}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                setState((p) => ({ ...p, autoCashout: Number.isFinite(v) ? v : p.autoCashout }));
+              }}
+              className="min-w-0 flex-1 bg-transparent text-center text-[0.78rem] font-bold text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+            />
+            <button
+              type="button"
+              onClick={() => setState((p) => ({ ...p, autoCashout: 1.1, auto: false }))}
+              aria-label="Clear auto cashout"
+              className="shrink-0 text-[0.8rem] leading-none text-white/45 hover:text-white"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {state.cashedAt ? (
         <p className="text-center text-[0.62rem] font-bold text-[#18B800]">
@@ -201,6 +243,7 @@ function BetPanel({
     </div>
   );
 }
+
 
 
 
@@ -367,21 +410,34 @@ function FlightStage({
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         {phase === "betting" ? (
           <>
-            <img
-              src={PLANE_FRAMES[frame]}
-              alt=""
-              className="mb-2 h-[56px] w-[112px] -rotate-[38deg] opacity-95 sm:mb-4 sm:h-[92px] sm:w-[180px]"
-            />
-            <p className="px-4 text-center text-[1.2rem] font-bold uppercase tracking-[0.01em] text-white sm:text-[2.1rem]">
+            <svg
+              viewBox="0 0 120 120"
+              className="mb-2 h-[64px] w-[64px] sm:mb-3 sm:h-[110px] sm:w-[110px]"
+              fill="none"
+              stroke="#EF1B2E"
+              strokeWidth="6"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <path d="M60 60 L96 16 C104 26 100 44 74 56 Z" />
+              <path d="M60 60 L24 104 C16 94 20 76 46 64 Z" />
+              <circle cx="60" cy="60" r="6" fill="#EF1B2E" stroke="none" />
+              <path d="M40 30 A34 34 0 0 1 66 18" />
+              <path d="M30 44 A44 44 0 0 1 52 10" />
+              <path d="M80 90 A34 34 0 0 1 54 102" />
+              <path d="M90 76 A44 44 0 0 1 68 110" />
+            </svg>
+            <p className="px-4 text-center text-[1.15rem] uppercase tracking-[0.02em] text-white sm:text-[2rem]">
               Waiting for next round
             </p>
-            <div className="mt-4 h-[6px] w-[190px] overflow-hidden rounded-full bg-white/15 sm:w-[230px]">
+            <div className="mt-4 h-[5px] w-[200px] overflow-hidden rounded-full bg-[#3A3D42] sm:w-[240px]">
               <div
-                className="h-full rounded-full bg-[#FF003C]"
+                className="h-full rounded-full bg-[#EF1B2E]"
                 style={{ width: `${Math.max(0, Math.min(100, (countdown / BET_MS) * 100))}%` }}
               />
             </div>
           </>
+
 
         ) : phase === "crashed" ? (
           <>
@@ -796,23 +852,21 @@ export function Aviator() {
                             : "border-b border-white/[0.06] bg-[#111315] text-white/70"
                       }`}
                     >
-                      <span className="flex min-w-0 items-center gap-1.5 sm:gap-2">
-                        <span
-                          className="grid h-5 w-5 shrink-0 place-items-center rounded-full text-[0.58rem] font-bold text-white sm:h-6 sm:w-6 sm:text-[0.6rem]"
-                          style={{
-                            background: `conic-gradient(from 0deg, hsl(${(b.id * 47) % 360} 70% 45%), hsl(${(b.id * 91) % 360} 70% 40%))`,
-                          }}
-                        >
-                          {b.user.slice(0, 1).toUpperCase()}
-                        </span>
-                        <span className="flex min-w-0 flex-col leading-tight">
-                          <span className="truncate">{maskName(b.user)}</span>
-                          <span className="truncate text-[0.58rem] text-white/35">
-                            {b.bal.toLocaleString()}
-                          </span>
+                      <span className="flex min-w-0 items-center gap-2">
+                        <img
+                          src={AVATARS[b.id % AVATARS.length]}
+                          alt=""
+                          loading="lazy"
+                          width={96}
+                          height={96}
+                          className="h-6 w-6 shrink-0 rounded-full object-cover sm:h-7 sm:w-7"
+                        />
+                        <span className="truncate font-semibold text-[#20BFFF]">
+                          {maskName(b.user)}
                         </span>
                       </span>
                       <span className="font-semibold text-white/85">{b.amount}</span>
+
                       <span
                         className={`shrink-0 rounded-full px-1.5 py-[1px] text-[0.62rem] font-bold sm:px-2 sm:text-[0.65rem] ${
                           done
@@ -851,39 +905,44 @@ export function Aviator() {
         {/* stage + panels */}
         <div className="order-1 min-w-0 space-y-2 lg:order-2">
           {/* history strip — sits above the flying stage */}
-          <div className="rounded-[12px] border border-[#303238] bg-[#0B0C0E] px-3 py-[6px]">
-            <div className="flex items-center gap-2">
-              <div
-                className={`flex min-w-0 flex-1 items-center gap-[6px] sm:gap-2 ${
-                  histOpen
-                    ? "max-h-[120px] flex-wrap overflow-y-auto"
-                    : "flex-nowrap overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-                }`}
-              >
-                {(histOpen ? history : history.slice(0, 30)).map((h, i) => (
-                  <span
-                    key={`${h}-${i}`}
-                    className={`shrink-0 px-1 text-[0.66rem] font-bold sm:text-[0.82rem] ${toneFor(h)}`}
-                  >
-                    {fmt(h)}x
-                  </span>
-                ))}
-              </div>
+          <div className="rounded-[12px] border border-[#303238] bg-[#0B0C0E] px-2 py-[6px] sm:px-3">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[0.7rem] font-semibold uppercase tracking-[0.03em] text-white/80 sm:text-[0.8rem]">
+                Round History
+              </span>
               <button
                 type="button"
                 onClick={() => setHistOpen((v) => !v)}
                 aria-expanded={histOpen}
-                className="flex h-[26px] shrink-0 items-center gap-1 rounded-full border border-[#FF003C]/60 px-2"
+                className="flex h-[26px] w-[42px] shrink-0 items-center justify-center gap-[3px] rounded-full border border-[#FF003C]/70 bg-[#141517]"
                 aria-label="Round history"
               >
                 <img src={historyIcon} alt="" className="h-[13px] w-[14px]" />
                 <img
                   src={arrowIcon}
                   alt=""
-                  className={`h-[8px] w-[10px] transition-transform ${histOpen ? "rotate-180" : ""}`}
+                  className={`h-[7px] w-[9px] transition-transform ${histOpen ? "rotate-180" : ""}`}
                 />
               </button>
             </div>
+
+            <div
+              className={`mt-[6px] flex min-w-0 items-center gap-[6px] sm:gap-2 ${
+                histOpen
+                  ? "max-h-[150px] flex-wrap overflow-y-auto"
+                  : "flex-nowrap overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              }`}
+            >
+              {(histOpen ? history : history.slice(0, 24)).map((h, i) => (
+                <span
+                  key={`${h}-${i}`}
+                  className={`shrink-0 rounded-full border bg-[#141517] px-2 py-[2px] text-[0.66rem] font-bold sm:text-[0.78rem] ${chipTone(h)}`}
+                >
+                  {fmt(h)}x
+                </span>
+              ))}
+            </div>
+
 
             {histOpen ? (
               <div className="mt-2 border-t border-white/10 pt-2">
@@ -930,7 +989,6 @@ export function Aviator() {
                   type="button"
                   onClick={() => {
                     setMode(m);
-                    setAllSlots((p) => ({ ...p, auto: m === "auto" }));
                   }}
                   className={`flex-1 rounded-full py-[4px] capitalize ${
                     mode === m ? "bg-[#2C2D30] text-white" : ""
@@ -1000,6 +1058,7 @@ export function Aviator() {
                   multiplier={multiplier}
                   onWin={win}
                   balance={balance}
+                  mode={mode}
                 />
               ))}
             </div>
