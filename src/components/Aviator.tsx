@@ -907,37 +907,36 @@ export function Aviator() {
         <div className="order-1 min-w-0 space-y-2 lg:order-2">
           {/* history strip — sits above the flying stage */}
           <div className="rounded-[8px] border border-[#34363B] bg-[#202125] px-3 py-2">
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <span className="text-[0.72rem] font-semibold uppercase tracking-[0.03em] text-white">
-                Round History
-              </span>
-              <button
-                type="button"
-                onClick={() => setHistOpen((v) => !v)}
-                aria-expanded={histOpen}
-                className="flex h-[22px] w-[36px] shrink-0 items-center justify-center gap-[3px] rounded-full border border-[#FF003C]/70 bg-[#141517]"
-                aria-label="Round history"
-              >
-                <img src={historyIcon} alt="" className="h-[12px] w-[13px]" />
-                <img
-                  src={arrowIcon}
-                  alt=""
-                  className={`h-[6px] w-[8px] transition-transform ${histOpen ? "rotate-180" : ""}`}
-                />
-              </button>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-x-[6px] gap-y-[5px] sm:gap-x-2">
-              {(histOpen ? history : history.slice(0, 40)).map((h, i) => (
-                <span
-                  key={`${h}-${i}`}
-                  className={`rounded-full bg-[#090B0E] px-[8px] py-[2px] text-[0.68rem] font-semibold sm:text-[0.72rem] ${chipTone(h)}`}
-                >
-                  {fmt(h)}x
+            {histOpen ? (
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="text-[0.72rem] font-semibold uppercase tracking-[0.03em] text-white">
+                  Round History
                 </span>
-              ))}
+                <HistToggle open={histOpen} onClick={() => setHistOpen(false)} />
+              </div>
+            ) : null}
+
+            <div className="flex min-w-0 items-center gap-[6px] sm:gap-2">
+              <div
+                className={`flex min-w-0 flex-1 items-center gap-x-[6px] gap-y-[5px] sm:gap-x-2 ${
+                  histOpen
+                    ? "flex-wrap justify-center"
+                    : "flex-nowrap overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                }`}
+              >
+                {(histOpen ? history : history.slice(0, 40)).map((h, i) => (
+                  <span
+                    key={`${h}-${i}`}
+                    className={`shrink-0 rounded-full bg-[#090B0E] px-[8px] py-[2px] text-[0.68rem] font-semibold sm:text-[0.72rem] ${chipTone(h)}`}
+                  >
+                    {fmt(h)}x
+                  </span>
+                ))}
+              </div>
+              {histOpen ? null : <HistToggle open={histOpen} onClick={() => setHistOpen(true)} />}
             </div>
           </div>
+
 
 
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} />
