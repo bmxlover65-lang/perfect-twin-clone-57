@@ -318,30 +318,36 @@ function FlightStage({
   const tick = (t / 22) % 60;
 
 
+  // blue -> purple/magenta glow as the multiplier climbs
+  const glow = Math.max(0, Math.min(1, (multiplier - 1.5) / 12));
+  const glowInner = `rgba(${Math.round(7 + glow * 59)},${Math.round(58 - glow * 38)},${Math.round(97 - glow * 3)},${0.62 + glow * 0.2})`;
+  const glowMid = glow > 0.45 ? "rgba(66,20,94,0.42)" : "rgba(7,58,97,0.32)";
+
   return (
-    <div className="relative overflow-hidden rounded-[16px] border border-[#303238] bg-[#05070A]">
-      {/* spribe-style rotating sun rays */}
+    <div className="relative overflow-hidden rounded-[14px] border border-[#232629] bg-[#030507]">
+      {/* spribe-style rotating sun rays from the bottom-left */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
-          className="absolute left-[5%] top-[88%] h-[900px] w-[900px] -translate-x-1/2 -translate-y-1/2 opacity-45"
+          className="absolute left-[3%] top-[92%] h-[1100px] w-[1100px] -translate-x-1/2 -translate-y-1/2 opacity-90"
           style={{
             background:
-              "repeating-conic-gradient(from 0deg, #101317 0deg 6deg, #050608 6deg 12deg)",
+              "repeating-conic-gradient(from 0deg, #101318 0deg 6.5deg, #030507 6.5deg 13deg)",
             borderRadius: "9999px",
-            maskImage: "radial-gradient(circle, #000 0%, #000 45%, transparent 78%)",
-            WebkitMaskImage: "radial-gradient(circle, #000 0%, #000 45%, transparent 78%)",
+            maskImage: "radial-gradient(circle, #000 0%, #000 52%, transparent 82%)",
+            WebkitMaskImage: "radial-gradient(circle, #000 0%, #000 52%, transparent 82%)",
             animation: "av-spin 90s linear infinite",
             animationPlayState: phase === "flying" ? "running" : "paused",
           }}
         />
         <div
-          className="absolute inset-0 transition-opacity duration-500"
+          className="absolute inset-0 transition-opacity duration-700"
           style={{
-            background:
-              "radial-gradient(circle at 62% 42%, rgba(24,110,205,0.55), rgba(6,20,40,0.25) 42%, transparent 70%)",
+            background: `radial-gradient(circle at 50% 45%, ${glowInner}, ${glowMid} 38%, transparent 68%)`,
             opacity: phase === "flying" ? 1 : 0,
           }}
         />
+
+
 
       </div>
       <style>{`@keyframes av-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
