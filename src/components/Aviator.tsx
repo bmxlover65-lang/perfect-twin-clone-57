@@ -446,8 +446,8 @@ function FlightStage({
 
   // deep navy atmospheric glow that swells with the multiplier
   const glow = Math.max(0, Math.min(1, (multiplier - 1) / 8));
-  const glowInner = `rgba(20,96,155,${0.5 + glow * 0.28})`;
-  const glowMid = `rgba(8,44,82,${0.3 + glow * 0.14})`;
+  const glowInner = `rgba(${Math.round(20 + glow * 90)},${Math.round(96 - glow * 60)},${Math.round(155 + glow * 60)},${0.5 + glow * 0.3})`;
+  const glowMid = `rgba(${Math.round(8 + glow * 50)},44,${Math.round(82 + glow * 40)},${0.3 + glow * 0.16})`;
 
   return (
     <div className="relative overflow-hidden rounded-[14px] border border-[#1B1D20] bg-black">
@@ -482,7 +482,11 @@ function FlightStage({
 .av-row-in{animation:av-row-in .38s cubic-bezier(.2,.8,.3,1)}`}</style>
 
 
-      <svg viewBox={`0 0 ${W} ${H}`} className="relative block h-[280px] w-full sm:h-[360px] lg:h-[440px]">
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        preserveAspectRatio="none"
+        className="relative block h-[300px] w-full sm:h-[360px] lg:h-[440px]"
+      >
         <defs>
           <linearGradient id="av-area" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#A80D22" stopOpacity="0.78" />
