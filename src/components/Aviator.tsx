@@ -573,7 +573,7 @@ export function Aviator() {
         {/* bets + chat */}
         <div className="order-2 min-w-0 rounded-[14px] border border-[#303238] bg-[#151618] p-1.5 lg:order-1 sm:p-2">
 
-          <div className="mx-auto flex w-full max-w-[280px] rounded-full bg-[#101112] p-[3px] text-[0.68rem] font-bold text-white/55 sm:w-[86%] sm:text-[0.72rem]">
+          <div className="mx-auto flex w-full max-w-[280px] rounded-full bg-[#0B0C0E] p-[3px] text-[0.68rem] font-bold text-white/55 sm:w-[86%] sm:text-[0.72rem]">
             {([["all", "All Bets"], ["my", "My Bets"]] as const).map(([k, l]) => (
               <button
                 key={k}
@@ -634,7 +634,7 @@ export function Aviator() {
                       key={b.id}
                       className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-2 px-1 sm:gap-x-3 py-[5px] text-[0.72rem] ${
                         done
-                          ? "rounded-[6px] border border-[#2FA300]/60 bg-[#123A18] text-white"
+                          ? "rounded-[6px] border border-[#18B800]/60 bg-[#123A18] text-white"
                           : "border-b border-white/[0.06] text-white/70"
                       }`}
                     >
@@ -686,7 +686,7 @@ export function Aviator() {
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} />
 
 
-          <div className="flex items-start gap-2 rounded-[12px] border border-white/10 bg-[#151617] p-2 sm:gap-3 sm:p-3">
+          <div className="flex items-start gap-2 rounded-[14px] border border-[#303238] bg-[#151618] p-2 sm:gap-3 sm:p-3">
             <BetPanel
               state={p1}
               setState={setP1}
@@ -696,7 +696,7 @@ export function Aviator() {
               balance={balance}
             />
 
-            <div className="flex w-[74px] shrink-0 flex-col gap-[6px] pt-[26px] sm:w-[86px]">
+            <div className="flex w-[68px] shrink-0 flex-col gap-[6px] pt-[26px] sm:w-[86px]">
               <button
                 type="button"
                 onClick={() => {
@@ -706,7 +706,7 @@ export function Aviator() {
                     setP2((p) => ({ ...p, amount: v }));
                   }
                 }}
-                className="rounded-[6px] bg-[#E8A70B] py-[6px] text-[0.8rem] font-bold text-white"
+                className="rounded-[8px] bg-[#F59E0B] py-[6px] text-[0.78rem] font-bold text-white"
               >
                 Edit
               </button>
@@ -716,7 +716,7 @@ export function Aviator() {
                   setP1((p) => ({ ...p, amount: 10, staged: false }));
                   setP2((p) => ({ ...p, amount: 10, staged: false }));
                 }}
-                className="rounded-[6px] bg-[#E01E1E] py-[6px] text-[0.8rem] font-bold text-white"
+                className="rounded-[8px] bg-[#EF0000] py-[6px] text-[0.78rem] font-bold text-white"
               >
                 Clear
               </button>
@@ -726,7 +726,7 @@ export function Aviator() {
                   setP1((p) => ({ ...p, amount: 10 }));
                   setP2((p) => ({ ...p, amount: 10 }));
                 }}
-                className="rounded-[6px] border border-[#3A3B3F] py-[6px] text-[0.8rem] font-semibold text-white/70"
+                className="rounded-[8px] border border-[#303238] bg-[#1B1C1F] py-[6px] text-[0.78rem] font-semibold text-[#9CA3AF]"
               >
                 Min
               </button>
@@ -736,7 +736,7 @@ export function Aviator() {
                   setP1((p) => ({ ...p, amount: 10000 }));
                   setP2((p) => ({ ...p, amount: 10000 }));
                 }}
-                className="rounded-[6px] border border-[#3A3B3F] py-[6px] text-[0.8rem] font-semibold text-white/70"
+                className="rounded-[8px] border border-[#303238] bg-[#1B1C1F] py-[6px] text-[0.78rem] font-semibold text-[#9CA3AF]"
               >
                 Max
               </button>
