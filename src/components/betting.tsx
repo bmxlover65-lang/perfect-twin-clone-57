@@ -195,7 +195,10 @@ export function BetLayer({
       className="relative"
       onClickCapture={(e) => {
         if (disabled) return;
+        // Only a real pointer click on a price cell may open the slip.
+        if (e.detail === 0) return;
         const root = e.currentTarget as HTMLElement;
+
         const target = e.target as HTMLElement;
         const p = extractPick(target, root);
         if (p) {
