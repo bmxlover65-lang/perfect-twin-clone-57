@@ -654,7 +654,7 @@ export function Aviator() {
                         >
                           {b.user.slice(0, 1).toUpperCase()}
                         </span>
-                        <span className="truncate">{b.user}</span>
+                        <span className="truncate">{maskName(b.user)}</span>
                       </span>
                       <span className="font-semibold text-white/85">{b.amount}</span>
                       <span
