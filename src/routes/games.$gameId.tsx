@@ -1865,7 +1865,8 @@ function GamePage() {
               dream={gameId === "88.0020"}
             />
           ) : null}
-          </FitBoard>
+          </Fit>
+
         </BetLayer>
 
         {gameId !== "88.0023" ? <MyBets gameId={gameId} /> : null}
