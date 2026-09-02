@@ -59,6 +59,12 @@ type LiveBet = {
   target: number;
 };
 
+function maskName(n: string) {
+  const s = n.replace(/\s+/g, "").toLowerCase();
+  if (s.length < 3) return s;
+  return `${s[0]}${"*".repeat(Math.max(3, Math.min(7, s.length - 2)))}${s[s.length - 1]}`;
+}
+
 function makeBets(seed: number): LiveBet[] {
   const out: LiveBet[] = [];
   const n = 9 + (seed % 6);
