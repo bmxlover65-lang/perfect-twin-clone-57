@@ -1184,7 +1184,23 @@ function MuflisPanel({
   );
 }
 
+/** Scales boards on desktop, but renders natively (full width) on phones. */
+function Fit({
+  children,
+  designWidth,
+  mobileNative,
+}: {
+  children: ReactNode;
+  designWidth: number;
+  mobileNative?: boolean;
+}) {
+  const mobile = useIsMobile();
+  if (mobile && mobileNative) return <div className="w-full">{children}</div>;
+  return <FitBoard designWidth={designWidth}>{children}</FitBoard>;
+}
+
 const PANEL_CHIPS: { v: string; src: string }[] = [
+
   { v: "1k", src: chip1k.url },
   { v: "5k", src: chip5.url },
   { v: "10k", src: chip10.url },
