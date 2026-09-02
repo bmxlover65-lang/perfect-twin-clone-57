@@ -37,6 +37,7 @@ function toneFor(m: number) {
   return "text-[#C017B4]";
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function chipTone(m: number) {
   if (m < 2) return "border-[#20BFFF]/40 text-[#20BFFF]";
   if (m < 10) return "border-[#913EF8]/40 text-[#913EF8]";
