@@ -125,16 +125,41 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
       res = await upstream(splat, search, token, body);
     }
     const text = await res.text();
+    const resultsMatch = /^games\/([^/]+)\/results$/.exec(splat);
     // Upstream currently 502s on some casino endpoints (e.g. /results).
     // Degrade gracefully instead of surfacing a 502 to the app.
     if (!res.ok && res.status >= 500) {
+      if (resultsMatch) {
+        const data = await mirrorResults(decodeURIComponent(resultsMatch[1]!));
+        return Response.json(
+          { data, upstreamStatus: res.status, source: data.length ? "mirror" : "none" },
+          { status: 200, headers: { "cache-control": "no-store" } },
+        );
+      }
       return Response.json(
-        splat.endsWith("/results")
-          ? { data: [], upstreamStatus: res.status }
-          : { error: `Upstream unavailable (${res.status})`, upstreamStatus: res.status },
+        { error: `Upstream unavailable (${res.status})`, upstreamStatus: res.status },
         { status: 200, headers: { "cache-control": "no-store" } },
       );
     }
+    if (resultsMatch) {
+      let empty = false;
+      try {
+        const parsed = JSON.parse(text) as { data?: unknown[] };
+        empty = !Array.isArray(parsed.data) || parsed.data.length === 0;
+      } catch {
+        empty = true;
+      }
+      if (empty) {
+        const data = await mirrorResults(decodeURIComponent(resultsMatch[1]!));
+        if (data.length) {
+          return Response.json(
+            { data, source: "mirror" },
+            { status: 200, headers: { "cache-control": "no-store" } },
+          );
+        }
+      }
+    }
+
     const contentType = res.headers.get("content-type") ?? "application/json";
     const out = splat.startsWith("tv/") ? rewriteTvHtml(text, origin) : text;
     return new Response(out, {
