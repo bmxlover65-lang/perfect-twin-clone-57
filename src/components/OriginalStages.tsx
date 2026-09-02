@@ -445,9 +445,42 @@ export function BalloonStage({
     }
   };
 
+  // official results feed: roundId -> real crash multiplier
+  const winnersRef = useRef<Map<string, number>>(new Map());
+  useEffect(() => {
+    let alive = true;
+    const load = async () => {
+      try {
+        const res = await fetch("/api/public/uapi/games/88.0023/results");
+        const json = (await res.json()) as {
+          data?: { roundId?: string; winner?: string }[];
+        };
+        if (!alive || !Array.isArray(json.data)) return;
+        json.data.forEach((r) => {
+          const w = Number(r?.winner);
+          if (r?.roundId && w > 0) winnersRef.current.set(String(r.roundId), w);
+        });
+        const recent = json.data
+          .slice(0, 10)
+          .map((r) => Number(r?.winner))
+          .filter((n) => n > 0);
+        setHistory((h) => (h.length ? h : recent));
+      } catch {
+        // results unavailable — keep the animated estimate
+      }
+    };
+    void load();
+    const id = window.setInterval(load, 4000);
+    return () => {
+      alive = false;
+      window.clearInterval(id);
+    };
+  }, []);
+
   // round engine — follows the live feed (roundId + multiplier) so the result
   // always matches the real round; falls back to a local curve if the feed is down
   useEffect(() => {
+
     let raf = 0;
     let last = performance.now();
     let ph: "waiting" | "flying" | "crashed" = "waiting";
@@ -490,16 +523,20 @@ export function BalloonStage({
     };
 
     const burst = (at: number) => {
-      target = at;
+      // the official result for this round wins over our animated estimate
+      const exact = curRound ? winnersRef.current.get(String(curRound)) : undefined;
+      const val = exact && exact > 0 ? exact : at;
+      target = val;
       ph = "crashed";
       setPhase("crashed");
-      setCrashAt(at);
-      setShown(at);
-      setHistory((h) => [at, ...h].slice(0, 10));
+      setCrashAt(val);
+      setShown(val);
+      setHistory((h) => (h[0] === val ? h : [val, ...h].slice(0, 10)));
       airRef.current?.pause();
       play(bonusSfx.url, 0.7);
       t = 2.4;
     };
+
 
     const tick = (now: number) => {
       const dt = Math.min(0.1, (now - last) / 1000);
