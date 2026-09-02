@@ -6,6 +6,10 @@ import plane3 from "@/assets/aviator/plane-3.svg";
 import historyIcon from "@/assets/aviator/history.svg";
 import arrowIcon from "@/assets/aviator/arrow-down.svg";
 import fairIcon from "@/assets/aviator/provably-fair.svg";
+import bgSound from "@/assets/aviator/aviator-background.mp3.asset.json";
+import crashSound from "@/assets/aviator/plane-crash.mp3.asset.json";
+import beepSound from "@/assets/aviator/beep.mp3.asset.json";
+import winSound from "@/assets/aviator/win.mp3.asset.json";
 
 import { type AviatorControl, useAdminConfig } from "@/lib/admin";
 import { logBet, setBalance as saveBalance } from "@/lib/telemetry";
@@ -61,6 +65,7 @@ type LiveBet = {
   amount: number;
   cashedAt?: number;
   busted?: boolean;
+  bal: number;
   target: number;
 };
 
@@ -92,6 +97,7 @@ function makeBets(seed: number): LiveBet[] {
       id: seed * 100 + i + Math.floor(Math.random() * 7),
       user: NAMES[(seed * 3 + i * 5) % NAMES.length]!,
       amount: amt,
+      bal: 500 + ((seed * 91 + i * 137) % 96000),
       target: makeTarget(r),
     });
   }
@@ -238,13 +244,16 @@ function FlightStage({
   phase,
   multiplier,
   countdown,
+  muted,
+  setMuted,
 }: {
   phase: Phase;
   multiplier: number;
   countdown: number;
+  muted: boolean;
+  setMuted: (fn: (v: boolean) => boolean) => void;
 }) {
   const [frame, setFrame] = useState(0);
-  const [muted, setMuted] = useState(true);
   const [t, setT] = useState(0);
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -860,7 +869,7 @@ export function Aviator() {
             <span className="text-white/40">{bets.length} bets</span>
           </div>
 
-          <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} />
+          <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} />
 
 
 
