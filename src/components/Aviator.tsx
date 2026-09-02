@@ -535,18 +535,14 @@ function FlightStage({
               filter="url(#av-glow)"
             />
 
-            {PLANE_FRAMES.map((src, i) => (
-              <image
-                key={src}
-                href={src}
-                x={px - planeW * 0.72}
-                y={py - planeH * 0.62}
-                width={planeW}
-                height={planeH}
-                opacity={i === frame ? 1 : 0}
+            <image
+              href={PLANE_FRAMES[0]}
+              x={px - planeW * 0.72}
+              y={py - planeH * 0.62}
+              width={planeW}
+              height={planeH}
+            />
 
-              />
-            ))}
 
           </>
         ) : null}
