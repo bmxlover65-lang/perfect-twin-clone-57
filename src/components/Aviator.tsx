@@ -550,7 +550,9 @@ function FlightStage({
               y={py - planeH * 0.62}
               width={planeW}
               height={planeH}
+              transform={`rotate(${-(6 + 12 * p)} ${px - planeW * 0.22} ${py - planeH * 0.12})`}
             />
+
 
 
           </>
