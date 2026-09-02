@@ -782,9 +782,9 @@ export function Aviator() {
 
   return (
     <div className="overflow-hidden rounded-[16px] border border-[#303238] bg-[#090A0C] p-1.5 sm:p-2">
-      <div className="grid gap-2 lg:grid-cols-[400px_1fr]">
+      <div className="grid items-stretch gap-2 lg:grid-cols-[minmax(300px,23%)_1fr]">
         {/* bets + chat */}
-        <div className="order-2 min-w-0 overflow-hidden rounded-[14px] border border-[#303238] bg-[#151618] p-1.5 lg:order-1 sm:p-2">
+        <div className="order-2 flex min-w-0 flex-col overflow-hidden rounded-[14px] border border-[#303238] bg-[#151618] p-1.5 lg:order-1 sm:p-2">
 
           <div className="mx-auto flex w-full max-w-[280px] rounded-full bg-[#0B0C0E] p-[3px] text-[0.68rem] font-bold text-white/55 sm:w-[86%] sm:text-[0.72rem]">
             {([["all", "All Bets"], ["my", "My Bets"]] as const).map(([k, l]) => (
@@ -839,7 +839,7 @@ export function Aviator() {
           </div>
 
           <div
-            className="flex h-[340px] max-h-[340px] w-full min-w-0 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-1 lg:h-[560px] lg:max-h-[560px]"
+            className="flex h-[340px] max-h-[340px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-1 lg:h-auto lg:max-h-none lg:min-h-0"
             style={{
               overscrollBehavior: "contain",
               WebkitOverflowScrolling: "touch",
@@ -940,8 +940,8 @@ export function Aviator() {
                       >
                         {done ? `${fmt(b.cashedAt!)}x` : ""}
                       </span>
-                      <span className={`text-right font-bold ${done ? "text-white" : ""}`}>
-                        {done ? fmt(b.amount * b.cashedAt!) : ""}
+                      <span className={`text-right font-bold ${done ? "text-white" : "text-white/25"}`}>
+                        {done ? fmt(b.amount * b.cashedAt!) : "—"}
                       </span>
                     </div>
                   );
