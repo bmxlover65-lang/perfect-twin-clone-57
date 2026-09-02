@@ -477,10 +477,17 @@ export function BalloonStage({
           if (r?.roundId && w > 0) winnersRef.current.set(String(r.roundId), w);
         });
         const recent = json.data
-          .slice(0, 10)
+          .slice(0, 12)
           .map((r) => Number(r?.winner))
           .filter((n) => n > 0);
-        setHistory((h) => (h.length ? h : recent));
+        // the official results feed is the source of truth for the strip
+        if (recent.length) setHistory(recent);
+        // if the round already burst on an estimate, correct it to the official value
+        const cur = roundRef.current ? winnersRef.current.get(String(roundRef.current)) : undefined;
+        if (phaseRef.current === "crashed" && cur && cur > 0) setCrashAt(cur);
+
+
+
       } catch {
         // results unavailable — keep the animated estimate
       } finally {
@@ -610,10 +617,11 @@ export function BalloonStage({
           setCrashAt(goal);
           // feed says the round is over → wait a moment for the official winner
           // (results feed) before bursting so we never crash ahead of the real round
-          if ((suspRef.current || stall > 1.6) && peak > 1 && stall > 3.5) {
+          if ((suspRef.current || stall > 1.6) && peak > 1 && stall > 6) {
             v = peak;
             burst(peak);
           }
+
 
         } else {
 
@@ -765,7 +773,8 @@ export function BalloonStage({
         : "bg-[#123A73] text-white";
 
   const seedHist = [1.81, 5.68, 2.58, 1.12, 1.15, 3.88, 2.59, 1.3, 1.25, 1.03];
-  const histList = [...history, ...seedHist].slice(0, 10);
+  const histList = (history.length ? history : seedHist).slice(0, 12);
+
 
 
 
@@ -887,8 +896,21 @@ export function BalloonStage({
           </div>
         )}
 
-        {/* top bar: mute + history + collapse */}
-        <div className="absolute inset-x-0 top-0 flex items-start gap-2 px-3 py-2.5">
+        {/* top bar: full-line results strip, mute sits below it */}
+        <div className="absolute inset-x-0 top-0 px-2 py-2">
+          <div className="flex w-full flex-nowrap items-center gap-1 overflow-x-auto">
+            {histList.map((v, i) => (
+              <span
+                key={i}
+                className={`shrink-0 rounded-[5px] px-2 py-[3px] text-[0.7rem] font-extrabold sm:px-2.5 sm:text-[0.78rem] ${histColor2(v)}`}
+              >
+                {v.toFixed(2)}x
+              </span>
+            ))}
+            <span className="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#E8A33D]">
+              <img src={arrowDown.url} alt="" className="h-3 w-3" />
+            </span>
+          </div>
           <button
             type="button"
             onClick={() => {
@@ -909,7 +931,7 @@ export function BalloonStage({
                 return next;
               });
             }}
-            className="shrink-0 text-[#2B2B2B]"
+            className="mt-2 shrink-0 text-[#2B2B2B]"
             aria-label={muted ? "Unmute" : "Mute"}
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
@@ -921,21 +943,8 @@ export function BalloonStage({
               )}
             </svg>
           </button>
-          <div className="mx-auto flex max-w-[78%] flex-nowrap items-center justify-center gap-1.5 overflow-hidden">
-            {histList.map((v, i) => (
-              <span
-                key={i}
-                className={`shrink-0 rounded-[5px] px-2.5 py-[3px] text-[0.78rem] font-extrabold ${histColor2(v)}`}
-              >
-                {v.toFixed(2)}x
-              </span>
-            ))}
-          </div>
-
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#E8A33D]">
-            <img src={arrowDown.url} alt="" className="h-3 w-3" />
-          </span>
         </div>
+
 
         {/* profile pill + balance */}
         <div className="absolute left-0 top-[14%] flex items-center gap-2 rounded-r-[6px] bg-[#8E9BA6]/80 py-1 pl-3 pr-1.5">
