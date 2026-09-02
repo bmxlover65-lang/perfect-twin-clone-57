@@ -583,15 +583,15 @@ export function BalloonStage({
             style={
               flying
                 ? {
-                    bottom: `${8 + grow * 34}%`,
-                    width: `${Math.max(24, 42 - grow * 14)}%`,
+                    bottom: `${10 + grow * 30}%`,
+                    width: `${Math.max(16, 28 - grow * 8)}%`,
                     transform: `translateX(calc(-50% + ${drift}px))`,
                     transition: "bottom 220ms linear, width 220ms linear, transform 220ms linear",
                   }
                 : {
-                    bottom: "16%",
-                    width: "42%",
-                    minWidth: 220,
+                    bottom: "18%",
+                    width: "28%",
+                    minWidth: 140,
                     transform: "translateX(-50%)",
                   }
             }
