@@ -588,11 +588,13 @@ export function BalloonStage({
           if (goal - v < 0.005) v = goal;
           setShown(v);
           setCrashAt(goal);
-          // feed says the round is over (suspended, or value frozen) → burst here
-          if ((suspRef.current || stall > 1.6) && peak > 1) {
+          // feed says the round is over → wait a moment for the official winner
+          // (results feed) before bursting so we never crash ahead of the real round
+          if ((suspRef.current || stall > 1.6) && peak > 1 && stall > 3.5) {
             v = peak;
             burst(peak);
           }
+
         } else {
 
           // offline pacing: gentle at first, faster the higher it goes
