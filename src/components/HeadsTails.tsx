@@ -16,14 +16,14 @@ import chip200 from "@/assets/chips/chips200.svg.asset.json";
 import chip500 from "@/assets/chips/chips500.svg.asset.json";
 
 const CHIPS = [
+  { v: "100", src: chip100.url },
+  { v: "400", src: chip200.url },
+  { v: "500", src: chip500.url },
   { v: "1k", src: chip1k.url },
+  { v: "3k", src: chip20.url },
+  { v: "3.2k", src: chip10.url },
   { v: "5k", src: chip5.url },
-  { v: "10k", src: chip10.url },
-  { v: "25k", src: chip20.url },
-  { v: "50k", src: chip50.url },
-  { v: "100k", src: chip100.url },
-  { v: "200k", src: chip200.url },
-  { v: "500k", src: chip500.url },
+  { v: "100k", src: chip50.url },
 ];
 
 export type CoinSide = "HEADS" | "TAILS";
@@ -96,7 +96,7 @@ export function CoinStageImage({
         alt={`${face} coin`}
         width={240}
         height={240}
-        className="h-[230px] w-[230px] select-none object-contain drop-shadow-[0_8px_20px_rgba(0,0,0,0.6)]"
+        className="h-[260px] w-[260px] select-none object-contain drop-shadow-[0_8px_20px_rgba(0,0,0,0.6)]"
         draggable={false}
         style={flipping ? { animation: "uapi-coin-flip 0.28s linear infinite" } : undefined}
       />
@@ -124,37 +124,23 @@ export type CoinRunner = {
   open: boolean;
 };
 
-function Plate({ r, active }: { r: CoinRunner; active: boolean }) {
+function Plate({ r }: { r: CoinRunner; active: boolean }) {
   const heads = r.label.toUpperCase().startsWith("H");
   return (
-    <div
-      className={`relative flex flex-col items-center justify-center rounded-[10px] border-2 px-4 py-5 ${
-        heads
-          ? "border-[#C9A227] bg-[#1F4A32]"
-          : "border-[#8C4A46] bg-[#4A2320]"
-      } ${active ? "" : "opacity-90"}`}
-    >
-      <div className="relative">
-        <img
-          src={heads ? headPlate.url : tailPlate.url}
-          alt={r.label}
-          width={190}
-          height={68}
-          className="h-[64px] w-[180px] select-none rounded-[4px] object-cover"
-          draggable={false}
-        />
-        {!r.open ? (
-          <span className="absolute inset-0 flex items-center justify-center rounded-[4px] bg-black/45 text-[1.1rem]">
-            🔒
-          </span>
-        ) : null}
-      </div>
-      <span className="mt-2 text-[0.85rem] font-bold text-white/85">
-        {r.price ? r.price.toFixed(2) : "—"}
-      </span>
-      <span className="text-[0.75rem] font-semibold text-white/45">
-        {r.size ? Math.round(r.size) : ""}
-      </span>
+    <div className="relative">
+      <img
+        src={heads ? headPlate.url : tailPlate.url}
+        alt={r.label}
+        width={260}
+        height={92}
+        className="h-auto w-full select-none rounded-[6px] object-contain"
+        draggable={false}
+      />
+      {!r.open ? (
+        <span className="absolute inset-0 flex items-center justify-center rounded-[6px] bg-black/50 text-[1.2rem]">
+          🔒
+        </span>
+      ) : null}
     </div>
   );
 }
@@ -170,8 +156,8 @@ export function HeadsTailsPanel({
 }) {
   const [chip, setChip] = useState("1k");
   return (
-    <div className="rounded-[6px] bg-[#141414] p-3">
-      <p className="mb-2 text-right text-[0.68rem] font-semibold text-white/50">
+    <div className="bg-black p-2">
+      <p className="mb-1 text-right text-[0.62rem] font-semibold text-white/40">
         Min:{min} Max:{max}
       </p>
       <div className="grid grid-cols-2 gap-3">
@@ -179,7 +165,7 @@ export function HeadsTailsPanel({
           <Plate key={r.id} r={r} active={r.open} />
         ))}
       </div>
-      <div className="mt-3 flex flex-nowrap items-center gap-3 overflow-x-auto rounded-b-[6px] bg-[#1F1F1F] px-3 py-2">
+      <div className="mt-3 flex flex-nowrap items-center gap-2 overflow-x-auto bg-black px-2 py-2">
         {CHIPS.map((c) => (
           <button
             key={c.v}
@@ -188,7 +174,7 @@ export function HeadsTailsPanel({
             className="relative inline-flex shrink-0 flex-col items-center gap-1"
           >
             <span
-              className={`relative inline-flex h-[46px] w-[46px] items-center justify-center rounded-full ${
+              className={`relative inline-flex h-[42px] w-[42px] items-center justify-center rounded-full ${
                 chip === c.v ? "ring-2 ring-[#F2C500]" : ""
               }`}
             >
@@ -199,7 +185,9 @@ export function HeadsTailsPanel({
                 draggable={false}
               />
             </span>
-            <span className="text-[0.68rem] font-bold text-white">{c.v}</span>
+            <span className="absolute inset-0 flex items-center justify-center text-[0.62rem] font-extrabold text-black">
+              {c.v}
+            </span>
           </button>
         ))}
       </div>
