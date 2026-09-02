@@ -162,8 +162,8 @@ function Plate({
       </div>
 
       {!r.open ? (
-        <span className="absolute inset-0 grid place-items-center rounded-[10px] bg-black/60 text-[1.2rem]">
-          🔒
+        <span className="absolute inset-0 grid place-items-center rounded-[10px] bg-black/80 text-[0.85rem] font-black uppercase tracking-wide text-white">
+          Suspended
         </span>
       ) : null}
     </button>
