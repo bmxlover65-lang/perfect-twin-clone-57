@@ -612,10 +612,11 @@ export function BalloonStage({
           setCrashAt(goal);
           // feed says the round is over → wait a moment for the official winner
           // (results feed) before bursting so we never crash ahead of the real round
-          if ((suspRef.current || stall > 1.6) && peak > 1 && stall > 3.5) {
+          if ((suspRef.current || stall > 1.6) && peak > 1 && stall > 6) {
             v = peak;
             burst(peak);
           }
+
 
         } else {
 
