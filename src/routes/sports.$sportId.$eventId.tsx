@@ -12,6 +12,7 @@ import {
   type Market,
   type OddsResponse,
 } from "@/lib/uapi";
+import { BalanceChip, BetLayer, MyBets } from "@/components/betting";
 
 export const Route = createFileRoute("/sports/$sportId/$eventId")({
   head: ({ params }) => {
