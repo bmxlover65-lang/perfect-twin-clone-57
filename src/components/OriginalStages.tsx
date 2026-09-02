@@ -681,18 +681,18 @@ export function BalloonStage({
               className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
               style={{ filter: "drop-shadow(0 14px 20px rgba(0,0,0,0.28))" }}
             />
-            {/* burner flame — small, centered at the basket burner */}
+            {/* burner flame — small flame coming out of the black burner above the basket */}
             <div
               className="pointer-events-none absolute left-1/2 z-20"
               style={{
-                bottom: "7%",
+                bottom: "25.5%",
                 transform: "translateX(-50%)",
-                width: "14%",
-                minWidth: 28,
-                maxWidth: 44,
+                width: "11%",
+                minWidth: 22,
+                maxWidth: 36,
               }}
             >
-              <svg viewBox="0 0 40 60" className="w-full animate-[flame-flicker_0.75s_ease-in-out_infinite_alternate]">
+              <svg viewBox="0 0 34 52" className="w-full animate-[flame-flicker_0.75s_ease-in-out_infinite_alternate]">
                 <defs>
                   <linearGradient id="flameGrad" x1="0" y1="1" x2="0" y2="0">
                     <stop offset="0%" stopColor="#E65100" />
@@ -701,7 +701,7 @@ export function BalloonStage({
                     <stop offset="100%" stopColor="#FFEB3B" stopOpacity="0.85" />
                   </linearGradient>
                   <filter id="flameGlow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="2.5" result="blur" />
+                    <feGaussianBlur stdDeviation="2" result="blur" />
                     <feMerge>
                       <feMergeNode in="blur" />
                       <feMergeNode in="SourceGraphic" />
@@ -709,14 +709,14 @@ export function BalloonStage({
                   </filter>
                 </defs>
                 <path
-                  d="M20 58 C6 46 2 32 10 20 C12 14 16 8 20 2 C24 8 28 14 30 20 C38 32 34 46 20 58 Z"
+                  d="M17 50 C5 40 2 28 9 18 C11 13 14 8 17 2 C20 8 23 13 25 18 C32 28 29 40 17 50 Z"
                   fill="url(#flameGrad)"
                   filter="url(#flameGlow)"
                 />
                 <path
-                  d="M20 50 C13 42 11 34 16 26 C17 23 19 19 20 15 C21 19 23 23 24 26 C29 34 27 42 20 50 Z"
+                  d="M17 43 C11 37 9 30 13 24 C14 21 16 18 17 14 C18 18 20 21 21 24 C25 30 23 37 17 43 Z"
                   fill="#FFF8E1"
-                  fillOpacity="0.9"
+                  fillOpacity="0.92"
                 />
               </svg>
             </div>
