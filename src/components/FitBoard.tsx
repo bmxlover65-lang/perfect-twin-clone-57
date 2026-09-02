@@ -8,10 +8,12 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 export function FitBoard({
   children,
   designWidth = 860,
+  minScale = 0.62,
   className = "",
 }: {
   children: ReactNode;
   designWidth?: number;
+  minScale?: number;
   className?: string;
 }) {
   const outer = useRef<HTMLDivElement | null>(null);
@@ -26,7 +28,8 @@ export function FitBoard({
 
     const measure = () => {
       const w = o.clientWidth;
-      const s = w > 0 ? Math.min(1, w / designWidth) : 1;
+      const raw = w > 0 ? Math.min(1, w / designWidth) : 1;
+      const s = Math.max(minScale, raw);
       setScale(s);
       setHeight(i.offsetHeight * s);
     };
@@ -36,10 +39,14 @@ export function FitBoard({
     ro.observe(o);
     ro.observe(i);
     return () => ro.disconnect();
-  }, [designWidth]);
+  }, [designWidth, minScale]);
 
   return (
-    <div ref={outer} className={`w-full ${className}`} style={{ height }}>
+    <div
+      ref={outer}
+      className={`w-full overflow-x-auto ${className}`}
+      style={{ height: height ? height + 4 : undefined }}
+    >
       <div
         ref={inner}
         style={{
@@ -53,3 +60,4 @@ export function FitBoard({
     </div>
   );
 }
+
