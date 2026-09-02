@@ -390,10 +390,21 @@ function FlightStage({
             cy={H - 70 - ((i * 56 + (phase === "flying" ? tick : 0)) % 240)}
             cx="24"
             r="2.5"
-            fill="#2FA8F5"
+            fill="#20BFFF"
           />
         ))}
 
+        {/* plane parked at the start position while waiting */}
+        {phase === "betting" ? (
+          <image
+            href={PLANE_FRAMES[0]}
+            x={18}
+            y={H - 40 - planeH * 0.62}
+            width={planeW}
+            height={planeH}
+            opacity={0.95}
+          />
+        ) : null}
 
         {phase !== "betting" ? (
           <>
@@ -401,11 +412,12 @@ function FlightStage({
             <path
               d={path}
               fill="none"
-              stroke="#E01E1E"
-              strokeWidth="5"
+              stroke="#FF1238"
+              strokeWidth="4.5"
               strokeLinecap="round"
               filter="url(#av-glow)"
             />
+
             {PLANE_FRAMES.map((src, i) => (
               <image
                 key={src}
