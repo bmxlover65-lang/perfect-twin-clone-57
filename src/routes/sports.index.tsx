@@ -144,7 +144,7 @@ function SportsPage() {
           <p className="mt-2 max-w-[620px] text-muted-foreground">
             Real in-play and pre-match events with live exchange odds. Data source:{" "}
             <span className="font-semibold text-foreground">
-              Universal API (universeapi.shop/public)
+              Universal API (universeapi.store/public)
             </span>{" "}
             through the server proxy <code className="font-mono">/api/public/uapi/sports/…</code>,
             polled every 15s.
