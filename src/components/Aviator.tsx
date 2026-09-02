@@ -601,9 +601,10 @@ export function Aviator() {
             </div>
           ) : null}
 
-          <div className="mt-2 grid grid-cols-[1fr_auto_auto] gap-x-2 border-b sm:gap-x-3 border-white/10 pb-1 text-[0.62rem] font-semibold text-white/40">
+          <div className="mt-2 grid grid-cols-[1fr_auto_auto_auto] gap-x-2 border-b sm:gap-x-3 border-white/10 pb-1 text-[0.62rem] font-semibold text-white/40">
             <span>{tab === "my" ? "Round" : "User"}</span>
             <span>Bet&nbsp;&nbsp;X</span>
+            <span></span>
             <span className="text-right">Cash out</span>
           </div>
 
