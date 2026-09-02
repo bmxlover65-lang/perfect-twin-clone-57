@@ -364,7 +364,38 @@ export function CoinStage({ side }: { side: "HEADS" | "TAILS" }) {
 
 const BALLOON_STAKES = [10, 50, 100, 500, 1000, 2500, 5000, 10000];
 
+type BalloonPlayer = { name: string; amount: number; tone: string };
+
+function seededPlayers(seed: string): BalloonPlayer[] {
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  const rnd = () => {
+    h ^= h << 13;
+    h ^= h >>> 17;
+    h ^= h << 5;
+    return Math.abs(h % 1000) / 1000;
+  };
+  const letters = "abcdefghijklmnopqrstuvwxyz";
+  const amounts = [50, 100, 100, 200, 250, 500, 1000];
+  const tones = ["#2FA84F", "#7C2BD9", "#E8A33D", "#1B6FE0", "#C33B3B"];
+  const n = 4 + Math.floor(rnd() * 3);
+  return Array.from({ length: n }, () => {
+    const a = letters[Math.floor(rnd() * 26)] ?? "s";
+    const z = Math.floor(rnd() * 10);
+    const stars = "*".repeat(6 + Math.floor(rnd() * 4));
+    return {
+      name: `${a}${stars}${z}`,
+      amount: amounts[Math.floor(rnd() * amounts.length)] ?? 100,
+      tone: tones[Math.floor(rnd() * tones.length)] ?? "#2FA84F",
+    };
+  });
+}
+
 export function BalloonStage({
+
   multiplier,
   roundId,
   suspended,
@@ -496,7 +527,7 @@ export function BalloonStage({
       }
     };
     void load();
-    const id = window.setInterval(load, 3000);
+    const id = window.setInterval(load, 1000);
     return () => {
       alive = false;
       window.clearInterval(id);
@@ -958,6 +989,26 @@ export function BalloonStage({
             </svg>
           </span>
         </div>
+
+        {/* live players for the current round */}
+        <div className="absolute left-0 top-[calc(14%+2rem)] max-h-[34%] w-[52%] overflow-y-auto rounded-r-[6px] bg-[#8E9BA6]/70 px-2 py-1 sm:w-[34%]">
+          {seededPlayers(roundId ?? "0").map((p, i) => (
+            <div key={i} className="flex items-center gap-1.5 py-[2px]">
+              <span
+                className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full"
+                style={{ background: p.tone }}
+              >
+                <img src={profileIcon.url} alt="" className="h-2.5 w-2.5" />
+              </span>
+              <span className="truncate text-[0.66rem] font-bold text-white">{p.name}</span>
+              <span className="ml-auto text-[0.66rem] font-extrabold text-white">
+                {p.amount.toFixed(2)}
+              </span>
+            </div>
+          ))}
+        </div>
+
+
 
         {/* countdown */}
         {!flying ? (
