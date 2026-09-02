@@ -47,6 +47,44 @@ async function upstream(path: string, search: string, token: string, body?: stri
   });
 }
 
+// The stream provider only allows its own client hostname. Fetch the player
+// page server-side with that referer and re-serve it from our origin.
+const STREAM_REFERER = "https://universeapi.shop/";
+
+async function streamPage(rawUrl: string) {
+  let target: URL;
+  try {
+    target = new URL(rawUrl);
+  } catch {
+    return new Response("Bad stream url", { status: 400 });
+  }
+  if (!/(^|\.)diamondtech\.shop$/i.test(target.hostname)) {
+    return new Response("Stream host not allowed", { status: 403 });
+  }
+  const res = await fetch(target.toString(), {
+    redirect: "follow",
+    headers: {
+      referer: STREAM_REFERER,
+      origin: STREAM_REFERER.replace(/\/$/, ""),
+      "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36",
+      accept: "text/html,application/xhtml+xml,*/*",
+    },
+  });
+  const html = await res.text();
+  return new Response(html, {
+    status: res.status,
+    headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
+  });
+}
+
+function rewriteTvHtml(html: string, origin: string) {
+  return html.replace(/https:\/\/[a-z0-9.-]*diamondtech\.shop\/[^"'\s]+/gi, (m) => {
+    const clean = m.replace(/&amp;/g, "&");
+    return `${origin}/api/public/uapi/stream?u=${encodeURIComponent(clean)}`;
+  });
+}
+
 
 async function proxy(splat: string, search: string, body?: string) {
   try {
