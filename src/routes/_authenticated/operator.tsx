@@ -108,15 +108,19 @@ function OperatorPage() {
   const paid = bets.reduce((s, b) => s + Number(b.payout), 0);
 
   return (
-    <div className="mx-auto max-w-[1000px] space-y-4 px-3 py-5">
-      <header className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">Operator panel</h1>
-          <p className="text-xs text-muted-foreground">
-            {op ? `${op.name} · ${op.status} · plan till ${op.plan_expires_at ? new Date(op.plan_expires_at).toLocaleDateString() : "—"}` : "No operator linked to this login yet."}
-          </p>
-        </div>
-        <div className="flex gap-2">
+    <DashShell
+      title="Operator"
+      subtitle={
+        op
+          ? `${op.name} · ${op.status} · plan till ${op.plan_expires_at ? new Date(op.plan_expires_at).toLocaleDateString() : "—"}`
+          : "No operator linked to this login yet."
+      }
+      accent="#0F7A5A"
+      tabs={TABS}
+      active={tab}
+      onSelect={setTab}
+      actions={
+        <>
           {ops.length > 1 ? (
             <select className={input} value={sel} onChange={(e) => setSel(e.target.value)}>
               {ops.map((o) => (
@@ -126,17 +130,30 @@ function OperatorPage() {
               ))}
             </select>
           ) : null}
+          <button className={ghost} onClick={() => sel && run(() => load(sel))}>
+            Refresh
+          </button>
           <button className={ghost} onClick={signOut}>
             Sign out
           </button>
-        </div>
-      </header>
-
+        </>
+      }
+    >
       {err ? <p className="rounded-md bg-destructive/15 px-3 py-2 text-sm text-destructive">{err}</p> : null}
 
       {sel ? (
         <>
+          {tab === "overview" ? (
+            <div className="grid gap-3 sm:grid-cols-3">
+              <Stat label="Staked" value={`₹${staked.toLocaleString("en-IN")}`} />
+              <Stat label="Paid out" value={`₹${paid.toLocaleString("en-IN")}`} />
+              <Stat label="Net P/L" value={`₹${(staked - paid).toLocaleString("en-IN")}`} />
+            </div>
+          ) : null}
+
+          {tab === "wallet" ? (
           <Panel title="Callback wallet">
+
             <div className="flex flex-wrap items-center gap-2">
               <input
                 value={userId}
