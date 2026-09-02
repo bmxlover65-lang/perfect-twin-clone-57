@@ -63,6 +63,8 @@ import {
   dashInput as input,
 } from "@/components/dash";
 
+import { AdminGuide } from "@/components/dash-guide";
+
 const TABS = [
   { id: "overview", label: "Overview" },
   { id: "operators", label: "Operators" },
@@ -71,6 +73,8 @@ const TABS = [
   { id: "results", label: "Results" },
   { id: "wallet", label: "Callback wallet" },
   { id: "bets", label: "Bet history" },
+  { id: "guide", label: "Guide / Kit" },
+
 ];
 
 
