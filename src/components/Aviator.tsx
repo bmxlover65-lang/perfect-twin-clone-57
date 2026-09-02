@@ -410,21 +410,34 @@ function FlightStage({
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         {phase === "betting" ? (
           <>
-            <img
-              src={PLANE_FRAMES[frame]}
-              alt=""
-              className="mb-2 h-[56px] w-[112px] -rotate-[38deg] opacity-95 sm:mb-4 sm:h-[92px] sm:w-[180px]"
-            />
-            <p className="px-4 text-center text-[1.2rem] font-bold uppercase tracking-[0.01em] text-white sm:text-[2.1rem]">
+            <svg
+              viewBox="0 0 120 120"
+              className="mb-2 h-[64px] w-[64px] sm:mb-3 sm:h-[110px] sm:w-[110px]"
+              fill="none"
+              stroke="#EF1B2E"
+              strokeWidth="6"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <path d="M60 60 L96 16 C104 26 100 44 74 56 Z" />
+              <path d="M60 60 L24 104 C16 94 20 76 46 64 Z" />
+              <circle cx="60" cy="60" r="6" fill="#EF1B2E" stroke="none" />
+              <path d="M40 30 A34 34 0 0 1 66 18" />
+              <path d="M30 44 A44 44 0 0 1 52 10" />
+              <path d="M80 90 A34 34 0 0 1 54 102" />
+              <path d="M90 76 A44 44 0 0 1 68 110" />
+            </svg>
+            <p className="px-4 text-center text-[1.15rem] uppercase tracking-[0.02em] text-white sm:text-[2rem]">
               Waiting for next round
             </p>
-            <div className="mt-4 h-[6px] w-[190px] overflow-hidden rounded-full bg-white/15 sm:w-[230px]">
+            <div className="mt-4 h-[5px] w-[200px] overflow-hidden rounded-full bg-[#3A3D42] sm:w-[240px]">
               <div
-                className="h-full rounded-full bg-[#FF003C]"
+                className="h-full rounded-full bg-[#EF1B2E]"
                 style={{ width: `${Math.max(0, Math.min(100, (countdown / BET_MS) * 100))}%` }}
               />
             </div>
           </>
+
 
         ) : phase === "crashed" ? (
           <>
