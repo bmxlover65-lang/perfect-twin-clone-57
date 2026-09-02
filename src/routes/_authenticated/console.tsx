@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   addWhitelist,
   createOperator,
-  declareResult,
   issueApiKey,
   listWhitelist,
   operatorLedger,
@@ -30,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/console")({
       {
         name: "description",
         content:
-          "Create operators, issue and revoke API keys, manage IP and domain whitelists, declare manual results and watch the bet ledger.",
+          "Create operators, issue API keys, and set per-key IP and domain whitelists for the Universal API.",
       },
       { property: "og:title", content: "Admin console | Universal API" },
       {
@@ -89,7 +88,6 @@ function ConsolePage() {
   const rmWl = useServerFn(removeWhitelist);
   const wl = useServerFn(listWhitelist);
   const ledger = useServerFn(operatorLedger);
-  const declare = useServerFn(declareResult);
   const logs = useServerFn(listCallbackLogs);
   const rounds = useServerFn(listRounds);
   const walletTest = useServerFn(testWalletCall);
