@@ -541,8 +541,10 @@ function ConsolePage() {
               </table>
             </div>
           </Panel>
+          ) : null}
         </>
       ) : null}
-    </div>
+    </DashShell>
+
   );
 }
