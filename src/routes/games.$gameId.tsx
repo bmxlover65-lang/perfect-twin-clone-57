@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Aviator } from "@/components/Aviator";
+import { FitBoard } from "@/components/FitBoard";
 import { applyOverride, useAdminConfig } from "@/lib/admin";
 import { logResult } from "@/lib/telemetry";
 import { BalanceChip, BetLayer, MyBets } from "@/components/betting";
@@ -1679,7 +1680,7 @@ function GamePage() {
 
   if (isBbb) {
     return (
-      <div className="mx-auto max-w-[900px] px-4 py-5">
+      <div className="mx-auto max-w-[900px] px-2 py-4 sm:px-4 sm:py-5">
         <div className="bg-[#EDEDED] px-3 py-2">
           <Link to="/" className="text-sm text-[#2563EB] hover:underline">
             ← Back to lobby
@@ -1710,7 +1711,7 @@ function GamePage() {
 
   if (gameId === "88.0030") {
     return (
-      <div className="mx-auto max-w-[1080px] px-4 py-5">
+      <div className="mx-auto max-w-[1080px] px-2 py-4 sm:px-4 sm:py-5">
         <Link to="/" className="text-sm text-[#2563EB] hover:underline">
           ← Back to lobby
         </Link>
@@ -1727,7 +1728,7 @@ function GamePage() {
 
   if (isOriginal) {
     return (
-      <div className="mx-auto max-w-[1240px] px-4 py-5">
+      <div className="mx-auto max-w-[1240px] px-2 py-4 sm:px-4 sm:py-5">
         <Link to="/" className="text-sm text-[#2563EB] hover:underline">
           ← Back to lobby
         </Link>
@@ -1851,7 +1852,7 @@ function GamePage() {
   }
 
   return (
-    <div className="mx-auto max-w-[900px] px-4 py-5">
+    <div className="mx-auto max-w-[900px] px-2 py-4 sm:px-4 sm:py-5">
       <div className="flex items-start justify-between gap-3">
         <div>
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
@@ -1905,6 +1906,7 @@ function GamePage() {
         round={String(d?.roundId ?? "")}
         disabled={suspended}
       >
+        <FitBoard designWidth={860}>
         {gameId === "99.0014" && markets.length ? (
           <MuflisPanel markets={markets} suspended={suspended} />
         ) : (gameId === "99.0018" || gameId === "99.0019") && markets.length ? (
@@ -1928,6 +1930,7 @@ function GamePage() {
             <MarketBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
           ))
         )}
+        </FitBoard>
       </BetLayer>
       <MyBets gameId={gameId} />
 
