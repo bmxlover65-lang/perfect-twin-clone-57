@@ -383,6 +383,8 @@ export function BalloonStage({
   const [crashAt, setCrashAt] = useState(2);
   const [history, setHistory] = useState<number[]>([]);
   const [autos, setAutos] = useState<[boolean, boolean]>([false, false]);
+  const [autoX, setAutoX] = useState<[string, string]>(["1.10", "1.10"]);
+
   const wallet = useWallet();
   const balance = wallet.balance;
   const [bets, setBets] = useState<(null | { entry: number; stake: number; pending?: boolean })[]>([
@@ -701,7 +703,31 @@ export function BalloonStage({
     });
   };
 
+  // auto cash out: when the shown multiplier reaches the user's target
+  useEffect(() => {
+    if (phase !== "flying") return;
+    ([0, 1] as const).forEach((i) => {
+      if (!autos[i]) return;
+      const target = Number(autoX[i]);
+      const b = bets[i];
+      if (!b || b.pending || !(target > 1) || shown < target) return;
+      const payout = Math.round(b.stake * target);
+      creditWin(payout);
+      setFlash((f) => {
+        const n = [...f];
+        n[i] = { text: `+${payout.toLocaleString("en-IN")}`, win: true };
+        return n;
+      });
+      setBets((p) => {
+        const n = [...p];
+        n[i] = null;
+        return n;
+      });
+    });
+  }, [shown, phase, autos, autoX, bets]);
+
   const flying = phase === "flying";
+
   const popped = phase === "crashed";
   const grow = Math.min(1, climb * 0.65 + (Math.log(Math.max(1, shown)) / Math.log(12)) * 0.35);
 
@@ -914,26 +940,43 @@ export function BalloonStage({
           <div className="shrink-0">
             <div className="mb-1 flex items-end gap-1 sm:mb-1.5 sm:gap-2">
               {([0, 1] as const).map((i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setAutos((a) => (i === 0 ? [!a[0], a[1]] : [a[0], !a[1]]))}
-                  className="flex w-[78px] items-center gap-1 text-[0.66rem] font-bold text-[#2B2B2B] sm:w-[150px] sm:gap-2 sm:text-[0.82rem]"
-                  aria-pressed={autos[i]}
-                >
-                  Auto
-                  <span
-                    className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors sm:h-5 sm:w-10 ${
-                      autos[i] ? "bg-[#2FA84F]" : "bg-[#D9D9D9]"
-                    }`}
+                <div key={i} className="flex w-[78px] items-center gap-1 sm:w-[150px] sm:gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setAutos((a) => (i === 0 ? [!a[0], a[1]] : [a[0], !a[1]]))}
+                    className="flex items-center gap-1 text-[0.66rem] font-bold text-[#2B2B2B] sm:gap-2 sm:text-[0.82rem]"
+                    aria-pressed={autos[i]}
                   >
+                    Auto
                     <span
-                      className={`absolute h-3 w-3 rounded-full bg-white shadow transition-all sm:h-4 sm:w-4 ${
-                        autos[i] ? "left-[1.1rem] sm:left-[1.35rem]" : "left-0.5"
+                      className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors sm:h-5 sm:w-10 ${
+                        autos[i] ? "bg-[#2FA84F]" : "bg-[#D9D9D9]"
                       }`}
-                    />
-                  </span>
-                </button>
+                    >
+                      <span
+                        className={`absolute h-3 w-3 rounded-full bg-white shadow transition-all sm:h-4 sm:w-4 ${
+                          autos[i] ? "left-[1.1rem] sm:left-[1.35rem]" : "left-0.5"
+                        }`}
+                      />
+                    </span>
+                  </button>
+                  {autos[i] ? (
+                    <span className="flex items-center gap-0.5 rounded-full border border-white bg-white/95 px-1 py-[1px] shadow sm:px-1.5">
+                      <input
+                        value={autoX[i]}
+                        onChange={(e) => {
+                          const v = e.target.value.replace(/[^0-9.]/g, "").slice(0, 6);
+                          setAutoX((a) => (i === 0 ? [v, a[1]] : [a[0], v]));
+                        }}
+                        inputMode="decimal"
+                        aria-label="Auto cash out multiplier"
+                        className="w-[26px] bg-transparent text-center text-[0.62rem] font-extrabold text-[#111] outline-none sm:w-[42px] sm:text-[0.8rem]"
+                      />
+                      <span className="text-[0.58rem] font-bold text-[#666] sm:text-[0.75rem]">x</span>
+                    </span>
+                  ) : null}
+                </div>
+
               ))}
             </div>
             <div className="flex items-start gap-1.5 sm:gap-2">
