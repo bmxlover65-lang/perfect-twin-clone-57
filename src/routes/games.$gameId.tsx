@@ -9,7 +9,7 @@ import { logResult } from "@/lib/telemetry";
 import { BalanceChip, BetLayer, MyBets } from "@/components/betting";
 import { settleLatest, settleRound } from "@/lib/wallet";
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
-import { cardImage } from "@/lib/card-assets";
+import { cardImage, CARD_BACK } from "@/lib/card-assets";
 
 import dream1x from "@/assets/dream/note1.png.asset.json";
 import dream2x from "@/assets/dream/note2.png.asset.json";
