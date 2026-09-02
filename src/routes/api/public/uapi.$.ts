@@ -86,8 +86,13 @@ function rewriteTvHtml(html: string, origin: string) {
 }
 
 
-async function proxy(splat: string, search: string, body?: string) {
+async function proxy(splat: string, search: string, body?: string, origin = "") {
   try {
+    if (splat === "stream") {
+      const u = new URLSearchParams(search).get("u") ?? "";
+      return streamPage(u);
+    }
+
     if (splat === "health") {
       const t0 = Date.now();
       let ok = true;
