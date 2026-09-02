@@ -784,7 +784,7 @@ export function Aviator() {
     <div className="overflow-hidden rounded-[16px] border border-[#303238] bg-[#090A0C] p-1.5 sm:p-2">
       <div className="grid gap-2 lg:grid-cols-[400px_1fr]">
         {/* bets + chat */}
-        <div className="order-2 min-w-0 rounded-[14px] border border-[#303238] bg-[#151618] p-1.5 lg:order-1 sm:p-2">
+        <div className="order-2 min-w-0 overflow-hidden rounded-[14px] border border-[#303238] bg-[#151618] p-1.5 lg:order-1 sm:p-2">
 
           <div className="mx-auto flex w-full max-w-[280px] rounded-full bg-[#0B0C0E] p-[3px] text-[0.68rem] font-bold text-white/55 sm:w-[86%] sm:text-[0.72rem]">
             {([["all", "All Bets"], ["my", "My Bets"]] as const).map(([k, l]) => (
@@ -841,7 +841,7 @@ export function Aviator() {
 
 
 
-          <div className="max-h-[340px] space-y-[3px] overflow-y-auto pt-1 lg:max-h-[560px]">
+          <div className="h-[340px] max-h-[340px] w-full min-w-0 flex-col space-y-[3px] overflow-y-auto overflow-x-hidden pt-1 [column-count:1] lg:h-[560px] lg:max-h-[560px]">
             {tab === "my"
               ? [
                   ...slots
