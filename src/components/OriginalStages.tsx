@@ -990,6 +990,26 @@ export function BalloonStage({
           </span>
         </div>
 
+        {/* live players for the current round */}
+        <div className="absolute left-0 top-[calc(14%+2rem)] max-h-[34%] w-[52%] overflow-y-auto rounded-r-[6px] bg-[#8E9BA6]/70 px-2 py-1 sm:w-[34%]">
+          {seededPlayers(roundId ?? "0").map((p, i) => (
+            <div key={i} className="flex items-center gap-1.5 py-[2px]">
+              <span
+                className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full"
+                style={{ background: p.tone }}
+              >
+                <img src={profileIcon.url} alt="" className="h-2.5 w-2.5" />
+              </span>
+              <span className="truncate text-[0.66rem] font-bold text-white">{p.name}</span>
+              <span className="ml-auto text-[0.66rem] font-extrabold text-white">
+                {p.amount.toFixed(2)}
+              </span>
+            </div>
+          ))}
+        </div>
+
+
+
         {/* countdown */}
         {!flying ? (
           <span className="absolute right-3 top-[14%] flex h-9 w-9 items-center justify-center rounded-full border-2 border-white/80 text-[0.9rem] font-extrabold text-white">
