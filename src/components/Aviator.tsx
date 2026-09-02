@@ -743,13 +743,18 @@ export function Aviator() {
 
     const beginBetting = () => {
       const ctl = avRef.current;
+      const official = queueRef.current.shift();
+      officialRef.current = official !== undefined;
       crashRef.current =
         ctl && ctl.mode === "never"
           ? 1
           : ctl && ctl.mode === "forced"
             ? Math.max(1, ctl.crash)
-            : randomCrash();
+            : official !== undefined
+              ? Math.max(1, official)
+              : randomCrash();
       startRef.current = performance.now();
+
       setPhase("betting");
       setMultiplier(1);
       setBets(makeBets(Math.floor(Math.random() * 999) + 1));
