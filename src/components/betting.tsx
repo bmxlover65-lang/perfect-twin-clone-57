@@ -1,9 +1,9 @@
-import { useState, type ReactNode } from "react";
-import { placeBet, useWallet, type Bet } from "@/lib/wallet";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { placeBet, readWallet, useWallet, type Bet } from "@/lib/wallet";
 
 export type Pick = { label: string; odds: number };
 
-const STAKES = [100, 500, 1000, 2000, 5000, 10000];
+const CHIPS = [1000, 5000, 10000, 25000, 50000, 100000, 200000, 500000];
 
 /** Reads an odds cell out of any market board without touching every panel. */
 function extractPick(target: HTMLElement, root: HTMLElement): Pick | null {
@@ -36,6 +36,52 @@ function extractPick(target: HTMLElement, root: HTMLElement): Pick | null {
   return { label: "Selection", odds };
 }
 
+/** Red error toast used by the whole casino (insufficient balance, double bet…). */
+export function ErrorToast({ message, onDone }: { message: string; onDone: () => void }) {
+  useEffect(() => {
+    const t = window.setTimeout(onDone, 2800);
+    return () => window.clearTimeout(t);
+  }, [message, onDone]);
+  return (
+    <div className="pointer-events-none fixed left-1/2 top-4 z-[80] w-[min(92vw,420px)] -translate-x-1/2">
+      <div className="flex items-center gap-2 rounded-[4px] bg-[#C0392B] px-3 py-2.5 shadow-[0_4px_14px_rgba(0,0,0,0.35)]">
+        <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 fill-white">
+          <path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Zm-1 5h2v6h-2V7Zm0 8h2v2h-2v-2Z" />
+        </svg>
+        <span className="text-[0.82rem] font-semibold text-white">{message}</span>
+      </div>
+    </div>
+  );
+}
+
+function Stepper({
+  value,
+  onChange,
+  step,
+  decimals,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  step: number;
+  decimals: number;
+}) {
+  const btn =
+    "flex h-9 w-10 items-center justify-center rounded-[4px] text-[1.2rem] font-bold text-[#3B5A6B] disabled:opacity-40";
+  return (
+    <div className="flex items-center rounded-[4px] border border-[#c9d6de] bg-[#e6edf1]">
+      <button type="button" className={btn} onClick={() => onChange(Math.max(0, value - step))}>
+        −
+      </button>
+      <span className="flex-1 text-center text-[0.95rem] font-extrabold text-[#20384a]">
+        {decimals ? value.toFixed(decimals) : String(Math.round(value)).padStart(2, "0")}
+      </span>
+      <button type="button" className={btn} onClick={() => onChange(value + step)}>
+        +
+      </button>
+    </div>
+  );
+}
+
 /** Wrap any market board: clicking a price cell opens the bet slip. */
 export function BetLayer({
   gameId,
@@ -51,9 +97,49 @@ export function BetLayer({
   children: ReactNode;
 }) {
   const [pick, setPick] = useState<Pick | null>(null);
-  const [stake, setStake] = useState(100);
-  const [msg, setMsg] = useState<string | null>(null);
+  const [odds, setOdds] = useState(1);
+  const [stake, setStake] = useState(0);
+  const [err, setErr] = useState<string | null>(null);
+  const busy = useRef(false);
   const wallet = useWallet();
+
+  const close = () => {
+    setPick(null);
+    setStake(0);
+  };
+
+  const submit = () => {
+    if (busy.current) {
+      setErr("Do Not Place Bet At The Same Time.");
+      return;
+    }
+    if (!pick) return;
+    if (stake <= 0) {
+      setErr("Please enter a valid stake.");
+      return;
+    }
+    if (stake > readWallet().balance) {
+      setErr("You have Insufficient Balance.");
+      return;
+    }
+    busy.current = true;
+    const ok = placeBet({
+      gameId,
+      gameName,
+      round,
+      label: pick.label,
+      odds,
+      stake,
+    });
+    window.setTimeout(() => {
+      busy.current = false;
+    }, 600);
+    if (!ok) {
+      setErr("You have Insufficient Balance.");
+      return;
+    }
+    close();
+  };
 
   return (
     <div
@@ -63,80 +149,73 @@ export function BetLayer({
         const p = extractPick(e.target as HTMLElement, root);
         if (p) {
           setPick(p);
-          setMsg(null);
+          setOdds(p.odds);
+          setStake(0);
+          setErr(null);
         }
       }}
     >
       {children}
 
+      {err ? <ErrorToast message={err} onDone={() => setErr(null)} /> : null}
+
       {pick ? (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-3 sm:items-center">
-          <div className="w-full max-w-[420px] rounded-[10px] bg-[#12233A] p-4 text-white shadow-2xl">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-[0.7rem] font-bold uppercase tracking-[0.12em] text-white/60">
-                  {gameName} · RID {round || "—"}
-                </p>
-                <p className="mt-1 text-[1.05rem] font-extrabold uppercase">{pick.label}</p>
-              </div>
-              <span className="rounded-[6px] bg-[#1B6FE0] px-3 py-1 text-[1rem] font-extrabold">
-                {pick.odds.toFixed(2)}
+        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 p-2 sm:items-center">
+          <div className="w-full max-w-[430px] overflow-hidden rounded-[4px] bg-[linear-gradient(180deg,#cfe0ea_0%,#e9f1f5_100%)] shadow-2xl">
+            <div className="flex items-center justify-between bg-[#1f3b4d] px-3 py-2">
+              <span className="text-[0.72rem] font-bold uppercase tracking-[0.1em] text-white/80">
+                {gameName} · RID {round || "—"}
+              </span>
+              <span className="text-[0.78rem] font-extrabold text-white">
+                Bal {Math.round(wallet.balance).toLocaleString("en-IN")}
               </span>
             </div>
 
-            <div className="mt-3 grid grid-cols-3 gap-2">
-              {STAKES.map((s) => (
+            <div className="px-3 pb-3 pt-2">
+              <p className="text-center text-[0.85rem] font-extrabold uppercase text-[#20384a]">
+                {pick.label}
+              </p>
+
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <Stepper value={odds} onChange={setOdds} step={0.01} decimals={2} />
+                <Stepper value={stake} onChange={(v) => setStake(v)} step={100} decimals={0} />
+              </div>
+
+              <div className="mt-2 grid grid-cols-4 gap-2">
+                {CHIPS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setStake((s) => s + c)}
+                    className="h-9 rounded-[4px] border border-[#c9d6de] bg-white text-[0.78rem] font-bold text-[#20384a] active:bg-[#dfe9ef]"
+                  >
+                    {c.toLocaleString("en-IN")}
+                  </button>
+                ))}
+              </div>
+
+              <div className="mt-2 flex items-center justify-between px-1 text-[0.75rem] font-bold text-[#4a6274]">
+                <span>Stake {Math.round(stake).toLocaleString("en-IN")}</span>
+                <span>Returns {Math.round(stake * odds).toLocaleString("en-IN")}</span>
+              </div>
+
+              <div className="mt-2 grid grid-cols-2 gap-3">
                 <button
-                  key={s}
                   type="button"
-                  onClick={() => setStake(s)}
-                  className={`h-9 rounded-[6px] bg-[#1D3556] text-[0.85rem] font-extrabold ${
-                    stake === s ? "ring-2 ring-[#F0A500]" : ""
-                  }`}
+                  onClick={close}
+                  className="h-11 rounded-[4px] border border-[#c9d6de] bg-white text-[0.95rem] font-extrabold text-[#20384a]"
                 >
-                  {s}
+                  Cancel
                 </button>
-              ))}
-            </div>
-
-            <div className="mt-3 flex items-center justify-between text-[0.8rem] font-bold text-white/75">
-              <span>Stake: {stake.toLocaleString("en-IN")}</span>
-              <span>Returns: {Math.round(stake * pick.odds).toLocaleString("en-IN")}</span>
-            </div>
-            <p className="mt-1 text-[0.78rem] font-bold text-white/60">
-              Balance: {Math.round(wallet.balance).toLocaleString("en-IN")}
-            </p>
-            {msg ? <p className="mt-1 text-[0.78rem] font-bold text-[#FF6B6B]">{msg}</p> : null}
-
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setPick(null)}
-                className="h-10 rounded-[6px] bg-[#2A3F5C] text-[0.9rem] font-extrabold"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const ok = placeBet({
-                    gameId,
-                    gameName,
-                    round,
-                    label: pick.label,
-                    odds: pick.odds,
-                    stake,
-                  });
-                  if (!ok) {
-                    setMsg("Not enough balance");
-                    return;
-                  }
-                  setPick(null);
-                }}
-                className="h-10 rounded-[6px] bg-[linear-gradient(180deg,#22C93A_0%,#0FA524_100%)] text-[0.9rem] font-extrabold"
-              >
-                Place bet
-              </button>
+                <button
+                  type="button"
+                  onClick={submit}
+                  disabled={stake <= 0}
+                  className="h-11 rounded-[4px] bg-[#2f7fbe] text-[0.95rem] font-extrabold text-white disabled:bg-[#b9c6ce] disabled:text-white/80"
+                >
+                  Place Bet
+                </button>
+              </div>
             </div>
           </div>
         </div>
