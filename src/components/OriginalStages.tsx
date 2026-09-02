@@ -348,6 +348,7 @@ export function BalloonStage({
   const [stake, setStake] = useState(100);
   const [phase, setPhase] = useState<"waiting" | "flying" | "crashed">("waiting");
   const [shown, setShown] = useState(1);
+  const [climb, setClimb] = useState(0);
   const [wait, setWait] = useState(5);
   const [crashAt, setCrashAt] = useState(2);
   const [history, setHistory] = useState<number[]>([]);
@@ -414,6 +415,7 @@ export function BalloonStage({
       setCrashAt(target);
       v = 1;
       setShown(1);
+      setClimb(0);
       ph = "flying";
       setPhase("flying");
       play("/balloon-air.mp3", 0.35, true);
@@ -439,7 +441,7 @@ export function BalloonStage({
       setHistory((h) => [at, ...h].slice(0, 10));
       airRef.current?.pause();
       play(bonusSfx.url, 0.7);
-      t = 1.8;
+      t = 2.4;
     };
 
     const tick = (now: number) => {
@@ -460,7 +462,10 @@ export function BalloonStage({
       const live = !!apiRound && !stale;
 
       if (ph === "flying") {
+        // the balloon keeps rising through the whole flight (time based)
+        setClimb((c) => Math.min(1, c + dt / 9));
         if (live) {
+
           // chase the feed value; it is the single source of truth
           if (api > peak + 0.0001) {
             peak = api;
@@ -496,7 +501,7 @@ export function BalloonStage({
           if (ph === "crashed") {
             ph = "waiting";
             setPhase("waiting");
-            t = 3;
+            t = 5;
           } else {
             // waiting over: feed never advanced while we waited → mark stale
             // and start a local round; a new feed id will resync automatically
@@ -572,8 +577,8 @@ export function BalloonStage({
 
   const flying = phase === "flying";
   const popped = phase === "crashed";
-  const grow = Math.min(1, Math.log(Math.max(1, shown)) / Math.log(12));
-  const drift = flying ? Math.sin(shown * 2.2) * 6 : 0;
+  const grow = Math.min(1, climb * 0.65 + (Math.log(Math.max(1, shown)) / Math.log(12)) * 0.35);
+  const drift = flying ? Math.sin(shown * 2.2) * 10 : 0;
 
   const bgIndex = Math.abs(hashStr(roundId ?? "0")) % LOCATIONS.length;
 
@@ -592,18 +597,19 @@ export function BalloonStage({
 
   return (
     <div className="w-full rounded-[14px] bg-black p-1.5">
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[10px] bg-[linear-gradient(180deg,#59BFD4_0%,#6EC8DA_60%,#8FD2DC_100%)]">
+      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[10px] bg-[linear-gradient(180deg,#4FB6CE_0%,#7ACBD6_38%,#BFE0CC_66%,#F3E4B4_88%,#F7EFD2_100%)]">
         {/* sky artwork — parallax: the ground drops away as the balloon climbs */}
         <div className="absolute inset-0 overflow-hidden">
           <img
             src={LOCATIONS[bgIndex]!.url}
             alt=""
-            className="absolute inset-x-0 bottom-0 h-[190%] w-full object-cover object-bottom opacity-35"
+            className="absolute inset-x-0 bottom-0 h-[210%] w-full object-cover object-bottom opacity-90"
             style={{
-              transform: `translateY(${grow * 78}%)`,
+              transform: `translateY(${grow * 96}%)`,
               transition: "transform 240ms linear",
             }}
           />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(79,182,206,0.55)_0%,rgba(122,203,214,0.18)_38%,rgba(247,239,210,0)_70%)]" />
         </div>
 
         {/* balloon — climbs while the round runs and bursts at the crash point */}
@@ -638,14 +644,14 @@ export function BalloonStage({
             style={
               flying
                 ? {
-                    bottom: `${10 + grow * 30}%`,
-                    width: `${Math.max(26, 38 - grow * 10)}%`,
-                    minWidth: 170,
+                    bottom: `${2 + grow * 62}%`,
+                    width: `${Math.max(20, 36 - grow * 16)}%`,
+                    minWidth: 120,
                     transform: `translateX(calc(-50% + ${drift}px))`,
                     transition: "bottom 220ms linear, width 220ms linear, transform 220ms linear",
                   }
                 : {
-                    bottom: "18%",
+                    bottom: "16%",
                     width: "38%",
                     minWidth: 180,
                     transform: "translateX(-50%)",
@@ -812,14 +818,14 @@ export function BalloonStage({
                 </button>
               ))}
             </div>
-            <div className="grid grid-cols-2 gap-x-1.5 gap-y-1 sm:gap-x-2 sm:gap-y-1.5">
+            <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
               {BALLOON_STAKES.map((s) => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => setStake(s)}
-                  className={`h-6 rounded-[5px] bg-[#123A73] text-[0.7rem] font-extrabold text-white transition-transform active:scale-95 sm:h-7 sm:text-[0.82rem] ${
-                    stake === s ? "ring-2 ring-[#F0A500]" : ""
+                  className={`h-7 rounded-full bg-[#0E2C5C] text-[0.72rem] font-extrabold text-white shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-transform active:scale-95 sm:h-8 sm:text-[0.9rem] ${
+                    stake === s ? "ring-2 ring-[#E01E1E]" : ""
                   }`}
                 >
                   {s}
@@ -830,20 +836,20 @@ export function BalloonStage({
 
 
           {/* edits / clear / min / max */}
-          <div className="grid w-[16%] min-w-[74px] gap-1 sm:min-w-[100px] sm:gap-1.5">
+          <div className="grid w-[20%] min-w-[78px] gap-1.5 sm:min-w-[108px]">
             {(
               [
                 ["Edits", 100, "bg-[#E8871E] text-white"],
                 ["Clear", 0, "bg-[#E01E1E] text-white"],
-                ["Min", 10, "bg-[#2A1330] text-white/60"],
-                ["Max", 10000, "bg-[#2A1330] text-white/60"],
+                ["Min", 10, "bg-[#2A1330] text-white/70"],
+                ["Max", 10000, "bg-[#2A1330] text-white/70"],
               ] as const
             ).map(([label, val, tone]) => (
               <button
                 key={label}
                 type="button"
                 onClick={() => setStake(val)}
-                className={`h-6 rounded-[5px] text-[0.7rem] font-bold transition-transform active:scale-95 sm:h-7 sm:text-[0.82rem] ${tone}`}
+                className={`h-7 rounded-full text-[0.72rem] font-extrabold shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-transform active:scale-95 sm:h-8 sm:text-[0.9rem] ${tone}`}
               >
                 {label}
               </button>
