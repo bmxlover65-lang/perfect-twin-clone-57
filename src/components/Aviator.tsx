@@ -359,9 +359,10 @@ function FlightStage({
       <svg viewBox={`0 0 ${W} ${H}`} className="relative block h-[240px] w-full sm:h-[300px] lg:h-[380px]">
         <defs>
           <linearGradient id="av-area" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#E01E1E" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="#E01E1E" stopOpacity="0.02" />
+            <stop offset="0%" stopColor="#FF1238" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#FF1238" stopOpacity="0.03" />
           </linearGradient>
+
           <filter id="av-glow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="4" result="b" />
             <feMerge>
