@@ -17,6 +17,7 @@ import {
   bootstrapAdmin,
   listCallbackLogs,
   listRounds,
+  operatorSummary,
   testWalletCall,
   whoAmI,
 } from "@/lib/portal.functions";
@@ -75,6 +76,8 @@ const TABS = [
   { id: "aviator", label: "Aviator rounds" },
   { id: "wallet", label: "Callback wallet" },
   { id: "bets", label: "Bet history" },
+  { id: "users", label: "Users & GGR" },
+  { id: "rejected", label: "Rejected bets" },
   { id: "guide", label: "Guide / Kit" },
 ];
 
@@ -95,6 +98,7 @@ function ConsolePage() {
   const rounds = useServerFn(listRounds);
   const walletTest = useServerFn(testWalletCall);
   const assign = useServerFn(assignOperatorOwner);
+  const summaryFn = useServerFn(operatorSummary);
 
   const [info, setInfo] = useState<{ isAdmin: boolean; email: string } | null>(null);
   const [ops, setOps] = useState<Operator[]>([]);
@@ -106,6 +110,7 @@ function ConsolePage() {
   const [note, setNote] = useState<string>("");
   const [err, setErr] = useState<string>("");
   const [tab, setTab] = useState<string>("overview");
+  const [sum, setSum] = useState<Awaited<ReturnType<typeof operatorSummary>> | null>(null);
 
 
   const run = async (fn: () => Promise<void>) => {
@@ -136,8 +141,9 @@ function ConsolePage() {
       setBets(await ledger({ data: { operatorId: id, limit: 60 } }));
       setCbLogs(await logs({ data: { operatorId: id, limit: 25 } }));
       setRoundRows(await rounds({ data: { limit: 25 } }));
+      setSum(await summaryFn({ data: { operatorId: id, limit: 200 } }));
     },
-    [wl, ledger, logs, rounds],
+    [wl, ledger, logs, rounds, summaryFn],
   );
 
   useEffect(() => {
@@ -204,6 +210,18 @@ function ConsolePage() {
             <Stat label="Staked" value={`₹${staked.toLocaleString("en-IN")}`} />
             <Stat label="Paid out" value={`₹${paid.toLocaleString("en-IN")}`} />
             <Stat label="Open bets" value={String(openBets)} />
+            <Stat label="GGR (stake − payout)" value={`₹${(staked - paid).toLocaleString("en-IN")}`} />
+            <Stat label="Rejected bets" value={String(sum?.totals.rejected ?? 0)} />
+            <Stat
+              label="Plan expiring"
+              value={
+                ops.filter(
+                  (o) =>
+                    o.plan_expires_at &&
+                    new Date(o.plan_expires_at).getTime() - Date.now() < 7 * 864e5,
+                ).length + " in 7d"
+              }
+            />
           </div>
           <Panel title="Latest rounds">
             <ul className="space-y-1 text-xs text-muted-foreground">
@@ -216,6 +234,94 @@ function ConsolePage() {
             </ul>
           </Panel>
         </>
+      ) : null}
+
+
+      {sel && tab === "users" ? (
+        <Panel title="Users & GGR (selected operator)">
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead className="text-muted-foreground">
+                <tr>
+                  <th className="p-2 text-left">User ID</th>
+                  <th className="p-2 text-right">Bets</th>
+                  <th className="p-2 text-right">Open</th>
+                  <th className="p-2 text-right">Rejected</th>
+                  <th className="p-2 text-right">Staked</th>
+                  <th className="p-2 text-right">Payout</th>
+                  <th className="p-2 text-right">GGR</th>
+                  <th className="p-2 text-left">Last bet</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(sum?.users ?? []).map((u) => (
+                  <tr key={u.userId} className="border-t border-border">
+                    <td className="p-2 font-mono">{u.userId}</td>
+                    <td className="p-2 text-right">{u.bets}</td>
+                    <td className="p-2 text-right">{u.open}</td>
+                    <td className="p-2 text-right">{u.rejected}</td>
+                    <td className="p-2 text-right">{Math.round(u.staked).toLocaleString("en-IN")}</td>
+                    <td className="p-2 text-right">{Math.round(u.payout).toLocaleString("en-IN")}</td>
+                    <td className="p-2 text-right">
+                      {Math.round(u.staked - u.payout).toLocaleString("en-IN")}
+                    </td>
+                    <td className="p-2">{u.last ? new Date(u.last).toLocaleString() : "—"}</td>
+                  </tr>
+                ))}
+                {!(sum?.users ?? []).length ? (
+                  <tr>
+                    <td className="p-3 text-muted-foreground" colSpan={8}>
+                      No user activity yet.
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
+        </Panel>
+      ) : null}
+
+      {sel && tab === "rejected" ? (
+        <Panel title="Bets that did not go through">
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead className="text-muted-foreground">
+                <tr>
+                  <th className="p-2 text-left">Time</th>
+                  <th className="p-2 text-left">User</th>
+                  <th className="p-2 text-left">Game</th>
+                  <th className="p-2 text-left">Selection</th>
+                  <th className="p-2 text-right">Stake</th>
+                  <th className="p-2 text-left">Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(sum?.rejected ?? []).map((r: any) => (
+                  <tr key={r.id} className="border-t border-border">
+                    <td className="p-2">{new Date(r.created_at).toLocaleString()}</td>
+                    <td className="p-2 font-mono">{r.operator_user_id ?? "—"}</td>
+                    <td className="p-2">{r.game_id ?? "—"}</td>
+                    <td className="p-2">{r.selection ?? "—"}</td>
+                    <td className="p-2 text-right">
+                      {r.stake ? Number(r.stake).toLocaleString("en-IN") : "—"}
+                    </td>
+                    <td className="p-2 text-destructive">
+                      {r.code}
+                      {r.message ? ` · ${r.message}` : ""}
+                    </td>
+                  </tr>
+                ))}
+                {!(sum?.rejected ?? []).length ? (
+                  <tr>
+                    <td className="p-3 text-muted-foreground" colSpan={6}>
+                      No rejected bets.
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
+        </Panel>
       ) : null}
 
       {tab === "operators" ? (
