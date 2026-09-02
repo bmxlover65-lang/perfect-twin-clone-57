@@ -25,7 +25,6 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"in" | "up">("in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
@@ -41,63 +40,51 @@ function AuthPage() {
     e.preventDefault();
     setBusy(true);
     setMsg(null);
-    const res =
-      mode === "in"
-        ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({
-            email,
-            password,
-            options: { emailRedirectTo: `${window.location.origin}/console` },
-          });
+    const res = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
     if (res.error) {
       setMsg(res.error.message);
       return;
     }
     if (res.data.session) void navigate({ to: "/console", replace: true });
-    else setMsg("Check your inbox to confirm the address, then sign in.");
   };
 
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-[420px] flex-col justify-center px-4">
-      <h1 className="text-2xl font-bold text-foreground">
-        {mode === "in" ? "Sign in" : "Create account"}
-      </h1>
-      <p className="mt-1 text-sm text-muted-foreground">Universal API operator console</p>
-      <form onSubmit={submit} className="mt-5 space-y-3">
-        <input
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@company.com"
-          className="h-11 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground"
-        />
-        <input
-          type="password"
-          required
-          minLength={6}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          className="h-11 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground"
-        />
-        <button
-          type="submit"
-          disabled={busy}
-          className="h-11 w-full rounded-md bg-primary text-sm font-bold text-primary-foreground disabled:opacity-60"
-        >
-          {busy ? "Please wait…" : mode === "in" ? "Sign in" : "Sign up"}
-        </button>
-      </form>
-      {msg ? <p className="mt-3 text-sm text-destructive">{msg}</p> : null}
-      <button
-        type="button"
-        onClick={() => setMode(mode === "in" ? "up" : "in")}
-        className="mt-4 text-sm text-muted-foreground underline"
-      >
-        {mode === "in" ? "Need an account? Sign up" : "Already have an account? Sign in"}
-      </button>
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <h1 className="text-2xl font-bold text-foreground">Sign in</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Universal API operator console</p>
+        <form onSubmit={submit} className="mt-5 space-y-3">
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@company.com"
+            className="h-11 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground"
+          />
+          <input
+            type="password"
+            required
+            minLength={6}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            className="h-11 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground"
+          />
+          <button
+            type="submit"
+            disabled={busy}
+            className="h-11 w-full rounded-md bg-primary text-sm font-bold text-primary-foreground disabled:opacity-60"
+          >
+            {busy ? "Please wait…" : "Sign in"}
+          </button>
+        </form>
+        {msg ? <p className="mt-3 text-sm text-destructive">{msg}</p> : null}
+        <p className="mt-4 text-xs text-muted-foreground">
+          Accounts are created by the admin. Access ke liye apne admin se contact karein.
+        </p>
+      </div>
     </div>
   );
 }
