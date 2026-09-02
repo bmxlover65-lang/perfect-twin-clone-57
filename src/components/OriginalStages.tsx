@@ -657,8 +657,8 @@ export function BalloonStage({
                 className="pointer-events-none absolute left-1/2 top-[88%] z-10 -translate-x-1/2"
                 aria-hidden
                 style={{
-                  width: 72,
-                  height: 96,
+                  width: 44,
+                  height: 60,
                   filter: "drop-shadow(0 0 14px rgba(255,120,0,1)) drop-shadow(0 0 30px rgba(255,60,0,0.9)) drop-shadow(0 0 50px rgba(255,180,0,0.5))",
                 }}
               >
