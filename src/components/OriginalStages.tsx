@@ -591,7 +591,7 @@ export function BalloonStage({
 
       if (ph === "flying") {
         // the balloon keeps rising through the whole flight (time based)
-        setClimb((c) => Math.min(1, c + dt / 9));
+        setClimb((c) => Math.min(1, c + dt / 5.5));
         if (live) {
           // official winner for this round (once published) is the crash point
           const official = curRound ? winnersRef.current.get(String(curRound)) : undefined;
