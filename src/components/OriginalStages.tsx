@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { creditWin, debit, useWallet } from "@/lib/wallet";
 import luckyBg from "@/assets/lucky-bg.gif.asset.json";
+import dreamBg from "@/assets/dream/dreambg.png.asset.json";
+import dreamHub from "@/assets/dream/wheelhub.png.asset.json";
 import balloonImg from "@/assets/balloon/balloon.png.asset.json";
 import heatIcon from "@/assets/balloon/heat-icon.webp.asset.json";
 import arrowDown from "@/assets/balloon/ArrowDown.webp.asset.json";
@@ -221,52 +223,66 @@ export function DreamWheel({
   }, [suspended]);
 
   return (
-    <div className="relative flex w-full items-center justify-center rounded-[4px] bg-black py-4">
+    <div
+      className="relative flex w-full items-center justify-center overflow-hidden rounded-[4px] py-6"
+      style={{
+        backgroundImage: `url(${dreamBg.url})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center top",
+      }}
+    >
       <div className="relative">
-        <svg
-          viewBox="0 0 400 400"
-          className="h-[420px] w-[420px] max-w-full"
+        <div
+          className="relative"
           style={{
             transform: `rotate(${rot}deg)`,
             transition: spin ? "transform 6s cubic-bezier(0.12,0.7,0.12,1)" : "none",
           }}
         >
-          {DREAM_SEGMENTS.map((v, i) => {
-            const a0 = i * step;
-            const a1 = a0 + step;
-            const [x0, y0] = polar(cx, cy, r, a0);
-            const [x1, y1] = polar(cx, cy, r, a1);
-            const [tx, ty] = polar(cx, cy, r * 0.8, a0 + step / 2);
-            return (
-              <g key={i}>
-                <path
-                  d={`M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1} Z`}
-                  fill={DREAM_COLORS[v] ?? "#F5C400"}
-                  stroke="#111"
-                  strokeWidth={0.6}
-                />
-                <text
-                  x={tx}
-                  y={ty}
-                  fill="#fff"
-                  fontSize={12}
-                  fontWeight={800}
-                  textAnchor="middle"
-                  dominantBaseline="central"
-                  transform={`rotate(${a0 + step / 2} ${tx} ${ty})`}
-                >
-                  {v}
-                </text>
-              </g>
-            );
-          })}
-          <circle cx={cx} cy={cy} r={58} fill="#0B0B0B" stroke="#F2C500" strokeWidth={2} />
-        </svg>
-        <span className="pointer-events-none absolute left-1/2 top-[-6px] -translate-x-1/2 text-[1.4rem] leading-none text-[#F2C500]">
+          <svg viewBox="0 0 400 400" className="h-[300px] w-[300px] max-w-full drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)] sm:h-[420px] sm:w-[420px]">
+            <circle cx={cx} cy={cy} r={r + 6} fill="#111" />
+            {DREAM_SEGMENTS.map((v, i) => {
+              const a0 = i * step;
+              const a1 = a0 + step;
+              const [x0, y0] = polar(cx, cy, r, a0);
+              const [x1, y1] = polar(cx, cy, r, a1);
+              const [tx, ty] = polar(cx, cy, r * 0.78, a0 + step / 2);
+              return (
+                <g key={i}>
+                  <path
+                    d={`M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1} Z`}
+                    fill={DREAM_COLORS[v] ?? "#F5C400"}
+                    stroke="#151515"
+                    strokeWidth={1.2}
+                  />
+                  <text
+                    x={tx}
+                    y={ty}
+                    fill="#1A1A1A"
+                    fontSize={13}
+                    fontWeight={800}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    transform={`rotate(${a0 + step / 2 + 90} ${tx} ${ty})`}
+                  >
+                    {v}
+                  </text>
+                </g>
+              );
+            })}
+            <circle cx={cx} cy={cy} r={62} fill="#0B0B0B" />
+          </svg>
+          <img
+            src={dreamHub.url}
+            alt=""
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[92px] w-[92px] -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-[128px] sm:w-[128px]"
+          />
+        </div>
+        <span className="pointer-events-none absolute left-1/2 top-[-10px] -translate-x-1/2 text-[1.6rem] leading-none text-[#F2C500] drop-shadow">
           ▼
         </span>
         {!suspended && leftSec != null ? (
-          <span className="pointer-events-none absolute bottom-2 right-2 flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#F2C500] text-[1.05rem] font-extrabold text-[#F2C500]">
+          <span className="pointer-events-none absolute bottom-2 right-2 flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#F2C500] bg-black/45 text-[1.05rem] font-extrabold text-[#F2C500]">
             {leftSec}
           </span>
         ) : null}
@@ -279,6 +295,7 @@ export function DreamWheel({
     </div>
   );
 }
+
 
 
 /* ---------- Heads & Tails coin ---------- */
