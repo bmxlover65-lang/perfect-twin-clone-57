@@ -667,15 +667,21 @@ export function BalloonStage({
     );
   }, [phase]);
 
-  // HEAT button: bet (or queue for the next round), press again to cash out
+  // HEAT button: bet only before the round starts, one bet per round per panel
   const pressHeat = (i: 0 | 1) => {
     setBets((prev) => {
       const next = [...prev];
       const b = next[i];
       if (b?.pending) {
-        // cancel a queued bet
+        // cancel a queued bet (only allowed while the round has not started)
+        if (phase === "flying") return prev;
         creditWin(b.stake);
         next[i] = null;
+        setUsed((u) => {
+          const n = [...u] as [boolean, boolean];
+          n[i] = false;
+          return n;
+        });
         return next;
       }
       if (b) {
@@ -689,10 +695,16 @@ export function BalloonStage({
         });
         next[i] = null;
       } else {
+        // no new bets once the round has started, and only one bet per round
+        if (phase === "flying" || usedRef.current[i]) return prev;
         if (stake <= 0) return prev;
         if (!debit(stake)) return prev;
-        next[i] =
-          phase === "flying" ? { entry: shown, stake } : { entry: 1, stake, pending: true };
+        next[i] = { entry: 1, stake, pending: true };
+        setUsed((u) => {
+          const n = [...u] as [boolean, boolean];
+          n[i] = true;
+          return n;
+        });
         setFlash((f) => {
           const n = [...f];
           n[i] = null;
@@ -702,6 +714,7 @@ export function BalloonStage({
       return next;
     });
   };
+
 
   // auto cash out: when the shown multiplier reaches the user's target
   useEffect(() => {
