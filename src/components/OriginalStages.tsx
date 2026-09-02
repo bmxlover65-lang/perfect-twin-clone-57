@@ -392,6 +392,11 @@ export function BalloonStage({
     null,
   ]);
   const [flash, setFlash] = useState<(null | { text: string; win: boolean })[]>([null, null]);
+  // one bet per round per panel
+  const [used, setUsed] = useState<[boolean, boolean]>([false, false]);
+  const usedRef = useRef(used);
+  usedRef.current = used;
+
   const airRef = useRef<HTMLAudioElement | null>(null);
   const apiTarget = Number(multiplier) || 0;
   const apiRef = useRef(apiTarget);
@@ -649,9 +654,15 @@ export function BalloonStage({
     };
   }, []);
 
+  // new round → allow one fresh bet per panel again
+  useEffect(() => {
+    if (phase === "waiting") setUsed([false, false]);
+  }, [phase, roundId]);
+
   // balloon burst → any active HEAT bet is lost (queued bets stay for next round)
   useEffect(() => {
     if (phase !== "crashed") return;
+
     setBets((prev) =>
       prev.map((b, i) => {
         if (b && !b.pending) {
@@ -667,15 +678,21 @@ export function BalloonStage({
     );
   }, [phase]);
 
-  // HEAT button: bet (or queue for the next round), press again to cash out
+  // HEAT button: bet only before the round starts, one bet per round per panel
   const pressHeat = (i: 0 | 1) => {
     setBets((prev) => {
       const next = [...prev];
       const b = next[i];
       if (b?.pending) {
-        // cancel a queued bet
+        // cancel a queued bet (only allowed while the round has not started)
+        if (phase === "flying") return prev;
         creditWin(b.stake);
         next[i] = null;
+        setUsed((u) => {
+          const n = [...u] as [boolean, boolean];
+          n[i] = false;
+          return n;
+        });
         return next;
       }
       if (b) {
@@ -689,10 +706,16 @@ export function BalloonStage({
         });
         next[i] = null;
       } else {
+        // no new bets once the round has started, and only one bet per round
+        if (phase === "flying" || usedRef.current[i]) return prev;
         if (stake <= 0) return prev;
         if (!debit(stake)) return prev;
-        next[i] =
-          phase === "flying" ? { entry: shown, stake } : { entry: 1, stake, pending: true };
+        next[i] = { entry: 1, stake, pending: true };
+        setUsed((u) => {
+          const n = [...u] as [boolean, boolean];
+          n[i] = true;
+          return n;
+        });
         setFlash((f) => {
           const n = [...f];
           n[i] = null;
@@ -702,6 +725,7 @@ export function BalloonStage({
       return next;
     });
   };
+
 
   // auto cash out: when the shown multiplier reaches the user's target
   useEffect(() => {
@@ -1023,17 +1047,22 @@ export function BalloonStage({
               const bet = bets[i];
               const fl = flash[i];
               const live = bet && !bet.pending;
+              const blocked = !bet && (phase === "flying" || used[i]);
               return (
                 <button
                   key={i}
                   type="button"
                   onClick={() => pressHeat(i)}
+                  disabled={blocked}
                   className={`relative flex h-[36px] items-center justify-center gap-1 rounded-[8px] border-2 border-white text-[0.72rem] font-extrabold tracking-wide text-white transition-transform active:translate-y-[2px] active:shadow-none sm:h-[52px] sm:gap-3 sm:text-[1.15rem] ${
-                    live
+                    blocked
+                      ? "cursor-not-allowed bg-[linear-gradient(180deg,#5A6270_0%,#3D434D_100%)] opacity-60 shadow-[0_3px_0_#2A2F36]"
+                      : live
                       ? "bg-[linear-gradient(180deg,#F0A500_0%,#D98200_100%)] shadow-[0_3px_0_#8A5600]"
                       : bet
                         ? "bg-[linear-gradient(180deg,#8C96A3_0%,#6B7480_100%)] shadow-[0_3px_0_#454C55]"
                         : "bg-[linear-gradient(180deg,#22C93A_0%,#0FA524_100%)] shadow-[0_3px_0_#0B6B18]"
+
                   }`}
                 >
                   {live ? (
@@ -1050,12 +1079,17 @@ export function BalloonStage({
                       </span>
                       <span>{bet.stake.toLocaleString("en-IN")}</span>
                     </span>
+                  ) : blocked ? (
+                    <span className="text-[0.6rem] font-bold uppercase leading-tight sm:text-[0.8rem]">
+                      {used[i] ? "Bet used" : "Bets closed"}
+                    </span>
                   ) : (
                     <>
                       <img src={heatIcon.url} alt="" className="h-6 w-6 sm:h-7 sm:w-7" />
                       HEAT
                     </>
                   )}
+
                   {fl ? (
                     <span
                       className={`absolute -top-3 right-1 rounded-full px-2 py-0.5 text-[0.7rem] font-extrabold ${
