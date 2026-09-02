@@ -451,8 +451,11 @@ function ConsolePage() {
               ))}
             </ul>
           </Panel>
+          ) : null}
 
+          {tab === "wallet" ? (
           <Panel title="Callback wallet test">
+
             <form
               className="grid gap-2 sm:grid-cols-5"
               onSubmit={(e) => {
