@@ -3,7 +3,6 @@ import plane0 from "@/assets/aviator/plane-0.svg";
 import plane1 from "@/assets/aviator/plane-1.svg";
 import plane2 from "@/assets/aviator/plane-2.svg";
 import plane3 from "@/assets/aviator/plane-3.svg";
-import aviatorText from "@/assets/aviator/aviator.svg";
 import { type AviatorControl, useAdminConfig } from "@/lib/admin";
 import { logBet, logChat, setBalance as saveBalance } from "@/lib/telemetry";
 
@@ -220,6 +219,7 @@ function FlightStage({
   countdown: number;
 }) {
   const [frame, setFrame] = useState(0);
+  const [muted, setMuted] = useState(true);
   const [t, setT] = useState(0);
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -265,6 +265,7 @@ function FlightStage({
           }}
         />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_8%_112%,rgba(190,25,25,0.28),transparent_52%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_88%_18%,rgba(20,90,190,0.35),transparent_55%)]" />
       </div>
       <style>{`@keyframes av-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes av-prop{to{transform:rotate(360deg)}}`}</style>
@@ -302,9 +303,10 @@ function FlightStage({
             cy={H - 70 - ((i * 56 + (phase === "flying" ? tick : 0)) % 240)}
             cx="24"
             r="2.5"
-            fill="#ffffff35"
+            fill="#2FA8F5"
           />
         ))}
+
 
         {phase !== "betting" ? (
           <>
@@ -333,37 +335,26 @@ function FlightStage({
         ) : null}
       </svg>
 
-      <img
-        src={aviatorText}
-        alt="Aviator"
-        className="pointer-events-none absolute left-3 top-3 h-[18px] w-auto opacity-90 sm:h-[22px]"
-      />
+      <button
+        type="button"
+        onClick={() => setMuted((v) => !v)}
+        aria-label={muted ? "Unmute" : "Mute"}
+        className="absolute left-3 top-2 z-10 text-[1.05rem] font-bold text-white/85"
+      >
+        {muted ? "🔇" : "🔊"}
+      </button>
 
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         {phase === "betting" ? (
-          <>
-            <div
-              className="h-[54px] w-[54px] rounded-full border-[3px] border-white/10 border-t-[#E01E1E]"
-              style={{ animation: "av-prop 0.7s linear infinite" }}
-            />
-            <p className="mt-3 text-[0.72rem] font-bold uppercase tracking-[0.22em] text-white/85 sm:text-[0.8rem]">
-              Waiting for next round
-            </p>
-            <div className="mt-2 h-[6px] w-[200px] overflow-hidden rounded-full bg-white/15 sm:w-[240px]">
-              <div
-                className="h-full rounded-full bg-[#E01E1E] transition-[width] duration-100"
-                style={{ width: `${Math.max(0, Math.min(100, (countdown / BET_MS) * 100))}%` }}
-              />
-            </div>
-            <p className="mt-2 text-[1.35rem] font-extrabold text-white sm:text-[1.6rem]">
-              {(countdown / 1000).toFixed(1)}s
-            </p>
-          </>
+          <p className="text-[1.05rem] font-bold uppercase tracking-[0.04em] text-white sm:text-[1.35rem]">
+            Waiting for next round
+          </p>
         ) : phase === "crashed" ? (
           <>
             <p className="text-[1rem] font-extrabold uppercase tracking-[0.18em] text-[#E01E1E] sm:text-[1.15rem]">
               Flew Away!
             </p>
+
             <p className="text-[2.6rem] font-extrabold leading-none text-[#E01E1E] drop-shadow-[0_4px_14px_rgba(0,0,0,.7)] sm:text-[3.4rem]">
               {fmt(multiplier)}x
             </p>
@@ -564,27 +555,32 @@ export function Aviator() {
   return (
     <div className="rounded-[16px] border border-white/10 bg-[#141516] p-2">
       {/* history strip */}
-      <div className="mb-2 flex items-center gap-2 overflow-x-auto rounded-[12px] bg-[#1B1C1D] px-2 py-[6px]">
-        {history.map((h, i) => (
-          <span
-            key={`${h}-${i}`}
-            className={`shrink-0 rounded-full border bg-[#101112] px-2 py-[2px] text-[0.72rem] font-bold ${chipTone(h)}`}
-          >
-            {fmt(h)}x
-          </span>
-        ))}
+      <div className="mb-2 flex items-center gap-2 rounded-[12px] bg-[#1B1C1D] px-2 py-[6px]">
+        <div className="flex min-w-0 flex-1 items-center gap-3 overflow-x-auto">
+          {history.map((h, i) => (
+            <span
+              key={`${h}-${i}`}
+              className={`shrink-0 text-[0.78rem] font-bold ${chipTone(h)}`}
+            >
+              {fmt(h)}x
+            </span>
+          ))}
+        </div>
+        <span className="flex h-6 shrink-0 items-center gap-1 rounded-full border border-[#E01E1E]/60 px-2 text-[0.7rem] text-white/70">
+          ⟳ <span className="text-[0.55rem]">▾</span>
+        </span>
       </div>
 
       <div className="grid gap-2 lg:grid-cols-[240px_1fr]">
         {/* bets + chat */}
         <div className="order-2 min-w-0 rounded-[14px] bg-[#1B1C1D] p-2 lg:order-1">
-          <div className="flex rounded-full bg-[#101112] p-[3px] text-[0.68rem] font-bold text-white/55">
-            {([["all", "All Bets"], ["my", "My Bets"], ["top", "Top"]] as const).map(([k, l]) => (
+          <div className="mx-auto flex w-[86%] rounded-full bg-[#101112] p-[3px] text-[0.72rem] font-bold text-white/55">
+            {([["all", "All Bets"], ["my", "My Bets"]] as const).map(([k, l]) => (
               <button
                 key={k}
                 type="button"
                 onClick={() => setTab(k)}
-                className={`flex-1 rounded-full px-2 py-[3px] ${
+                className={`flex-1 rounded-full px-2 py-[4px] ${
                   tab === k ? "bg-[#2C2D30] text-white" : ""
                 }`}
               >
@@ -593,18 +589,42 @@ export function Aviator() {
             ))}
           </div>
 
-          <div className="mt-2 grid grid-cols-[1fr_auto_auto] gap-x-2 border-b border-white/10 pb-1 text-[0.62rem] font-bold uppercase text-white/40">
+          {tab === "all" ? (
+            <div className="mt-2 flex items-start justify-between text-[0.78rem] font-bold text-white/85">
+              <span className="flex flex-col leading-tight">
+                ALL BETS
+                <span className="text-[0.74rem] font-semibold text-white/60">{bets.length}</span>
+              </span>
+              <span className="flex flex-col items-end leading-tight">
+                Users
+                <span className="text-[0.74rem] font-semibold text-white/60">{myBets.length}</span>
+              </span>
+            </div>
+          ) : null}
+
+          <div className="mt-2 grid grid-cols-[1fr_auto_auto] gap-x-3 border-b border-white/10 pb-1 text-[0.62rem] font-semibold text-white/40">
             <span>{tab === "my" ? "Round" : "User"}</span>
-            <span>Bet</span>
-            <span className="text-right">X</span>
+            <span>Bet&nbsp;&nbsp;X</span>
+            <span className="text-right">Cash out</span>
           </div>
+
+          {tab === "my" ? (
+            <div className="mt-1 flex items-center justify-between rounded-[4px] border border-[#2C2D30] bg-[#101112] px-2 py-[5px] text-[0.66rem] text-white/60">
+              <span>
+                This game is <span className="text-[#2FA8F5]">✅ Provably Fair</span>
+              </span>
+              <span>
+                Powered by <span className="font-bold text-white underline">VIMAAN</span>
+              </span>
+            </div>
+          ) : null}
 
           <div className="max-h-[300px] space-y-[3px] overflow-y-auto pt-1">
             {tab === "my"
-              ? (myBets.length ? myBets : []).map((b, i) => (
+              ? myBets.map((b, i) => (
                   <div
                     key={`${b.round}-${i}`}
-                    className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-2 rounded-[6px] px-1 py-[3px] text-[0.72rem] ${
+                    className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-3 rounded-[6px] px-1 py-[4px] text-[0.72rem] ${
                       b.cashedAt ? "bg-[#123A18] text-[#8CFF6B]" : "bg-[#3A1212] text-[#F98080]"
                     }`}
                   >
@@ -615,22 +635,27 @@ export function Aviator() {
                     </span>
                   </div>
                 ))
-              : (tab === "top"
-                  ? [...bets].sort((a, b) => (b.cashedAt ?? 0) - (a.cashedAt ?? 0))
-                  : bets
-                ).map((b) => (
+              : bets.map((b) => (
                   <div
                     key={b.id}
-                    className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-2 rounded-[6px] px-1 py-[3px] text-[0.72rem] ${
-                      b.cashedAt !== undefined
-                        ? "bg-[#123A18] text-[#8CFF6B]"
-                        : "bg-[#101112] text-white/70"
+                    className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-3 border-b border-white/[0.06] px-1 py-[5px] text-[0.72rem] ${
+                      b.cashedAt !== undefined ? "text-[#8CFF6B]" : "text-white/70"
                     }`}
                   >
-                    <span className="truncate">{b.user}</span>
-                    <span className="font-semibold">{b.amount}</span>
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span
+                        className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-[0.6rem] font-bold text-white"
+                        style={{
+                          background: `conic-gradient(from 0deg, hsl(${(b.id * 47) % 360} 70% 45%), hsl(${(b.id * 91) % 360} 70% 40%))`,
+                        }}
+                      >
+                        {b.user.slice(0, 1).toUpperCase()}
+                      </span>
+                      <span className="truncate">{b.user}</span>
+                    </span>
+                    <span className="font-semibold text-white/85">{b.amount}</span>
                     <span className="text-right font-bold">
-                      {b.cashedAt !== undefined ? `${fmt(b.cashedAt)}x` : "—"}
+                      {b.cashedAt !== undefined ? `${fmt(b.cashedAt)}x` : ""}
                     </span>
                   </div>
                 ))}
@@ -642,6 +667,7 @@ export function Aviator() {
           <p className="mt-1 border-t border-white/10 pt-1 text-[0.65rem] text-white/40">
             Total bet {totals.staked} INR · {totals.cashed} cashed out
           </p>
+
 
           <button
             type="button"
