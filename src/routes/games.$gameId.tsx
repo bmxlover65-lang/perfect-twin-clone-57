@@ -71,6 +71,8 @@ export const Route = createFileRoute("/games/$gameId")({
   component: GamePage,
 });
 
+const CARD_SIZE = "h-[52px] w-[38px] shrink-0 rounded-[4px] shadow";
+
 function Card({ code }: { code: string }) {
   const clean = code.replace(/_+$/, "");
   const img = cardImage(clean);
@@ -79,7 +81,7 @@ function Card({ code }: { code: string }) {
       <img
         src={img}
         alt={clean || "card"}
-        className="h-11 w-8 rounded bg-white object-cover shadow"
+        className={`${CARD_SIZE} bg-white object-fill`}
         loading="lazy"
       />
     );
@@ -90,7 +92,7 @@ function Card({ code }: { code: string }) {
   const red = suit === "H" || suit === "D";
   return (
     <span
-      className={`inline-flex h-11 w-8 flex-col items-center justify-center rounded bg-white text-[0.7rem] font-bold leading-none shadow ${
+      className={`${CARD_SIZE} inline-flex flex-col items-center justify-center bg-white text-[0.7rem] font-bold leading-none ${
         red ? "text-red-600" : "text-black"
       }`}
     >
@@ -99,6 +101,7 @@ function Card({ code }: { code: string }) {
     </span>
   );
 }
+
 
 
 function Cards({ hand, title }: { hand: Record<string, string>; title: string }) {
