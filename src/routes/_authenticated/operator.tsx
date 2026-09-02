@@ -449,7 +449,7 @@ function OperatorPage() {
                   </pre>
                 ) : null}
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Har call `X-Signature` header me HMAC-SHA256 (secret se) sign hoti hai — apne server pe verify
+                  Har call `x-universal-signature` header me HMAC-SHA256 (secret se) sign hoti hai — apne server pe verify
                   karein. Actions: balance, debit, credit, rollback.
                 </p>
               </Panel>
