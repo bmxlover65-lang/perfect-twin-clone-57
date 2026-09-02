@@ -15,6 +15,13 @@
       "when": 1788353112940,
       "tag": "0001_whitelist_per_api_key",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788366473596,
+      "tag": "0002_create_balloon_rounds",
+      "breakpoints": true
     }
   ]
 }
