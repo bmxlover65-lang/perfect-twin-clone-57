@@ -71,6 +71,17 @@ export const Route = createFileRoute("/games/$gameId")({
 
 function Card({ code }: { code: string }) {
   const clean = code.replace(/_+$/, "");
+  const img = cardImage(clean);
+  if (img) {
+    return (
+      <img
+        src={img}
+        alt={clean || "card"}
+        className="h-11 w-8 rounded bg-white object-cover shadow"
+        loading="lazy"
+      />
+    );
+  }
   const suit = clean.slice(0, 1);
   const rank = clean.slice(1);
   const map: Record<string, string> = { S: "♠", H: "♥", D: "♦", C: "♣" };
@@ -86,6 +97,7 @@ function Card({ code }: { code: string }) {
     </span>
   );
 }
+
 
 function Cards({ hand, title }: { hand: Record<string, string>; title: string }) {
   const codes = Object.values(hand).filter(Boolean);
