@@ -383,6 +383,8 @@ export function BalloonStage({
   const [crashAt, setCrashAt] = useState(2);
   const [history, setHistory] = useState<number[]>([]);
   const [autos, setAutos] = useState<[boolean, boolean]>([false, false]);
+  const [autoX, setAutoX] = useState<[string, string]>(["1.10", "1.10"]);
+
   const wallet = useWallet();
   const balance = wallet.balance;
   const [bets, setBets] = useState<(null | { entry: number; stake: number; pending?: boolean })[]>([
