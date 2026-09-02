@@ -527,7 +527,7 @@ export function BalloonStage({
       }
     };
     void load();
-    const id = window.setInterval(load, 3000);
+    const id = window.setInterval(load, 1000);
     return () => {
       alive = false;
       window.clearInterval(id);
