@@ -5,6 +5,21 @@ export type Pick = { label: string; odds: number };
 
 const CHIPS = [1000, 5000, 10000, 25000, 50000, 100000, 200000, 500000];
 
+const DEFAULT_STAKE = 1000;
+const LAST_STAKE_KEY = "uapi.lastStake";
+
+function readLastStake(): number {
+  if (typeof window === "undefined") return DEFAULT_STAKE;
+  const v = Number(window.localStorage.getItem(LAST_STAKE_KEY));
+  return Number.isFinite(v) && v > 0 ? v : DEFAULT_STAKE;
+}
+
+function saveLastStake(v: number) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(LAST_STAKE_KEY, String(Math.round(v)));
+}
+
+
 const ODDS_RE = /^\d{1,4}(?:\.\d{1,2})?$/;
 
 function oddsOf(el: Element): number | null {
