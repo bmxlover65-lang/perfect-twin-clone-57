@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import plane0 from "@/assets/aviator/plane-0.svg";
 import plane1 from "@/assets/aviator/plane-1.svg";
 import plane2 from "@/assets/aviator/plane-2.svg";
@@ -397,7 +397,6 @@ export function Aviator() {
 
   const [tab, setTab] = useState<"all" | "my" | "top">("all");
   const [myBets, setMyBets] = useState<MyBet[]>([]);
-  const [chat, setChat] = useState<ChatMsg[]>(SEED_CHAT);
   const [phase, setPhase] = useState<Phase>("betting");
   const [multiplier, setMultiplier] = useState(1);
   const [countdown, setCountdown] = useState(BET_MS);
@@ -533,24 +532,6 @@ export function Aviator() {
   useEffect(() => {
     saveBalance(balance);
   }, [balance]);
-
-  // chatter from other players
-  useEffect(() => {
-    const lines = ["nice one", "1.5x safe", "big red again", "cash early bro", "lets go", "auto 2x on"];
-    const id = window.setInterval(() => {
-      setChat((c) =>
-        [
-          ...c,
-          {
-            id: Date.now(),
-            user: NAMES[Math.floor(Math.random() * NAMES.length)]!,
-            text: lines[Math.floor(Math.random() * lines.length)]!,
-          },
-        ].slice(-40),
-      );
-    }, 9000);
-    return () => window.clearInterval(id);
-  }, []);
 
   return (
     <div className="rounded-[16px] border border-white/10 bg-[#141516] p-1.5 sm:p-2">
