@@ -588,11 +588,13 @@ export function BalloonStage({
           if (goal - v < 0.005) v = goal;
           setShown(v);
           setCrashAt(goal);
-          // feed says the round is over (suspended, or value frozen) → burst here
-          if ((suspRef.current || stall > 1.6) && peak > 1) {
+          // feed says the round is over → wait a moment for the official winner
+          // (results feed) before bursting so we never crash ahead of the real round
+          if ((suspRef.current || stall > 1.6) && peak > 1 && stall > 3.5) {
             v = peak;
             burst(peak);
           }
+
         } else {
 
           // offline pacing: gentle at first, faster the higher it goes
@@ -707,7 +709,7 @@ export function BalloonStage({
 
   return (
     <div className="w-full rounded-[14px] bg-black p-1.5">
-      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[10px] sm:aspect-[16/10] bg-[linear-gradient(180deg,#4FB6CE_0%,#7ACBD6_38%,#BFE0CC_66%,#F3E4B4_88%,#F7EFD2_100%)]">
+      <div className="relative aspect-[9/16] w-full overflow-hidden rounded-[10px] sm:aspect-[16/10] bg-[linear-gradient(180deg,#4FB6CE_0%,#7ACBD6_38%,#BFE0CC_66%,#F3E4B4_88%,#F7EFD2_100%)]">
         {/* sky artwork — parallax: the ground drops away as the balloon climbs */}
         <div className="absolute inset-0 overflow-hidden">
           <img
@@ -750,15 +752,13 @@ export function BalloonStage({
           </div>
         ) : (
           <div
-            className="absolute left-1/2 z-10"
+            className="absolute left-1/2 z-10 w-[56%] min-w-[160px] max-w-[330px] sm:w-[36%] sm:min-w-[200px]"
             style={{
-              bottom: "24%",
-              width: "36%",
-              minWidth: 200,
-              maxWidth: 330,
+              bottom: "26%",
               transform: "translateX(-50%)",
             }}
           >
+
             <img
               src={balloonImg.url}
               alt="Balloon"
@@ -809,10 +809,16 @@ export function BalloonStage({
                 {shown.toFixed(2)}x
               </p>
             ) : (
-              <p className="absolute left-1/2 top-[40%] w-[150%] -translate-x-1/2 text-center text-[clamp(0.85rem,1.7vw,1.25rem)] font-extrabold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
-                Next round in {wait}s
-              </p>
+              <div className="absolute left-1/2 top-[30%] w-[150%] -translate-x-1/2 text-center">
+                <p className="text-[clamp(0.8rem,1.6vw,1.2rem)] font-extrabold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
+                  Waiting For Next Round
+                </p>
+                <span className="mt-2 inline-grid h-9 w-9 place-items-center rounded-full bg-black/25 text-[1.05rem] font-extrabold text-white sm:h-11 sm:w-11 sm:text-[1.3rem]">
+                  {wait}
+                </span>
+              </div>
             )}
+
           </div>
         )}
 
