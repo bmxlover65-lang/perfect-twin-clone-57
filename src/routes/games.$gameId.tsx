@@ -5,7 +5,7 @@ import { FitBoard } from "@/components/FitBoard";
 import { applyOverride, useAdminConfig } from "@/lib/admin";
 import { logResult } from "@/lib/telemetry";
 import { BalanceChip, BetLayer, MyBets } from "@/components/betting";
-import { settleRound } from "@/lib/wallet";
+import { settleLatest, settleRound } from "@/lib/wallet";
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
 import dream1x from "@/assets/dream/dream1x.png.asset.json";
 import dream2x from "@/assets/dream/dream2x.png.asset.json";
@@ -1651,8 +1651,14 @@ function GamePage() {
     results.slice(0, 6).forEach((r) => {
       const rr = r as CasinoResult & { result?: string; selectionName?: string };
       const winner = (rr.winner ?? rr.result ?? rr.selectionName ?? "").toString().trim();
-      settleRound(gameId, String(r.roundId ?? ""), winner);
+      const rid = String(r.roundId ?? "");
+      if (rid) settleRound(gameId, rid, winner);
     });
+    const top = results[0] as (CasinoResult & { _id?: string; result?: string; selectionName?: string }) | undefined;
+    if (top && !top.roundId) {
+      const winner = (top.winner ?? top.result ?? top.selectionName ?? "").toString().trim();
+      settleLatest(gameId, String(top._id ?? winner), winner);
+    }
   }, [results, gameId]);
 
 
