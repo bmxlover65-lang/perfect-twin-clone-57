@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listBalloonRounds, syncBalloonRounds } from "@/lib/balloon.functions";
-import { useCasinoState } from "@/lib/uapi";
+import { fetchCasinoState } from "@/lib/uapi";
 
 const EVENT_ID = "88.0023";
 
@@ -25,7 +25,11 @@ function fmtTime(iso: string | null) {
 export function BalloonPanel() {
   const sync = useServerFn(syncBalloonRounds);
   const list = useServerFn(listBalloonRounds);
-  const live = useCasinoState(EVENT_ID);
+  const live = useQuery({
+    queryKey: ["balloon-live", EVENT_ID],
+    queryFn: () => fetchCasinoState(EVENT_ID),
+    refetchInterval: 3000,
+  });
 
   const rounds = useQuery({
     queryKey: ["balloon-rounds"],

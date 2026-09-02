@@ -64,12 +64,14 @@ import {
 
 import { AdminGuide } from "@/components/dash-guide";
 import { GameControl } from "@/components/game-control";
+import { BalloonPanel } from "@/components/BalloonPanel";
 
 const TABS = [
   { id: "overview", label: "Overview" },
   { id: "operators", label: "Operators" },
   { id: "keys", label: "API keys & access" },
   { id: "gamecontrol", label: "Game control" },
+  { id: "balloon", label: "Balloon rounds" },
   { id: "wallet", label: "Callback wallet" },
   { id: "bets", label: "Bet history" },
   { id: "guide", label: "Guide / Kit" },
@@ -515,6 +517,8 @@ function ConsolePage() {
           ) : null}
 
           {tab === "gamecontrol" ? <GameControl /> : null}
+
+          {tab === "balloon" ? <BalloonPanel /> : null}
 
           {tab === "guide" ? <AdminGuide /> : null}
 
