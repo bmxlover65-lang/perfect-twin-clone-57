@@ -14,16 +14,377 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      api_keys: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          key_hash: string
+          key_prefix: string
+          label: string
+          last_used_at: string | null
+          operator_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          key_hash: string
+          key_prefix: string
+          label?: string
+          last_used_at?: string | null
+          operator_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          key_hash?: string
+          key_prefix?: string
+          label?: string
+          last_used_at?: string | null
+          operator_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_keys_operator_id_fkey"
+            columns: ["operator_id"]
+            isOneToOne: false
+            referencedRelation: "operators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bets: {
+        Row: {
+          created_at: string
+          game_id: string
+          id: string
+          market: string | null
+          odds: number
+          operator_id: string
+          operator_user_id: string
+          payout: number
+          reference: string | null
+          round_id: string
+          selection: string
+          settled_at: string | null
+          stake: number
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          game_id: string
+          id?: string
+          market?: string | null
+          odds: number
+          operator_id: string
+          operator_user_id: string
+          payout?: number
+          reference?: string | null
+          round_id: string
+          selection: string
+          settled_at?: string | null
+          stake: number
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          game_id?: string
+          id?: string
+          market?: string | null
+          odds?: number
+          operator_id?: string
+          operator_user_id?: string
+          payout?: number
+          reference?: string | null
+          round_id?: string
+          selection?: string
+          settled_at?: string | null
+          stake?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bets_operator_id_fkey"
+            columns: ["operator_id"]
+            isOneToOne: false
+            referencedRelation: "operators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      callback_logs: {
+        Row: {
+          created_at: string
+          endpoint: string
+          id: string
+          ok: boolean
+          operator_id: string
+          request: Json | null
+          response: Json | null
+          status_code: number | null
+        }
+        Insert: {
+          created_at?: string
+          endpoint: string
+          id?: string
+          ok?: boolean
+          operator_id: string
+          request?: Json | null
+          response?: Json | null
+          status_code?: number | null
+        }
+        Update: {
+          created_at?: string
+          endpoint?: string
+          id?: string
+          ok?: boolean
+          operator_id?: string
+          request?: Json | null
+          response?: Json | null
+          status_code?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "callback_logs_operator_id_fkey"
+            columns: ["operator_id"]
+            isOneToOne: false
+            referencedRelation: "operators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      domain_whitelist: {
+        Row: {
+          created_at: string
+          domain: string
+          id: string
+          note: string | null
+          operator_id: string
+        }
+        Insert: {
+          created_at?: string
+          domain: string
+          id?: string
+          note?: string | null
+          operator_id: string
+        }
+        Update: {
+          created_at?: string
+          domain?: string
+          id?: string
+          note?: string | null
+          operator_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "domain_whitelist_operator_id_fkey"
+            columns: ["operator_id"]
+            isOneToOne: false
+            referencedRelation: "operators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ip_whitelist: {
+        Row: {
+          created_at: string
+          id: string
+          ip: string
+          note: string | null
+          operator_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip: string
+          note?: string | null
+          operator_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip?: string
+          note?: string | null
+          operator_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ip_whitelist_operator_id_fkey"
+            columns: ["operator_id"]
+            isOneToOne: false
+            referencedRelation: "operators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      operators: {
+        Row: {
+          callback_secret: string | null
+          callback_url: string | null
+          contact_email: string | null
+          created_at: string
+          currency: string
+          id: string
+          name: string
+          owner_id: string | null
+          plan_amount: number
+          plan_expires_at: string | null
+          status: string
+        }
+        Insert: {
+          callback_secret?: string | null
+          callback_url?: string | null
+          contact_email?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          name: string
+          owner_id?: string | null
+          plan_amount?: number
+          plan_expires_at?: string | null
+          status?: string
+        }
+        Update: {
+          callback_secret?: string | null
+          callback_url?: string | null
+          contact_email?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          name?: string
+          owner_id?: string | null
+          plan_amount?: number
+          plan_expires_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      rounds: {
+        Row: {
+          created_at: string
+          game_id: string
+          id: string
+          manual: boolean
+          result: Json | null
+          round_id: string
+          settled_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          game_id: string
+          id?: string
+          manual?: boolean
+          result?: Json | null
+          round_id: string
+          settled_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          game_id?: string
+          id?: string
+          manual?: boolean
+          result?: Json | null
+          round_id?: string
+          settled_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          balance_after: number | null
+          bet_id: string | null
+          created_at: string
+          id: string
+          kind: string
+          operator_id: string
+          operator_user_id: string
+          reference: string | null
+          status: string
+        }
+        Insert: {
+          amount: number
+          balance_after?: number | null
+          bet_id?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          operator_id: string
+          operator_user_id: string
+          reference?: string | null
+          status?: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number | null
+          bet_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          operator_id?: string
+          operator_user_id?: string
+          reference?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_bet_id_fkey"
+            columns: ["bet_id"]
+            isOneToOne: false
+            referencedRelation: "bets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_operator_id_fkey"
+            columns: ["operator_id"]
+            isOneToOne: false
+            referencedRelation: "operators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      owns_operator: { Args: { _operator_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "operator"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +511,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "operator"],
+    },
   },
 } as const
