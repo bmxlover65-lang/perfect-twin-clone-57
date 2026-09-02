@@ -381,14 +381,8 @@ function FlightStage({
 /* ---------------- main ---------------- */
 
 type MyBet = { round: number; amount: number; cashedAt: number | null; crash: number };
-type ChatMsg = { id: number; user: string; text: string; mine?: boolean };
 
-const SEED_CHAT: ChatMsg[] = [
-  { id: 1, user: "d***5", text: "gg 12x!" },
-  { id: 2, user: "R***a", text: "auto cashout 1.60 best" },
-  { id: 3, user: "k***9", text: "cashed 2.4x finally" },
-  { id: 4, user: "S***h", text: "next one big" },
-];
+
 
 export function Aviator() {
   const { admin, cfg } = useAdminConfig();
