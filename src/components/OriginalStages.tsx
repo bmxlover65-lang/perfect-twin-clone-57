@@ -634,9 +634,10 @@ export function BalloonStage({
               </span>
             ) : null}
             {flying ? (
-              <p className="absolute left-1/2 top-[36%] w-[180%] -translate-x-1/2 text-center text-[clamp(1.4rem,3.8vw,2.8rem)] font-extrabold leading-none text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]">
+              <p className="absolute left-1/2 top-[38%] w-[120%] -translate-x-1/2 text-center text-[clamp(1.6rem,4.4vw,3.2rem)] font-extrabold leading-none text-white drop-shadow-[0_3px_8px_rgba(0,0,0,0.32)]">
                 {shown.toFixed(2)}x
               </p>
+
             ) : (
               <p className="absolute left-1/2 top-[40%] w-[150%] -translate-x-1/2 text-center text-[clamp(0.75rem,1.5vw,1.15rem)] font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)]">
                 Next round in {wait}s
