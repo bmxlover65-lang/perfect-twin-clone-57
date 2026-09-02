@@ -415,23 +415,33 @@ function FlightStage({
     return () => window.clearInterval(id);
   }, []);
 
-  // progress 0..1 across the plot area
-  const p = phase === "flying" ? Math.min(1, Math.log(multiplier) / Math.log(25)) : phase === "crashed" ? 1 : 0;
+  // progress 0..1 across the plot area — slow creep at the start, like the real game
+  const raw = phase === "flying" ? Math.min(1, Math.log(multiplier) / Math.log(18)) : phase === "crashed" ? 1 : 0;
+  const p = raw < 1 ? 1 - Math.pow(1 - raw, 1.35) : 1;
   const W = 760;
   const H = 320;
-  const hoverScale = phase === "flying" ? Math.max(0, Math.min(1, multiplier - 2)) : 0;
-  const hoverY = Math.sin(t / 1000) * 16 * hoverScale;
-  const hoverX = Math.cos(t / 1500) * 34 * hoverScale;
-  const x = 40 + p * (W - 200) + hoverX;
-  const y = H - 40 - Math.sin(p * 1.35) * (H - 120) + hoverY;
+  // the plane only starts to bob once it has settled in the upper right corner
+  const hoverScale = phase === "flying" ? Math.max(0, Math.min(1, (p - 0.6) / 0.25)) : 0;
+  const hoverY = Math.sin(t / 900) * 9 * hoverScale;
+  const hoverX = Math.cos(t / 1300) * 14 * hoverScale;
+  const x0 = 44;
+  const y0 = H - 40;
+  const x = x0 + p * (W - 210) + hoverX;
+  const y = y0 - Math.pow(p, 1.25) * (H - 120) + hoverY;
   const flewT = phase === "crashed" ? 1 : 0;
-  const px = x + flewT * 360;
-  const py = y - flewT * 200;
-  const path = `M40,${H - 40} Q ${40 + (x - 40) * 0.62},${H - 40} ${x},${y}`;
-  const area = `${path} L ${x},${H - 40} Z`;
+  const px = x + flewT * 380;
+  const py = y - flewT * 210;
+  // smooth cubic trail: hugs the floor first, then sweeps up to the plane
+  const c1x = x0 + (x - x0) * 0.55;
+  const c1y = y0;
+  const c2x = x0 + (x - x0) * 0.82;
+  const c2y = y0 - (y0 - y) * 0.42;
+  const path = `M${x0},${y0} C ${c1x},${c1y} ${c2x},${c2y} ${x},${y}`;
+  const area = `${path} L ${x},${y0} Z`;
   const planeW = 96;
   const planeH = planeW * (74 / 150);
   const tick = (t / 22) % 60;
+
 
 
   // blue -> purple/magenta glow as the multiplier climbs
