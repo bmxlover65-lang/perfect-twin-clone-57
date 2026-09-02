@@ -1495,7 +1495,14 @@ function NumberPanel({
   };
 
 
-  const main = toTiles(winner);
+  const main = dream
+    ? toTiles(winner).sort((a, b) => {
+        const ai = DREAM_ORDER.indexOf(a.label.trim());
+        const bi = DREAM_ORDER.indexOf(b.label.trim());
+        return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+      })
+    : toTiles(winner);
+
   const order = ["EVEN", "RED", "BLACK", "ODD"];
   const extras = side
     .flatMap((m) => toTiles(m))
