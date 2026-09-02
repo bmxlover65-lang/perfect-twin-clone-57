@@ -225,7 +225,7 @@ export function BetLayer({
         <div
           className="absolute left-0 right-0 z-[70]"
           style={{ top: `${anchor}px` }}
-          onClickCapture={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         >
           <div className="mx-auto w-full max-w-[430px] overflow-hidden rounded-[4px] border border-[#9fb6c4] bg-[linear-gradient(180deg,#cfe0ea_0%,#e9f1f5_100%)] shadow-[0_10px_24px_rgba(0,0,0,0.35)]">
             <div className="flex items-center justify-between bg-[#1f3b4d] px-3 py-2">
