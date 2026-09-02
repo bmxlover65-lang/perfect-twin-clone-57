@@ -576,42 +576,6 @@ export function Aviator() {
 
   return (
     <div className="overflow-hidden rounded-[16px] border border-[#303238] bg-[#090A0C] p-1.5 sm:p-2">
-      {/* history strip */}
-      <div className="mb-2 rounded-[12px] border border-[#303238] bg-[#141518] px-3 py-[6px]">
-        <div className="flex items-center gap-2">
-          <div
-            className={`flex min-w-0 flex-1 items-center gap-[6px] sm:gap-2 ${
-              histOpen
-                ? "max-h-[120px] flex-wrap overflow-y-auto"
-                : "flex-nowrap overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            }`}
-          >
-            {(histOpen ? history : history.slice(0, 30)).map((h, i) => (
-              <span
-                key={`${h}-${i}`}
-                className={`shrink-0 rounded-full bg-[#0B0C0E] px-2.5 py-[3px] text-[0.72rem] font-bold sm:text-[0.82rem] ${toneFor(h)}`}
-              >
-                {fmt(h)}x
-              </span>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() => setHistOpen((v) => !v)}
-            aria-expanded={histOpen}
-            className="flex h-[26px] shrink-0 items-center gap-1 rounded-full border border-[#FF003C]/60 px-2"
-            aria-label="Round history"
-          >
-            <img src={historyIcon} alt="" className="h-[13px] w-[14px]" />
-            <img
-              src={arrowIcon}
-              alt=""
-              className={`h-[8px] w-[10px] transition-transform ${histOpen ? "rotate-180" : ""}`}
-            />
-          </button>
-        </div>
-      </div>
-
       <div className="grid gap-2 lg:grid-cols-[400px_1fr]">
         {/* bets + chat */}
         <div className="order-2 min-w-0 rounded-[14px] border border-[#303238] bg-[#151618] p-1.5 lg:order-1 sm:p-2">
@@ -730,6 +694,42 @@ export function Aviator() {
 
         {/* stage + panels */}
         <div className="order-1 min-w-0 space-y-2 lg:order-2">
+          {/* history strip — sits above the flying stage */}
+          <div className="rounded-[12px] border border-[#303238] bg-[#0B0C0E] px-3 py-[6px]">
+            <div className="flex items-center gap-2">
+              <div
+                className={`flex min-w-0 flex-1 items-center gap-[6px] sm:gap-2 ${
+                  histOpen
+                    ? "max-h-[120px] flex-wrap overflow-y-auto"
+                    : "flex-nowrap overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                }`}
+              >
+                {(histOpen ? history : history.slice(0, 30)).map((h, i) => (
+                  <span
+                    key={`${h}-${i}`}
+                    className={`shrink-0 px-1 text-[0.72rem] font-bold sm:text-[0.82rem] ${toneFor(h)}`}
+                  >
+                    {fmt(h)}x
+                  </span>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => setHistOpen((v) => !v)}
+                aria-expanded={histOpen}
+                className="flex h-[26px] shrink-0 items-center gap-1 rounded-full border border-[#FF003C]/60 px-2"
+                aria-label="Round history"
+              >
+                <img src={historyIcon} alt="" className="h-[13px] w-[14px]" />
+                <img
+                  src={arrowIcon}
+                  alt=""
+                  className={`h-[8px] w-[10px] transition-transform ${histOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+            </div>
+          </div>
+
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} />
 
 
