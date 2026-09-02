@@ -224,14 +224,30 @@ export function DreamWheel({
 
   return (
     <div
-      className="relative flex w-full items-center justify-center overflow-hidden rounded-[4px] py-6"
+      className="relative flex w-full items-center justify-center overflow-hidden rounded-[4px] py-8"
       style={{
         backgroundImage: `url(${dreamBg.url})`,
         backgroundSize: "cover",
         backgroundPosition: "center top",
       }}
     >
+      {roundId ? (
+        <span className="pointer-events-none absolute left-2 top-2 text-[0.72rem] font-extrabold text-black/85">
+          RID: {roundId}
+        </span>
+      ) : null}
+      {leftSec != null ? (
+        <span
+          className="pointer-events-none absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-full bg-[#1B1B1B] text-[1.05rem] font-extrabold text-white"
+          style={{
+            boxShadow: `0 0 0 3px ${suspended || leftSec <= 5 ? "#D33" : "#22B14C"}`,
+          }}
+        >
+          {suspended ? 0 : leftSec}
+        </span>
+      ) : null}
       <div className="relative">
+
         <div
           className="relative"
           style={{
