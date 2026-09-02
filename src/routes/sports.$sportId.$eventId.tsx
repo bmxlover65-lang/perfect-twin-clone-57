@@ -326,11 +326,7 @@ function EventPage() {
           <header className="bg-ex-header px-4 py-2.5 text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-ex-text">
             Scoreboard
           </header>
-          <iframe
-            title="Scoreboard"
-            src={`/api/public/uapi/tv/sports/scoreboard?sportId=${sportId}&exEventId=${eventId}&tv=true`}
-            className="h-[340px] w-full border-0 bg-black"
-          />
+          <Scoreboard sportId={sportId} eventId={eventId} />
         </div>
       </div>
 
