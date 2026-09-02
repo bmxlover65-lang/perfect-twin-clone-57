@@ -2163,19 +2163,15 @@ function ResultBanner({ results }: { results: CasinoResult[] }) {
   }, [key, winner]);
 
   if (!show || !winner) return null;
+  const label = /win/i.test(winner) ? winner.toUpperCase() : `${winner.toUpperCase()} WIN`;
   return (
-    <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-black/55 backdrop-blur-[1px]">
-      <div className="rounded-xl border-2 border-[#E3C000] bg-[#101820]/95 px-6 py-4 text-center shadow-[0_10px_30px_rgba(0,0,0,0.55)] [animation:scale-in_0.25s_ease-out]">
-        <p className="text-[0.7rem] font-extrabold uppercase tracking-[0.28em] text-[#E3C000]">
-          Result Declared
-        </p>
-        <p className="mt-1 text-2xl font-extrabold uppercase text-white sm:text-3xl">{winner}</p>
-        <p className="mt-1 text-[0.68rem] font-bold uppercase tracking-wide text-white/60">
-          Winner · RID {key}
-        </p>
-      </div>
+    <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
+      <span className="rounded-[6px] bg-[#F26A2E] px-4 py-2 text-[1.05rem] font-bold uppercase tracking-wide text-white shadow-[0_4px_14px_rgba(0,0,0,0.45)] [animation:scale-in_0.25s_ease-out]">
+        {label}
+      </span>
     </div>
   );
+
 }
 
 function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: boolean }) {
