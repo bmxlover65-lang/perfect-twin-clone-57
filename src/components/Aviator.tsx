@@ -720,7 +720,7 @@ export function Aviator() {
 
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} />
 
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="flex items-start gap-2 rounded-[12px] border border-white/10 bg-[#151617] p-2 sm:gap-3 sm:p-3">
             <BetPanel
               state={p1}
               setState={setP1}
@@ -729,6 +729,53 @@ export function Aviator() {
               onWin={win}
               balance={balance}
             />
+
+            <div className="flex w-[74px] shrink-0 flex-col gap-[6px] pt-[26px] sm:w-[86px]">
+              <button
+                type="button"
+                onClick={() => {
+                  const v = Number(window.prompt("Custom stake", String(p1.amount)) ?? "");
+                  if (Number.isFinite(v) && v >= 10) {
+                    setP1((p) => ({ ...p, amount: v }));
+                    setP2((p) => ({ ...p, amount: v }));
+                  }
+                }}
+                className="rounded-[6px] bg-[#E8A70B] py-[6px] text-[0.8rem] font-bold text-white"
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setP1((p) => ({ ...p, amount: 10, staged: false }));
+                  setP2((p) => ({ ...p, amount: 10, staged: false }));
+                }}
+                className="rounded-[6px] bg-[#E01E1E] py-[6px] text-[0.8rem] font-bold text-white"
+              >
+                Clear
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setP1((p) => ({ ...p, amount: 10 }));
+                  setP2((p) => ({ ...p, amount: 10 }));
+                }}
+                className="rounded-[6px] border border-[#3A3B3F] py-[6px] text-[0.8rem] font-semibold text-white/70"
+              >
+                Min
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setP1((p) => ({ ...p, amount: 10000 }));
+                  setP2((p) => ({ ...p, amount: 10000 }));
+                }}
+                className="rounded-[6px] border border-[#3A3B3F] py-[6px] text-[0.8rem] font-semibold text-white/70"
+              >
+                Max
+              </button>
+            </div>
+
             <BetPanel
               state={p2}
               setState={setP2}
@@ -738,6 +785,7 @@ export function Aviator() {
               balance={balance}
             />
           </div>
+
         </div>
       </div>
     </div>
