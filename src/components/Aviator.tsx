@@ -912,10 +912,10 @@ export function Aviator() {
                   return (
                     <div
                       key={b.id}
-                      className={`grid grid-cols-[1fr_64px_58px_72px] items-center gap-x-2 px-2 py-[6px] text-[0.72rem] sm:text-[0.76rem] ${
+                      className={`grid shrink-0 grid-cols-[1fr_64px_58px_72px] items-center gap-x-2 px-2 py-[7px] text-[0.72rem] sm:text-[0.76rem] ${
                         done
                           ? "rounded-[7px] border border-[#3B8F20] bg-[#0D4206] text-white"
-                          : "border-b border-white/[0.05] bg-transparent text-white/70"
+                          : "border-b border-white/[0.05] bg-[#131416] text-white/70"
                       }`}
                     >
                       <span className="flex min-w-0 items-center gap-2">
@@ -925,13 +925,13 @@ export function Aviator() {
                           loading="lazy"
                           width={96}
                           height={96}
-                          className="h-7 w-7 shrink-0 rounded-full object-cover"
+                          className="h-[30px] w-[30px] shrink-0 rounded-full object-cover"
                         />
-                        <span className={`truncate ${done ? "font-semibold text-white" : "text-[#B7AC8C]"}`}>
+                        <span className={`truncate ${done ? "font-semibold text-white" : "text-[#7E92B5]"}`}>
                           {maskName(b.user)}
                         </span>
                       </span>
-                      <span className={`font-semibold ${done ? "text-white" : "text-white/85"}`}>{b.amount}</span>
+                      <span className={`font-semibold ${done ? "text-white" : "text-white/90"}`}>{b.amount}</span>
 
                       <span
                         className={`shrink-0 justify-self-start rounded-full px-2 py-[1px] text-[0.65rem] font-bold ${
