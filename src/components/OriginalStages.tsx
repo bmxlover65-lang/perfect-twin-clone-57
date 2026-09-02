@@ -364,7 +364,38 @@ export function CoinStage({ side }: { side: "HEADS" | "TAILS" }) {
 
 const BALLOON_STAKES = [10, 50, 100, 500, 1000, 2500, 5000, 10000];
 
+type BalloonPlayer = { name: string; amount: number; tone: string };
+
+function seededPlayers(seed: string): BalloonPlayer[] {
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  const rnd = () => {
+    h ^= h << 13;
+    h ^= h >>> 17;
+    h ^= h << 5;
+    return Math.abs(h % 1000) / 1000;
+  };
+  const letters = "abcdefghijklmnopqrstuvwxyz";
+  const amounts = [50, 100, 100, 200, 250, 500, 1000];
+  const tones = ["#2FA84F", "#7C2BD9", "#E8A33D", "#1B6FE0", "#C33B3B"];
+  const n = 4 + Math.floor(rnd() * 3);
+  return Array.from({ length: n }, () => {
+    const a = letters[Math.floor(rnd() * 26)] ?? "s";
+    const z = Math.floor(rnd() * 10);
+    const stars = "*".repeat(6 + Math.floor(rnd() * 4));
+    return {
+      name: `${a}${stars}${z}`,
+      amount: amounts[Math.floor(rnd() * amounts.length)] ?? 100,
+      tone: tones[Math.floor(rnd() * tones.length)] ?? "#2FA84F",
+    };
+  });
+}
+
 export function BalloonStage({
+
   multiplier,
   roundId,
   suspended,
