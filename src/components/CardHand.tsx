@@ -8,13 +8,15 @@ const SUIT_GLYPH: Record<PlayingCard["suit"], string> = {
   D: "♦",
 };
 
+const CARD_SIZE = "h-[62px] w-[44px] shrink-0 rounded-[4px] shadow";
+
 function Card({ card }: { card: PlayingCard }) {
   if (card.hidden) {
     return (
       <img
         src={CARD_BACK}
         alt="Face down card"
-        className="h-[62px] w-[44px] rounded-[4px] object-cover shadow"
+        className={`${CARD_SIZE} object-fill`}
         loading="lazy"
       />
     );
@@ -25,14 +27,14 @@ function Card({ card }: { card: PlayingCard }) {
       <img
         src={img}
         alt={`${card.rank} ${card.suit}`}
-        className="h-[62px] w-[44px] rounded-[4px] bg-white object-cover shadow"
+        className={`${CARD_SIZE} bg-white object-fill`}
         loading="lazy"
       />
     );
   }
   const red = card.suit === "H" || card.suit === "D";
   return (
-    <div className="flex h-[62px] w-[44px] flex-col justify-between rounded-[4px] bg-white p-1 shadow">
+    <div className={`${CARD_SIZE} flex flex-col justify-between bg-white p-1`}>
       <span
         className={`text-xs font-bold leading-none ${red ? "text-card-red" : "text-card-black"}`}
       >
@@ -46,6 +48,7 @@ function Card({ card }: { card: PlayingCard }) {
     </div>
   );
 }
+
 
 
 export function CardHand({ title, cards }: { title: string; cards: PlayingCard[] }) {
