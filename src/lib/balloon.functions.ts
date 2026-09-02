@@ -1,6 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 
 const EVENT_ID = "88.0023";
+/** Crash-game events share the same upstream round series. */
+const SOURCE_EVENT_ID = "88.0023";
+
+function pickEvent(data: unknown): string {
+  const id = (data as { eventId?: string } | undefined)?.eventId;
+  return typeof id === "string" && id ? id : EVENT_ID;
+}
 const MIRROR_RESULTS =
   "https://vimaan.ludoexchange.com/casinoapp/users/casino/casinoEventResults";
 
@@ -14,11 +21,14 @@ type AdminClient = Awaited<
   typeof import("@/integrations/supabase/client.server")
 >["supabaseAdmin"];
 
-async function readHistory(supabaseAdmin: AdminClient): Promise<BalloonRound[]> {
+async function readHistory(
+  supabaseAdmin: AdminClient,
+  eventId: string = EVENT_ID,
+): Promise<BalloonRound[]> {
   const { data } = await supabaseAdmin
     .from("balloon_rounds")
     .select("round_id, crash, crashed_at")
-    .eq("event_id", EVENT_ID)
+    .eq("event_id", eventId)
     .order("round_id", { ascending: false })
     .limit(60);
 
@@ -35,15 +45,17 @@ async function readHistory(supabaseAdmin: AdminClient): Promise<BalloonRound[]> 
  * New rounds are inserted; rounds that were still in flight get their crash
  * value and crash time filled in once the official winner arrives.
  */
-export const syncBalloonRounds = createServerFn({ method: "POST" }).handler(
-  async (): Promise<BalloonRound[]> => {
+export const syncBalloonRounds = createServerFn({ method: "POST" })
+  .inputValidator((data: { eventId?: string } | undefined) => ({ eventId: pickEvent(data) }))
+  .handler(async ({ data }): Promise<BalloonRound[]> => {
+    const eventId = data.eventId;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     try {
       const res = await fetch(MIRROR_RESULTS, {
         method: "POST",
         headers: { "content-type": "application/json", accept: "application/json" },
-        body: JSON.stringify({ eventId: EVENT_ID }),
+        body: JSON.stringify({ eventId: SOURCE_EVENT_ID }),
         signal: AbortSignal.timeout(8000),
       });
       const json = (await res.json().catch(() => ({}))) as {
@@ -65,6 +77,7 @@ export const syncBalloonRounds = createServerFn({ method: "POST" }).handler(
         const { data: existingRows } = await supabaseAdmin
           .from("balloon_rounds")
           .select("round_id, crash, crashed_at")
+          .eq("event_id", eventId)
           .in(
             "round_id",
             feed.map((r) => r.round_id),
@@ -77,7 +90,7 @@ export const syncBalloonRounds = createServerFn({ method: "POST" }).handler(
           .filter((r) => !existing.has(r.round_id))
           .map((r) => ({
             round_id: r.round_id,
-            event_id: EVENT_ID,
+            event_id: eventId,
             crash: r.crash,
             crashed_at: r.crash == null ? null : now,
           }));
@@ -97,6 +110,7 @@ export const syncBalloonRounds = createServerFn({ method: "POST" }).handler(
           await supabaseAdmin
             .from("balloon_rounds")
             .update({ crash: u.crash, crashed_at: now })
+            .eq("event_id", eventId)
             .eq("round_id", u.round_id);
         }
       }
@@ -104,14 +118,13 @@ export const syncBalloonRounds = createServerFn({ method: "POST" }).handler(
       // upstream hiccup — fall through and serve whatever is stored
     }
 
-    return readHistory(supabaseAdmin);
-  },
-);
+    return readHistory(supabaseAdmin, eventId);
+  });
 
-/** Read-only history for the Balloon panel. */
-export const listBalloonRounds = createServerFn({ method: "GET" }).handler(
-  async (): Promise<BalloonRound[]> => {
+/** Read-only history for the crash-game panels. */
+export const listBalloonRounds = createServerFn({ method: "GET" })
+  .inputValidator((data: { eventId?: string } | undefined) => ({ eventId: pickEvent(data) }))
+  .handler(async ({ data }): Promise<BalloonRound[]> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    return readHistory(supabaseAdmin);
-  },
-);
+    return readHistory(supabaseAdmin, data.eventId);
+  });
