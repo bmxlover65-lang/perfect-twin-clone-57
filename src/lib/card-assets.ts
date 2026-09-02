@@ -8,6 +8,8 @@ import H2 from "@/assets/cards/H2.png.asset.json";
 import H3 from "@/assets/cards/H3.png.asset.json";
 import H7 from "@/assets/cards/H7.png.asset.json";
 import H8 from "@/assets/cards/H8.png.asset.json";
+import HK from "@/assets/cards/HK.png.asset.json";
+import S5 from "@/assets/cards/S5.png.asset.json";
 
 /** Face-down / hidden card image. */
 export const CARD_BACK = back.url;
@@ -23,6 +25,8 @@ export const CARD_IMAGES: Record<string, string> = {
   H3: H3.url,
   H7: H7.url,
   H8: H8.url,
+  HK: HK.url,
+  S5: S5.url,
 };
 
 /** Normalise a feed card code ("H8__", "h8") to "H8"; "0"/"" means face-down. */
