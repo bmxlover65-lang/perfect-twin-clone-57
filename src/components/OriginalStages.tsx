@@ -491,7 +491,7 @@ export function BalloonStage({
           if (ph === "crashed") {
             ph = "waiting";
             setPhase("waiting");
-            t = live ? 60 : 3;
+            t = 3;
           } else {
             // waiting over: if the feed is live we hold for its next round id,
             // but if it never advances (stale/down) start a local round anyway
