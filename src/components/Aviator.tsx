@@ -782,7 +782,7 @@ export function Aviator() {
 
   return (
     <div className="overflow-hidden rounded-[16px] border border-[#303238] bg-[#090A0C] p-1.5 sm:p-2">
-      <div className="grid items-stretch gap-2 lg:grid-cols-[minmax(300px,23%)_1fr]">
+      <div className="grid items-stretch gap-2 lg:h-[680px] lg:grid-cols-[minmax(340px,27%)_1fr]">
         {/* bets + chat */}
         <div className="order-2 flex min-w-0 flex-col overflow-hidden rounded-[14px] border border-[#303238] bg-[#151618] p-1.5 lg:order-1 sm:p-2">
 
@@ -831,24 +831,23 @@ export function Aviator() {
             </div>
           ) : null}
 
-          <div className="mt-2 grid grid-cols-[1fr_64px_58px_72px] gap-x-2 border-b border-white/10 px-2 pb-1 text-[0.65rem] font-semibold text-white/40">
+          <div className="mt-2 grid grid-cols-[1fr_38px_44px_54px] gap-x-2 border-b border-white/10 px-2 pb-1 text-[0.65rem] font-semibold text-white/40">
             <span>{tab === "my" ? "Round" : "User"}</span>
-            <span>Bet&nbsp;&nbsp;X</span>
-            <span></span>
+            <span>Bet</span>
+            <span>X</span>
             <span className="text-right">Cash out</span>
           </div>
 
           <div
-            className="flex h-[340px] max-h-[340px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-1 lg:h-auto lg:max-h-none lg:min-h-0"
+            className="flex h-[340px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-1 lg:h-0 lg:min-h-0"
             style={{
               overscrollBehavior: "contain",
               WebkitOverflowScrolling: "touch",
-              columnCount: 1,
-              columns: "1 auto",
               display: "flex",
               flexDirection: "column",
             }}
           >
+
 
             {tab === "my"
               ? [
@@ -907,12 +906,13 @@ export function Aviator() {
                     </div>
                   )),
                 ]
-              : bets.slice(0, 80).map((b) => {
+              : bets.slice(0, 80).map((b, i) => {
                   const done = b.cashedAt !== undefined;
                   return (
                     <div
-                      key={b.id}
-                      className={`grid shrink-0 grid-cols-[1fr_64px_58px_72px] items-center gap-x-2 px-2 py-[7px] text-[0.72rem] sm:text-[0.76rem] ${
+                      key={`${b.id}-${i}`}
+                      className={`grid shrink-0 grid-cols-[1fr_38px_44px_54px] items-center gap-x-2 px-2 py-[7px] text-[0.72rem] sm:text-[0.76rem] ${
+
                         done
                           ? "rounded-[7px] border border-[#3B8F20] bg-[#0D4206] text-white"
                           : "border-b border-white/[0.05] bg-[#131416] text-white/70"
@@ -925,7 +925,7 @@ export function Aviator() {
                           loading="lazy"
                           width={96}
                           height={96}
-                          className="h-[30px] w-[30px] shrink-0 rounded-full object-cover"
+                          className="h-[26px] w-[26px] shrink-0 rounded-full object-cover"
                         />
                         <span className={`truncate ${done ? "font-semibold text-white" : "text-[#7E92B5]"}`}>
                           {maskName(b.user)}
@@ -968,7 +968,7 @@ export function Aviator() {
         </div>
 
         {/* stage + panels */}
-        <div className="order-1 min-w-0 space-y-2 lg:order-2">
+        <div className="order-1 flex min-w-0 flex-col gap-2 lg:order-2 lg:min-h-0">
           {/* history strip — sits above the flying stage */}
           <div className="rounded-[8px] border border-[#34363B] bg-[#202125] px-3 py-2">
             {histOpen ? (
