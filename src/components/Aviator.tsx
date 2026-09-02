@@ -557,9 +557,15 @@ export function Aviator() {
             </span>
           ))}
         </div>
-        <span className="flex h-6 shrink-0 items-center gap-1 rounded-full border border-[#E01E1E]/60 px-2 text-[0.7rem] text-white/70">
-          ⟳ <span className="text-[0.55rem]">▾</span>
-        </span>
+        <button
+          type="button"
+          className="flex h-[26px] shrink-0 items-center gap-1 rounded-full border border-[#E01E1E]/60 px-2"
+          aria-label="Round history"
+        >
+          <img src={historyIcon} alt="" className="h-[14px] w-[15px]" />
+          <img src={arrowIcon} alt="" className="h-[8px] w-[10px]" />
+        </button>
+
       </div>
 
       <div className="grid gap-2 lg:grid-cols-[240px_1fr]">
