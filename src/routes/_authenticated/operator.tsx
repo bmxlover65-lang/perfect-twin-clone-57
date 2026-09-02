@@ -182,21 +182,9 @@ function OperatorPage() {
               callback secret and logged below.
             </p>
           </Panel>
+          ) : null}
 
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Panel title="Staked">
-              <p className="text-lg font-bold text-foreground">₹{staked.toLocaleString("en-IN")}</p>
-            </Panel>
-            <Panel title="Paid out">
-              <p className="text-lg font-bold text-foreground">₹{paid.toLocaleString("en-IN")}</p>
-            </Panel>
-            <Panel title="Net P/L">
-              <p className="text-lg font-bold text-foreground">
-                ₹{(staked - paid).toLocaleString("en-IN")}
-              </p>
-            </Panel>
-          </div>
-
+          {tab === "rounds" ? (
           <Panel title="Rounds">
             <ul className="space-y-1 text-xs text-muted-foreground">
               {roundRows.map((r) => (
@@ -208,6 +196,10 @@ function OperatorPage() {
               {!roundRows.length ? <li>No rounds settled yet.</li> : null}
             </ul>
           </Panel>
+          ) : null}
+
+          {tab === "bets" ? (
+
 
           <Panel title="Bets">
             <div className="overflow-x-auto">
