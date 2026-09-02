@@ -3,6 +3,10 @@ import plane0 from "@/assets/aviator/plane-0.svg";
 import plane1 from "@/assets/aviator/plane-1.svg";
 import plane2 from "@/assets/aviator/plane-2.svg";
 import plane3 from "@/assets/aviator/plane-3.svg";
+import historyIcon from "@/assets/aviator/history.svg";
+import arrowIcon from "@/assets/aviator/arrow-down.svg";
+import fairIcon from "@/assets/aviator/provably-fair.svg";
+
 import { type AviatorControl, useAdminConfig } from "@/lib/admin";
 import { logBet, logChat, setBalance as saveBalance } from "@/lib/telemetry";
 
@@ -89,7 +93,7 @@ const initialPanel = (amount: number): PanelState => ({
   autoCashout: 2,
 });
 
-const QUICK = [100, 200, 500, 1000];
+const QUICK = [10, 50, 100, 500, 1000, 2500, 5000, 10000];
 
 function BetPanel({
   state,
@@ -109,16 +113,16 @@ function BetPanel({
   const canCash = phase === "flying" && state.active && state.cashedAt === null;
 
   const label = canCash
-    ? "CASH OUT"
+    ? "Cash Out"
     : state.staged || (state.active && state.cashedAt === null)
-      ? "CANCEL"
-      : "BET";
+      ? "Cancel"
+      : "Cash In";
 
   const tone = canCash
-    ? "bg-[#D07206] border-[#FFBF69] shadow-[0_4px_0_#8a4a04]"
+    ? "bg-[#D07206] hover:bg-[#e07d09]"
     : state.staged || state.active
-      ? "bg-[#B02216] border-[#F76C6C] shadow-[0_4px_0_#7b160e]"
-      : "bg-[#28A909] border-[#8CFF6B] shadow-[0_4px_0_#1a6f06]";
+      ? "bg-[#B02216] hover:bg-[#c4291b]"
+      : "bg-[#2FA300] hover:bg-[#38bd00]";
 
   const press = () => {
     if (canCash) {
@@ -135,80 +139,68 @@ function BetPanel({
     setState((p) => ({ ...p, staged: true, cashedAt: null }));
   };
 
-  const bump = (delta: number) =>
-    setState((p) => ({ ...p, amount: Math.max(10, Math.round((p.amount + delta) * 100) / 100) }));
-
   return (
-    <div className="rounded-[14px] border border-white/10 bg-[#1B1C1D] p-1.5 sm:p-2">
-      <div className="mb-2 flex justify-center">
-        <div className="flex rounded-full bg-[#141516] p-[3px] text-[0.6rem] font-bold text-white/60 sm:text-[0.65rem]">
-          <span className="rounded-full bg-[#2C2D30] px-3 py-[2px] text-white">Bet</span>
-          <span className="px-3 py-[2px]">Auto</span>
-        </div>
-      </div>
-
-      <div className="flex items-stretch gap-1.5 sm:gap-2">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between gap-1 rounded-full bg-[#0E0F10] px-1.5 py-1 sm:px-2">
-            <button
-              type="button"
-              onClick={() => bump(-100)}
-              className="h-6 w-6 shrink-0 rounded-full bg-[#2C2D30] text-white/70"
-              aria-label="decrease"
-            >
-              −
-            </button>
-            <span className="truncate text-[0.9rem] font-bold text-white sm:text-[1.05rem]">
-              {fmt(state.amount)}
-            </span>
-            <button
-              type="button"
-              onClick={() => bump(100)}
-              className="h-6 w-6 shrink-0 rounded-full bg-[#2C2D30] text-white/70"
-              aria-label="increase"
-            >
-              +
-            </button>
-          </div>
-          <div className="mt-1 grid grid-cols-4 gap-[3px] sm:gap-1">
-            {QUICK.map((q) => (
-              <button
-                key={q}
-                type="button"
-                onClick={() => setState((p) => ({ ...p, amount: q }))}
-                className="rounded-full border border-white/10 bg-[#0E0F10] py-[3px] text-[0.62rem] font-semibold text-white/70 hover:text-white sm:text-[0.7rem]"
-              >
-                {q}
-              </button>
-            ))}
-          </div>
-        </div>
-
+    <div className="flex min-w-0 flex-1 flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <span className="text-[0.78rem] font-semibold text-white/85">Auto</span>
         <button
           type="button"
-          onClick={press}
-          className={`w-[42%] shrink-0 rounded-[18px] border-2 px-1.5 py-2 text-center font-extrabold uppercase text-white sm:w-[46%] sm:px-2 ${tone}`}
+          role="switch"
+          aria-checked={state.auto}
+          onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
+          className={`relative h-[22px] w-[44px] rounded-full transition-colors ${
+            state.auto ? "bg-[#2FA300]" : "bg-[#3A3B3F]"
+          }`}
         >
-          <span className="block text-[0.82rem] leading-tight sm:text-[0.95rem]">{label}</span>
-          <span className="block text-[0.72rem] leading-tight sm:text-[0.85rem]">
-            {canCash ? `${fmt(state.amount * multiplier)} INR` : `${fmt(state.amount)} INR`}
-          </span>
+          <span
+            className={`absolute top-[2px] h-[18px] w-[18px] rounded-full bg-white transition-all ${
+              state.auto ? "left-[24px]" : "left-[2px]"
+            }`}
+          />
         </button>
       </div>
 
+      <div className="grid grid-cols-2 gap-x-2 gap-y-[6px]">
+        {QUICK.map((q) => (
+          <button
+            key={q}
+            type="button"
+            onClick={() => setState((p) => ({ ...p, amount: q }))}
+            className={`rounded-full border py-[3px] text-center text-[0.72rem] font-semibold transition-colors ${
+              state.amount === q
+                ? "border-[#2FA300] text-white"
+                : "border-[#3A3B3F] text-white/75 hover:text-white"
+            }`}
+          >
+            {q}
+          </button>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={press}
+        className={`rounded-[8px] py-[10px] text-center text-[1.05rem] font-bold text-white ${tone}`}
+      >
+        {label}
+        {canCash ? (
+          <span className="ml-1 text-[0.8rem]">{fmt(state.amount * multiplier)}</span>
+        ) : null}
+      </button>
 
       {state.cashedAt ? (
-        <p className="mt-1 text-center text-[0.72rem] font-bold text-[#28A909]">
+        <p className="text-center text-[0.7rem] font-bold text-[#2FA300]">
           Cashed out {fmt(state.cashedAt)}x · {fmt(state.amount * state.cashedAt)} INR
         </p>
       ) : state.staged ? (
-        <p className="mt-1 text-center text-[0.72rem] font-semibold text-white/50">
+        <p className="text-center text-[0.7rem] font-semibold text-white/45">
           Waiting for next round
         </p>
       ) : null}
     </div>
   );
 }
+
 
 /* ---------------- flight canvas ---------------- */
 
@@ -342,10 +334,23 @@ function FlightStage({
         type="button"
         onClick={() => setMuted((v) => !v)}
         aria-label={muted ? "Unmute" : "Mute"}
-        className="absolute left-3 top-2 z-10 text-[1.05rem] font-bold text-white/85"
+        className="absolute left-3 top-2 z-10 text-white/85"
       >
-        {muted ? "🔇" : "🔊"}
+        <svg width="20" height="18" viewBox="0 0 20 18" fill="none" aria-hidden="true">
+          <path d="M2 6.5h3L9.5 3v12L5 11.5H2z" fill="currentColor" />
+          {muted ? (
+            <>
+              <path d="M13 6.5l5 5M18 6.5l-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </>
+          ) : (
+            <>
+              <path d="M13 6a4 4 0 010 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" fill="none" />
+              <path d="M15.5 4a7 7 0 010 10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" fill="none" />
+            </>
+          )}
+        </svg>
       </button>
+
 
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         {phase === "betting" ? (
@@ -569,9 +574,15 @@ export function Aviator() {
             </span>
           ))}
         </div>
-        <span className="flex h-6 shrink-0 items-center gap-1 rounded-full border border-[#E01E1E]/60 px-2 text-[0.7rem] text-white/70">
-          ⟳ <span className="text-[0.55rem]">▾</span>
-        </span>
+        <button
+          type="button"
+          className="flex h-[26px] shrink-0 items-center gap-1 rounded-full border border-[#E01E1E]/60 px-2"
+          aria-label="Round history"
+        >
+          <img src={historyIcon} alt="" className="h-[14px] w-[15px]" />
+          <img src={arrowIcon} alt="" className="h-[8px] w-[10px]" />
+        </button>
+
       </div>
 
       <div className="grid gap-2 lg:grid-cols-[240px_1fr]">
@@ -613,14 +624,17 @@ export function Aviator() {
 
           {tab === "my" ? (
             <div className="mt-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-[2px] rounded-[4px] border border-[#2C2D30] bg-[#101112] px-2 py-[5px] text-[0.6rem] text-white/60 sm:text-[0.66rem]">
-              <span>
-                This game is <span className="text-[#2FA8F5]">✅ Provably Fair</span>
+              <span className="flex items-center gap-1">
+                This game is
+                <img src={fairIcon} alt="" className="h-[13px] w-[12px]" />
+                <span className="text-[#2FA8F5]">Provably Fair</span>
               </span>
               <span>
                 Powered by <span className="font-bold text-white underline">VIMAAN</span>
               </span>
             </div>
           ) : null}
+
 
           <div className="max-h-[300px] space-y-[3px] overflow-y-auto pt-1">
             {tab === "my"
@@ -732,7 +746,7 @@ export function Aviator() {
 
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} />
 
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="flex items-start gap-2 rounded-[12px] border border-white/10 bg-[#151617] p-2 sm:gap-3 sm:p-3">
             <BetPanel
               state={p1}
               setState={setP1}
@@ -741,6 +755,53 @@ export function Aviator() {
               onWin={win}
               balance={balance}
             />
+
+            <div className="flex w-[74px] shrink-0 flex-col gap-[6px] pt-[26px] sm:w-[86px]">
+              <button
+                type="button"
+                onClick={() => {
+                  const v = Number(window.prompt("Custom stake", String(p1.amount)) ?? "");
+                  if (Number.isFinite(v) && v >= 10) {
+                    setP1((p) => ({ ...p, amount: v }));
+                    setP2((p) => ({ ...p, amount: v }));
+                  }
+                }}
+                className="rounded-[6px] bg-[#E8A70B] py-[6px] text-[0.8rem] font-bold text-white"
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setP1((p) => ({ ...p, amount: 10, staged: false }));
+                  setP2((p) => ({ ...p, amount: 10, staged: false }));
+                }}
+                className="rounded-[6px] bg-[#E01E1E] py-[6px] text-[0.8rem] font-bold text-white"
+              >
+                Clear
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setP1((p) => ({ ...p, amount: 10 }));
+                  setP2((p) => ({ ...p, amount: 10 }));
+                }}
+                className="rounded-[6px] border border-[#3A3B3F] py-[6px] text-[0.8rem] font-semibold text-white/70"
+              >
+                Min
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setP1((p) => ({ ...p, amount: 10000 }));
+                  setP2((p) => ({ ...p, amount: 10000 }));
+                }}
+                className="rounded-[6px] border border-[#3A3B3F] py-[6px] text-[0.8rem] font-semibold text-white/70"
+              >
+                Max
+              </button>
+            </div>
+
             <BetPanel
               state={p2}
               setState={setP2}
@@ -750,6 +811,7 @@ export function Aviator() {
               balance={balance}
             />
           </div>
+
         </div>
       </div>
     </div>
