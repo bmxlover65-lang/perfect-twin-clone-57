@@ -604,63 +604,20 @@ export function BalloonStage({
               className="w-full animate-[balloonSway_3s_ease-in-out_infinite]"
               style={{ filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))" }}
             />
-            {/* burner flame shooting up from the basket while flying */}
+            {/* burner flame under the basket while the balloon is flying */}
             {flying ? (
               <span
-                className="pointer-events-none absolute left-1/2 top-[72%] z-10 -translate-x-1/2"
+                className="pointer-events-none absolute left-1/2 top-[92%] z-10 -translate-x-1/2"
                 aria-hidden
-                style={{
-                  width: "26%",
-                  minWidth: 48,
-                  height: "22%",
-                  minHeight: 42,
-                }}
               >
-                {/* bright outer glow */}
-                <span
-                  className="absolute inset-0 rounded-full"
+                <img
+                  src={heatIcon.url}
+                  alt=""
+                  className="h-10 w-10 animate-[flame-flicker_120ms_ease-in-out_infinite_alternate] sm:h-12 sm:w-12"
                   style={{
-                    background: "radial-gradient(50% 55% at 50% 75%, rgba(255,160,0,0.75) 0%, rgba(255,80,0,0.35) 45%, transparent 72%)",
-                    filter: "blur(2px)",
-                    animation: "flame-flicker 120ms ease-in-out infinite alternate",
+                    filter: "drop-shadow(0 0 12px #FF5E00) drop-shadow(0 0 22px #FFD23E)",
                   }}
                 />
-                {/* main flame tongue */}
-                <span
-                  className="absolute left-1/2 top-[10%] block h-[86%] w-[64%] -translate-x-1/2"
-                  style={{
-                    background:
-                      "linear-gradient(180deg, rgba(255,255,255,0.95) 0%, #FFF7A8 18%, #FFD23E 38%, #FF8A1E 62%, #F43F0B 85%, transparent 100%)",
-                    borderRadius: "50% 50% 50% 50% / 72% 72% 28% 28%",
-                    transformOrigin: "50% 100%",
-                    animation: "flame-flicker 90ms ease-in-out infinite alternate",
-                    filter: "drop-shadow(0 0 10px rgba(255,120,0,0.95)) drop-shadow(0 0 20px rgba(255,60,0,0.7))",
-                  }}
-                />
-                {/* hot white core */}
-                <span
-                  className="absolute left-1/2 top-[22%] block h-[58%] w-[34%] -translate-x-1/2"
-                  style={{
-                    background:
-                      "linear-gradient(180deg, #FFFFFF 0%, #FFFBD0 45%, #FFE45E 80%, transparent 100%)",
-                    borderRadius: "50% 50% 50% 50% / 68% 68% 32% 32%",
-                    transformOrigin: "50% 100%",
-                    animation: "flame-flicker 70ms ease-in-out infinite alternate-reverse",
-                    opacity: 0.95,
-                  }}
-                />
-                {/* small sparks */}
-                {[...Array(5)].map((_, i) => (
-                  <span
-                    key={i}
-                    className="absolute left-1/2 top-[60%] block h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-[#FFD23E]"
-                    style={{
-                      transform: `translateX(-50%) rotate(${i * 72}deg) translateY(-${18 + i * 4}px)`,
-                      opacity: 0.85,
-                      animation: `fade-out ${700 + i * 120}ms ${i * 80}ms ease-out infinite`,
-                    }}
-                  />
-                ))}
               </span>
             ) : null}
             {flying ? (
