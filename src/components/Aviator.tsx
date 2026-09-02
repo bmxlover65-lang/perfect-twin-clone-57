@@ -397,7 +397,7 @@ function FlightStage({
                 y={py - planeH * 0.62}
                 width={planeW}
                 height={planeH}
-                opacity={phase === "crashed" ? 0 : (phase === "crashed" ? 0 : i === frame ? 1 : 0)}
+                opacity={phase === "crashed" ? 0 : i === frame ? 1 : 0}
                 style={{
                   transition:
                     phase === "crashed" ? "opacity 1.1s linear, x 1.1s linear, y 1.1s linear" : "none",
