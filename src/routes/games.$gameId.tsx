@@ -1214,7 +1214,7 @@ const PANEL_CHIPS: { v: string; src: string }[] = [
 function ChipRow() {
   const [sel, setSel] = useState("1k");
   return (
-    <div className="mt-3 flex flex-nowrap items-center gap-3 overflow-x-auto rounded-b-[6px] bg-[#1F1F1F] px-3 py-2">
+    <div className="mt-3 flex flex-nowrap items-center gap-2 overflow-x-auto rounded-b-[6px] bg-[#1F1F1F] px-2 py-2 sm:gap-3 sm:px-3">
       {PANEL_CHIPS.map((c) => {
         const active = sel === c.v;
         return (
@@ -1225,7 +1225,7 @@ function ChipRow() {
             className="relative inline-flex shrink-0 flex-col items-center gap-1"
           >
             <span
-              className={`relative inline-flex h-[52px] w-[52px] items-center justify-center rounded-full transition-all ${
+              className={`relative inline-flex h-[42px] w-[42px] items-center justify-center rounded-full transition-all sm:h-[52px] sm:w-[52px] ${
                 active ? "ring-[3px] ring-[#D4AF1F]" : "ring-2 ring-transparent"
               }`}
             >
@@ -1236,7 +1236,7 @@ function ChipRow() {
                 draggable={false}
               />
             </span>
-            <span className="text-[0.8rem] font-bold text-white">{c.v}</span>
+            <span className="text-[0.7rem] font-bold text-white sm:text-[0.8rem]">{c.v}</span>
           </button>
         );
       })}
