@@ -1698,12 +1698,14 @@ function GamePage() {
           loading="lazy"
           className="block w-full"
         />
-        <BallByBallBoard
-          runners={raw.runners ?? []}
-          min={raw.min ?? 100}
-          max={raw.max ?? 100000}
-          news={raw.news}
-        />
+        <FitBoard designWidth={860}>
+          <BallByBallBoard
+            runners={raw.runners ?? []}
+            min={raw.min ?? 100}
+            max={raw.max ?? 100000}
+            news={raw.news}
+          />
+        </FitBoard>
         <RecentStrip results={results} />
       </div>
     );
@@ -1816,6 +1818,7 @@ function GamePage() {
           round={String(d?.roundId ?? "")}
           disabled={suspended}
         >
+          <FitBoard designWidth={900}>
           {gameId === "88.0021" ? (
             <div className="mt-2">
               <HeadsTailsPanel
@@ -1839,6 +1842,7 @@ function GamePage() {
               dream={gameId === "88.0020"}
             />
           ) : null}
+          </FitBoard>
         </BetLayer>
 
         {gameId !== "88.0023" ? <MyBets gameId={gameId} /> : null}
