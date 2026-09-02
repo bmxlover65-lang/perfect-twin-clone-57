@@ -579,7 +579,7 @@ export function BalloonStage({
           </div>
         ) : (
           <div
-            className="absolute left-1/2"
+            className="absolute left-1/2 z-20"
             style={
               flying
                 ? {
@@ -607,30 +607,37 @@ export function BalloonStage({
             {/* burner flame under the basket while the balloon is flying */}
             {flying ? (
               <span
-                className="pointer-events-none absolute left-1/2 top-full -translate-x-1/2 -translate-y-[55%]"
+                className="pointer-events-none absolute left-1/2 top-[88%] z-10 -translate-x-1/2"
                 aria-hidden
+                style={{
+                  width: 72,
+                  height: 96,
+                  filter: "drop-shadow(0 0 14px rgba(255,120,0,1)) drop-shadow(0 0 30px rgba(255,60,0,0.9)) drop-shadow(0 0 50px rgba(255,180,0,0.5))",
+                }}
               >
-                <span
-                  className="block h-7 w-5 sm:h-9 sm:w-6"
-                  style={{
-                    background:
-                      "radial-gradient(50% 65% at 50% 70%, #FFF6C8 0%, #FFD23E 35%, #FF8A1E 62%, #F43F0B 85%, transparent 100%)",
-                    borderRadius: "50% 50% 50% 50% / 62% 62% 38% 38%",
-                    transformOrigin: "50% 100%",
-                    animation: "flame-flicker 180ms ease-in-out infinite alternate",
-                    filter: "drop-shadow(0 0 8px rgba(255,140,30,0.85))",
-                  }}
-                />
-                <span
-                  className="absolute inset-x-[22%] bottom-0 block h-[58%]"
-                  style={{
-                    background:
-                      "radial-gradient(50% 60% at 50% 75%, #FFFDE8 0%, #FFE45E 55%, transparent 100%)",
-                    borderRadius: "50% 50% 50% 50% / 60% 60% 40% 40%",
-                    transformOrigin: "50% 100%",
-                    animation: "flame-flicker 140ms ease-in-out infinite alternate-reverse",
-                  }}
-                />
+                <svg viewBox="0 0 72 96" className="h-full w-full animate-[flame-flicker_110ms_ease-in-out_infinite_alternate]">
+                  <defs>
+                    <linearGradient id="fireBody" x1="0" y1="1" x2="0" y2="0">
+                      <stop offset="0%" stopColor="#7A0000" />
+                      <stop offset="30%" stopColor="#FF3D00" />
+                      <stop offset="65%" stopColor="#FFC400" />
+                      <stop offset="100%" stopColor="#FFFFFF" />
+                    </linearGradient>
+                    <linearGradient id="fireCore" x1="0" y1="1" x2="0" y2="0">
+                      <stop offset="0%" stopColor="#FF6F00" />
+                      <stop offset="55%" stopColor="#FFF9C4" />
+                      <stop offset="100%" stopColor="#FFFFFF" />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M36 92 C12 86 4 64 4 46 C4 28 18 14 26 2 C28 20 32 32 36 40 C40 32 44 20 46 2 C54 14 68 28 68 46 C68 64 60 86 36 92 Z"
+                    fill="url(#fireBody)"
+                  />
+                  <path
+                    d="M36 80 C22 76 16 62 16 50 C16 38 24 28 30 20 C32 34 34 42 36 48 C38 42 40 34 42 20 C48 28 56 38 56 50 C56 62 50 76 36 80 Z"
+                    fill="url(#fireCore)"
+                  />
+                </svg>
               </span>
             ) : null}
             {flying ? (
