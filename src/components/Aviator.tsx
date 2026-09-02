@@ -831,17 +831,15 @@ export function Aviator() {
             </div>
           ) : null}
 
-          <div className="mt-2 grid grid-cols-[1fr_auto_auto_auto] gap-x-2 border-b sm:gap-x-3 border-white/10 pb-1 text-[0.62rem] font-semibold text-white/40">
+          <div className="mt-2 grid grid-cols-[1fr_64px_58px_72px] gap-x-2 border-b border-white/10 px-2 pb-1 text-[0.65rem] font-semibold text-white/40">
             <span>{tab === "my" ? "Round" : "User"}</span>
             <span>Bet&nbsp;&nbsp;X</span>
             <span></span>
             <span className="text-right">Cash out</span>
           </div>
 
+          <div className="h-[340px] max-h-[340px] w-full min-w-0 flex-col space-y-[2px] overflow-y-auto overflow-x-hidden pt-1 [column-count:1] lg:h-[560px] lg:max-h-[560px]">
 
-
-
-          <div className="h-[340px] max-h-[340px] w-full min-w-0 flex-col space-y-[3px] overflow-y-auto overflow-x-hidden pt-1 [column-count:1] lg:h-[560px] lg:max-h-[560px]">
             {tab === "my"
               ? [
                   ...slots
@@ -904,12 +902,10 @@ export function Aviator() {
                   return (
                     <div
                       key={b.id}
-                      className={`grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-1.5 px-1.5 sm:px-2 sm:gap-x-3 py-[5px] text-[0.68rem] sm:text-[0.72rem] ${
+                      className={`grid grid-cols-[1fr_64px_58px_72px] items-center gap-x-2 px-2 py-[6px] text-[0.72rem] sm:text-[0.76rem] ${
                         done
                           ? "rounded-[7px] border border-[#3B8F20] bg-[#0D4206] text-white"
-                          : b.busted
-                            ? "rounded-[7px] border border-white/[0.06] bg-[#1A1113] text-white/45"
-                            : "border-b border-white/[0.06] bg-[#111315] text-white/70"
+                          : "border-b border-white/[0.05] bg-transparent text-white/70"
                       }`}
                     >
                       <span className="flex min-w-0 items-center gap-2">
@@ -919,19 +915,17 @@ export function Aviator() {
                           loading="lazy"
                           width={96}
                           height={96}
-                          className="h-6 w-6 shrink-0 rounded-full object-cover sm:h-7 sm:w-7"
+                          className="h-7 w-7 shrink-0 rounded-full object-cover"
                         />
-                        <span className="truncate font-semibold text-[#20BFFF]">
+                        <span className={`truncate ${done ? "font-semibold text-white" : "text-[#B7AC8C]"}`}>
                           {maskName(b.user)}
                         </span>
                       </span>
-                      <span className="font-semibold text-white/85">{b.amount}</span>
+                      <span className={`font-semibold ${done ? "text-white" : "text-white/85"}`}>{b.amount}</span>
 
                       <span
-                        className={`shrink-0 rounded-full px-1.5 py-[1px] text-[0.62rem] font-bold sm:px-2 sm:text-[0.65rem] ${
-                          done
-                            ? "border border-[#3B8F20]/60 bg-[#052208] text-[#7CFF56]"
-                            : ""
+                        className={`shrink-0 justify-self-start rounded-full px-2 py-[1px] text-[0.65rem] font-bold ${
+                          done ? "border border-[#3B8F20]/60 bg-[#052208] text-[#7CFF56]" : ""
                         }`}
                       >
                         {done ? `${fmt(b.cashedAt!)}x` : ""}
@@ -942,6 +936,7 @@ export function Aviator() {
                     </div>
                   );
                 })}
+
 
 
             {tab === "my" && myBets.length === 0 ? (
