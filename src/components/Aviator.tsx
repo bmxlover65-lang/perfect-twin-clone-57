@@ -560,8 +560,7 @@ export function Aviator() {
   useEffect(() => {
     if (phase !== "flying") return;
     let stake = 0;
-    if (p1.active && p1.cashedAt === null) stake += p1.amount;
-    if (p2.active && p2.cashedAt === null) stake += p2.amount;
+    for (const p of slots) if (p.active && p.cashedAt === null) stake += p.amount;
     if (stake) setBalance((b) => Math.round((b - stake) * 100) / 100);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
@@ -569,23 +568,22 @@ export function Aviator() {
   // auto cashout
   useEffect(() => {
     if (phase !== "flying") return;
-    if (p1.auto && p1.active && p1.cashedAt === null && multiplier >= p1.autoCashout) {
-      win(p1.amount * p1.autoCashout);
-      setP1((p) => ({ ...p, cashedAt: p.autoCashout }));
-    }
-    if (p2.auto && p2.active && p2.cashedAt === null && multiplier >= p2.autoCashout) {
-      win(p2.amount * p2.autoCashout);
-      setP2((p) => ({ ...p, cashedAt: p.autoCashout }));
-    }
-  }, [multiplier, phase, p1, p2, win]);
+    slots.forEach((p, i) => {
+      if (p.auto && p.active && p.cashedAt === null && multiplier >= p.autoCashout) {
+        win(p.amount * p.autoCashout);
+        setSlot(i, (q) => ({ ...q, cashedAt: q.autoCashout }));
+      }
+    });
+  }, [multiplier, phase, slots, win, setSlot]);
 
   // record my bets when the round settles
   useEffect(() => {
     if (phase !== "crashed") return;
     const rows: MyBet[] = [];
-    for (const p of [p1, p2]) {
+    for (const p of slots) {
       if (p.active) rows.push({ round, amount: p.amount, cashedAt: p.cashedAt, crash: multiplier });
     }
+
     if (rows.length) {
       setMyBets((m) => [...rows, ...m].slice(0, 40));
       for (const r of rows) {
