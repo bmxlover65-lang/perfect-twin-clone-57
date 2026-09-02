@@ -1438,7 +1438,7 @@ function NumberPanel({
     }));
   };
 
-  const DREAM_ODDS: Record<string, number> = { "1": 2, "2": 3, "5": 6, "10": 11, "20": 21, "40": 41 };
+  const DREAM_ORDER = ["1", "2", "5", "10", "20", "40"];
 
   const DREAM_BORDER: Record<string, string> = {
     "1": "#C79A00",
