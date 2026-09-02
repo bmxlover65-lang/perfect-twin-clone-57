@@ -2117,7 +2117,7 @@ function GamePage() {
             {status || "—"} · {d?.leftSec ?? 0}s
           </span>
         ) : null}
-        <ResultBanner results={results} />
+        <ResultBanner results={results} gameId={gameId} />
       </div>
 
 
