@@ -1841,7 +1841,7 @@ function GamePage() {
           round={String(d?.roundId ?? "")}
           disabled={suspended}
         >
-          <FitBoard designWidth={900}>
+          <Fit mobileNative designWidth={900}>
           {gameId === "88.0021" ? (
             <div className="mt-2">
               <HeadsTailsPanel
