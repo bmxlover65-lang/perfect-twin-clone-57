@@ -839,7 +839,7 @@ export function Aviator() {
           </div>
 
           <div
-            className="flex h-[340px] max-h-[340px] w-full min-w-0 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-1 lg:h-[560px] lg:max-h-[560px]"
+            className="flex h-[340px] max-h-[340px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-1 lg:h-auto lg:max-h-none lg:min-h-0"
             style={{
               overscrollBehavior: "contain",
               WebkitOverflowScrolling: "touch",
