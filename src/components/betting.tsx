@@ -37,25 +37,30 @@ function extractPick(target: HTMLElement, root: HTMLElement): Pick | null {
   }
   if (odds == null || !node) return null;
 
-  // Side (A/B/1/2) from the cell's position when a row holds several odds cells.
+  // Side (A/B) from the cell's position when a row holds exactly two odds cells.
   let side = "";
-  const cellParent = node.parentElement;
-  if (cellParent) {
-    const cells = Array.from(cellParent.children).filter((c) => oddsOf(c) != null);
-    if (cells.length === 2) side = cells.indexOf(node) === 0 ? "A" : "B";
+  let cell: HTMLElement = node;
+  for (let i = 0; i < 4 && cell.parentElement; i++, cell = cell.parentElement) {
+    const sibs = Array.from(cell.parentElement.children).filter((c) => oddsOf(c) != null);
+    if (sibs.length === 2) {
+      side = sibs.indexOf(cell) === 0 ? "A" : "B";
+      break;
+    }
   }
 
+  // Label = the nearest words-only text around the cell (market name / runner).
   let row: HTMLElement | null = node.parentElement;
   for (let i = 0; i < 6 && row && row !== root.parentElement; i++, row = row.parentElement) {
     const txt = (row.textContent ?? "").replace(/\s+/g, " ").trim();
-    const lab = txt.match(/[A-Za-z]{3,}[A-Za-z0-9 .'&+-]{0,24}/);
+    const lab = txt.match(/[A-Za-z]{3,}(?:[ '&+-][A-Za-z]{2,})*/);
     if (lab) {
-      const base = lab[0].trim().replace(/\s+i$/i, "");
+      const base = lab[0].trim();
       return { label: side ? `${base} ${side}` : base, odds };
     }
   }
   return { label: side ? `Player ${side}` : "Selection", odds };
 }
+
 
 
 
