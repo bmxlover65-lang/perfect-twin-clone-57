@@ -40,7 +40,7 @@ export function Scoreboard({ sportId, eventId }: { sportId: string; eventId: str
   }, [sportId, eventId]);
 
   return (
-    <div className="scoreboard-embed">
+    <div className="scoreboard-embed bg-black">
       <style>{`
         .scoreboard-embed { --mc-bg: transparent; background: #000000; }
         .scoreboard-embed :where(html, body) { background: transparent !important; }
