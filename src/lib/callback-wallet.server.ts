@@ -4,7 +4,7 @@ import type { Operator } from "./operator-auth.server";
 export type WalletAction = "balance" | "debit" | "credit" | "rollback";
 
 export type WalletResult =
-  | { ok: true; balance: number | null; reference?: string }
+  | { ok: true; balance: number | null; reference?: string | undefined }
   | { ok: false; status: number; code: string; message: string };
 
 /**

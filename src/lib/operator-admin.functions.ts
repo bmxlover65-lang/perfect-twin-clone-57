@@ -76,7 +76,7 @@ export const updateOperator = createServerFn({ method: "POST" })
     if (data.status) patch['status'] = data.status;
     if (data.planAmount !== undefined) patch['plan_amount'] = data.planAmount;
     if (data.planDays) patch['plan_expires_at'] = new Date(Date.now() + data.planDays * 864e5).toISOString();
-    const { error } = await supabaseAdmin.from("operators").update(patch).eq("id", data.id);
+    const { error } = await supabaseAdmin.from("operators").update(patch as never).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
