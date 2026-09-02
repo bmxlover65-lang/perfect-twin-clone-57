@@ -270,13 +270,21 @@ export function BetLayer({
                   <button
                     key={c}
                     type="button"
-                    onClick={() => setStake((s) => s + c)}
-                    className="h-9 rounded-[4px] border border-[#c9d6de] bg-white text-[0.78rem] font-bold text-[#20384a] active:bg-[#dfe9ef]"
+                    onClick={() => {
+                      setStake(c);
+                      saveLastStake(c);
+                    }}
+                    className={`h-9 rounded-[4px] border text-[0.78rem] font-bold active:bg-[#dfe9ef] ${
+                      Math.round(stake) === c
+                        ? "border-[#2f7fbe] bg-[#2f7fbe] text-white"
+                        : "border-[#c9d6de] bg-white text-[#20384a]"
+                    }`}
                   >
                     {c.toLocaleString("en-IN")}
                   </button>
                 ))}
               </div>
+
 
               <div className="mt-2 flex items-center justify-between px-1 text-[0.75rem] font-bold text-[#4a6274]">
                 <span>Stake {Math.round(stake).toLocaleString("en-IN")}</span>
