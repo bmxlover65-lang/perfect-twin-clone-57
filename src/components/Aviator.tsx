@@ -273,7 +273,7 @@ function FlightStage({
       <style>{`@keyframes av-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes av-prop{to{transform:rotate(360deg)}}`}</style>
 
-      <svg viewBox={`0 0 ${W} ${H}`} className="relative block h-[210px] w-full sm:h-[300px]">
+      <svg viewBox={`0 0 ${W} ${H}`} className="relative block h-[175px] w-full sm:h-[300px]">
         <defs>
           <linearGradient id="av-area" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#E01E1E" stopOpacity="0.5" />
@@ -349,21 +349,21 @@ function FlightStage({
 
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         {phase === "betting" ? (
-          <p className="text-[1.05rem] font-bold uppercase tracking-[0.04em] text-white sm:text-[1.35rem]">
+          <p className="px-4 text-center text-[0.82rem] font-bold uppercase tracking-[0.04em] text-white sm:text-[1.35rem]">
             Waiting for next round
           </p>
         ) : phase === "crashed" ? (
           <>
-            <p className="text-[1rem] font-extrabold uppercase tracking-[0.18em] text-[#E01E1E] sm:text-[1.15rem]">
+            <p className="text-[0.8rem] font-extrabold uppercase tracking-[0.18em] text-[#E01E1E] sm:text-[1.15rem]">
               Flew Away!
             </p>
 
-            <p className="text-[2.6rem] font-extrabold leading-none text-[#E01E1E] drop-shadow-[0_4px_14px_rgba(0,0,0,.7)] sm:text-[3.4rem]">
+            <p className="text-[2rem] font-extrabold leading-none text-[#E01E1E] drop-shadow-[0_4px_14px_rgba(0,0,0,.7)] sm:text-[3.4rem]">
               {fmt(multiplier)}x
             </p>
           </>
         ) : (
-          <p className="text-[2.7rem] font-extrabold leading-none text-white drop-shadow-[0_4px_14px_rgba(0,0,0,.6)] sm:text-[3.6rem]">
+          <p className="text-[2.1rem] font-extrabold leading-none text-white drop-shadow-[0_4px_14px_rgba(0,0,0,.6)] sm:text-[3.6rem]">
             {fmt(multiplier)}x
           </p>
         )}
@@ -556,14 +556,14 @@ export function Aviator() {
   }, [bets]);
 
   return (
-    <div className="rounded-[16px] border border-white/10 bg-[#141516] p-2">
+    <div className="rounded-[16px] border border-white/10 bg-[#141516] p-1.5 sm:p-2">
       {/* history strip */}
       <div className="mb-2 flex items-center gap-2 rounded-[12px] bg-[#1B1C1D] px-2 py-[6px]">
-        <div className="flex min-w-0 flex-1 items-center gap-3 overflow-x-auto">
+        <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto sm:gap-3">
           {history.map((h, i) => (
             <span
               key={`${h}-${i}`}
-              className={`shrink-0 text-[0.78rem] font-bold ${chipTone(h)}`}
+              className={`shrink-0 text-[0.68rem] font-bold sm:text-[0.78rem] ${chipTone(h)}`}
             >
               {fmt(h)}x
             </span>
@@ -576,8 +576,8 @@ export function Aviator() {
 
       <div className="grid gap-2 lg:grid-cols-[240px_1fr]">
         {/* bets + chat */}
-        <div className="order-2 min-w-0 rounded-[14px] bg-[#1B1C1D] p-2 lg:order-1">
-          <div className="mx-auto flex w-[86%] rounded-full bg-[#101112] p-[3px] text-[0.72rem] font-bold text-white/55">
+        <div className="order-2 min-w-0 rounded-[14px] bg-[#1B1C1D] p-1.5 lg:order-1 sm:p-2">
+          <div className="mx-auto flex w-full max-w-[280px] rounded-full bg-[#101112] p-[3px] text-[0.68rem] font-bold text-white/55 sm:w-[86%] sm:text-[0.72rem]">
             {([["all", "All Bets"], ["my", "My Bets"]] as const).map(([k, l]) => (
               <button
                 key={k}
@@ -605,14 +605,14 @@ export function Aviator() {
             </div>
           ) : null}
 
-          <div className="mt-2 grid grid-cols-[1fr_auto_auto] gap-x-3 border-b border-white/10 pb-1 text-[0.62rem] font-semibold text-white/40">
+          <div className="mt-2 grid grid-cols-[1fr_auto_auto] gap-x-2 border-b sm:gap-x-3 border-white/10 pb-1 text-[0.62rem] font-semibold text-white/40">
             <span>{tab === "my" ? "Round" : "User"}</span>
             <span>Bet&nbsp;&nbsp;X</span>
             <span className="text-right">Cash out</span>
           </div>
 
           {tab === "my" ? (
-            <div className="mt-1 flex items-center justify-between rounded-[4px] border border-[#2C2D30] bg-[#101112] px-2 py-[5px] text-[0.66rem] text-white/60">
+            <div className="mt-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-[2px] rounded-[4px] border border-[#2C2D30] bg-[#101112] px-2 py-[5px] text-[0.6rem] text-white/60 sm:text-[0.66rem]">
               <span>
                 This game is <span className="text-[#2FA8F5]">✅ Provably Fair</span>
               </span>
@@ -627,7 +627,7 @@ export function Aviator() {
               ? myBets.map((b, i) => (
                   <div
                     key={`${b.round}-${i}`}
-                    className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-3 rounded-[6px] px-1 py-[4px] text-[0.72rem] ${
+                    className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-2 rounded-[6px] px-1 sm:gap-x-3 py-[4px] text-[0.72rem] ${
                       b.cashedAt ? "bg-[#123A18] text-[#8CFF6B]" : "bg-[#3A1212] text-[#F98080]"
                     }`}
                   >
@@ -641,7 +641,7 @@ export function Aviator() {
               : bets.map((b) => (
                   <div
                     key={b.id}
-                    className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-3 border-b border-white/[0.06] px-1 py-[5px] text-[0.72rem] ${
+                    className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-2 border-b border-white/[0.06] sm:gap-x-3 px-1 py-[5px] text-[0.72rem] ${
                       b.cashedAt !== undefined ? "text-[#8CFF6B]" : "text-white/70"
                     }`}
                   >
