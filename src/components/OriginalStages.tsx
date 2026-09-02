@@ -605,7 +605,6 @@ export function BalloonStage({
   const flying = phase === "flying";
   const popped = phase === "crashed";
   const grow = Math.min(1, climb * 0.65 + (Math.log(Math.max(1, shown)) / Math.log(12)) * 0.35);
-  const drift = flying ? Math.sin(shown * 2.2) * 10 : 0;
 
   const bgIndex = Math.abs(hashStr(roundId ?? "0")) % LOCATIONS.length;
 
@@ -668,24 +667,13 @@ export function BalloonStage({
         ) : (
           <div
             className="absolute left-1/2 z-10"
-            style={
-              flying
-                ? {
-                    bottom: `${18 + grow * 58}%`,
-                    width: `${Math.max(24, 36 - grow * 10)}%`,
-                    minWidth: 170,
-                    maxWidth: 330,
-                    transform: `translateX(calc(-50% + ${drift}px))`,
-                    transition: "bottom 220ms linear, width 220ms linear, transform 220ms linear",
-                  }
-                : {
-                    bottom: "22%",
-                    width: "36%",
-                    minWidth: 200,
-                    maxWidth: 330,
-                    transform: "translateX(-50%)",
-                  }
-            }
+            style={{
+              bottom: "24%",
+              width: "36%",
+              minWidth: 200,
+              maxWidth: 330,
+              transform: "translateX(-50%)",
+            }}
           >
             <img
               src={balloonImg.url}
