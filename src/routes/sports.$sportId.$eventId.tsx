@@ -12,6 +12,7 @@ import {
   type Market,
   type OddsResponse,
 } from "@/lib/uapi";
+import { BalanceChip, BetLayer, MyBets } from "@/components/betting";
 
 export const Route = createFileRoute("/sports/$sportId/$eventId")({
   head: ({ params }) => {
@@ -319,47 +320,60 @@ function EventPage() {
       </div>
 
 
-      <p className="mt-6 text-base font-bold text-foreground">
-        Live odds <span className="text-sm font-normal text-muted-foreground">· live via WebSocket</span>
+      <p className="mt-6 flex items-center justify-between text-base font-bold text-foreground">
+        <span>
+          Live odds{" "}
+          <span className="text-sm font-normal text-muted-foreground">· live via WebSocket</span>
+        </span>
+        <BalanceChip />
       </p>
 
-      <div className="mt-3 space-y-4">
-        {matchOdds.length ? (
-          <Section title="Match odds" count={matchOdds.length}>
-            {matchOdds.map((m) => (
-              <Board key={m.marketId} market={m} />
-            ))}
-          </Section>
-        ) : null}
+      <BetLayer
+        gameId={`sports-${eventId}`}
+        gameName={data?.eventName ?? `Event ${eventId}`}
+        round={eventId}
+      >
+        <div className="mt-3 space-y-4">
+          {matchOdds.length ? (
+            <Section title="Match odds" count={matchOdds.length}>
+              {matchOdds.map((m) => (
+                <Board key={m.marketId} market={m} />
+              ))}
+            </Section>
+          ) : null}
 
-        {bookmakers.length ? (
-          <Section title="Bookmaker" count={bookmakers.length}>
-            {bookmakers.map((m) => (
-              <Board key={m.marketId} market={m} />
-            ))}
-          </Section>
-        ) : null}
+          {bookmakers.length ? (
+            <Section title="Bookmaker" count={bookmakers.length}>
+              {bookmakers.map((m) => (
+                <Board key={m.marketId} market={m} />
+              ))}
+            </Section>
+          ) : null}
 
-        {fancy.length ? (
-          <Section title="Fancy" count={fancy.length}>
-            {fancy.map((m) => (
-              <FancyRow key={m.marketId} market={m} />
-            ))}
-          </Section>
-        ) : null}
+          {fancy.length ? (
+            <Section title="Fancy" count={fancy.length}>
+              {fancy.map((m) => (
+                <FancyRow key={m.marketId} market={m} />
+              ))}
+            </Section>
+          ) : null}
 
-        {sportsbook.length ? (
-          <Section title="Sportsbook" count={sportsbook.length}>
-            {sportsbook.map((m) => (
-              <Board key={m.marketId} market={m} />
-            ))}
-          </Section>
-        ) : null}
+          {sportsbook.length ? (
+            <Section title="Sportsbook" count={sportsbook.length}>
+              {sportsbook.map((m) => (
+                <Board key={m.marketId} market={m} />
+              ))}
+            </Section>
+          ) : null}
 
-        {!data && !error ? (
-          <p className="text-sm text-muted-foreground">Loading live markets…</p>
-        ) : null}
-      </div>
+          {!data && !error ? (
+            <p className="text-sm text-muted-foreground">Loading live markets…</p>
+          ) : null}
+        </div>
+      </BetLayer>
+
+      <MyBets gameId={`sports-${eventId}`} />
+
 
     </div>
   );
