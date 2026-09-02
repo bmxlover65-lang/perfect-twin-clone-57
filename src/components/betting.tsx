@@ -5,6 +5,21 @@ export type Pick = { label: string; odds: number };
 
 const CHIPS = [1000, 5000, 10000, 25000, 50000, 100000, 200000, 500000];
 
+const DEFAULT_STAKE = 1000;
+const LAST_STAKE_KEY = "uapi.lastStake";
+
+function readLastStake(): number {
+  if (typeof window === "undefined") return DEFAULT_STAKE;
+  const v = Number(window.localStorage.getItem(LAST_STAKE_KEY));
+  return Number.isFinite(v) && v > 0 ? v : DEFAULT_STAKE;
+}
+
+function saveLastStake(v: number) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(LAST_STAKE_KEY, String(Math.round(v)));
+}
+
+
 const ODDS_RE = /^\d{1,4}(?:\.\d{1,2})?$/;
 
 function oddsOf(el: Element): number | null {
@@ -147,15 +162,20 @@ export function BetLayer({
   const [pick, setPick] = useState<Pick | null>(null);
   const [anchor, setAnchor] = useState(0);
   const [odds, setOdds] = useState(1);
-  const [stake, setStake] = useState(0);
+  const [stake, setStake] = useState(DEFAULT_STAKE);
   const [err, setErr] = useState<string | null>(null);
   const busy = useRef(false);
   const wallet = useWallet();
 
+  // Remember the last stake so the slip opens ready to bet in one tap.
+  useEffect(() => {
+    setStake(readLastStake());
+  }, []);
+
   const close = () => {
     setPick(null);
-    setStake(0);
   };
+
 
   const submit = () => {
     if (busy.current) {
@@ -172,6 +192,7 @@ export function BetLayer({
       return;
     }
     busy.current = true;
+    saveLastStake(stake);
     const ok = placeBet({
       gameId,
       gameName,
@@ -250,13 +271,21 @@ export function BetLayer({
                   <button
                     key={c}
                     type="button"
-                    onClick={() => setStake((s) => s + c)}
-                    className="h-9 rounded-[4px] border border-[#c9d6de] bg-white text-[0.78rem] font-bold text-[#20384a] active:bg-[#dfe9ef]"
+                    onClick={() => {
+                      setStake(c);
+                      saveLastStake(c);
+                    }}
+                    className={`h-9 rounded-[4px] border text-[0.78rem] font-bold active:bg-[#dfe9ef] ${
+                      Math.round(stake) === c
+                        ? "border-[#2f7fbe] bg-[#2f7fbe] text-white"
+                        : "border-[#c9d6de] bg-white text-[#20384a]"
+                    }`}
                   >
                     {c.toLocaleString("en-IN")}
                   </button>
                 ))}
               </div>
+
 
               <div className="mt-2 flex items-center justify-between px-1 text-[0.75rem] font-bold text-[#4a6274]">
                 <span>Stake {Math.round(stake).toLocaleString("en-IN")}</span>
