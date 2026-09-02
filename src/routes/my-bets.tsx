@@ -105,9 +105,9 @@ function MyBetsPage() {
             {rows.map((b) => (
               <tr key={b.id} className="border-t border-border">
                 <td className="p-2 text-muted-foreground">
-                  {new Date(b.at).toLocaleTimeString()}
+                  {new Date(b.ts).toLocaleTimeString()}
                 </td>
-                <td className="p-2 text-foreground">{b.gameId}</td>
+                <td className="p-2 text-foreground">{b.gameName || b.gameId}</td>
                 <td className="p-2 font-semibold text-foreground">{b.label}</td>
                 <td className="p-2 text-right text-foreground">{b.odds.toFixed(2)}</td>
                 <td className="p-2 text-right text-foreground">
