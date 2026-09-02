@@ -21,8 +21,11 @@ function fmtTime(iso: string | null) {
   });
 }
 
-/** Live Balloon telemetry: current round, crash value, crash time and history. */
-export function BalloonPanel() {
+/**
+ * Live crash-game telemetry: current round, crash value, crash time and stored
+ * history. Balloon and Aviator run on the same upstream round series.
+ */
+export function BalloonPanel({ heading = "Balloon" }: { heading?: string }) {
   const sync = useServerFn(syncBalloonRounds);
   const list = useServerFn(listBalloonRounds);
   const live = useQuery({
@@ -57,6 +60,9 @@ export function BalloonPanel() {
 
   return (
     <div className="space-y-3">
+      <p className="text-[0.8rem] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+        {heading} · live feed sync
+      </p>
       <div className="grid gap-3 sm:grid-cols-4">
         <div className="rounded-lg border border-border bg-card p-3">
           <p className="text-[0.7rem] font-bold uppercase tracking-[0.12em] text-muted-foreground">
