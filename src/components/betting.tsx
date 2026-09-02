@@ -147,15 +147,20 @@ export function BetLayer({
   const [pick, setPick] = useState<Pick | null>(null);
   const [anchor, setAnchor] = useState(0);
   const [odds, setOdds] = useState(1);
-  const [stake, setStake] = useState(0);
+  const [stake, setStake] = useState(DEFAULT_STAKE);
   const [err, setErr] = useState<string | null>(null);
   const busy = useRef(false);
   const wallet = useWallet();
 
+  // Remember the last stake so the slip opens ready to bet in one tap.
+  useEffect(() => {
+    setStake(readLastStake());
+  }, []);
+
   const close = () => {
     setPick(null);
-    setStake(0);
   };
+
 
   const submit = () => {
     if (busy.current) {
