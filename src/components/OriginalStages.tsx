@@ -376,10 +376,24 @@ export function BalloonStage({
   mutedRef.current = muted;
   // browsers block audio until the first real user interaction — track it
   const interactedRef = useRef(false);
+  const phaseRef = useRef(phase);
+  phaseRef.current = phase;
 
   useEffect(() => {
     const unlock = () => {
       interactedRef.current = true;
+      // if a round is already flying when the user first interacts, start the
+      // air sound right away instead of waiting for the next round
+      if (phaseRef.current === "flying" && !mutedRef.current) {
+        try {
+          const a = new Audio("/balloon-air.mp3");
+          a.volume = 0.35;
+          airRef.current = a;
+          void a.play().catch(() => undefined);
+        } catch {
+          // audio unavailable
+        }
+      }
     };
     window.addEventListener("pointerdown", unlock, { once: true });
     window.addEventListener("keydown", unlock, { once: true });
