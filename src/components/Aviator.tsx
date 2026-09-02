@@ -400,12 +400,14 @@ function FlightStage({
   countdown,
   muted,
   setMuted,
+  feedLive,
 }: {
   phase: Phase;
   multiplier: number;
   countdown: number;
   muted: boolean;
   setMuted: (fn: (v: boolean) => boolean) => void;
+  feedLive: boolean | null;
 }) {
   const [t, setT] = useState(0);
   useEffect(() => {
@@ -562,6 +564,15 @@ function FlightStage({
           </>
         ) : null}
       </svg>
+
+      <div className="pointer-events-none absolute right-3 top-2 z-10 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] sm:text-[11px]">
+        <span
+          className={`h-1.5 w-1.5 rounded-full ${feedLive ? "bg-[#22C55E]" : feedLive === false ? "bg-[#EF1B2E]" : "bg-white/40"}`}
+        />
+        <span className={feedLive ? "text-[#22C55E]" : feedLive === false ? "text-[#FF6B7A]" : "text-white/50"}>
+          {feedLive ? "Live results" : feedLive === false ? "Feed offline · demo rounds" : "Connecting…"}
+        </span>
+      </div>
 
       <button
         type="button"
