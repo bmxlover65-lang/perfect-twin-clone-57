@@ -2123,7 +2123,7 @@ function GamePage() {
         {!suspended && (d?.leftSec ?? 0) > 0
           ? (() => {
               const secs = Math.max(0, Math.round((d?.leftSec ?? 0) - age));
-              const total = Math.max(secs, d?.seconds ?? 0, 30);
+              const total = Math.max(secs, 30);
               const pct = Math.max(0, Math.min(1, secs / total));
               return (
                 <span
