@@ -76,7 +76,8 @@ const CARD_SIZE =
 
 function Card({ code }: { code: string }) {
   const clean = code.replace(/_+$/, "");
-  const img = cardImage(clean);
+  const hidden = !clean || clean === "0" || clean === "1";
+  const img = hidden ? CARD_BACK : cardImage(clean);
   if (img) {
     return (
       <img
