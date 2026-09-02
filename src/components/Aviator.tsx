@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import plane0 from "@/assets/aviator/plane-0.svg";
 import plane1 from "@/assets/aviator/plane-1.svg";
 import plane2 from "@/assets/aviator/plane-2.svg";
@@ -8,7 +8,7 @@ import arrowIcon from "@/assets/aviator/arrow-down.svg";
 import fairIcon from "@/assets/aviator/provably-fair.svg";
 
 import { type AviatorControl, useAdminConfig } from "@/lib/admin";
-import { logBet, logChat, setBalance as saveBalance } from "@/lib/telemetry";
+import { logBet, setBalance as saveBalance } from "@/lib/telemetry";
 
 const PLANE_FRAMES = [plane0, plane1, plane2, plane3];
 
@@ -381,14 +381,8 @@ function FlightStage({
 /* ---------------- main ---------------- */
 
 type MyBet = { round: number; amount: number; cashedAt: number | null; crash: number };
-type ChatMsg = { id: number; user: string; text: string; mine?: boolean };
 
-const SEED_CHAT: ChatMsg[] = [
-  { id: 1, user: "d***5", text: "gg 12x!" },
-  { id: 2, user: "R***a", text: "auto cashout 1.60 best" },
-  { id: 3, user: "k***9", text: "cashed 2.4x finally" },
-  { id: 4, user: "S***h", text: "next one big" },
-];
+
 
 export function Aviator() {
   const { admin, cfg } = useAdminConfig();
@@ -397,9 +391,6 @@ export function Aviator() {
 
   const [tab, setTab] = useState<"all" | "my" | "top">("all");
   const [myBets, setMyBets] = useState<MyBet[]>([]);
-  const [chat, setChat] = useState<ChatMsg[]>(SEED_CHAT);
-  const [chatOpen, setChatOpen] = useState(false);
-  const [draft, setDraft] = useState("");
   const [phase, setPhase] = useState<Phase>("betting");
   const [multiplier, setMultiplier] = useState(1);
   const [countdown, setCountdown] = useState(BET_MS);
@@ -536,30 +527,6 @@ export function Aviator() {
     saveBalance(balance);
   }, [balance]);
 
-  // chatter from other players
-  useEffect(() => {
-    const lines = ["nice one", "1.5x safe", "big red again", "cash early bro", "lets go", "auto 2x on"];
-    const id = window.setInterval(() => {
-      setChat((c) =>
-        [
-          ...c,
-          {
-            id: Date.now(),
-            user: NAMES[Math.floor(Math.random() * NAMES.length)]!,
-            text: lines[Math.floor(Math.random() * lines.length)]!,
-          },
-        ].slice(-40),
-      );
-    }, 9000);
-    return () => window.clearInterval(id);
-  }, []);
-
-  const totals = useMemo(() => {
-    const staked = bets.reduce((s, b) => s + b.amount, 0);
-    const cashed = bets.filter((b) => b.cashedAt !== undefined).length;
-    return { staked, cashed, count: bets.length };
-  }, [bets]);
-
   return (
     <div className="rounded-[16px] border border-white/10 bg-[#141516] p-1.5 sm:p-2">
       {/* history strip */}
@@ -585,7 +552,7 @@ export function Aviator() {
 
       </div>
 
-      <div className="grid gap-2 lg:grid-cols-[240px_1fr]">
+      <div className="grid gap-2 lg:grid-cols-[320px_1fr]">
         {/* bets + chat */}
         <div className="order-2 min-w-0 rounded-[14px] bg-[#1B1C1D] p-1.5 lg:order-1 sm:p-2">
           <div className="mx-auto flex w-full max-w-[280px] rounded-full bg-[#101112] p-[3px] text-[0.68rem] font-bold text-white/55 sm:w-[86%] sm:text-[0.72rem]">
@@ -622,18 +589,8 @@ export function Aviator() {
             <span className="text-right">Cash out</span>
           </div>
 
-          {tab === "my" ? (
-            <div className="mt-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-[2px] rounded-[4px] border border-[#2C2D30] bg-[#101112] px-2 py-[5px] text-[0.6rem] text-white/60 sm:text-[0.66rem]">
-              <span className="flex items-center gap-1">
-                This game is
-                <img src={fairIcon} alt="" className="h-[13px] w-[12px]" />
-                <span className="text-[#2FA8F5]">Provably Fair</span>
-              </span>
-              <span>
-                Powered by <span className="font-bold text-white underline">VIMAAN</span>
-              </span>
-            </div>
-          ) : null}
+
+
 
 
           <div className="max-h-[300px] space-y-[3px] overflow-y-auto pt-1">
@@ -652,99 +609,64 @@ export function Aviator() {
                     </span>
                   </div>
                 ))
-              : bets.map((b) => (
-                  <div
-                    key={b.id}
-                    className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-2 border-b border-white/[0.06] sm:gap-x-3 px-1 py-[5px] text-[0.72rem] ${
-                      b.cashedAt !== undefined ? "text-[#8CFF6B]" : "text-white/70"
-                    }`}
-                  >
-                    <span className="flex min-w-0 items-center gap-2">
-                      <span
-                        className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-[0.6rem] font-bold text-white"
-                        style={{
-                          background: `conic-gradient(from 0deg, hsl(${(b.id * 47) % 360} 70% 45%), hsl(${(b.id * 91) % 360} 70% 40%))`,
-                        }}
-                      >
-                        {b.user.slice(0, 1).toUpperCase()}
+              : bets.map((b) => {
+                  const done = b.cashedAt !== undefined;
+                  return (
+                    <div
+                      key={b.id}
+                      className={`grid grid-cols-[1fr_auto_auto] items-center gap-x-2 px-1 sm:gap-x-3 py-[5px] text-[0.72rem] ${
+                        done
+                          ? "rounded-[6px] border border-[#2FA300]/60 bg-[#123A18] text-white"
+                          : "border-b border-white/[0.06] text-white/70"
+                      }`}
+                    >
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span
+                          className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-[0.6rem] font-bold text-white"
+                          style={{
+                            background: `conic-gradient(from 0deg, hsl(${(b.id * 47) % 360} 70% 45%), hsl(${(b.id * 91) % 360} 70% 40%))`,
+                          }}
+                        >
+                          {b.user.slice(0, 1).toUpperCase()}
+                        </span>
+                        {done ? (
+                          <span className="rounded-full bg-black/40 px-2 py-[1px] text-[0.68rem] font-bold text-white">
+                            {fmt(b.cashedAt!)}x
+                          </span>
+                        ) : (
+                          <span className="truncate">{b.user}</span>
+                        )}
                       </span>
-                      <span className="truncate">{b.user}</span>
-                    </span>
-                    <span className="font-semibold text-white/85">{b.amount}</span>
-                    <span className="text-right font-bold">
-                      {b.cashedAt !== undefined ? `${fmt(b.cashedAt)}x` : ""}
-                    </span>
-                  </div>
-                ))}
+                      <span className="font-semibold text-white/85">{done ? "" : b.amount}</span>
+                      <span className="text-right font-bold">
+                        {done ? fmt(b.amount * b.cashedAt!) : ""}
+                      </span>
+                    </div>
+                  );
+                })}
+
             {tab === "my" && myBets.length === 0 ? (
               <p className="py-6 text-center text-[0.72rem] text-white/40">No bets yet</p>
             ) : null}
           </div>
 
-          <p className="mt-1 border-t border-white/10 pt-1 text-[0.65rem] text-white/40">
-            Total bet {totals.staked} INR · {totals.cashed} cashed out
-          </p>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-x-2 gap-y-[2px] border-t border-white/10 px-1 pt-[6px] text-[0.6rem] text-white/45 sm:text-[0.66rem]">
+            <span className="flex items-center gap-1">
+              This game is
+              <img src={fairIcon} alt="" className="h-[13px] w-[12px]" />
+              <span className="font-semibold text-white/80">Provably Fair</span>
+            </span>
+            <span>
+              Powered by <span className="font-bold text-white underline">VIMAAN</span>
+            </span>
+          </div>
 
-
-          <button
-            type="button"
-            onClick={() => setChatOpen((v) => !v)}
-            className="mt-2 w-full rounded-full bg-[#101112] py-[5px] text-[0.7rem] font-bold text-white/70"
-          >
-            {chatOpen ? "Hide chat" : `Chat (${chat.length})`}
-          </button>
-
-          {chatOpen ? (
-            <div className="mt-2 rounded-[10px] bg-[#101112] p-2">
-              <div className="max-h-[180px] space-y-[5px] overflow-y-auto">
-                {chat.map((m) => (
-                  <div key={m.id} className="text-[0.72rem] leading-tight">
-                    <span className={m.mine ? "font-bold text-[#8CFF6B]" : "font-bold text-[#34B3F1]"}>
-                      {m.mine ? "You" : m.user}
-                    </span>{" "}
-                    <span className="text-white/75">{m.text}</span>
-                  </div>
-                ))}
-              </div>
-              <form
-                className="mt-2 flex gap-1"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const text = draft.trim();
-                  if (!text) return;
-                  setChat((c) => [...c, { id: Date.now(), user: "You", text, mine: true }].slice(-40));
-                  logChat({ ts: Date.now(), user: "You", text });
-                  setDraft("");
-                }}
-              >
-                <input
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  placeholder="Message"
-                  className="min-w-0 flex-1 rounded-full bg-[#1B1C1D] px-3 py-1 text-[0.72rem] text-white outline-none"
-                />
-                <button
-                  type="submit"
-                  className="rounded-full bg-[#28A909] px-3 py-1 text-[0.7rem] font-bold text-white"
-                >
-                  Send
-                </button>
-              </form>
-            </div>
-          ) : null}
         </div>
 
         {/* stage + panels */}
         <div className="order-1 min-w-0 space-y-2 lg:order-2">
-          <div className="flex flex-wrap items-center justify-between gap-x-2 rounded-[12px] bg-[#1B1C1D] px-3 py-1 text-[0.66rem] font-bold text-white/70 sm:text-[0.72rem]">
-            <span>ROUND #{round}</span>
-            <span className={toneFor(multiplier)}>
-              {phase === "flying" ? "IN FLIGHT" : phase === "crashed" ? "FLEW AWAY" : "PLACE YOUR BETS"}
-            </span>
-            <span>Balance: {fmt(balance)} INR</span>
-          </div>
-
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} />
+
 
           <div className="flex items-start gap-2 rounded-[12px] border border-white/10 bg-[#151617] p-2 sm:gap-3 sm:p-3">
             <BetPanel
