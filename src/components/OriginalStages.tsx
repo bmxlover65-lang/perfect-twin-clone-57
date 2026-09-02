@@ -1079,12 +1079,17 @@ export function BalloonStage({
                       </span>
                       <span>{bet.stake.toLocaleString("en-IN")}</span>
                     </span>
+                  ) : blocked ? (
+                    <span className="text-[0.6rem] font-bold uppercase leading-tight sm:text-[0.8rem]">
+                      {used[i] ? "Bet used" : "Bets closed"}
+                    </span>
                   ) : (
                     <>
                       <img src={heatIcon.url} alt="" className="h-6 w-6 sm:h-7 sm:w-7" />
                       HEAT
                     </>
                   )}
+
                   {fl ? (
                     <span
                       className={`absolute -top-3 right-1 rounded-full px-2 py-0.5 text-[0.7rem] font-extrabold ${
