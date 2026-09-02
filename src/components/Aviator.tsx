@@ -444,20 +444,20 @@ function FlightStage({
 
 
 
-  // blue -> purple/magenta glow as the multiplier climbs
-  const glow = Math.max(0, Math.min(1, (multiplier - 1.5) / 12));
-  const glowInner = `rgba(${Math.round(7 + glow * 59)},${Math.round(58 - glow * 38)},${Math.round(97 - glow * 3)},${0.62 + glow * 0.2})`;
-  const glowMid = glow > 0.45 ? "rgba(66,20,94,0.42)" : "rgba(7,58,97,0.32)";
+  // deep navy atmospheric glow that swells with the multiplier
+  const glow = Math.max(0, Math.min(1, (multiplier - 1) / 8));
+  const glowInner = `rgba(20,96,155,${0.5 + glow * 0.28})`;
+  const glowMid = `rgba(8,44,82,${0.3 + glow * 0.14})`;
 
   return (
-    <div className="relative overflow-hidden rounded-[14px] border border-[#232629] bg-[#030507]">
+    <div className="relative overflow-hidden rounded-[14px] border border-[#1B1D20] bg-black">
       {/* spribe-style rotating sun rays from the bottom-left */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
           className="absolute left-[3%] top-[92%] h-[1100px] w-[1100px] -translate-x-1/2 -translate-y-1/2 opacity-90"
           style={{
             background:
-              "repeating-conic-gradient(from 0deg, #101318 0deg 6.5deg, #030507 6.5deg 13deg)",
+              "repeating-conic-gradient(from 0deg, #14171C 0deg 6.5deg, #000000 6.5deg 13deg)",
             borderRadius: "9999px",
             maskImage: "radial-gradient(circle, #000 0%, #000 52%, transparent 82%)",
             WebkitMaskImage: "radial-gradient(circle, #000 0%, #000 52%, transparent 82%)",
@@ -468,7 +468,7 @@ function FlightStage({
         <div
           className="absolute inset-0 transition-opacity duration-700"
           style={{
-            background: `radial-gradient(circle at 50% 45%, ${glowInner}, ${glowMid} 38%, transparent 68%)`,
+            background: `radial-gradient(ellipse 58% 62% at 62% 40%, ${glowInner}, ${glowMid} 40%, transparent 72%)`,
             opacity: phase === "flying" ? 1 : 0,
           }}
         />
@@ -482,11 +482,11 @@ function FlightStage({
 .av-row-in{animation:av-row-in .38s cubic-bezier(.2,.8,.3,1)}`}</style>
 
 
-      <svg viewBox={`0 0 ${W} ${H}`} className="relative block h-[240px] w-full sm:h-[300px] lg:h-[380px]">
+      <svg viewBox={`0 0 ${W} ${H}`} className="relative block h-[280px] w-full sm:h-[360px] lg:h-[440px]">
         <defs>
           <linearGradient id="av-area" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#FF1238" stopOpacity="0.55" />
-            <stop offset="100%" stopColor="#FF1238" stopOpacity="0.03" />
+            <stop offset="0%" stopColor="#A80D22" stopOpacity="0.78" />
+            <stop offset="100%" stopColor="#6B0616" stopOpacity="0.45" />
           </linearGradient>
 
           <filter id="av-glow" x="-50%" y="-50%" width="200%" height="200%">
@@ -615,7 +615,7 @@ function FlightStage({
             </p>
           </>
         ) : (
-          <p className="text-[2.9rem] font-extrabold leading-none text-white drop-shadow-[0_6px_26px_rgba(0,0,0,.65)] sm:text-[4.8rem] lg:text-[6.4rem]">
+          <p className="text-[3.1rem] font-extrabold leading-none text-white drop-shadow-[0_6px_26px_rgba(0,0,0,.65)] sm:text-[5rem] lg:text-[6.6rem]">
             {fmt(multiplier)}x
           </p>
         )}
