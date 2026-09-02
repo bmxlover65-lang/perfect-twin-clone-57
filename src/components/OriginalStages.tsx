@@ -449,9 +449,18 @@ export function BalloonStage({
   const winnersRef = useRef<Map<string, number>>(new Map());
   useEffect(() => {
     let alive = true;
+    let busy = false;
     const load = async () => {
+      if (busy) return;
+      busy = true;
+      const ctrl = new AbortController();
+      const to = window.setTimeout(() => ctrl.abort(), 8000);
       try {
-        const res = await fetch("/api/public/uapi/games/88.0023/results");
+        const res = await fetch("/api/public/uapi/games/88.0023/results", {
+          signal: ctrl.signal,
+          headers: { accept: "application/json" },
+        });
+        if (!res.ok) return;
         const json = (await res.json()) as {
           data?: { roundId?: string; winner?: string }[];
         };
@@ -467,15 +476,19 @@ export function BalloonStage({
         setHistory((h) => (h.length ? h : recent));
       } catch {
         // results unavailable — keep the animated estimate
+      } finally {
+        window.clearTimeout(to);
+        busy = false;
       }
     };
     void load();
-    const id = window.setInterval(load, 1500);
+    const id = window.setInterval(load, 3000);
     return () => {
       alive = false;
       window.clearInterval(id);
     };
   }, []);
+
 
   // round engine — follows the live feed (roundId + multiplier) so the result
   // always matches the real round; falls back to a local curve if the feed is down
@@ -752,11 +765,12 @@ export function BalloonStage({
           </div>
         ) : (
           <div
-            className="absolute left-1/2 z-10 w-[56%] min-w-[160px] max-w-[330px] sm:w-[36%] sm:min-w-[200px]"
+            className="absolute left-1/2 z-10 w-[84%] min-w-[220px] max-w-[430px] sm:w-[46%] sm:min-w-[240px]"
             style={{
-              bottom: "26%",
+              bottom: "22%",
               transform: "translateX(-50%)",
             }}
+
           >
 
             <img
