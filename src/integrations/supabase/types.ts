@@ -55,6 +55,30 @@ export type Database = {
           },
         ]
       }
+      balloon_rounds: {
+        Row: {
+          crash: number | null
+          crashed_at: string | null
+          created_at: string
+          event_id: string
+          round_id: string
+        }
+        Insert: {
+          crash?: number | null
+          crashed_at?: string | null
+          created_at?: string
+          event_id?: string
+          round_id: string
+        }
+        Update: {
+          crash?: number | null
+          crashed_at?: string | null
+          created_at?: string
+          event_id?: string
+          round_id?: string
+        }
+        Relationships: []
+      }
       bets: {
         Row: {
           created_at: string
