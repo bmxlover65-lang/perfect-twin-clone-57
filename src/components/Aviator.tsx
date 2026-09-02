@@ -905,39 +905,44 @@ export function Aviator() {
         {/* stage + panels */}
         <div className="order-1 min-w-0 space-y-2 lg:order-2">
           {/* history strip — sits above the flying stage */}
-          <div className="rounded-[12px] border border-[#303238] bg-[#0B0C0E] px-3 py-[6px]">
-            <div className="flex items-center gap-2">
-              <div
-                className={`flex min-w-0 flex-1 items-center gap-[6px] sm:gap-2 ${
-                  histOpen
-                    ? "max-h-[120px] flex-wrap overflow-y-auto"
-                    : "flex-nowrap overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-                }`}
-              >
-                {(histOpen ? history : history.slice(0, 30)).map((h, i) => (
-                  <span
-                    key={`${h}-${i}`}
-                    className={`shrink-0 px-1 text-[0.66rem] font-bold sm:text-[0.82rem] ${toneFor(h)}`}
-                  >
-                    {fmt(h)}x
-                  </span>
-                ))}
-              </div>
+          <div className="rounded-[12px] border border-[#303238] bg-[#0B0C0E] px-2 py-[6px] sm:px-3">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[0.7rem] font-semibold uppercase tracking-[0.03em] text-white/80 sm:text-[0.8rem]">
+                Round History
+              </span>
               <button
                 type="button"
                 onClick={() => setHistOpen((v) => !v)}
                 aria-expanded={histOpen}
-                className="flex h-[26px] shrink-0 items-center gap-1 rounded-full border border-[#FF003C]/60 px-2"
+                className="flex h-[26px] w-[42px] shrink-0 items-center justify-center gap-[3px] rounded-full border border-[#FF003C]/70 bg-[#141517]"
                 aria-label="Round history"
               >
                 <img src={historyIcon} alt="" className="h-[13px] w-[14px]" />
                 <img
                   src={arrowIcon}
                   alt=""
-                  className={`h-[8px] w-[10px] transition-transform ${histOpen ? "rotate-180" : ""}`}
+                  className={`h-[7px] w-[9px] transition-transform ${histOpen ? "rotate-180" : ""}`}
                 />
               </button>
             </div>
+
+            <div
+              className={`mt-[6px] flex min-w-0 items-center gap-[6px] sm:gap-2 ${
+                histOpen
+                  ? "max-h-[150px] flex-wrap overflow-y-auto"
+                  : "flex-nowrap overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              }`}
+            >
+              {(histOpen ? history : history.slice(0, 24)).map((h, i) => (
+                <span
+                  key={`${h}-${i}`}
+                  className={`shrink-0 rounded-full border bg-[#141517] px-2 py-[2px] text-[0.66rem] font-bold sm:text-[0.78rem] ${chipTone(h)}`}
+                >
+                  {fmt(h)}x
+                </span>
+              ))}
+            </div>
+
 
             {histOpen ? (
               <div className="mt-2 border-t border-white/10 pt-2">
