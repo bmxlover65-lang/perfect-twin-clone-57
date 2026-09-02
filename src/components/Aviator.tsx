@@ -677,7 +677,9 @@ export function Aviator() {
   // official results feed (same upstream round series as the live crash game)
   const seenRef = useRef<Set<string>>(new Set());
   const queueRef = useRef<number[]>([]); // unused official winners, oldest first
+  const officialRef = useRef(false);
   const bootedRef = useRef(false);
+
 
   useEffect(() => {
     let stop = false;
