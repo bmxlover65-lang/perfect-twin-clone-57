@@ -19,6 +19,7 @@ import { Route as SportsSportIdEventIdRouteImport } from './routes/sports.$sport
 import { Route as ApiPublicUapiSplatRouteImport } from './routes/api/public/uapi.$'
 import { Route as ApiPublicV1BalanceRouteImport } from './routes/api/public/v1/balance'
 import { Route as ApiPublicV1BetRouteImport } from './routes/api/public/v1/bet'
+import { Route as ApiPublicV1BetsRouteImport } from './routes/api/public/v1/bets'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -70,6 +71,11 @@ const ApiPublicV1BetRoute = ApiPublicV1BetRouteImport.update({
   path: '/api/public/v1/bet',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1BetsRoute = ApiPublicV1BetsRouteImport.update({
+  id: '/api/public/v1/bets',
+  path: '/api/public/v1/bets',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/api/public/uapi/$': typeof ApiPublicUapiSplatRoute
   '/api/public/v1/balance': typeof ApiPublicV1BalanceRoute
   '/api/public/v1/bet': typeof ApiPublicV1BetRoute
+  '/api/public/v1/bets': typeof ApiPublicV1BetsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/api/public/uapi/$': typeof ApiPublicUapiSplatRoute
   '/api/public/v1/balance': typeof ApiPublicV1BalanceRoute
   '/api/public/v1/bet': typeof ApiPublicV1BetRoute
+  '/api/public/v1/bets': typeof ApiPublicV1BetsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/api/public/uapi/$': typeof ApiPublicUapiSplatRoute
   '/api/public/v1/balance': typeof ApiPublicV1BalanceRoute
   '/api/public/v1/bet': typeof ApiPublicV1BetRoute
+  '/api/public/v1/bets': typeof ApiPublicV1BetsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/api/public/uapi/$'
     | '/api/public/v1/balance'
     | '/api/public/v1/bet'
+    | '/api/public/v1/bets'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/api/public/uapi/$'
     | '/api/public/v1/balance'
     | '/api/public/v1/bet'
+    | '/api/public/v1/bets'
   id:
     | '__root__'
     | '/'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/api/public/uapi/$'
     | '/api/public/v1/balance'
     | '/api/public/v1/bet'
+    | '/api/public/v1/bets'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -158,6 +170,7 @@ export interface RootRouteChildren {
   ApiPublicUapiSplatRoute: typeof ApiPublicUapiSplatRoute
   ApiPublicV1BalanceRoute: typeof ApiPublicV1BalanceRoute
   ApiPublicV1BetRoute: typeof ApiPublicV1BetRoute
+  ApiPublicV1BetsRoute: typeof ApiPublicV1BetsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -232,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1BetRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/bets': {
+      id: '/api/public/v1/bets'
+      path: '/api/public/v1/bets'
+      fullPath: '/api/public/v1/bets'
+      preLoaderRoute: typeof ApiPublicV1BetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -246,6 +266,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicUapiSplatRoute: ApiPublicUapiSplatRoute,
   ApiPublicV1BalanceRoute: ApiPublicV1BalanceRoute,
   ApiPublicV1BetRoute: ApiPublicV1BetRoute,
+  ApiPublicV1BetsRoute: ApiPublicV1BetsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
