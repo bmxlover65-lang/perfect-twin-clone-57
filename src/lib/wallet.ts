@@ -158,3 +158,28 @@ export function settleLatest(gameId: string, key: string, winner: string) {
   if (!touched) return;
   write({ balance: w.balance + credited, bets });
 }
+
+/**
+ * Settle open bets from a live feed that marks each runner WINNER / LOSER.
+ * Called every poll tick — it only touches bets whose selection is decided.
+ */
+export function settleFromRunners(
+  gameId: string,
+  results: { label: string; won: boolean }[],
+) {
+  if (!results.length) return;
+  const w = readWallet();
+  let credited = 0;
+  let touched = false;
+  const bets = w.bets.map((b) => {
+    if (b.status !== "open" || b.gameId !== gameId) return b;
+    const hit = results.find((r) => isWin(b.label, r.label));
+    if (!hit) return b;
+    touched = true;
+    const payout = hit.won ? Math.round(b.stake * b.odds) : 0;
+    credited += payout;
+    return { ...b, status: hit.won ? ("won" as const) : ("lost" as const), payout };
+  });
+  if (!touched) return;
+  write({ balance: w.balance + credited, bets });
+}
