@@ -940,11 +940,11 @@ export type BbbRunner = {
 
 function plateTone(label: string) {
   const l = label.toUpperCase();
-  if (l.startsWith("WICKET")) return "bg-[#7A2222]";
-  if (l.startsWith("EXTRA")) return "bg-[#22646E]";
-  if (l.startsWith("6")) return "bg-[#3B3F86]";
-  if (l.startsWith("4")) return "bg-[#1F6B33]";
-  return "bg-[#6F6A16]";
+  if (l.startsWith("WICKET"))
+    return "bg-[linear-gradient(180deg,#F98F86,#F26C61)] text-black";
+  if (l.startsWith("6")) return "bg-[linear-gradient(180deg,#A9A9F7,#8E8EF0)] text-black";
+  if (l.startsWith("4")) return "bg-[linear-gradient(180deg,#7FE0A2,#4CCB7C)] text-black";
+  return "bg-[linear-gradient(180deg,#E3DE4A,#CFC820)] text-black";
 }
 
 export function BallByBallBoard({
@@ -952,48 +952,85 @@ export function BallByBallBoard({
   min,
   max,
   news,
+  recent,
 }: {
   runners: BbbRunner[];
   min: number;
   max: number;
   news?: string | undefined;
+  recent?: string[];
 }) {
   const open = (s?: string) => (s ?? "").toUpperCase() === "ACTIVE";
+  const left = runners.filter((_, i) => i % 2 === 0);
+  const right = runners.filter((_, i) => i % 2 === 1);
+
+  const Plate = ({ r }: { r: BbbRunner }) => (
+    <div
+      className={`relative flex h-[74px] items-center rounded-[8px] px-4 shadow-[0_1px_2px_rgba(0,0,0,0.25)] ${plateTone(r.label)}`}
+    >
+      <span className="flex w-[86px] flex-col items-center leading-tight">
+        <span className="text-[1rem] font-bold">{r.backPrice ? r.backPrice.toFixed(2) : "—"}</span>
+        <span className="text-[0.74rem] font-semibold opacity-80">
+          {r.backSize ? Math.round(r.backSize).toLocaleString("en-US") : ""}
+        </span>
+      </span>
+      <span className="flex-1 text-center text-[1.05rem] font-extrabold uppercase tracking-wide">
+        {open(r.status) ? r.label : "SUSPENDED"}
+      </span>
+    </div>
+  );
+
   return (
-    <div className="mt-0 bg-white">
-      <div className="flex items-center justify-between bg-[#2E4B5C] px-3 py-[6px]">
-        <span className="text-[0.85rem] font-bold text-white">Runs</span>
-        <span className="text-[0.78rem] font-bold text-white">
+    <div className="bg-white">
+      <div className="flex items-center justify-between bg-[#2E4B5C] px-3 py-[7px]">
+        <span className="text-[0.95rem] font-bold text-white">Runs ⓘ</span>
+        <span className="text-[0.82rem] font-semibold text-white">
           Min/Max: {min} - {max}
         </span>
       </div>
-      <div className="grid grid-cols-2 border-b border-black/10 bg-[#EDEDED]">
-        <span className="py-1 text-center text-[0.85rem] font-bold text-black/80">Back</span>
-        <span className="py-1 text-center text-[0.85rem] font-bold text-black/80">Back</span>
+      <div className="grid grid-cols-2 border-b border-black/10 bg-[#F1F1F1]">
+        <span className="py-[6px] text-center text-[0.95rem] font-semibold text-black/80">Back</span>
+        <span className="py-[6px] text-center text-[0.95rem] font-semibold text-black/80">Back</span>
       </div>
-      <div className="grid grid-cols-2 gap-x-4 gap-y-3 px-3 py-3">
-        {runners.map((r) => (
-          <div
-            key={r.selectionId}
-            className={`relative flex h-[58px] items-center rounded-[6px] px-4 ${plateTone(r.label)}`}
-          >
-            <span className="flex w-[70px] flex-col items-center leading-tight">
-              <span className="text-[0.85rem] font-bold text-white">
-                {r.backPrice ? r.backPrice.toFixed(2) : "—"}
+      <div className="grid grid-cols-2 gap-x-0 px-3 py-3">
+        <div className="flex flex-col gap-3 border-r border-black/10 pr-4">
+          {left.map((r) => (
+            <Plate key={r.selectionId} r={r} />
+          ))}
+        </div>
+        <div className="flex flex-col gap-3 pl-4">
+          {right.map((r) => (
+            <Plate key={r.selectionId} r={r} />
+          ))}
+        </div>
+      </div>
+      <div className="bg-[#FFC800] py-[6px] text-center text-[0.95rem] font-bold text-black">
+        {news ?? "Results are based on stream only. Score board may be different or updated later"}
+      </div>
+      {recent && recent.length ? (
+        <div className="px-3 py-3">
+          <p className="text-[0.95rem] font-bold text-black">Recent Result</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {recent.slice(0, 10).map((w, i) => (
+              <span
+                key={`${w}-${i}`}
+                className={`grid h-11 w-11 place-items-center rounded-[6px] text-[1rem] font-bold ${
+                  w === "W"
+                    ? "bg-[linear-gradient(180deg,#F98F86,#F26C61)] text-white"
+                    : w === "6"
+                      ? "bg-[linear-gradient(180deg,#A9A9F7,#8E8EF0)] text-black"
+                      : w === "4"
+                        ? "bg-[linear-gradient(180deg,#7FE0A2,#4CCB7C)] text-black"
+                        : "bg-[linear-gradient(180deg,#E3DE4A,#CFC820)] text-black"
+                }`}
+              >
+                {w}
               </span>
-              <span className="text-[0.72rem] font-semibold text-white/80">
-                {r.backSize ? Math.round(r.backSize).toLocaleString("en-US") : ""}
-              </span>
-            </span>
-            <span className="flex-1 text-center text-[0.85rem] font-extrabold uppercase text-white">
-              {open(r.status) ? r.label : "SUSPENDED"}
-            </span>
+            ))}
           </div>
-        ))}
-      </div>
-      {news ? (
-        <p className="px-3 pb-3 text-[0.78rem] font-medium text-black/70">{news}</p>
+        </div>
       ) : null}
     </div>
   );
 }
+
