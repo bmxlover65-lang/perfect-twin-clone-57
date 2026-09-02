@@ -2120,11 +2120,26 @@ function GamePage() {
             />
           ) : null}
         </div>
-        {!suspended && (d?.leftSec ?? 0) > 0 ? (
-          <span className="pointer-events-none absolute right-2 top-2 rounded bg-black/60 px-2 py-1 text-[0.72rem] font-bold text-white">
-            {status || "—"} · {d?.leftSec ?? 0}s
-          </span>
-        ) : null}
+        {!suspended && (d?.leftSec ?? 0) > 0
+          ? (() => {
+              const secs = Math.max(0, Math.round((d?.leftSec ?? 0) - age));
+              const total = Math.max(secs, d?.seconds ?? 0, 30);
+              const pct = Math.max(0, Math.min(1, secs / total));
+              return (
+                <span
+                  className="pointer-events-none absolute right-2 top-2 z-20 grid h-12 w-12 place-items-center rounded-full sm:h-14 sm:w-14"
+                  style={{
+                    background: `conic-gradient(#22C55E ${pct * 360}deg, rgba(255,255,255,0.25) 0deg)`,
+                  }}
+                >
+                  <span className="grid h-[80%] w-[80%] place-items-center rounded-full bg-black/85 text-[0.95rem] font-black text-white sm:text-lg">
+                    {secs}
+                  </span>
+                </span>
+              );
+            })()
+          : null}
+
         <ResultBanner results={results} gameId={gameId} />
       </div>
 
