@@ -321,3 +321,11 @@
   to { opacity: 0; transform: scale(1.6); }
 }
 
+
+@keyframes marquee-x {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee-x 18s linear infinite;
+}
