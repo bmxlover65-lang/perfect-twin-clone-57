@@ -86,6 +86,32 @@ function rewriteTvHtml(html: string, origin: string) {
 }
 
 
+// Secondary results mirror: used when the primary feed returns 5xx/empty
+// for a casino event (e.g. BALLOON 88.0023).
+const MIRROR_RESULTS =
+  "https://vimaan.ludoexchange.com/casinoapp/users/casino/casinoEventResults";
+
+const mirrorCache = new Map<string, { at: number; data: unknown[] }>();
+
+async function mirrorResults(eventId: string): Promise<unknown[]> {
+  const hit = mirrorCache.get(eventId);
+  if (hit && Date.now() - hit.at < 5000) return hit.data;
+  try {
+    const res = await fetch(MIRROR_RESULTS, {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ eventId }),
+    });
+    const json = (await res.json().catch(() => ({}))) as { data?: unknown[] };
+    const data = Array.isArray(json.data) ? json.data : [];
+    mirrorCache.set(eventId, { at: Date.now(), data });
+    return data;
+  } catch {
+    return hit?.data ?? [];
+  }
+}
+
+
 async function proxy(splat: string, search: string, body?: string, origin = "") {
   try {
     if (splat === "stream") {
