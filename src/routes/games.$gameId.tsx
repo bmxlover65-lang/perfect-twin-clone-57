@@ -2076,7 +2076,7 @@ function GamePage() {
         <FitBoard designWidth={isMobileView ? 430 : 860} minScale={0.5}>
         {gameId === "99.0014" && markets.length ? (
           <MuflisPanel markets={markets} suspended={suspended} />
-        ) : (gameId === "99.0018" || gameId === "99.0019") && markets.length ? (
+        ) : gameId === "99.0018" && markets.length ? (
           <DT20Panel markets={markets} suspended={suspended} />
         ) : gameId === "99.0021" && markets.length ? (
           <DragonTigerPanel markets={markets} suspended={suspended} />
