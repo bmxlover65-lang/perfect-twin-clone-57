@@ -426,7 +426,8 @@ export function Aviator() {
   const [phase, setPhase] = useState<Phase>("betting");
   const [multiplier, setMultiplier] = useState(1);
   const [countdown, setCountdown] = useState(BET_MS);
-  const [history, setHistory] = useState<number[]>([2.31, 1.14, 5.62, 1.02, 11.4, 1.87, 3.05, 1.45]);
+  const [histOpen, setHistOpen] = useState(false);
+  const [history, setHistory] = useState<number[]>([2.31, 1.14, 5.62, 1.02, 11.4, 1.87, 3.05, 1.45, 4.35, 23.12, 2.53, 1.46, 3.53, 1.4, 14.99, 11.63, 3.68, 3.1, 1.75, 7.28, 1.79, 1.02, 1.0, 1.78, 27.0, 2.03, 2.45, 2.3, 2.48, 4.03]);
   const [round, setRound] = useState(1);
   const [balance, setBalance] = useState(5000);
   const [bets, setBets] = useState<LiveBet[]>(() => makeBets(1));
@@ -558,6 +559,20 @@ export function Aviator() {
   useEffect(() => {
     saveBalance(balance);
   }, [balance]);
+
+  // players keep joining while the plane flies (feels like a real lobby)
+  useEffect(() => {
+    if (phase !== "flying") return;
+    const id = window.setInterval(() => {
+      setBets((list) => {
+        if (list.length > 110) return list;
+        const seed = Math.floor(Math.random() * 9999);
+        const extra = makeBets(seed).slice(0, 1 + (seed % 3));
+        return [...list, ...extra];
+      });
+    }, 900);
+    return () => window.clearInterval(id);
+  }, [phase]);
 
   return (
     <div className="overflow-hidden rounded-[16px] border border-[#303238] bg-[#090A0C] p-1.5 sm:p-2">
