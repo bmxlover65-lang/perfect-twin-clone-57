@@ -146,16 +146,20 @@ function ConsolePage() {
     void navigate({ to: "/auth", replace: true });
   };
 
+  const staked = bets.reduce((s, b) => s + Number(b.stake), 0);
+  const paid = bets.reduce((s, b) => s + Number(b.payout), 0);
+  const openBets = bets.filter((b) => b.status === "open").length;
+
   return (
-    <div className="mx-auto max-w-[1100px] space-y-4 px-3 py-5">
-      <header className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">Admin console</h1>
-          <p className="text-xs text-muted-foreground">
-            {info?.email} · {info?.isAdmin ? "admin" : "operator"}
-          </p>
-        </div>
-        <div className="flex gap-2">
+    <DashShell
+      title="Admin"
+      subtitle={`${info?.email ?? ""} · ${info?.isAdmin ? "administrator" : "no admin role"}`}
+      accent="#123A73"
+      tabs={TABS}
+      active={tab}
+      onSelect={setTab}
+      actions={
+        <>
           {info && !info.isAdmin ? (
             <button
               className={ghost}
@@ -164,16 +168,55 @@ function ConsolePage() {
               Claim admin
             </button>
           ) : null}
+          <button className={ghost} onClick={() => run(refresh)}>
+            Refresh
+          </button>
           <button className={ghost} onClick={signOut}>
             Sign out
           </button>
-        </div>
-      </header>
-
+        </>
+      }
+    >
       {err ? <p className="rounded-md bg-destructive/15 px-3 py-2 text-sm text-destructive">{err}</p> : null}
-      {note ? <p className="rounded-md bg-primary/10 px-3 py-2 text-sm text-foreground">{note}</p> : null}
+      {note ? <p className="rounded-md bg-primary/10 px-3 py-2 text-sm text-foreground break-words">{note}</p> : null}
 
+      {ops.length ? (
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-muted-foreground">Operator</span>
+          <select className={`${input} max-w-[260px]`} value={sel} onChange={(e) => setSel(e.target.value)}>
+            {ops.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
+
+      {tab === "overview" ? (
+        <>
+          <div className="grid gap-3 sm:grid-cols-4">
+            <Stat label="Operators" value={String(ops.length)} />
+            <Stat label="Staked" value={`₹${staked.toLocaleString("en-IN")}`} />
+            <Stat label="Paid out" value={`₹${paid.toLocaleString("en-IN")}`} />
+            <Stat label="Open bets" value={String(openBets)} />
+          </div>
+          <Panel title="Latest rounds">
+            <ul className="space-y-1 text-xs text-muted-foreground">
+              {roundRows.slice(0, 10).map((r) => (
+                <li key={r.id}>
+                  {r.game_id} · {r.round_id} · {r.status} · {r.manual ? "manual" : "live"}
+                </li>
+              ))}
+              {!roundRows.length ? <li>No rounds yet.</li> : null}
+            </ul>
+          </Panel>
+        </>
+      ) : null}
+
+      {tab === "operators" ? (
       <Panel title="Operators">
+
         <form
           className="grid gap-2 sm:grid-cols-5"
           onSubmit={(e) => {
