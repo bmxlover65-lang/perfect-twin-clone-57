@@ -330,10 +330,23 @@ function FlightStage({
         type="button"
         onClick={() => setMuted((v) => !v)}
         aria-label={muted ? "Unmute" : "Mute"}
-        className="absolute left-3 top-2 z-10 text-[1.05rem] font-bold text-white/85"
+        className="absolute left-3 top-2 z-10 text-white/85"
       >
-        {muted ? "🔇" : "🔊"}
+        <svg width="20" height="18" viewBox="0 0 20 18" fill="none" aria-hidden="true">
+          <path d="M2 6.5h3L9.5 3v12L5 11.5H2z" fill="currentColor" />
+          {muted ? (
+            <>
+              <path d="M13 6.5l5 5M18 6.5l-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </>
+          ) : (
+            <>
+              <path d="M13 6a4 4 0 010 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" fill="none" />
+              <path d="M15.5 4a7 7 0 010 10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" fill="none" />
+            </>
+          )}
+        </svg>
       </button>
+
 
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         {phase === "betting" ? (
