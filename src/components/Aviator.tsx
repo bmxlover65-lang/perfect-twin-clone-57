@@ -838,7 +838,10 @@ export function Aviator() {
             <span className="text-right">Cash out</span>
           </div>
 
-          <div className="h-[340px] max-h-[340px] w-full min-w-0 flex-col space-y-[2px] overflow-y-auto overflow-x-hidden pt-1 [column-count:1] lg:h-[560px] lg:max-h-[560px]">
+          <div
+            className="h-[340px] max-h-[340px] w-full min-w-0 flex-col space-y-[2px] overflow-y-auto overflow-x-hidden overscroll-contain pt-1 [column-count:1] lg:h-[560px] lg:max-h-[560px]"
+            style={{ overscrollBehavior: "contain", WebkitOverflowScrolling: "touch" }}
+          >
 
             {tab === "my"
               ? [
