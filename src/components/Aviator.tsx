@@ -189,13 +189,13 @@ function BetPanel({
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-[5px]">
+      <div className="grid grid-cols-2 gap-[4px] sm:gap-[5px]">
         {QUICK.map((q) => (
           <button
             key={q}
             type="button"
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`rounded-full border bg-transparent py-[5px] text-center text-[0.72rem] font-semibold transition-colors ${
+            className={`rounded-full border bg-transparent py-[4px] text-center text-[0.66rem] sm:text-[0.72rem] font-semibold transition-colors ${
               state.amount === q
                 ? "border-[#18B800] text-white shadow-[0_0_0_1px_rgba(24,184,0,0.45)]"
                 : "border-[#4A4C52] text-[#C9CBD1] hover:text-white"
@@ -209,7 +209,7 @@ function BetPanel({
       <button
         type="button"
         onClick={press}
-        className={`rounded-[10px] py-[11px] text-center text-[1rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.35)] ${tone}`}
+        className={`rounded-[10px] py-[9px] text-center text-[0.86rem] sm:py-[11px] sm:text-[1rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.35)] ${tone}`}
       >
         {label}
         {canCash ? (
@@ -780,7 +780,7 @@ export function Aviator() {
                 {(histOpen ? history : history.slice(0, 30)).map((h, i) => (
                   <span
                     key={`${h}-${i}`}
-                    className={`shrink-0 px-1 text-[0.72rem] font-bold sm:text-[0.82rem] ${toneFor(h)}`}
+                    className={`shrink-0 px-1 text-[0.66rem] font-bold sm:text-[0.82rem] ${toneFor(h)}`}
                   >
                     {fmt(h)}x
                   </span>
@@ -865,7 +865,7 @@ export function Aviator() {
 
 
 
-          <div className="flex items-start gap-2 rounded-[14px] border border-[#303238] bg-[#151618] p-2 sm:gap-3 sm:p-3">
+          <div className="flex items-start gap-1.5 rounded-[14px] border border-[#303238] bg-[#151618] p-1.5 sm:gap-3 sm:p-3">
             <BetPanel
               state={p1}
               setState={setP1}
@@ -875,7 +875,7 @@ export function Aviator() {
               balance={balance}
             />
 
-            <div className="flex w-[68px] shrink-0 flex-col gap-[6px] pt-[26px] sm:w-[86px]">
+            <div className="flex w-[58px] shrink-0 flex-col gap-[5px] pt-[24px] sm:w-[86px]">
               <button
                 type="button"
                 onClick={() => {
@@ -885,7 +885,7 @@ export function Aviator() {
                     setP2((p) => ({ ...p, amount: v }));
                   }
                 }}
-                className="rounded-[6px] bg-[#F59E0B] py-[6px] text-[0.78rem] font-bold text-white"
+                className="rounded-[6px] bg-[#F59E0B] py-[5px] text-[0.7rem] sm:py-[6px] sm:text-[0.78rem] font-bold text-white"
               >
                 Edit
               </button>
@@ -895,7 +895,7 @@ export function Aviator() {
                   setP1((p) => ({ ...p, amount: 10, staged: false }));
                   setP2((p) => ({ ...p, amount: 10, staged: false }));
                 }}
-                className="rounded-[6px] bg-[#EF0000] py-[6px] text-[0.78rem] font-bold text-white"
+                className="rounded-[6px] bg-[#EF0000] py-[5px] text-[0.7rem] sm:py-[6px] sm:text-[0.78rem] font-bold text-white"
               >
                 Clear
               </button>
@@ -905,7 +905,7 @@ export function Aviator() {
                   setP1((p) => ({ ...p, amount: 10 }));
                   setP2((p) => ({ ...p, amount: 10 }));
                 }}
-                className="rounded-[6px] border border-[#4A4C52] bg-transparent py-[6px] text-[0.78rem] font-semibold text-[#9CA3AF]"
+                className="rounded-[6px] border border-[#4A4C52] bg-transparent py-[5px] text-[0.7rem] sm:py-[6px] sm:text-[0.78rem] font-semibold text-[#9CA3AF]"
               >
                 Min
               </button>
@@ -915,7 +915,7 @@ export function Aviator() {
                   setP1((p) => ({ ...p, amount: 10000 }));
                   setP2((p) => ({ ...p, amount: 10000 }));
                 }}
-                className="rounded-[6px] border border-[#4A4C52] bg-transparent py-[6px] text-[0.78rem] font-semibold text-[#9CA3AF]"
+                className="rounded-[6px] border border-[#4A4C52] bg-transparent py-[5px] text-[0.7rem] sm:py-[6px] sm:text-[0.78rem] font-semibold text-[#9CA3AF]"
               >
                 Max
               </button>
