@@ -293,12 +293,16 @@
 
 @keyframes flame-flicker {
   0% {
-    transform: scaleY(0.85) scaleX(1.08);
-    opacity: 0.9;
+    transform: scaleY(0.88) scaleX(1.02) rotate(-2deg);
+    opacity: 0.92;
+  }
+  50% {
+    transform: scaleY(1.06) scaleX(0.98) rotate(1deg);
+    opacity: 1;
   }
   100% {
-    transform: scaleY(1.15) scaleX(0.92);
-    opacity: 1;
+    transform: scaleY(0.94) scaleX(1.04) rotate(-1deg);
+    opacity: 0.96;
   }
 }
 
