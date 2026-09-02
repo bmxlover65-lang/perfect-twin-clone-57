@@ -579,7 +579,7 @@ export function BalloonStage({
           </div>
         ) : (
           <div
-            className="absolute left-1/2"
+            className="absolute left-1/2 z-20"
             style={
               flying
                 ? {
