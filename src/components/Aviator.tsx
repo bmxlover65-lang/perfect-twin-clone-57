@@ -558,7 +558,7 @@ export function Aviator() {
           {history.map((h, i) => (
             <span
               key={`${h}-${i}`}
-              className={`shrink-0 rounded-full border bg-[#151618] px-2 py-[2px] text-[0.66rem] font-bold sm:text-[0.75rem] ${chipTone(h)}`}
+              className={`shrink-0 px-1 text-[0.7rem] font-bold sm:text-[0.78rem] ${toneFor(h)}`}
             >
               {fmt(h)}x
             </span>
