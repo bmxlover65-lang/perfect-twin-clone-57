@@ -337,6 +337,7 @@ const BALLOON_STAKES = [10, 50, 100, 500, 1000, 2500, 5000, 10000];
 export function BalloonStage({
   multiplier,
   roundId,
+  suspended,
 }: {
   multiplier: string;
   roundId?: string | undefined;
@@ -362,12 +363,17 @@ export function BalloonStage({
   const apiTarget = Number(multiplier) || 0;
   const apiRef = useRef(apiTarget);
   apiRef.current = apiTarget;
+  const roundRef = useRef<string | undefined>(roundId);
+  roundRef.current = roundId;
+  const suspRef = useRef<boolean>(!!suspended);
+  suspRef.current = !!suspended;
   const stakeRef = useRef(stake);
   stakeRef.current = stake;
   const autoRef = useRef(autos);
   autoRef.current = autos;
   const mutedRef = useRef(muted);
   mutedRef.current = muted;
+
 
   const play = (src: string, vol: number, keep?: boolean) => {
     if (mutedRef.current) return;
@@ -381,7 +387,8 @@ export function BalloonStage({
     }
   };
 
-  // continuous local round engine — never sits on "waiting" forever
+  // round engine — follows the live feed (roundId + multiplier) so the result
+  // always matches the real round; falls back to a local curve if the feed is down
   useEffect(() => {
     let raf = 0;
     let last = performance.now();
@@ -389,13 +396,19 @@ export function BalloonStage({
     let t = 1; // seconds left in the current phase
     let v = 1;
     let target = 2;
+    let curRound = roundRef.current;
+    let peak = 1;
+    let stall = 0;
 
-    const startRound = () => {
+    const startRound = (apiRound?: string | undefined) => {
+      curRound = apiRound;
       const api = apiRef.current;
-      target =
-        api > 1.05
-          ? api
-          : Math.min(28, Math.max(1.02, 0.92 / Math.max(0.03, 1 - Math.random())));
+      // live feed: target grows with the feed; offline: local crash curve
+      target = apiRound
+        ? Math.max(1.01, api)
+        : Math.min(28, Math.max(1.02, 0.92 / Math.max(0.03, 1 - Math.random())));
+      peak = 1;
+      stall = 0;
       setCrashAt(target);
       v = 1;
       setShown(1);
@@ -415,11 +428,13 @@ export function BalloonStage({
       setFlash([null, null]);
     };
 
-    const burst = () => {
+    const burst = (at: number) => {
+      target = at;
       ph = "crashed";
       setPhase("crashed");
-      setShown(target);
-      setHistory((h) => [target, ...h].slice(0, 10));
+      setCrashAt(at);
+      setShown(at);
+      setHistory((h) => [at, ...h].slice(0, 10));
       airRef.current?.pause();
       play(bonusSfx.url, 0.7);
       t = 1.8;
@@ -428,15 +443,46 @@ export function BalloonStage({
     const tick = (now: number) => {
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
+      const apiRound = roundRef.current;
+      const api = apiRef.current;
+      const live = !!apiRound;
+
+      // a new round id from the feed always restarts the balloon
+      if (live && apiRound !== curRound) {
+        startRound(apiRound);
+        raf = window.requestAnimationFrame(tick);
+        return;
+      }
+
       if (ph === "flying") {
-        // real crash-curve pacing: gentle at first, faster the higher it goes
-        v = v + dt * (0.09 + (v - 1) * 0.14);
-        if (v >= target) {
-          v = target;
-          setShown(target);
-          burst();
-        } else {
+        if (live) {
+          // chase the feed value; it is the single source of truth
+          if (api > peak + 0.0001) {
+            peak = api;
+            stall = 0;
+          } else {
+            stall += dt;
+          }
+          const goal = Math.max(1, peak);
+          v = v + (goal - v) * Math.min(1, dt * 5);
+          if (goal - v < 0.005) v = goal;
           setShown(v);
+          setCrashAt(goal);
+          // feed says the round is over (suspended, or value frozen) → burst here
+          if ((suspRef.current || stall > 1.6) && peak > 1) {
+            v = peak;
+            burst(peak);
+          }
+        } else {
+          // offline pacing: gentle at first, faster the higher it goes
+          v = v + dt * (0.09 + (v - 1) * 0.14);
+          if (v >= target) {
+            v = target;
+            setShown(target);
+            burst(target);
+          } else {
+            setShown(v);
+          }
         }
       } else {
         t -= dt;
@@ -445,9 +491,9 @@ export function BalloonStage({
           if (ph === "crashed") {
             ph = "waiting";
             setPhase("waiting");
-            t = 3;
-          } else {
-            startRound();
+            t = live ? 60 : 3;
+          } else if (!live) {
+            startRound(undefined);
           }
         }
       }
@@ -458,6 +504,7 @@ export function BalloonStage({
     return () => {
       window.cancelAnimationFrame(raf);
       airRef.current?.pause();
+
     };
   }, []);
 
