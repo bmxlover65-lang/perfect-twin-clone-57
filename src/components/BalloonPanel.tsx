@@ -44,7 +44,7 @@ export function BalloonPanel() {
   });
 
   const data = rounds.data ?? [];
-  const liveRound = live.data?.roundId ? String(live.data.roundId) : undefined;
+  const liveRound = live.data?.data?.roundId ? String(live.data.data.roundId) : undefined;
   const latest = data[0];
   const current = data.find((r) => r.roundId === liveRound);
   const settled = data.filter((r) => r.crash != null);
