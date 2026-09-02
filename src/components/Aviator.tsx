@@ -782,7 +782,7 @@ export function Aviator() {
 
   return (
     <div className="overflow-hidden rounded-[16px] border border-[#303238] bg-[#090A0C] p-1.5 sm:p-2">
-      <div className="grid items-stretch gap-2 lg:grid-cols-[minmax(300px,23%)_1fr]">
+      <div className="grid items-stretch gap-2 lg:h-[680px] lg:grid-cols-[minmax(280px,23%)_1fr]">
         {/* bets + chat */}
         <div className="order-2 flex min-w-0 flex-col overflow-hidden rounded-[14px] border border-[#303238] bg-[#151618] p-1.5 lg:order-1 sm:p-2">
 
