@@ -477,10 +477,12 @@ export function BalloonStage({
           if (r?.roundId && w > 0) winnersRef.current.set(String(r.roundId), w);
         });
         const recent = json.data
-          .slice(0, 10)
+          .slice(0, 12)
           .map((r) => Number(r?.winner))
           .filter((n) => n > 0);
-        setHistory((h) => (h.length ? h : recent));
+        // the official results feed is the source of truth for the strip
+        if (recent.length) setHistory(recent);
+
       } catch {
         // results unavailable — keep the animated estimate
       } finally {
