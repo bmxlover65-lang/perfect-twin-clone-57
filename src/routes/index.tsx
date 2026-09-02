@@ -73,7 +73,7 @@ function Lobby() {
 
   useEffect(() => {
     void load();
-    const t = setInterval(() => void load(), 15000);
+    const t = setInterval(() => void load(), 5000);
     return () => clearInterval(t);
   }, [load]);
 

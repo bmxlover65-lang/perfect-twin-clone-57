@@ -129,7 +129,7 @@ export function useLiveGame(game: GameDef): LiveState {
     setElapsed(Math.floor(Date.now() / 1000) % 100000);
     const t = setInterval(() => {
       setElapsed(Math.floor(Date.now() / 1000) % 100000);
-    }, 1000);
+    }, 250);
     return () => clearInterval(t);
   }, [game.id]);
 
