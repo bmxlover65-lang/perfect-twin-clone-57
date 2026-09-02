@@ -1030,7 +1030,7 @@ export function BallByBallBoard({
             {recent.slice(0, 10).map((w, i) => (
               <span
                 key={`${w}-${i}`}
-                className={`grid h-11 w-11 place-items-center rounded-[6px] text-[1rem] font-bold ${
+                className={`grid h-9 w-9 place-items-center rounded-[6px] text-[0.9rem] font-bold sm:h-11 sm:w-11 sm:text-[1rem] ${
                   w === "W"
                     ? "bg-[linear-gradient(180deg,#F98F86,#F26C61)] text-white"
                     : w === "6"
