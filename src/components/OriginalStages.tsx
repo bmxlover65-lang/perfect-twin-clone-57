@@ -654,9 +654,15 @@ export function BalloonStage({
     };
   }, []);
 
+  // new round → allow one fresh bet per panel again
+  useEffect(() => {
+    if (phase === "waiting") setUsed([false, false]);
+  }, [phase, roundId]);
+
   // balloon burst → any active HEAT bet is lost (queued bets stay for next round)
   useEffect(() => {
     if (phase !== "crashed") return;
+
     setBets((prev) =>
       prev.map((b, i) => {
         if (b && !b.pending) {
