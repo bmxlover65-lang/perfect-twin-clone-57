@@ -26,18 +26,24 @@ export const Route = createFileRoute("/_authenticated/operator")({
   }),
 });
 
-const input = "h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground";
-const btn = "h-9 rounded-md bg-primary px-3 text-xs font-bold text-primary-foreground";
-const ghost = "h-8 rounded-md border border-border px-2 text-xs font-semibold text-foreground";
+import {
+  DashShell,
+  Panel,
+  Stat,
+  dashBtn as btn,
+  dashGhost as ghost,
+  dashInput as input,
+} from "@/components/dash";
 
-function Panel({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-lg border border-border bg-card p-4">
-      <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-foreground">{title}</h2>
-      {children}
-    </section>
-  );
-}
+const TABS = [
+  { id: "overview", label: "Overview" },
+  { id: "wallet", label: "Callback wallet" },
+  { id: "bets", label: "My bet history" },
+  { id: "rounds", label: "Rounds" },
+  { id: "keys", label: "Keys & whitelist" },
+  { id: "logs", label: "Callback logs" },
+];
+
 
 function OperatorPage() {
   const navigate = useNavigate();
