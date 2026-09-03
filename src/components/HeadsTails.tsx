@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { RoundTimer } from "@/components/RoundTimer";
 import headsCoin from "@/assets/coin/heads.png.asset.json";
 import tailsCoin from "@/assets/coin/tails.png.asset.json";
 import coinSound from "@/assets/coin/coinsound.mp3.asset.json";
@@ -63,7 +64,7 @@ export function CoinStageImage({
       setFlipping(false);
       setShown(winner);
       play(winner === "HEADS" ? headWinSound.url : tailWinSound.url);
-    }, 8000);
+    }, 2600);
     timers.current.push(stop);
     return () => window.clearTimeout(stop);
   }, [suspended, winner, roundId]);
@@ -86,27 +87,35 @@ export function CoinStageImage({
 
   return (
     <div className="relative flex w-full items-center justify-center bg-black py-5">
-      <img
-        src={face === "HEADS" ? headsCoin.url : tailsCoin.url}
-        alt={`${face} coin`}
-        className="h-[min(320px,78vw)] w-[min(320px,78vw)] select-none object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.65)]"
-        draggable={false}
-        style={flipping ? { animation: "uapi-coin-flip 0.28s linear infinite" } : undefined}
-      />
-      {!flipping && !suspended && leftSec != null ? (
-        <span className="absolute bottom-5 right-5 flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#F2C500] bg-[#F2C500] text-[1.1rem] font-black text-black shadow-[0_4px_12px_rgba(242,197,0,0.45)]">
-          {leftSec}
+      {roundId ? (
+        <span className="pointer-events-none absolute left-3 top-3 text-[0.72rem] font-extrabold text-white/85">
+          RID: {roundId}
         </span>
       ) : null}
+      <div style={{ perspective: 900 }}>
+        <img
+          src={face === "HEADS" ? headsCoin.url : tailsCoin.url}
+          alt={`${face} coin`}
+          className="h-[min(320px,78vw)] w-[min(320px,78vw)] select-none object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.65)]"
+          draggable={false}
+          style={
+            flipping
+              ? { animation: "uapi-coin-flip 0.42s linear infinite", transformStyle: "preserve-3d" }
+              : undefined
+          }
+        />
+      </div>
+      <RoundTimer leftSec={leftSec} suspended={suspended || flipping} className="absolute right-3 top-3" />
       {!flipping && suspended && winner ? (
         <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-[#F2C500] px-4 py-1 text-[0.8rem] font-extrabold uppercase text-black">
           {winner} wins
         </span>
       ) : null}
-      <style>{`@keyframes uapi-coin-flip{0%{transform:rotateY(0deg) translateY(0) scale(1)}50%{transform:rotateY(180deg) translateY(-34px) scale(1.06)}100%{transform:rotateY(360deg) translateY(0) scale(1)}}`}</style>
+      <style>{`@keyframes uapi-coin-flip{0%{transform:rotateX(0deg)}100%{transform:rotateX(360deg)}}`}</style>
     </div>
   );
 }
+
 
 export type CoinRunner = {
   id: string;

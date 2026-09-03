@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Aviator } from "@/components/Aviator";
 import { FitBoard } from "@/components/FitBoard";
+import { RoundTimer } from "@/components/RoundTimer";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import { applyOverride, useAdminConfig } from "@/lib/admin";
@@ -2158,28 +2159,12 @@ function GamePage() {
             <Cards key={h.title} title={h.title} hand={h.hand} />
           ))}
         </div>
-        {!suspended && (d?.leftSec ?? 0) > 0
-          ? (() => {
-              const secs = Math.max(0, Math.round((d?.leftSec ?? 0) - age));
-              if (secs <= 0) return null;
-              const total = 30;
-              const pct = Math.max(0, Math.min(1, secs / total));
-              const ring = secs <= 5 ? "#EF4444" : "#22C55E";
-              return (
-                <span
-                  className="pointer-events-none absolute right-2 top-2 z-20 grid h-12 w-12 place-items-center rounded-full sm:h-14 sm:w-14"
-                  style={{
-                    background: `conic-gradient(${ring} ${pct * 360}deg, rgba(255,255,255,0.25) 0deg)`,
-                  }}
-                >
-                  <span className="grid h-[80%] w-[80%] place-items-center rounded-full bg-black/85 text-[0.95rem] font-black text-white sm:text-lg">
-                    {secs}
-                  </span>
-                </span>
-              );
-            })()
-          : null}
-
+        <RoundTimer
+          leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
+          suspended={suspended}
+          className="absolute right-2 top-2 z-20"
+          size="h-12 w-12 sm:h-14 sm:w-14"
+        />
 
         <ResultBanner results={results} gameId={gameId} />
       </div>

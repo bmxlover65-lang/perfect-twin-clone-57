@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { RoundTimer } from "@/components/RoundTimer";
 import { creditWin, debit, useWallet } from "@/lib/wallet";
 import luckyBg from "@/assets/lucky-bg.gif.asset.json";
 import dreamBg from "@/assets/dream/dreambg.png.asset.json";
@@ -138,11 +139,8 @@ export function LuckyWheel({
           <span className="pointer-events-none absolute left-1/2 top-[-4px] -translate-x-1/2 text-[1.4rem] leading-none text-[#F2C500]">
             ▼
           </span>
-          {!suspended && leftSec != null ? (
-            <span className="pointer-events-none absolute bottom-2 right-2 flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#F2C500] text-[1.05rem] font-extrabold text-[#F2C500]">
-              {leftSec}
-            </span>
-          ) : null}
+          <RoundTimer leftSec={leftSec} suspended={suspended} className="absolute right-2 top-2" />
+
           {showWin && winner ? (
             <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-[#F2C500] px-4 py-1 text-[0.8rem] font-extrabold uppercase text-black">
               {winner} wins
@@ -236,16 +234,8 @@ export function DreamWheel({
           RID: {roundId}
         </span>
       ) : null}
-      {leftSec != null ? (
-        <span
-          className="pointer-events-none absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-full bg-[#1B1B1B] text-[1.05rem] font-extrabold text-white"
-          style={{
-            boxShadow: `0 0 0 3px ${suspended || leftSec <= 5 ? "#D33" : "#22B14C"}`,
-          }}
-        >
-          {suspended ? 0 : leftSec}
-        </span>
-      ) : null}
+      <RoundTimer leftSec={leftSec} suspended={suspended} className="absolute right-2 top-2" />
+
       <div className="relative">
 
         <div
