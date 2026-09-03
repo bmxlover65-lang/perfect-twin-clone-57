@@ -2162,7 +2162,7 @@ function GamePage() {
 
       {error ? <p className="mt-3 text-sm text-live-lose">{error}</p> : null}
 
-      <div className="relative mt-4 overflow-hidden rounded-md bg-black">
+      <div ref={stageRef} className="relative mt-4 overflow-hidden rounded-md bg-black">
         {stream ? (
           <iframe
             title="Live game stream"
