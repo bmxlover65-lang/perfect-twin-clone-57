@@ -342,16 +342,8 @@ function MobileBetSlot({
   mode: "bet" | "auto";
 }) {
   const canCash = phase === "flying" && state.active && state.cashedAt === null;
-  const label = canCash
-    ? "Cash Out"
-    : state.staged || (state.active && state.cashedAt === null)
-      ? "Cancel"
-      : "Cash In";
-  const tone = canCash
-    ? "bg-[#F59E0B]"
-    : state.staged || state.active
-      ? "bg-[#EF0000]"
-      : "bg-[#18C800]";
+  const pending = state.staged || (state.active && state.cashedAt === null);
+  const tone = canCash ? "bg-[#F59E0B]" : pending ? "bg-[#EF0000]" : "bg-[#18C800]";
 
   const press = () => {
     if (canCash) {
@@ -359,7 +351,7 @@ function MobileBetSlot({
       setState((p) => ({ ...p, cashedAt: multiplier }));
       return;
     }
-    if (state.staged || (state.active && state.cashedAt === null)) {
+    if (pending) {
       setState((p) => ({ ...p, staged: false, active: false }));
       return;
     }
@@ -387,30 +379,21 @@ function MobileBetSlot({
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-[6px]">
-        {QUICK.map((q) => (
-          <button
-            key={q}
-            type="button"
-            onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`rounded-full border bg-[#151618] py-[6px] text-center text-[0.72rem] font-semibold ${
-              state.amount === q
-                ? "border-[#16C800] text-white"
-                : "border-[#44474D] text-[#C9CBD1]"
-            }`}
-          >
-            {q}
-          </button>
-        ))}
-      </div>
+      <StakeControl state={state} setState={setState} locked={pending || canCash} big />
 
       <button
         type="button"
         onClick={press}
-        className={`rounded-[9px] py-[10px] text-center text-[0.95rem] font-bold text-white ${tone}`}
+        className={`flex flex-col items-center rounded-[12px] py-[9px] text-white ${tone}`}
       >
-        {label}
+        <span className="text-[0.95rem] font-black uppercase leading-tight">
+          {canCash ? "Cash Out" : pending ? "Cancel" : "Bet"}
+        </span>
+        <span className="text-[0.72rem] font-bold leading-tight">
+          {canCash ? `${fmt(state.amount * multiplier)} INR` : `${state.amount.toFixed(2)} INR`}
+        </span>
       </button>
+
 
 
 
