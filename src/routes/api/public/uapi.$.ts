@@ -152,8 +152,14 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
   try {
     if (splat === "stream") {
       const u = new URLSearchParams(search).get("u") ?? "";
-      return streamPage(u);
+      return streamPage(u, origin, "GET");
     }
+
+    if (splat.startsWith("sproxy/")) {
+      const raw = splat.slice("sproxy/".length).replace(/^(https?):\/+/i, "$1://");
+      return streamPage(`${raw}${search}`, origin, body === undefined ? "GET" : "POST", body);
+    }
+
 
     if (splat === "health") {
       const t0 = Date.now();
