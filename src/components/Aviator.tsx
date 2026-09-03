@@ -317,32 +317,32 @@ function MobileBetSlot({
   };
 
   return (
-    <div className="flex min-w-0 flex-col gap-[5px]">
+    <div className="flex min-w-0 flex-col gap-[8px]">
       <div className="flex items-center justify-between gap-2 px-1">
-        <span className="text-[0.68rem] font-semibold text-[#C9CBD1]">Auto</span>
+        <span className="text-[0.8rem] font-semibold text-[#C9CBD1]">Auto</span>
         <button
           type="button"
           onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
           aria-pressed={state.auto}
-          className={`relative h-[17px] w-[34px] shrink-0 rounded-full transition-colors ${
+          className={`relative h-[22px] w-[44px] shrink-0 rounded-full transition-colors ${
             state.auto ? "bg-[#18B800]" : "bg-[#2A2C30]"
           }`}
         >
           <span
-            className={`absolute top-[2px] h-[13px] w-[13px] rounded-full bg-white transition-all ${
-              state.auto ? "left-[19px]" : "left-[2px]"
+            className={`absolute top-[3px] h-[16px] w-[16px] rounded-full bg-white transition-all ${
+              state.auto ? "left-[25px]" : "left-[3px]"
             }`}
           />
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-[5px]">
+      <div className="grid grid-cols-2 gap-[8px]">
         {QUICK.map((q) => (
           <button
             key={q}
             type="button"
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`rounded-full border bg-[#151618] py-[4px] text-center text-[0.66rem] font-semibold ${
+            className={`rounded-full border bg-[#151618] py-[8px] text-center text-[0.8rem] font-semibold ${
               state.amount === q
                 ? "border-[#16C800] text-white"
                 : "border-[#44474D] text-[#C9CBD1]"
@@ -356,7 +356,7 @@ function MobileBetSlot({
       <button
         type="button"
         onClick={press}
-        className={`rounded-[8px] py-[9px] text-center text-[0.95rem] font-bold text-white ${tone}`}
+        className={`rounded-[10px] py-[13px] text-center text-[1.15rem] font-bold text-white ${tone}`}
       >
         {label}
       </button>
@@ -1351,35 +1351,35 @@ export function Aviator() {
                 balance={balance}
                 mode={mode}
               />
-              <div className="flex w-[62px] flex-col gap-[5px] pt-[27px]">
+              <div className="flex w-[78px] flex-col gap-[9px] pt-[36px]">
                 <button
                   type="button"
                   onClick={() => {
                     const v = Number(window.prompt("Custom stake", String(slots[0]!.amount)) ?? "");
                     if (Number.isFinite(v) && v >= 10) setAllSlots((p) => ({ ...p, amount: v }));
                   }}
-                  className="rounded-[6px] bg-[#F59E0B] py-[5px] text-[0.72rem] font-bold text-white"
+                  className="rounded-[8px] bg-[#F59E0B] py-[9px] text-[0.9rem] font-bold text-white"
                 >
                   Edit
                 </button>
                 <button
                   type="button"
                   onClick={() => setAllSlots((p) => ({ ...p, amount: 10, staged: false }))}
-                  className="rounded-[6px] bg-[#EF0000] py-[5px] text-[0.72rem] font-bold text-white"
+                  className="rounded-[8px] bg-[#EF0000] py-[9px] text-[0.9rem] font-bold text-white"
                 >
                   Clear
                 </button>
                 <button
                   type="button"
                   onClick={() => setAllSlots((p) => ({ ...p, amount: 10 }))}
-                  className="rounded-[6px] border border-[#3A3D42] bg-[#1B1D20] py-[5px] text-[0.72rem] font-semibold text-[#7E848C]"
+                  className="rounded-[8px] border border-[#3A3D42] bg-[#1B1D20] py-[9px] text-[0.9rem] font-semibold text-[#7E848C]"
                 >
                   Min
                 </button>
                 <button
                   type="button"
                   onClick={() => setAllSlots((p) => ({ ...p, amount: 10000 }))}
-                  className="rounded-[6px] border border-[#3A3D42] bg-[#1B1D20] py-[5px] text-[0.72rem] font-semibold text-[#7E848C]"
+                  className="rounded-[8px] border border-[#3A3D42] bg-[#1B1D20] py-[9px] text-[0.9rem] font-semibold text-[#7E848C]"
                 >
                   Max
                 </button>
