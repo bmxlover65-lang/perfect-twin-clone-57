@@ -232,6 +232,7 @@ export function BetLayer({
       return;
     }
     close();
+    setSuccess(`Bet Place Successful on ${pick.label}`);
   };
 
   return (
