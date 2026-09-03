@@ -10,7 +10,7 @@ import { logResult } from "@/lib/telemetry";
 import { BalanceChip, BetLayer, MyBets } from "@/components/betting";
 import { settleLatest, settleRound } from "@/lib/wallet";
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
-import { cardImage, CARD_BACK, CARD_SIZE } from "@/lib/card-assets";
+
 import { CardFace } from "@/components/CardFace";
 
 
