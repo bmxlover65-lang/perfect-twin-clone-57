@@ -36,15 +36,8 @@ const AVATARS = [av1, av2, av3, av4, av5, av6];
 type Phase = "betting" | "flying" | "crashed";
 
 const BET_MS = 6000;
-const CRASH_HOLD_MS = 3500;
 
-function randomCrash(): number {
-  // 3% instant-bust, otherwise classic 1/(1-u) curve with 97% RTP
-  const r = Math.random();
-  if (r < 0.03) return 1.0;
-  const u = Math.random();
-  return Math.max(1.01, Math.floor((0.97 / (1 - u)) * 100) / 100);
-}
+
 
 function fmt(n: number) {
   return n.toFixed(2);
@@ -411,28 +404,49 @@ function FlightStage({
 }) {
   const [t, setT] = useState(0);
   useEffect(() => {
-    const id = window.setInterval(() => {
-      setT(Date.now());
-    }, 50);
-    return () => window.clearInterval(id);
+    let raf = 0;
+    const loop = () => {
+      setT(performance.now());
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   // progress 0..1 across the plot area — the plane reaches the target mark by ~1.50x, then hovers
-  const raw = phase === "flying" ? Math.min(1, (multiplier - 1) / 0.75) : phase === "crashed" ? 1 : 0;
-  const p = raw < 1 ? 1 - Math.pow(1 - raw, 1.5) : 1;
+  const raw = phase === "flying" ? Math.min(1, (multiplier - 1) / 0.5) : phase === "crashed" ? 1 : 0;
+  const target = raw < 1 ? 1 - Math.pow(1 - raw, 1.6) : 1;
+
+  // smooth the plane motion so a jumpy feed still renders a fluid flight
+  const pRef = useRef(0);
+  const lastRef = useRef(0);
+  const crashRef = useRef(0);
+  const dt = lastRef.current ? Math.min(0.06, (t - lastRef.current) / 1000) : 0;
+  lastRef.current = t;
+  if (phase === "betting") {
+    pRef.current = 0;
+    crashRef.current = 0;
+  } else {
+    pRef.current += (target - pRef.current) * Math.min(1, dt * 4.5);
+    if (phase === "crashed") crashRef.current = Math.min(1, crashRef.current + dt * 1.15);
+  }
+  const p = pRef.current;
+
   const W = 760;
   const H = 320;
   // the plane only starts to bob once it has settled in the upper right corner
-  const hoverScale = phase === "flying" ? Math.max(0, Math.min(1, (p - 0.6) / 0.25)) : 0;
-  const hoverY = Math.sin(t / 900) * 9 * hoverScale;
-  const hoverX = Math.cos(t / 1300) * 14 * hoverScale;
+  const hoverScale = phase === "flying" ? Math.max(0, Math.min(1, (p - 0.55) / 0.25)) : 0;
+  const hoverY = Math.sin(t / 780) * 10 * hoverScale + Math.sin(t / 310) * 2.5 * hoverScale;
+  const hoverX = Math.cos(t / 1150) * 15 * hoverScale;
   const x0 = 44;
   const y0 = H - 40;
   const x = x0 + p * (W - 210) + hoverX;
   const y = y0 - Math.pow(p, 1.25) * (H - 120) + hoverY;
-  const flewT = phase === "crashed" ? 1 : 0;
-  const px = x + flewT * 380;
-  const py = y - flewT * 210;
+  // fly-away easing after the crash instead of an instant jump
+  const flewT = phase === "crashed" ? crashRef.current * crashRef.current : 0;
+  const px = x + flewT * 420;
+  const py = y - flewT * 240;
+
   // smooth cubic trail: hugs the floor first, then sweeps up to the plane
   const c1x = x0 + (x - x0) * 0.55;
   const c1y = y0;
@@ -830,28 +844,8 @@ export function Aviator() {
     let fPeak = 1;
     let waitStart = 0;
 
-    // local-sim state
-    let simPhase: Phase | "" = "";
-    let simCrashAt = 0;
 
-    const startSimBetting = (now: number) => {
-      const ctl = avRef.current;
-      const official = queueRef.current.shift();
-      officialRef.current = official !== undefined;
-      crashRef.current =
-        ctl && ctl.mode === "never"
-          ? 1
-          : ctl && ctl.mode === "forced"
-            ? Math.max(1, ctl.crash)
-            : official !== undefined
-              ? Math.max(1, official)
-              : randomCrash();
-      startRef.current = now;
-      simPhase = "betting";
-      setPhase("betting");
-      setMultiplier(1);
-      setBets(makeBets(Math.floor(Math.random() * 999) + 1));
-    };
+
 
     const frame = () => {
       if (!mounted) return;
@@ -861,7 +855,6 @@ export function Aviator() {
       const fresh = live !== null && now - live.at < 10000;
 
       if (fresh && live) {
-        simPhase = "";
         if (live.rid !== fRid) {
           fRid = live.rid;
           fPeak = 1;
@@ -903,41 +896,16 @@ export function Aviator() {
         return;
       }
 
-      // ---- fallback: local simulation ----
+      // ---- feed lost: never fake a crash, just idle in a waiting state ----
       fPhase = "";
-      if (simPhase === "") startSimBetting(now);
-
-      if (simPhase === "betting") {
-        const left = BET_MS - (now - startRef.current);
-        setCountdown(Math.max(0, left));
-        if (left <= 0) {
-          stageBets();
-          startRef.current = now;
-          simPhase = "flying";
-          setPhase("flying");
-        }
-        return;
+      fRid = "";
+      fPeak = 1;
+      if (phaseRef.current !== "betting") {
+        setPhase("betting");
+        setMultiplier(1);
       }
+      setCountdown(0);
 
-      if (simPhase === "flying") {
-        const t = (now - startRef.current) / 1000;
-        const m = Math.max(1, Math.round(Math.pow(Math.E, 0.045 * t * (1 + t * 0.012)) * 100) / 100);
-        if (m >= crashRef.current) {
-          setMultiplier(crashRef.current);
-          setPhase("crashed");
-          if (!officialRef.current) setHistory((h) => [crashRef.current, ...h].slice(0, 24));
-          setRound((r) => r + 1);
-          bustAll();
-          simPhase = "crashed";
-          simCrashAt = now;
-          return;
-        }
-        setMultiplier(m);
-        botCashouts(m);
-        return;
-      }
-
-      if (simPhase === "crashed" && now - simCrashAt >= CRASH_HOLD_MS) startSimBetting(now);
     };
 
     raf = requestAnimationFrame(frame);
