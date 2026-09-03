@@ -85,29 +85,48 @@ function Lobby() {
 
 
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-5">
-      <div>
-        <div className="mb-4">
-          <p className="text-[0.7rem] uppercase tracking-[0.12em] text-muted-foreground">
+    <div className="relative mx-auto max-w-[1200px] px-4 py-5">
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-[280px] opacity-70"
+        style={{
+          background:
+            "radial-gradient(60% 100% at 20% 0%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 70%), radial-gradient(50% 90% at 85% 0%, color-mix(in oklab, var(--brand-accent) 14%, transparent), transparent 70%)",
+        }}
+      />
+      <div className="relative">
+        <div className="mb-5">
+          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
             Universal API
           </p>
-          <h1 className="mt-1 text-[1.75rem] font-bold leading-tight text-foreground">
+          <h1
+            className="mt-1.5 text-[2rem] font-extrabold leading-[1.05] tracking-tight text-transparent sm:text-[2.4rem]"
+            style={{
+              backgroundImage:
+                "linear-gradient(100deg, var(--foreground) 20%, color-mix(in oklab, var(--primary) 85%, var(--foreground)) 60%, var(--foreground) 95%)",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+            }}
+          >
             Universe Live
           </h1>
-          <p className="mt-1 max-w-[640px] text-[0.95rem] text-muted-foreground">
+          <p className="mt-2 max-w-[640px] text-[0.95rem] leading-relaxed text-muted-foreground">
             Live casino table games via the Universal API.
           </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <span className="rounded-full bg-card px-3 py-1.5 text-sm font-semibold text-foreground">
+          <div className="mt-3.5 flex flex-wrap gap-2">
+            <span className="rounded-full bg-card/80 px-3.5 py-1.5 text-[0.82rem] font-semibold text-foreground shadow-sm ring-1 ring-inset ring-border/70 backdrop-blur">
               {list.length} games
             </span>
-            <span className="rounded-full bg-card px-3 py-1.5 text-sm font-semibold text-foreground">
+            <span className="inline-flex items-center gap-2 rounded-full bg-card/80 px-3.5 py-1.5 text-[0.82rem] font-semibold text-foreground shadow-sm ring-1 ring-inset ring-border/70 backdrop-blur">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-live-badge opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-live-badge" />
+              </span>
               Universe Live
             </span>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
           {list.map((game) => (
             <GameCard key={game.id} game={game} />
           ))}
