@@ -417,9 +417,9 @@ function FlightStage({
     return () => window.clearInterval(id);
   }, []);
 
-  // progress 0..1 across the plot area — slow creep at the start, like the real game
-  const raw = phase === "flying" ? Math.min(1, Math.log(multiplier) / Math.log(18)) : phase === "crashed" ? 1 : 0;
-  const p = raw < 1 ? 1 - Math.pow(1 - raw, 1.35) : 1;
+  // progress 0..1 across the plot area — the plane reaches the target mark by ~1.50x, then hovers
+  const raw = phase === "flying" ? Math.min(1, (multiplier - 1) / 0.75) : phase === "crashed" ? 1 : 0;
+  const p = raw < 1 ? 1 - Math.pow(1 - raw, 1.5) : 1;
   const W = 760;
   const H = 320;
   // the plane only starts to bob once it has settled in the upper right corner
