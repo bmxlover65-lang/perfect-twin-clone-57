@@ -317,32 +317,32 @@ function MobileBetSlot({
   };
 
   return (
-    <div className="flex min-w-0 flex-col gap-[7px]">
+    <div className="flex min-w-0 flex-col gap-[5px]">
       <div className="flex items-center justify-between gap-2 px-1">
-        <span className="text-[0.72rem] font-semibold text-[#C9CBD1]">Auto</span>
+        <span className="text-[0.68rem] font-semibold text-[#C9CBD1]">Auto</span>
         <button
           type="button"
           onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
           aria-pressed={state.auto}
-          className={`relative h-[20px] w-[40px] shrink-0 rounded-full transition-colors ${
+          className={`relative h-[17px] w-[34px] shrink-0 rounded-full transition-colors ${
             state.auto ? "bg-[#18B800]" : "bg-[#2A2C30]"
           }`}
         >
           <span
-            className={`absolute top-[2px] h-[16px] w-[16px] rounded-full bg-white transition-all ${
-              state.auto ? "left-[22px]" : "left-[2px]"
+            className={`absolute top-[2px] h-[13px] w-[13px] rounded-full bg-white transition-all ${
+              state.auto ? "left-[19px]" : "left-[2px]"
             }`}
           />
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-[6px]">
+      <div className="grid grid-cols-2 gap-[5px]">
         {QUICK.map((q) => (
           <button
             key={q}
             type="button"
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`rounded-full border bg-[#151618] py-[6px] text-center text-[0.72rem] font-semibold ${
+            className={`rounded-full border bg-[#151618] py-[4px] text-center text-[0.66rem] font-semibold ${
               state.amount === q
                 ? "border-[#16C800] text-white"
                 : "border-[#44474D] text-[#C9CBD1]"
@@ -356,10 +356,11 @@ function MobileBetSlot({
       <button
         type="button"
         onClick={press}
-        className={`rounded-[10px] py-[13px] text-center text-[1.05rem] font-bold text-white ${tone}`}
+        className={`rounded-[8px] py-[9px] text-center text-[0.95rem] font-bold text-white ${tone}`}
       >
         {label}
       </button>
+
 
 
       {mode === "auto" ? (
