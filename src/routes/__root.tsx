@@ -213,13 +213,19 @@ function SiteHeader() {
           ))}
           <Link
             to="/console"
-            className="text-[0.82rem] font-semibold leading-tight text-nav-foreground transition-colors hover:text-nav-active sm:text-[0.95rem]"
+            className="hidden text-[0.82rem] font-semibold leading-tight text-nav-foreground transition-colors hover:text-nav-active sm:block sm:text-[0.95rem]"
             activeProps={{ className: "!text-nav-active" }}
           >
             Console
           </Link>
           <ThemeToggle />
-
+          <Link
+            to="/console"
+            className="w-full text-center text-[0.82rem] font-semibold leading-tight text-nav-foreground transition-colors hover:text-nav-active sm:hidden"
+            activeProps={{ className: "!text-nav-active" }}
+          >
+            Console
+          </Link>
         </nav>
       </div>
     </header>
