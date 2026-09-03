@@ -903,41 +903,18 @@ export function Aviator() {
         return;
       }
 
-      // ---- fallback: local simulation ----
+      // ---- feed lost: never fake a crash, just idle in a waiting state ----
       fPhase = "";
-      if (simPhase === "") startSimBetting(now);
-
-      if (simPhase === "betting") {
-        const left = BET_MS - (now - startRef.current);
-        setCountdown(Math.max(0, left));
-        if (left <= 0) {
-          stageBets();
-          startRef.current = now;
-          simPhase = "flying";
-          setPhase("flying");
-        }
-        return;
+      fRid = "";
+      fPeak = 1;
+      simPhase = "";
+      simCrashAt = 0;
+      if (phaseRef.current !== "betting") {
+        setPhase("betting");
+        setMultiplier(1);
       }
+      setCountdown(0);
 
-      if (simPhase === "flying") {
-        const t = (now - startRef.current) / 1000;
-        const m = Math.max(1, Math.round(Math.pow(Math.E, 0.045 * t * (1 + t * 0.012)) * 100) / 100);
-        if (m >= crashRef.current) {
-          setMultiplier(crashRef.current);
-          setPhase("crashed");
-          if (!officialRef.current) setHistory((h) => [crashRef.current, ...h].slice(0, 24));
-          setRound((r) => r + 1);
-          bustAll();
-          simPhase = "crashed";
-          simCrashAt = now;
-          return;
-        }
-        setMultiplier(m);
-        botCashouts(m);
-        return;
-      }
-
-      if (simPhase === "crashed" && now - simCrashAt >= CRASH_HOLD_MS) startSimBetting(now);
     };
 
     raf = requestAnimationFrame(frame);
