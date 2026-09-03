@@ -75,9 +75,16 @@ export const Route = createFileRoute("/games/$gameId")({
 });
 
 
+/** Strip table-suffixes like " - A" / " B" from the feed's event name. */
+function cleanGameName(name?: string | null): string | undefined {
+  if (!name) return undefined;
+  return name.replace(/\s*[-–]\s*[A-Z]$/i, "").trim();
+}
+
 function Card({ code }: { code: string }) {
   return <CardFace code={code} />;
 }
+
 
 
 
@@ -1967,7 +1974,7 @@ function GamePage() {
           Live · Universe Original
         </p>
         <h1 className="text-[1.35rem] font-extrabold uppercase text-foreground">
-          {d?.eventName ?? "Loading game…"}
+          {cleanGameName(d?.eventName) ?? "Loading game…"}
         </h1>
         <p className="mt-1 flex flex-wrap items-center gap-2 text-[0.8rem] font-bold text-foreground/80">
           <span>RID: {d?.roundId ?? "—"}</span> <BalanceChip />
@@ -2101,8 +2108,9 @@ function GamePage() {
             Live · Universe Live
           </p>
           <h1 className="mt-1 text-lg font-bold text-foreground sm:text-2xl">
-            {d?.eventName ?? "Loading game…"}
+            {cleanGameName(d?.eventName) ?? "Loading game…"}
           </h1>
+
         </div>
         <span className="flex shrink-0 flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-2">
           <BalanceChip />
