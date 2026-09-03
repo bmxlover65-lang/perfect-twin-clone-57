@@ -860,31 +860,40 @@ export function Aviator() {
         if (live.rid !== fRid) {
           fRid = live.rid;
           fPeak = 1;
+          shown = 1;
         }
 
         if (live.status === "RUN") {
           fPeak = Math.max(fPeak, live.mult);
           if (fPhase !== "flying") {
             fPhase = "flying";
+            shown = Math.min(shown, fPeak);
             stageBets();
             setPhase("flying");
           }
-          setMultiplier(fPeak);
-          botCashouts(fPeak);
+          // ease toward the feed value so the number climbs step by step
+          const gap = fPeak - shown;
+          shown = gap <= 0.005 ? fPeak : shown + Math.max(0.004, gap * 0.12);
+          if (shown > fPeak) shown = fPeak;
+          setMultiplier(shown);
+          botCashouts(shown);
         } else if (live.status === "BLAST") {
           const crash = Math.max(fPeak, live.mult);
           if (fPhase !== "crashed") {
             fPhase = "crashed";
             crashRef.current = crash;
             fPeak = crash;
+            shown = crash;
             setMultiplier(crash);
             setPhase("crashed");
             setRound((r) => r + 1);
             bustAll();
           } else {
+            shown = crash;
             setMultiplier(crash);
           }
         } else {
+
           // WAIT (or unknown) → betting window
           if (fPhase !== "betting") {
             fPhase = "betting";
