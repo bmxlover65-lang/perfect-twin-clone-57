@@ -841,7 +841,6 @@ export function Aviator() {
       const fresh = live !== null && now - live.at < 10000;
 
       if (fresh && live) {
-        simPhase = "";
         if (live.rid !== fRid) {
           fRid = live.rid;
           fPeak = 1;
@@ -887,8 +886,6 @@ export function Aviator() {
       fPhase = "";
       fRid = "";
       fPeak = 1;
-      simPhase = "";
-      simCrashAt = 0;
       if (phaseRef.current !== "betting") {
         setPhase("betting");
         setMultiplier(1);
