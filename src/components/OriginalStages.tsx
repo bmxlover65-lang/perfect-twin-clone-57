@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { RoundTimer } from "@/components/RoundTimer";
 import { creditWin, debit, useWallet } from "@/lib/wallet";
 import luckyBg from "@/assets/lucky-bg.gif.asset.json";
 import dreamBg from "@/assets/dream/dreambg.png.asset.json";
