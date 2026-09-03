@@ -75,9 +75,16 @@ export const Route = createFileRoute("/games/$gameId")({
 });
 
 
+/** Strip table-suffixes like " - A" / " B" from the feed's event name. */
+function cleanGameName(name?: string | null): string | undefined {
+  if (!name) return undefined;
+  return name.replace(/\s*[-–]\s*[A-Z]$/i, "").trim();
+}
+
 function Card({ code }: { code: string }) {
   return <CardFace code={code} />;
 }
+
 
 
 
