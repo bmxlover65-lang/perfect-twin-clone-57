@@ -1898,7 +1898,29 @@ function GamePage() {
       for (let i = 0; i < h.count; i += 1) hand[String(i)] = "0";
       return { title: h.title, hand };
     });
-  }, [cards, d?.eventName]);
+
+  // Keep the card overlay fully inside the video like the live table does.
+  useEffect(() => {
+    const fit = () => {
+      const stage = stageRef.current;
+      const overlay = overlayRef.current;
+      if (!stage || !overlay) return;
+      const availH = stage.clientHeight - 24;
+      const availW = stage.clientWidth - 24;
+      const h = overlay.offsetHeight;
+      const w = overlay.offsetWidth;
+      if (!h || !w || availH <= 0) return;
+      const next = Math.min(1, availH / h, availW / w);
+      setOverlayScale((prev) => (Math.abs(prev - next) > 0.01 ? next : prev));
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    if (stageRef.current) ro.observe(stageRef.current);
+    if (overlayRef.current) ro.observe(overlayRef.current);
+    return () => ro.disconnect();
+  }, [handLayout]);
+
+
 
 
 
