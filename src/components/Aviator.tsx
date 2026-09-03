@@ -36,15 +36,8 @@ const AVATARS = [av1, av2, av3, av4, av5, av6];
 type Phase = "betting" | "flying" | "crashed";
 
 const BET_MS = 6000;
-const CRASH_HOLD_MS = 3500;
 
-function randomCrash(): number {
-  // 3% instant-bust, otherwise classic 1/(1-u) curve with 97% RTP
-  const r = Math.random();
-  if (r < 0.03) return 1.0;
-  const u = Math.random();
-  return Math.max(1.01, Math.floor((0.97 / (1 - u)) * 100) / 100);
-}
+
 
 function fmt(n: number) {
   return n.toFixed(2);
