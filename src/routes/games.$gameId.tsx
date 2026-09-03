@@ -74,28 +74,9 @@ export const Route = createFileRoute("/games/$gameId")({
 
 
 function Card({ code }: { code: string }) {
-  const clean = code.replace(/_+$/, "");
-  const hidden = !clean || clean === "0" || clean === "1";
-  if (hidden) {
-    return (
-      <img src={CARD_BACK} alt="card" className={`${CARD_SIZE} bg-white object-fill`} loading="lazy" />
-    );
-  }
-  const suit = clean.slice(0, 1);
-  const rank = clean.slice(1);
-  const map: Record<string, string> = { S: "♠", H: "♥", D: "♦", C: "♣" };
-  const red = suit === "H" || suit === "D";
-  return (
-    <span
-      className={`${CARD_SIZE} inline-flex flex-col items-start justify-between bg-white px-[3px] py-[2px] font-bold leading-none ${
-        red ? "text-red-600" : "text-black"
-      }`}
-    >
-      <span className="text-[0.9rem]">{rank || "?"}</span>
-      <span className="text-[0.95rem]">{map[suit] ?? "?"}</span>
-    </span>
-  );
+  return <CardFace code={code} />;
 }
+
 
 
 
