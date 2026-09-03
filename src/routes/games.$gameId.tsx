@@ -358,7 +358,7 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
               key={String(r.selectionId)}
               className={`grid items-center border-t border-[#e6e6e6] ${cols}`}
             >
-              <span className="truncate px-2 py-2 text-[0.82rem] font-bold uppercase text-[#1f4b66]">
+              <span className="px-2 py-2 text-[0.82rem] font-bold text-[#1f4b66]">
                 {names[String(r.selectionId)] ?? String(r.selectionId)}
               </span>
               {cell(r.price?.back?.[0], "back", runnerOpen)}
