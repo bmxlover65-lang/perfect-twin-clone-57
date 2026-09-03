@@ -924,7 +924,13 @@ export function BalloonStage({
               </svg>
             </div>
             {flying ? (
-              <p className="absolute left-1/2 top-[36%] w-[120%] -translate-x-1/2 text-center text-[clamp(2.1rem,6.4vw,4.2rem)] font-extrabold leading-none text-white drop-shadow-[0_3px_10px_rgba(0,0,0,0.45)]">
+              <p
+                className="absolute left-1/2 top-[36%] w-[120%] -translate-x-1/2 text-center text-[clamp(2.1rem,6.4vw,4.2rem)] font-extrabold leading-none tracking-tight text-white"
+                style={{
+                  textShadow:
+                    "0 2px 2px rgba(0,0,0,0.45), 0 0 18px rgba(255,255,255,0.55), 0 0 42px rgba(120,220,255,0.45)",
+                }}
+              >
                 {shown.toFixed(2)}x
               </p>
             ) : (
