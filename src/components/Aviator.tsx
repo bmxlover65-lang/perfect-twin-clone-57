@@ -762,17 +762,87 @@ export function Aviator() {
   }, []);
 
 
+  // live round state (WAIT / RUN / BLAST) — same series as the real game
+  const liveRef = useRef<{ rid: string; status: string; mult: number; at: number } | null>(null);
+  useEffect(() => {
+    let stop = false;
+    const pull = async () => {
+      try {
+        const res = await fetch("/api/public/uapi/games/88.0023/state", { cache: "no-store" });
+        const j = (await res.json()) as {
+          data?: { roundId?: string; status?: string; multiplier?: string | number };
+        };
+        const d = j?.data;
+        if (d?.roundId) {
+          liveRef.current = {
+            rid: String(d.roundId),
+            status: String(d.status ?? "").toUpperCase(),
+            mult: Math.max(1, Number(d.multiplier) || 1),
+            at: performance.now(),
+          };
+        }
+      } catch {
+        /* keep last known state */
+      }
+      if (!stop) window.setTimeout(pull, 400);
+    };
+    void pull();
+    return () => {
+      stop = true;
+    };
+  }, []);
+
   const win = useCallback((amt: number) => {
     setBalance((b) => Math.round((b + amt) * 100) / 100);
     sfx(winSound.url, 0.65);
   }, [sfx]);
 
-  // round loop
+  // round loop — driven by the live feed, falls back to a local sim if it dies
   useEffect(() => {
     let raf = 0;
     let mounted = true;
 
-    const beginBetting = () => {
+    // shared helpers
+    const stageBets = () =>
+      setSlots((list) =>
+        list.map((p) =>
+          p.staged
+            ? { ...p, staged: false, active: true, cashedAt: null }
+            : { ...p, active: false, cashedAt: null },
+        ),
+      );
+
+    const botCashouts = (m: number) =>
+      setBets((list) =>
+        list.map((b) =>
+          b.cashedAt === undefined && b.target > 1 && b.target <= m
+            ? {
+                ...b,
+                cashedAt: Math.round(b.target * 100) / 100,
+                bal: Math.round(b.bal + b.amount * (b.target - 1)),
+              }
+            : b,
+        ),
+      );
+
+    const bustAll = () =>
+      setBets((list) =>
+        list.map((b) =>
+          b.cashedAt === undefined ? { ...b, busted: true, bal: Math.max(0, b.bal - b.amount) } : b,
+        ),
+      );
+
+    // feed-driven state
+    let fRid = "";
+    let fPhase: Phase | "" = "";
+    let fPeak = 1;
+    let waitStart = 0;
+
+    // local-sim state
+    let simPhase: Phase | "" = "";
+    let simCrashAt = 0;
+
+    const startSimBetting = (now: number) => {
       const ctl = avRef.current;
       const official = queueRef.current.shift();
       officialRef.current = official !== undefined;
@@ -784,81 +854,107 @@ export function Aviator() {
             : official !== undefined
               ? Math.max(1, official)
               : randomCrash();
-      startRef.current = performance.now();
-
+      startRef.current = now;
+      simPhase = "betting";
       setPhase("betting");
       setMultiplier(1);
       setBets(makeBets(Math.floor(Math.random() * 999) + 1));
-      const tick = () => {
-        if (!mounted) return;
-        const left = BET_MS - (performance.now() - startRef.current);
-        setCountdown(Math.max(0, left));
-        if (left <= 0) {
-          beginFlight();
-          return;
-        }
-        raf = requestAnimationFrame(tick);
-      };
-      raf = requestAnimationFrame(tick);
     };
 
-    const beginFlight = () => {
-      // stage bets
-      setSlots((list) =>
-        list.map((p) =>
-          p.staged
-            ? { ...p, staged: false, active: true, cashedAt: null }
-            : { ...p, active: false, cashedAt: null },
-        ),
-      );
+    const frame = () => {
+      if (!mounted) return;
+      raf = requestAnimationFrame(frame);
+      const now = performance.now();
+      const live = liveRef.current;
+      const fresh = live !== null && now - live.at < 10000;
 
-      setBalance((b) => b);
-      startRef.current = performance.now();
-      setPhase("flying");
-      const tick = () => {
-        if (!mounted) return;
-        const t = (performance.now() - startRef.current) / 1000;
+      if (fresh && live) {
+        simPhase = "";
+        if (live.rid !== fRid) {
+          fRid = live.rid;
+          fPeak = 1;
+        }
+
+        if (live.status === "RUN") {
+          fPeak = Math.max(fPeak, live.mult);
+          if (fPhase !== "flying") {
+            fPhase = "flying";
+            stageBets();
+            setPhase("flying");
+          }
+          setMultiplier(fPeak);
+          botCashouts(fPeak);
+        } else if (live.status === "BLAST") {
+          const crash = Math.max(fPeak, live.mult);
+          if (fPhase !== "crashed") {
+            fPhase = "crashed";
+            crashRef.current = crash;
+            fPeak = crash;
+            setMultiplier(crash);
+            setPhase("crashed");
+            setRound((r) => r + 1);
+            bustAll();
+          } else {
+            setMultiplier(crash);
+          }
+        } else {
+          // WAIT (or unknown) → betting window
+          if (fPhase !== "betting") {
+            fPhase = "betting";
+            waitStart = now;
+            setMultiplier(1);
+            setBets(makeBets(Math.floor(Math.random() * 999) + 1));
+            setPhase("betting");
+          }
+          setCountdown(Math.max(0, BET_MS - (now - waitStart)));
+        }
+        return;
+      }
+
+      // ---- fallback: local simulation ----
+      fPhase = "";
+      if (simPhase === "") startSimBetting(now);
+
+      if (simPhase === "betting") {
+        const left = BET_MS - (now - startRef.current);
+        setCountdown(Math.max(0, left));
+        if (left <= 0) {
+          stageBets();
+          startRef.current = now;
+          simPhase = "flying";
+          setPhase("flying");
+        }
+        return;
+      }
+
+      if (simPhase === "flying") {
+        const t = (now - startRef.current) / 1000;
         const m = Math.max(1, Math.round(Math.pow(Math.E, 0.045 * t * (1 + t * 0.012)) * 100) / 100);
         if (m >= crashRef.current) {
           setMultiplier(crashRef.current);
           setPhase("crashed");
           if (!officialRef.current) setHistory((h) => [crashRef.current, ...h].slice(0, 24));
           setRound((r) => r + 1);
-          // everyone who did not cash out before the crash loses the round
-          setBets((list) =>
-            list.map((b) =>
-              b.cashedAt === undefined ? { ...b, busted: true, bal: Math.max(0, b.bal - b.amount) } : b,
-            ),
-          );
-          window.setTimeout(() => {
-            if (mounted) beginBetting();
-          }, CRASH_HOLD_MS);
+          bustAll();
+          simPhase = "crashed";
+          simCrashAt = now;
           return;
         }
         setMultiplier(m);
-        setBets((list) =>
-          list.map((b) =>
-            b.cashedAt === undefined && b.target > 1 && b.target <= m
-              ? {
-                  ...b,
-                  cashedAt: Math.round(b.target * 100) / 100,
-                  bal: Math.round(b.bal + b.amount * (b.target - 1)),
-                }
-              : b,
-          ),
-        );
+        botCashouts(m);
+        return;
+      }
 
-        raf = requestAnimationFrame(tick);
-      };
-      raf = requestAnimationFrame(tick);
+      if (simPhase === "crashed" && now - simCrashAt >= CRASH_HOLD_MS) startSimBetting(now);
     };
 
-    beginBetting();
+    raf = requestAnimationFrame(frame);
     return () => {
       mounted = false;
       cancelAnimationFrame(raf);
     };
   }, []);
+
 
   // deduct stake when flight starts
   useEffect(() => {
