@@ -144,10 +144,9 @@ export function fmtOdds(price: number | undefined | null): string {
 
 export function fmtSize(size: number | undefined | null): string {
   if (!size) return "";
-  if (size >= 1000000) return `${(size / 1000000).toFixed(1)}M`;
-  if (size >= 1000) return `${(size / 1000).toFixed(1)}K`;
   return String(Math.round(size));
 }
+
 
 export function fmtInt(n: number | undefined | null): string {
   return new Intl.NumberFormat("en-US").format(Math.round(n ?? 0));
