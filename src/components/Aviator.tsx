@@ -1362,112 +1362,24 @@ export function Aviator() {
               ))}
             </div>
 
-            {/* mobile: two slots with own stake grids + center action column */}
-            <div className="grid grid-cols-[minmax(0,1fr)_64px_minmax(0,1fr)] items-start gap-2 sm:hidden">
-              <MobileBetSlot
-                state={slots[0]!}
-                setState={(fn) => setSlot(0, fn)}
-                phase={phase}
-                multiplier={multiplier}
-                onWin={win}
-                balance={balance}
-                mode={mode}
-              />
-              <div className="flex w-[64px] flex-col gap-[7px] pt-[30px]">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const v = Number(window.prompt("Custom stake", String(slots[0]!.amount)) ?? "");
-                    if (Number.isFinite(v) && v >= 10) setAllSlots((p) => ({ ...p, amount: v }));
-                  }}
-                  className="rounded-[7px] bg-[#F59E0B] py-[7px] text-[0.78rem] font-bold text-white"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAllSlots((p) => ({ ...p, amount: 10, staged: false }))}
-                  className="rounded-[7px] bg-[#EF0000] py-[7px] text-[0.78rem] font-bold text-white"
-                >
-                  Clear
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAllSlots((p) => ({ ...p, amount: 10 }))}
-                  className="rounded-[7px] border border-[#3A3D42] bg-[#1B1D20] py-[7px] text-[0.78rem] font-semibold text-[#7E848C]"
-                >
-                  Min
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAllSlots((p) => ({ ...p, amount: 10000 }))}
-                  className="rounded-[7px] border border-[#3A3D42] bg-[#1B1D20] py-[7px] text-[0.78rem] font-semibold text-[#7E848C]"
-                >
-                  Max
-                </button>
-              </div>
-
-              <MobileBetSlot
-                state={slots[1]!}
-                setState={(fn) => setSlot(1, fn)}
-                phase={phase}
-                multiplier={multiplier}
-                onWin={win}
-                balance={balance}
-                mode={mode}
-              />
-            </div>
-
-            <div className="hidden grid-cols-4 gap-[8px] sm:grid sm:gap-[8px]">
-              {QUICK.map((q) => (
-                <button
-                  key={q}
-                  type="button"
-                  onClick={() => setAllSlots((p) => ({ ...p, amount: q }))}
-                  className={`rounded-full border bg-[#151618] py-[8px] text-center text-[0.75rem] font-semibold transition-colors sm:py-[7px] sm:text-[0.78rem] ${
-                    slots[0]!.amount === q
-                      ? "border-[#16C800] text-white"
-                      : "border-[#44474D] text-[#C9CBD1] hover:text-white"
-                  }`}
-                >
-                  {q}
-                </button>
+            {/* mobile: two bet slots, same as the original app */}
+            <div className="grid grid-cols-2 items-start gap-2 sm:hidden">
+              {slots.map((s, i) => (
+                <MobileBetSlot
+                  key={i}
+                  state={s}
+                  setState={(fn) => setSlot(i, fn)}
+                  phase={phase}
+                  multiplier={multiplier}
+                  onWin={win}
+                  balance={balance}
+                  mode={mode}
+                />
               ))}
-
-              <button
-                type="button"
-                onClick={() => setAllSlots((p) => ({ ...p, amount: 10 }))}
-                className="rounded-full border border-[#44474D] bg-[#151618] py-[8px] text-[0.75rem] font-semibold text-[#9CA3AF] sm:py-[7px] sm:text-[0.78rem]"
-              >
-                Min
-              </button>
-              <button
-                type="button"
-                onClick={() => setAllSlots((p) => ({ ...p, amount: 10000 }))}
-                className="rounded-full border border-[#44474D] bg-[#151618] py-[8px] text-[0.75rem] font-semibold text-[#9CA3AF] sm:py-[7px] sm:text-[0.78rem]"
-              >
-                Max
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const v = Number(window.prompt("Custom stake", String(slots[0]!.amount)) ?? "");
-                  if (Number.isFinite(v) && v >= 10) setAllSlots((p) => ({ ...p, amount: v }));
-                }}
-                className="rounded-full bg-[#F59E0B] py-[8px] text-[0.75rem] font-bold text-white sm:py-[7px] sm:text-[0.78rem]"
-              >
-                Edit
-              </button>
-              <button
-                type="button"
-                onClick={() => setAllSlots((p) => ({ ...p, amount: 10, staged: false }))}
-                className="rounded-full bg-[#EF0000] py-[8px] text-[0.75rem] font-bold text-white sm:py-[7px] sm:text-[0.78rem]"
-              >
-                Clear
-              </button>
             </div>
 
-            <div className="mt-2 hidden grid-cols-4 gap-[8px] sm:mt-3 sm:grid sm:gap-[8px]">
+            <div className="mt-2 hidden grid-cols-2 gap-[10px] sm:mt-3 sm:grid">
+
               {slots.map((s, i) => (
                 <BetPanel
                   key={i}
