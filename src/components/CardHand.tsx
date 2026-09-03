@@ -1,5 +1,5 @@
 import type { PlayingCard } from "@/lib/live-engine";
-import { CARD_BACK, CARD_SIZE, cardImage } from "@/lib/card-assets";
+import { CARD_BACK, CARD_SIZE } from "@/lib/card-assets";
 
 const SUIT_GLYPH: Record<PlayingCard["suit"], string> = {
   S: "♠",
@@ -20,33 +20,19 @@ function Card({ card }: { card: PlayingCard }) {
       />
     );
   }
-  const img = cardImage(`${card.suit}${card.rank}`);
-  if (img) {
-    return (
-      <img
-        src={img}
-        alt={`${card.rank} ${card.suit}`}
-        className={`${CARD_SIZE} bg-white object-fill`}
-        loading="lazy"
-      />
-    );
-  }
   const red = card.suit === "H" || card.suit === "D";
   return (
-    <div className={`${CARD_SIZE} flex flex-col justify-between bg-white p-1`}>
-      <span
-        className={`text-xs font-bold leading-none ${red ? "text-card-red" : "text-card-black"}`}
-      >
-        {card.rank}
-      </span>
-      <span
-        className={`self-end text-lg leading-none ${red ? "text-card-red" : "text-card-black"}`}
-      >
-        {SUIT_GLYPH[card.suit]}
-      </span>
-    </div>
+    <span
+      className={`${CARD_SIZE} inline-flex flex-col items-start justify-between bg-white px-[3px] py-[2px] font-bold leading-none ${
+        red ? "text-red-600" : "text-black"
+      }`}
+    >
+      <span className="text-[0.9rem]">{card.rank}</span>
+      <span className="text-[0.95rem]">{SUIT_GLYPH[card.suit]}</span>
+    </span>
   );
 }
+
 
 
 
