@@ -970,7 +970,7 @@ export function BalloonStage({
             {histList.map((v, i) => (
               <span
                 key={i}
-                className={`shrink-0 rounded-[5px] px-2 py-[3px] text-[0.7rem] font-extrabold sm:px-2.5 sm:text-[0.78rem] ${histColor2(v)}`}
+                className={`shrink-0 rounded-full px-2 py-[3px] text-[0.7rem] font-extrabold shadow-[0_1px_3px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.28)] ring-1 ring-inset ring-white/15 sm:px-2.5 sm:text-[0.78rem] ${histColor2(v)}`}
               >
                 {v.toFixed(2)}x
               </span>
