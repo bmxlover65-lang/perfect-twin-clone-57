@@ -2217,7 +2217,7 @@ function GamePage() {
           size="h-12 w-12 sm:h-14 sm:w-14"
         />
 
-        <ResultBanner results={results} gameId={gameId} />
+        <ResultBanner results={results} gameId={gameId} gameName={d?.eventName} />
       </div>
 
 
