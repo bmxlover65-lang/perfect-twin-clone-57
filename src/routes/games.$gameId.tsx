@@ -397,7 +397,7 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
         <div className="grid grid-cols-2 gap-2">
           {runners.map((r) => {
             const p = r.price?.back?.[0];
-            const locked = suspended || !isOpenStatus(r.status ?? "ONLINE") || !p?.price;
+            const locked = !suspended && (!isOpenStatus(r.status ?? "ONLINE") || !p?.price);
             return (
               <div key={String(r.selectionId)} className="min-w-0">
                 <p className="truncate px-1 pb-1 text-center text-[0.72rem] font-bold uppercase text-[#dbe6f0]">
@@ -421,12 +421,13 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
           })}
         </div>
         {suspended ? (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-md bg-black/45">
-            <span className="text-xl font-extrabold uppercase tracking-wide text-[#c8d2dc]">
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-md bg-black/60">
+            <span className="text-xl font-extrabold uppercase tracking-[0.08em] text-white">
               Suspended
             </span>
           </div>
         ) : null}
+
       </div>
     </div>
   );
