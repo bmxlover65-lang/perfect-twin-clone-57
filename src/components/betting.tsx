@@ -239,8 +239,13 @@ export function BetLayer({
       setErr("You have Insufficient Balance.");
       return;
     }
+    const pos = cellPos.current;
     close();
+    if (pos) {
+      setChips((cur) => [...cur, { id: Date.now(), x: pos.x, y: pos.y, amount: stake }]);
+    }
     setSuccess("Casino BetPlace Successful.");
+
   };
 
   return (
