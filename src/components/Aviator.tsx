@@ -898,7 +898,9 @@ export function Aviator() {
           if (fPhase !== "betting") {
             fPhase = "betting";
             waitStart = now;
+            shown = 1;
             setMultiplier(1);
+
             setBets(makeBets(Math.floor(Math.random() * 999) + 1));
             setPhase("betting");
           }
