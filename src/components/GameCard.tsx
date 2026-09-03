@@ -33,11 +33,11 @@ export function GameCard({ game }: { game: GameDef }) {
               "radial-gradient(120% 70% at 50% 0%, oklch(1 0 0 / 0.18), transparent 60%)",
           }}
         />
-        <div className="absolute inset-0 flex flex-col justify-end gap-1.5 bg-gradient-to-t from-black/75 via-black/10 to-transparent p-3 opacity-100 transition-opacity duration-200 md:opacity-0 md:group-hover:opacity-100 md:group-focus-visible:opacity-100">
-          <span className="self-start rounded-full bg-live-badge px-2 py-0.5 text-[0.68rem] font-bold uppercase tracking-wide text-live-badge-foreground">
+        <div className="absolute inset-0 flex flex-col justify-end gap-1.5 bg-gradient-to-t from-black/80 via-black/15 to-transparent p-3">
+          <span className="text-sm font-bold leading-tight text-white">{game.name}</span>
+          <span className="self-start rounded-md bg-live-badge px-2 py-0.5 text-[0.62rem] font-bold uppercase tracking-wide text-live-badge-foreground">
             Live
           </span>
-          <span className="text-sm font-bold leading-tight text-white">{game.name}</span>
         </div>
       </div>
     </Link>
