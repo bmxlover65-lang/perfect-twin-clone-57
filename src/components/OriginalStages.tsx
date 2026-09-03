@@ -1127,7 +1127,7 @@ export function BalloonStage({
                         ? "bg-[linear-gradient(180deg,#F0A500_0%,#D98200_100%)] shadow-[0_3px_0_#8A5600]"
                         : bet
                           ? "bg-[linear-gradient(180deg,#8C96A3_0%,#6B7480_100%)] shadow-[0_3px_0_#454C55]"
-                          : "bg-[linear-gradient(180deg,#3FD24F_0%,#1B9E2E_100%)] shadow-[0_3px_0_#0E6B1D]"
+                          : "bg-[linear-gradient(180deg,#57E066_0%,#2FBB40_48%,#149329_100%)] shadow-[0_4px_0_#0E6B1D,0_10px_20px_-8px_rgba(20,147,41,0.75),inset_0_1px_0_rgba(255,255,255,0.55)]"
                   }`}
                 >
                   {live ? (
