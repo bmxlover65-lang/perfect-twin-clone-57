@@ -1350,35 +1350,35 @@ export function Aviator() {
                 balance={balance}
                 mode={mode}
               />
-              <div className="flex w-[72px] flex-col gap-[7px] pt-[7px]">
+              <div className="flex w-[74px] flex-col gap-[8px] pt-[34px]">
                 <button
                   type="button"
                   onClick={() => {
                     const v = Number(window.prompt("Custom stake", String(slots[0]!.amount)) ?? "");
                     if (Number.isFinite(v) && v >= 10) setAllSlots((p) => ({ ...p, amount: v }));
                   }}
-                  className="rounded-full bg-[#F59E0B] py-[7px] text-[0.75rem] font-bold text-white"
+                  className="rounded-[8px] bg-[#F59E0B] py-[8px] text-[0.8rem] font-bold text-white"
                 >
                   Edit
                 </button>
                 <button
                   type="button"
                   onClick={() => setAllSlots((p) => ({ ...p, amount: 10, staged: false }))}
-                  className="rounded-full bg-[#EF0000] py-[7px] text-[0.75rem] font-bold text-white"
+                  className="rounded-[8px] bg-[#EF0000] py-[8px] text-[0.8rem] font-bold text-white"
                 >
                   Clear
                 </button>
                 <button
                   type="button"
                   onClick={() => setAllSlots((p) => ({ ...p, amount: 10 }))}
-                  className="rounded-full border border-[#44474D] bg-[#151618] py-[7px] text-[0.75rem] font-semibold text-[#9CA3AF]"
+                  className="rounded-[8px] border border-[#3A3D42] bg-[#1B1D20] py-[8px] text-[0.8rem] font-semibold text-[#7E848C]"
                 >
                   Min
                 </button>
                 <button
                   type="button"
                   onClick={() => setAllSlots((p) => ({ ...p, amount: 10000 }))}
-                  className="rounded-full border border-[#44474D] bg-[#151618] py-[7px] text-[0.75rem] font-semibold text-[#9CA3AF]"
+                  className="rounded-[8px] border border-[#3A3D42] bg-[#1B1D20] py-[8px] text-[0.8rem] font-semibold text-[#7E848C]"
                 >
                   Max
                 </button>
