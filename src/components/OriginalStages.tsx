@@ -1077,7 +1077,7 @@ export function BalloonStage({
                     key={s}
                     type="button"
                     onClick={() => setStake(s)}
-                    className={`h-[26px] w-[76px] rounded-full bg-[#0E2C5C] text-[0.65rem] font-extrabold text-white shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
+                    className={`h-[26px] w-[76px] rounded-full bg-[linear-gradient(180deg,#1B4585_0%,#0E2C5C_60%,#08203F_100%)] text-[0.65rem] font-extrabold text-white shadow-[0_2px_4px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.22)] ring-1 ring-inset ring-white/10 transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
                       stake === s ? "ring-2 ring-[#E01E1E]" : ""
                     }`}
                   >
