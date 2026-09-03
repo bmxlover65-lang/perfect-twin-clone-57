@@ -1351,39 +1351,40 @@ export function Aviator() {
                 balance={balance}
                 mode={mode}
               />
-              <div className="flex w-[74px] flex-col gap-[8px] pt-[34px]">
+              <div className="flex w-[62px] flex-col gap-[5px] pt-[27px]">
                 <button
                   type="button"
                   onClick={() => {
                     const v = Number(window.prompt("Custom stake", String(slots[0]!.amount)) ?? "");
                     if (Number.isFinite(v) && v >= 10) setAllSlots((p) => ({ ...p, amount: v }));
                   }}
-                  className="rounded-[8px] bg-[#F59E0B] py-[8px] text-[0.8rem] font-bold text-white"
+                  className="rounded-[6px] bg-[#F59E0B] py-[5px] text-[0.72rem] font-bold text-white"
                 >
                   Edit
                 </button>
                 <button
                   type="button"
                   onClick={() => setAllSlots((p) => ({ ...p, amount: 10, staged: false }))}
-                  className="rounded-[8px] bg-[#EF0000] py-[8px] text-[0.8rem] font-bold text-white"
+                  className="rounded-[6px] bg-[#EF0000] py-[5px] text-[0.72rem] font-bold text-white"
                 >
                   Clear
                 </button>
                 <button
                   type="button"
                   onClick={() => setAllSlots((p) => ({ ...p, amount: 10 }))}
-                  className="rounded-[8px] border border-[#3A3D42] bg-[#1B1D20] py-[8px] text-[0.8rem] font-semibold text-[#7E848C]"
+                  className="rounded-[6px] border border-[#3A3D42] bg-[#1B1D20] py-[5px] text-[0.72rem] font-semibold text-[#7E848C]"
                 >
                   Min
                 </button>
                 <button
                   type="button"
                   onClick={() => setAllSlots((p) => ({ ...p, amount: 10000 }))}
-                  className="rounded-[8px] border border-[#3A3D42] bg-[#1B1D20] py-[8px] text-[0.8rem] font-semibold text-[#7E848C]"
+                  className="rounded-[6px] border border-[#3A3D42] bg-[#1B1D20] py-[5px] text-[0.72rem] font-semibold text-[#7E848C]"
                 >
                   Max
                 </button>
               </div>
+
               <MobileBetSlot
                 state={slots[1]!}
                 setState={(fn) => setSlot(1, fn)}
