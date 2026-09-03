@@ -317,9 +317,9 @@ function MobileBetSlot({
   };
 
   return (
-    <div className="flex min-w-0 flex-col gap-[8px]">
+    <div className="flex min-w-0 flex-col gap-[6px]">
       <div className="flex items-center justify-between gap-2 px-1">
-        <span className="text-[0.8rem] font-semibold text-[#C9CBD1]">Auto</span>
+        <span className="text-[0.72rem] font-semibold text-[#C9CBD1]">Auto</span>
         <button
           type="button"
           onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
@@ -336,13 +336,13 @@ function MobileBetSlot({
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-[8px]">
+      <div className="grid grid-cols-2 gap-[6px]">
         {QUICK.map((q) => (
           <button
             key={q}
             type="button"
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`rounded-full border bg-[#151618] py-[8px] text-center text-[0.8rem] font-semibold ${
+            className={`rounded-full border bg-[#151618] py-[6px] text-center text-[0.72rem] font-semibold ${
               state.amount === q
                 ? "border-[#16C800] text-white"
                 : "border-[#44474D] text-[#C9CBD1]"
@@ -356,7 +356,7 @@ function MobileBetSlot({
       <button
         type="button"
         onClick={press}
-        className={`rounded-[10px] py-[13px] text-center text-[1.15rem] font-bold text-white ${tone}`}
+        className={`rounded-[9px] py-[10px] text-center text-[0.95rem] font-bold text-white ${tone}`}
       >
         {label}
       </button>
@@ -1322,8 +1322,8 @@ export function Aviator() {
 
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} feedLive={feedLive} />
 
-          <div className="rounded-[12px] border border-[#292D32] bg-[#111315] p-3 sm:p-4">
-            <div className="mx-auto mb-3 flex w-[220px] rounded-full bg-[#0B0C0E] p-[4px] text-[0.78rem] font-bold text-white/55">
+          <div className="rounded-[12px] border border-[#292D32] bg-[#111315] p-2 sm:p-4">
+            <div className="mx-auto mb-2 flex w-[205px] rounded-full bg-[#0B0C0E] p-[3px] text-[0.72rem] font-bold text-white/55 sm:mb-3 sm:w-[220px] sm:p-[4px] sm:text-[0.78rem]">
               {(["bet", "auto"] as const).map((m) => (
                 <button
                   key={m}
@@ -1331,7 +1331,7 @@ export function Aviator() {
                   onClick={() => {
                     setMode(m);
                   }}
-                  className={`flex-1 rounded-full py-[6px] capitalize ${
+                  className={`flex-1 rounded-full py-[5px] capitalize sm:py-[6px] ${
                     mode === m ? "bg-[#2C2D30] text-white" : ""
                   }`}
                 >
@@ -1341,7 +1341,7 @@ export function Aviator() {
             </div>
 
             {/* mobile: two slots with own stake grids + center action column */}
-            <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-3 sm:hidden">
+            <div className="grid grid-cols-[minmax(0,1fr)_64px_minmax(0,1fr)] items-start gap-2 sm:hidden">
               <MobileBetSlot
                 state={slots[0]!}
                 setState={(fn) => setSlot(0, fn)}
@@ -1351,35 +1351,35 @@ export function Aviator() {
                 balance={balance}
                 mode={mode}
               />
-              <div className="flex w-[78px] flex-col gap-[9px] pt-[36px]">
+              <div className="flex w-[64px] flex-col gap-[7px] pt-[30px]">
                 <button
                   type="button"
                   onClick={() => {
                     const v = Number(window.prompt("Custom stake", String(slots[0]!.amount)) ?? "");
                     if (Number.isFinite(v) && v >= 10) setAllSlots((p) => ({ ...p, amount: v }));
                   }}
-                  className="rounded-[8px] bg-[#F59E0B] py-[9px] text-[0.9rem] font-bold text-white"
+                  className="rounded-[7px] bg-[#F59E0B] py-[7px] text-[0.78rem] font-bold text-white"
                 >
                   Edit
                 </button>
                 <button
                   type="button"
                   onClick={() => setAllSlots((p) => ({ ...p, amount: 10, staged: false }))}
-                  className="rounded-[8px] bg-[#EF0000] py-[9px] text-[0.9rem] font-bold text-white"
+                  className="rounded-[7px] bg-[#EF0000] py-[7px] text-[0.78rem] font-bold text-white"
                 >
                   Clear
                 </button>
                 <button
                   type="button"
                   onClick={() => setAllSlots((p) => ({ ...p, amount: 10 }))}
-                  className="rounded-[8px] border border-[#3A3D42] bg-[#1B1D20] py-[9px] text-[0.9rem] font-semibold text-[#7E848C]"
+                  className="rounded-[7px] border border-[#3A3D42] bg-[#1B1D20] py-[7px] text-[0.78rem] font-semibold text-[#7E848C]"
                 >
                   Min
                 </button>
                 <button
                   type="button"
                   onClick={() => setAllSlots((p) => ({ ...p, amount: 10000 }))}
-                  className="rounded-[8px] border border-[#3A3D42] bg-[#1B1D20] py-[9px] text-[0.9rem] font-semibold text-[#7E848C]"
+                  className="rounded-[7px] border border-[#3A3D42] bg-[#1B1D20] py-[7px] text-[0.78rem] font-semibold text-[#7E848C]"
                 >
                   Max
                 </button>
