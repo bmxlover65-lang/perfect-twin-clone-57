@@ -668,8 +668,9 @@ function AndarBaharPanel({
             ? "bg-white text-black"
             : "bg-[#9A9A93] text-black/60"
           : r.open
-            ? "bg-[#1272CE] text-white"
+            ? "bg-[#183A5A] text-white"
             : "bg-[#173049] text-white/45"
+
       }`}
     >
       <span className="uppercase">{r.label}</span>
