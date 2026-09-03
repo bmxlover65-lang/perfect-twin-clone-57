@@ -233,16 +233,8 @@ export function DreamWheel({
           RID: {roundId}
         </span>
       ) : null}
-      {leftSec != null ? (
-        <span
-          className="pointer-events-none absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-full bg-[#1B1B1B] text-[1.05rem] font-extrabold text-white"
-          style={{
-            boxShadow: `0 0 0 3px ${suspended || leftSec <= 5 ? "#D33" : "#22B14C"}`,
-          }}
-        >
-          {suspended ? 0 : leftSec}
-        </span>
-      ) : null}
+      <RoundTimer leftSec={leftSec} suspended={suspended} className="absolute right-2 top-2" />
+
       <div className="relative">
 
         <div
