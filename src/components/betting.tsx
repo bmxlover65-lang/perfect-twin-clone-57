@@ -119,6 +119,26 @@ export function ErrorToast({ message, onDone }: { message: string; onDone: () =>
   );
 }
 
+/** Green success toast shown after a bet is placed. */
+export function SuccessToast({ message, onDone }: { message: string; onDone: () => void }) {
+  const doneRef = useRef(onDone);
+  doneRef.current = onDone;
+  useEffect(() => {
+    const t = window.setTimeout(() => doneRef.current(), 2200);
+    return () => window.clearTimeout(t);
+  }, [message]);
+  return (
+    <div className="pointer-events-none fixed left-1/2 top-4 z-[80] w-[min(92vw,420px)] -translate-x-1/2">
+      <div className="flex items-center gap-2 rounded-[4px] bg-[#28A745] px-3 py-2.5 shadow-[0_4px_14px_rgba(0,0,0,0.35)]">
+        <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 fill-white">
+          <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17Z" />
+        </svg>
+        <span className="text-[0.82rem] font-semibold text-white">{message}</span>
+      </div>
+    </div>
+  );
+}
+
 function Stepper({
   value,
   onChange,
