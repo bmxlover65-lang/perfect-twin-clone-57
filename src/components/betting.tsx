@@ -187,6 +187,9 @@ export function BetLayer({
   const [stake, setStake] = useState(DEFAULT_STAKE);
   const [err, setErr] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  // Chips shown under the market cell the user bet on (cleared each round).
+  const [chips, setChips] = useState<{ id: number; x: number; y: number; amount: number }[]>([]);
+  const cellPos = useRef<{ x: number; y: number } | null>(null);
   const busy = useRef(false);
   const wallet = useWallet();
 
@@ -195,9 +198,14 @@ export function BetLayer({
     setStake(readLastStake());
   }, []);
 
+  useEffect(() => {
+    setChips([]);
+  }, [round]);
+
   const close = () => {
     setPick(null);
   };
+
 
 
   const submit = () => {
@@ -231,8 +239,13 @@ export function BetLayer({
       setErr("You have Insufficient Balance.");
       return;
     }
+    const pos = cellPos.current;
     close();
+    if (pos) {
+      setChips((cur) => [...cur, { id: Date.now(), x: pos.x, y: pos.y, amount: stake }]);
+    }
     setSuccess("Casino BetPlace Successful.");
+
   };
 
   return (
@@ -247,14 +260,20 @@ export function BetLayer({
         const target = e.target as HTMLElement;
         const p = extractPick(target, root);
         if (p) {
+          const rootBox = root.getBoundingClientRect();
+          const cellBox = target.getBoundingClientRect();
+          cellPos.current = {
+            x: cellBox.left + cellBox.width / 2 - rootBox.left,
+            y: cellBox.bottom - rootBox.top - 8,
+          };
           // Anchor the slip right below the row that was clicked.
           let row: HTMLElement = target;
-          const rootW = root.getBoundingClientRect().width;
+          const rootW = rootBox.width;
           for (let i = 0; i < 8 && row.parentElement && row.parentElement !== root; i++) {
             if (row.getBoundingClientRect().width >= rootW * 0.8) break;
             row = row.parentElement;
           }
-          const top = row.getBoundingClientRect().bottom - root.getBoundingClientRect().top;
+          const top = row.getBoundingClientRect().bottom - rootBox.top;
           setAnchor(Math.max(0, top));
           setPick(p);
           setOdds(p.odds);
@@ -264,8 +283,19 @@ export function BetLayer({
     >
       {children}
 
+      {chips.map((c) => (
+        <span
+          key={c.id}
+          className="pointer-events-none absolute z-[60] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#f2c14e] bg-[#1d4f8b] px-2 py-[3px] text-[0.6rem] font-extrabold text-white shadow-[0_2px_6px_rgba(0,0,0,0.45)]"
+          style={{ left: `${c.x}px`, top: `${c.y}px` }}
+        >
+          {Math.round(c.amount).toLocaleString("en-IN")}
+        </span>
+      ))}
+
       {err ? <ErrorToast message={err} onDone={() => setErr(null)} /> : null}
       {success ? <SuccessToast message={success} onDone={() => setSuccess(null)} /> : null}
+
 
       {pick ? (
         <div

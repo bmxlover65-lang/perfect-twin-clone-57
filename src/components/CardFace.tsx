@@ -2,86 +2,87 @@ import { CARD_BACK, CARD_SIZE } from "@/lib/card-assets";
 
 const GLYPH: Record<string, string> = { S: "♠", H: "♥", D: "♦", C: "♣" };
 
-/** Pip coordinates as [colIndex 1..3, rowFraction 0..1] for each rank. */
+/** Pip coordinates as [x%, y%] inside the pip area for each rank. */
 const PIPS: Record<string, [number, number][]> = {
-  A: [[2, 0.5]],
+  A: [[50, 50]],
   "2": [
-    [2, 0.06],
-    [2, 0.94],
+    [50, 12],
+    [50, 88],
   ],
   "3": [
-    [2, 0.06],
-    [2, 0.5],
-    [2, 0.94],
+    [50, 12],
+    [50, 50],
+    [50, 88],
   ],
   "4": [
-    [1, 0.06],
-    [3, 0.06],
-    [1, 0.94],
-    [3, 0.94],
+    [26, 12],
+    [74, 12],
+    [26, 88],
+    [74, 88],
   ],
   "5": [
-    [1, 0.06],
-    [3, 0.06],
-    [2, 0.5],
-    [1, 0.94],
-    [3, 0.94],
+    [26, 12],
+    [74, 12],
+    [50, 50],
+    [26, 88],
+    [74, 88],
   ],
   "6": [
-    [1, 0.06],
-    [3, 0.06],
-    [1, 0.5],
-    [3, 0.5],
-    [1, 0.94],
-    [3, 0.94],
+    [26, 12],
+    [74, 12],
+    [26, 50],
+    [74, 50],
+    [26, 88],
+    [74, 88],
   ],
   "7": [
-    [1, 0.06],
-    [3, 0.06],
-    [2, 0.28],
-    [1, 0.5],
-    [3, 0.5],
-    [1, 0.94],
-    [3, 0.94],
+    [26, 12],
+    [74, 12],
+    [50, 31],
+    [26, 50],
+    [74, 50],
+    [26, 88],
+    [74, 88],
   ],
   "8": [
-    [1, 0.06],
-    [3, 0.06],
-    [2, 0.28],
-    [1, 0.5],
-    [3, 0.5],
-    [2, 0.72],
-    [1, 0.94],
-    [3, 0.94],
+    [26, 12],
+    [74, 12],
+    [50, 31],
+    [26, 50],
+    [74, 50],
+    [50, 69],
+    [26, 88],
+    [74, 88],
   ],
   "9": [
-    [1, 0.06],
-    [3, 0.06],
-    [1, 0.36],
-    [3, 0.36],
-    [2, 0.5],
-    [1, 0.64],
-    [3, 0.64],
-    [1, 0.94],
-    [3, 0.94],
+    [26, 12],
+    [74, 12],
+    [26, 37],
+    [74, 37],
+    [50, 50],
+    [26, 63],
+    [74, 63],
+    [26, 88],
+    [74, 88],
   ],
   "10": [
-    [1, 0.06],
-    [3, 0.06],
-    [2, 0.2],
-    [1, 0.36],
-    [3, 0.36],
-    [1, 0.64],
-    [3, 0.64],
-    [2, 0.8],
-    [1, 0.94],
-    [3, 0.94],
+    [26, 12],
+    [74, 12],
+    [50, 25],
+    [26, 37],
+    [74, 37],
+    [26, 63],
+    [74, 63],
+    [50, 75],
+    [26, 88],
+    [74, 88],
   ],
 };
 
-const COL_X: Record<number, string> = { 1: "26%", 2: "50%", 3: "74%" };
+const W = 39;
+const H = 46;
 
-/** A real-looking playing card face: corner index + pip layout (or court letter). */
+/** A real-looking playing card face: corner index + pip layout (or court block). */
 export function CardFace({ code }: { code: string }) {
   const clean = (code ?? "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
   const hidden = !clean || clean === "0" || clean === "1";
@@ -96,39 +97,80 @@ export function CardFace({ code }: { code: string }) {
   if (rank === "T") rank = "10";
   const glyph = GLYPH[suit] ?? "?";
   const red = suit === "H" || suit === "D";
+  const fill = red ? "#D32029" : "#111111";
   const pips = PIPS[rank];
-  const color = red ? "text-red-600" : "text-black";
+
+  // Pip field inside the card (leaves room for both corner indices).
+  const px = 12;
+  const py = 7;
+  const pw = W - px - 4;
+  const ph = H - py * 2;
 
   return (
-    <span
-      className={`${CARD_SIZE} relative inline-block overflow-hidden bg-white ${color}`}
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      className={`${CARD_SIZE} bg-white`}
+      role="img"
       aria-label={`${rank} ${glyph}`}
     >
-      <span className="absolute left-[2px] top-[1px] flex flex-col items-center leading-none">
-        <span className="text-[0.52rem] font-bold">{rank}</span>
-        <span className="text-[0.5rem] leading-none">{glyph}</span>
-      </span>
+      <rect x="0" y="0" width={W} height={H} rx="4" fill="#ffffff" stroke="#d7d7d7" strokeWidth="0.6" />
+
+      {/* top-left index */}
+      <text
+        x="3.2"
+        y="9.5"
+        fill={fill}
+        fontSize={rank === "10" ? 7 : 8.5}
+        fontWeight="700"
+        fontFamily="Arial, Helvetica, sans-serif"
+      >
+        {rank}
+      </text>
+      <text x="3.2" y="16.5" fill={fill} fontSize="7" fontFamily="Arial, Helvetica, sans-serif">
+        {glyph}
+      </text>
+
       {pips ? (
-        <span className="absolute inset-y-[6px] left-[11px] right-[2px] block">
-          {pips.map(([col, y], i) => (
-            <span
-              key={i}
-              className="absolute text-[0.5rem] leading-none"
-              style={{
-                left: COL_X[col],
-                top: `${y * 100}%`,
-                transform: `translate(-50%, -50%) ${y > 0.5 && col !== 2 ? "rotate(180deg)" : ""}`,
-              }}
-            >
-              {glyph}
-            </span>
-          ))}
-        </span>
+        pips.map(([x, y], i) => (
+          <text
+            key={i}
+            x={px + (x / 100) * pw}
+            y={py + (y / 100) * ph}
+            fill={fill}
+            fontSize="7.5"
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontFamily="Arial, Helvetica, sans-serif"
+          >
+            {glyph}
+          </text>
+        ))
       ) : (
-        <span className="absolute inset-y-0 left-[11px] right-0 flex items-center justify-center text-[0.95rem] font-bold">
-          {rank}
-        </span>
+        <>
+          <rect
+            x={px + 1}
+            y={py + 3}
+            width={pw - 2}
+            height={ph - 6}
+            rx="1.6"
+            fill="none"
+            stroke={fill}
+            strokeWidth="0.7"
+          />
+          <text
+            x={px + pw / 2}
+            y={py + ph / 2}
+            fill={fill}
+            fontSize="12"
+            fontWeight="700"
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontFamily="Arial, Helvetica, sans-serif"
+          >
+            {rank}
+          </text>
+        </>
       )}
-    </span>
+    </svg>
   );
 }
