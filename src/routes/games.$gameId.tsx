@@ -2101,8 +2101,9 @@ function GamePage() {
             Live · Universe Live
           </p>
           <h1 className="mt-1 text-lg font-bold text-foreground sm:text-2xl">
-            {d?.eventName ?? "Loading game…"}
+            {cleanGameName(d?.eventName) ?? "Loading game…"}
           </h1>
+
         </div>
         <span className="flex shrink-0 flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-2">
           <BalanceChip />
