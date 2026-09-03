@@ -830,28 +830,8 @@ export function Aviator() {
     let fPeak = 1;
     let waitStart = 0;
 
-    // local-sim state
-    let simPhase: Phase | "" = "";
-    let simCrashAt = 0;
 
-    const startSimBetting = (now: number) => {
-      const ctl = avRef.current;
-      const official = queueRef.current.shift();
-      officialRef.current = official !== undefined;
-      crashRef.current =
-        ctl && ctl.mode === "never"
-          ? 1
-          : ctl && ctl.mode === "forced"
-            ? Math.max(1, ctl.crash)
-            : official !== undefined
-              ? Math.max(1, official)
-              : randomCrash();
-      startRef.current = now;
-      simPhase = "betting";
-      setPhase("betting");
-      setMultiplier(1);
-      setBets(makeBets(Math.floor(Math.random() * 999) + 1));
-    };
+
 
     const frame = () => {
       if (!mounted) return;
