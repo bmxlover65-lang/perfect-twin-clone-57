@@ -72,8 +72,6 @@ export const Route = createFileRoute("/games/$gameId")({
   component: GamePage,
 });
 
-const CARD_SIZE =
-  "h-[40px] w-[34px] shrink-0 rounded-[5px] shadow-md sm:h-[50px] sm:w-[42px] md:h-[58px] md:w-[49px]";
 
 function Card({ code }: { code: string }) {
   const clean = code.replace(/_+$/, "");
