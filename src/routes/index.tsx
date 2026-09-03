@@ -91,17 +91,10 @@ function Lobby() {
           <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
             Universal API
           </p>
-          <h1
-            className="mt-1.5 text-[2rem] font-extrabold leading-[1.05] tracking-tight text-transparent sm:text-[2.4rem]"
-            style={{
-              backgroundImage:
-                "linear-gradient(100deg, var(--foreground) 20%, color-mix(in oklab, var(--primary) 85%, var(--foreground)) 60%, var(--foreground) 95%)",
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-            }}
-          >
+          <h1 className="mt-1.5 text-[2rem] font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-[2.4rem]">
             Universe Live
           </h1>
+
           <p className="mt-2 max-w-[640px] text-[0.95rem] leading-relaxed text-muted-foreground">
             Live casino table games via the Universal API.
           </p>
