@@ -205,10 +205,17 @@ function SiteHeader() {
               key={item.to}
               to={item.to}
               activeOptions={{ exact: item.to === "/" }}
-              className="text-[0.82rem] font-semibold leading-tight text-nav-foreground transition-colors hover:text-nav-active sm:text-[0.95rem]"
+              className={`text-[0.82rem] font-semibold leading-tight text-nav-foreground transition-colors hover:text-nav-active sm:text-[0.95rem] ${item.stackMobile ? "whitespace-pre-line text-center" : ""}`}
               activeProps={{ className: "!text-nav-active" }}
             >
-              {item.label}
+              {item.stackMobile ? (
+                <>
+                  <span className="hidden sm:inline">{item.label}</span>
+                  <span className="sm:hidden">{item.label.replace(" ", "\n")}</span>
+                </>
+              ) : (
+                item.label
+              )}
             </Link>
           ))}
           <ThemeToggle />
