@@ -1863,7 +1863,17 @@ function GamePage() {
         },
       ];
     }
+    // Live table shows the joker/blind card on top of the player hands.
+    hands = hands
+      .map((h, i) => ({ h, i }))
+      .sort((a, b) => {
+        const ja = /JOKER/i.test(a.h.title) ? 0 : 1;
+        const jb = /JOKER/i.test(b.h.title) ? 0 : 1;
+        return ja - jb || a.i - b.i;
+      })
+      .map(({ h }) => h);
     if (hands.length) {
+
       const remembered = new Map(layoutRef.current.map((h) => [h.title, h.count]));
       const padded = hands.map((h) => {
         const codes = Object.values(h.hand);
