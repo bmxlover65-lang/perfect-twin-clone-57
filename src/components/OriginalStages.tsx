@@ -138,11 +138,8 @@ export function LuckyWheel({
           <span className="pointer-events-none absolute left-1/2 top-[-4px] -translate-x-1/2 text-[1.4rem] leading-none text-[#F2C500]">
             ▼
           </span>
-          {!suspended && leftSec != null ? (
-            <span className="pointer-events-none absolute bottom-2 right-2 flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#F2C500] text-[1.05rem] font-extrabold text-[#F2C500]">
-              {leftSec}
-            </span>
-          ) : null}
+          <RoundTimer leftSec={leftSec} suspended={suspended} className="absolute right-2 top-2" />
+
           {showWin && winner ? (
             <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-[#F2C500] px-4 py-1 text-[0.8rem] font-extrabold uppercase text-black">
               {winner} wins
