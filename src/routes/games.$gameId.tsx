@@ -426,8 +426,8 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
           })}
         </div>
         {suspended ? (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/45">
-            <span className="text-xl font-extrabold uppercase tracking-[0.08em] text-white">
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white/55">
+            <span className="text-xl font-extrabold uppercase tracking-[0.08em] text-[#c0392b]">
               Suspended
             </span>
           </div>
