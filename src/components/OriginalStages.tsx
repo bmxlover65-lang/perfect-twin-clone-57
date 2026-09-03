@@ -869,9 +869,9 @@ export function BalloonStage({
           </div>
         ) : (
           <div
-            className="absolute left-1/2 z-10 w-[62%] min-w-[160px] max-w-[420px] sm:w-[34%] sm:min-w-[200px]"
+            className="absolute left-1/2 z-10 w-[74%] min-w-[190px] max-w-[460px] sm:w-[40%] sm:min-w-[240px]"
             style={{
-              bottom: `${32 + grow * 16}%`,
+              bottom: `${34 + grow * 16}%`,
               transform: `translateX(-50%) scale(${flying ? 1 + grow * 0.18 : 1})`,
               transition: "bottom 240ms linear, transform 240ms linear",
             }}
@@ -924,19 +924,28 @@ export function BalloonStage({
               </svg>
             </div>
             {flying ? (
-              <p className="absolute left-1/2 top-[38%] w-[120%] -translate-x-1/2 text-center text-[clamp(1.8rem,4.8vw,3.6rem)] font-extrabold leading-none text-white drop-shadow-[0_3px_10px_rgba(0,0,0,0.45)]">
+              <p className="absolute left-1/2 top-[36%] w-[120%] -translate-x-1/2 text-center text-[clamp(2.1rem,6.4vw,4.2rem)] font-extrabold leading-none text-white drop-shadow-[0_3px_10px_rgba(0,0,0,0.45)]">
                 {shown.toFixed(2)}x
               </p>
             ) : (
-              <div className="absolute left-1/2 top-[30%] w-[150%] -translate-x-1/2 text-center">
-                <p className="text-[clamp(0.8rem,1.6vw,1.2rem)] font-extrabold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
+              <div className="absolute left-1/2 top-[32%] w-[110%] -translate-x-1/2 text-center">
+                <p className="text-[clamp(0.85rem,2.2vw,1.35rem)] font-extrabold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
                   Waiting For Next Round
                 </p>
-                <span className="mt-2 inline-grid h-9 w-9 place-items-center rounded-full bg-black/25 text-[1.05rem] font-extrabold text-white sm:h-11 sm:w-11 sm:text-[1.3rem]">
-                  {wait}
+                <span
+                  className="mt-3 inline-grid h-12 w-12 place-items-center rounded-full sm:h-14 sm:w-14"
+                  style={{
+                    background: `conic-gradient(#E8384F ${(Math.min(5, Math.max(0, wait)) / 5) * 360}deg, rgba(0,0,0,0.18) 0deg)`,
+                    padding: 3,
+                  }}
+                >
+                  <span className="grid h-full w-full place-items-center rounded-full bg-black/25 text-[1.15rem] font-extrabold text-white sm:text-[1.4rem]">
+                    {wait}
+                  </span>
                 </span>
               </div>
             )}
+
 
           </div>
         )}
