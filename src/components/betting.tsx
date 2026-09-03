@@ -186,6 +186,7 @@ export function BetLayer({
   const [odds, setOdds] = useState(1);
   const [stake, setStake] = useState(DEFAULT_STAKE);
   const [err, setErr] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const busy = useRef(false);
   const wallet = useWallet();
 
