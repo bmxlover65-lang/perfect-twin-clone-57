@@ -209,7 +209,7 @@ function BetPanel({
       <button
         type="button"
         onClick={press}
-        className={`rounded-full py-[10px] text-center text-[0.78rem] font-bold text-white shadow-[0_1px_0_rgba(0,0,0,0.4)] sm:py-[12px] sm:text-[1.05rem] ${tone}`}
+        className={`rounded-full py-[10px] text-center text-[0.78rem] font-bold text-white shadow-[0_1px_0_rgba(0,0,0,0.4)] sm:py-[9px] sm:text-[0.85rem] ${tone}`}
       >
         {label}
         {canCash ? (
@@ -1394,13 +1394,13 @@ export function Aviator() {
               />
             </div>
 
-            <div className="hidden grid-cols-4 gap-[8px] sm:grid sm:gap-[10px]">
+            <div className="hidden grid-cols-4 gap-[8px] sm:grid sm:gap-[8px]">
               {QUICK.map((q) => (
                 <button
                   key={q}
                   type="button"
                   onClick={() => setAllSlots((p) => ({ ...p, amount: q }))}
-                  className={`rounded-full border bg-[#151618] py-[8px] text-center text-[0.75rem] font-semibold transition-colors sm:py-[9px] sm:text-[0.9rem] ${
+                  className={`rounded-full border bg-[#151618] py-[8px] text-center text-[0.75rem] font-semibold transition-colors sm:py-[7px] sm:text-[0.78rem] ${
                     slots[0]!.amount === q
                       ? "border-[#16C800] text-white"
                       : "border-[#44474D] text-[#C9CBD1] hover:text-white"
@@ -1413,14 +1413,14 @@ export function Aviator() {
               <button
                 type="button"
                 onClick={() => setAllSlots((p) => ({ ...p, amount: 10 }))}
-                className="rounded-full border border-[#44474D] bg-[#151618] py-[8px] text-[0.75rem] font-semibold text-[#9CA3AF] sm:py-[9px] sm:text-[0.9rem]"
+                className="rounded-full border border-[#44474D] bg-[#151618] py-[8px] text-[0.75rem] font-semibold text-[#9CA3AF] sm:py-[7px] sm:text-[0.78rem]"
               >
                 Min
               </button>
               <button
                 type="button"
                 onClick={() => setAllSlots((p) => ({ ...p, amount: 10000 }))}
-                className="rounded-full border border-[#44474D] bg-[#151618] py-[8px] text-[0.75rem] font-semibold text-[#9CA3AF] sm:py-[9px] sm:text-[0.9rem]"
+                className="rounded-full border border-[#44474D] bg-[#151618] py-[8px] text-[0.75rem] font-semibold text-[#9CA3AF] sm:py-[7px] sm:text-[0.78rem]"
               >
                 Max
               </button>
@@ -1430,20 +1430,20 @@ export function Aviator() {
                   const v = Number(window.prompt("Custom stake", String(slots[0]!.amount)) ?? "");
                   if (Number.isFinite(v) && v >= 10) setAllSlots((p) => ({ ...p, amount: v }));
                 }}
-                className="rounded-full bg-[#F59E0B] py-[8px] text-[0.75rem] font-bold text-white sm:py-[9px] sm:text-[0.9rem]"
+                className="rounded-full bg-[#F59E0B] py-[8px] text-[0.75rem] font-bold text-white sm:py-[7px] sm:text-[0.78rem]"
               >
                 Edit
               </button>
               <button
                 type="button"
                 onClick={() => setAllSlots((p) => ({ ...p, amount: 10, staged: false }))}
-                className="rounded-full bg-[#EF0000] py-[8px] text-[0.75rem] font-bold text-white sm:py-[9px] sm:text-[0.9rem]"
+                className="rounded-full bg-[#EF0000] py-[8px] text-[0.75rem] font-bold text-white sm:py-[7px] sm:text-[0.78rem]"
               >
                 Clear
               </button>
             </div>
 
-            <div className="mt-3 hidden grid-cols-4 gap-[8px] sm:mt-4 sm:grid sm:gap-[10px]">
+            <div className="mt-2 hidden grid-cols-4 gap-[8px] sm:mt-3 sm:grid sm:gap-[8px]">
               {slots.map((s, i) => (
                 <BetPanel
                   key={i}
