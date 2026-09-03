@@ -86,13 +86,6 @@ function Lobby() {
 
   return (
     <div className="relative mx-auto max-w-[1200px] px-4 py-5">
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-[280px] opacity-70"
-        style={{
-          background:
-            "radial-gradient(60% 100% at 20% 0%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 70%), radial-gradient(50% 90% at 85% 0%, color-mix(in oklab, var(--brand-accent) 14%, transparent), transparent 70%)",
-        }}
-      />
       <div className="relative">
         <div className="mb-5">
           <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
