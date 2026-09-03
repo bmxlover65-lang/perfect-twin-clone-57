@@ -94,23 +94,15 @@ function Lobby() {
             </p>
             <h1 className="text-3xl font-bold text-foreground">Universe Live</h1>
             <p className="mt-1 max-w-[640px] text-muted-foreground">
-              Real live casino table games. Data source:{" "}
-              <span className="font-semibold text-foreground">
-                Universal API (universeapi.store/public)
-              </span>{" "}
-              via server proxy <code className="font-mono">/api/public/uapi/games</code>.
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {loading
-                ? "Loading live game list…"
-                : error
-                  ? `API error — showing cached catalog (${error})`
-                  : `Catalog refreshed ${refreshedAt}`}
+              Live casino table games via the Universal API.
             </p>
           </div>
           <div className="flex gap-2">
             <span className="rounded-full bg-card px-3 py-1.5 text-sm font-semibold text-foreground shadow-sm">
-              {list.length} live games
+              {list.length} games
+            </span>
+            <span className="rounded-full bg-card px-3 py-1.5 text-sm font-semibold text-foreground shadow-sm">
+              Universe Live
             </span>
             <button
               type="button"
