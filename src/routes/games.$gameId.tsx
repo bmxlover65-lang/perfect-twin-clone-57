@@ -1898,6 +1898,9 @@ function GamePage() {
       for (let i = 0; i < h.count; i += 1) hand[String(i)] = "0";
       return { title: h.title, hand };
     });
+  }, [cards, d?.eventName]);
+
+
 
   // Keep the card overlay fully inside the video like the live table does.
   useEffect(() => {
