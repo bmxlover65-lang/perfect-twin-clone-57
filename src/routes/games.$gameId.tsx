@@ -2146,19 +2146,18 @@ function GamePage() {
           <div className="aspect-video w-full bg-black" />
         )}
         <div
-          className={`pointer-events-none absolute left-3 top-3 z-20 max-w-[calc(100%-1.5rem)] origin-top-left overflow-visible ${
-            handLayout.length >= 3
-              ? "space-y-0.5 scale-[0.7] sm:scale-[0.85] md:scale-100"
-              : "space-y-2"
-          }`}
+          ref={overlayRef}
+          className="pointer-events-none absolute left-3 top-3 z-20 max-w-[calc(100%-1.5rem)] origin-top-left space-y-1 overflow-visible"
+          style={{ transform: `scale(${overlayScale})` }}
         >
-          <p className="text-[0.75rem] font-black uppercase tracking-wide text-white drop-shadow sm:text-xs">
+          <p className="text-[0.7rem] font-bold uppercase tracking-wide text-white drop-shadow">
             RID: {d?.roundId ?? "—"}
           </p>
           {handLayout.map((h) => (
             <Cards key={h.title} title={h.title} hand={h.hand} />
           ))}
         </div>
+
 
         <RoundTimer
           leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
