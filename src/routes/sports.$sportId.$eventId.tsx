@@ -300,11 +300,6 @@ function EventPage() {
         {fmtInt(data?.totalMatched)} · age {age}s · betDelay {data?.betDelay ?? 0}s
         {data?.stale ? " · stale" : ""}
       </p>
-      <p className="mt-1 text-xs text-muted-foreground">
-        Source: Universal API <code className="font-mono">GET /sports/{sportId}/{eventId}/odds</code>{" "}
-        via server proxy, polled every 1s · TV &amp; scoreboard served through the same server
-        proxy (whitelisted host + session token)
-      </p>
 
 
       {error ? <p className="mt-3 text-sm text-live-lose">{error}</p> : null}
