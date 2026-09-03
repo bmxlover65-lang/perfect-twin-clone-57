@@ -265,6 +265,7 @@ export function BetLayer({
       {children}
 
       {err ? <ErrorToast message={err} onDone={() => setErr(null)} /> : null}
+      {success ? <SuccessToast message={success} onDone={() => setSuccess(null)} /> : null}
 
       {pick ? (
         <div
