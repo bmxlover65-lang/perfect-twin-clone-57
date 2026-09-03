@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Aviator } from "@/components/Aviator";
 import { FitBoard } from "@/components/FitBoard";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -1860,6 +1860,50 @@ function GamePage() {
   const markets = d?.marketArr ?? [];
   const cards = (d?.cardsArr ?? {}) as Record<string, Record<string, string>>;
 
+  // Keep the hand layout stable across the round (like the live table): while the
+  // dealer has not turned the cards yet we still show face-down placeholders and
+  // only swap in the real card once the feed sends its code.
+  const layoutRef = useRef<{ title: string; count: number }[]>([]);
+  const handLayout = useMemo(() => {
+    const nested = Object.entries(cards).filter(
+      ([, v]) => typeof v === "object" && v !== null,
+    ) as [string, Record<string, string>][];
+    let hands: { title: string; hand: Record<string, string> }[] = [];
+    if (nested.length) {
+      hands = nested.map(([k, v]) => ({ title: k, hand: v }));
+    } else if (Object.keys(cards).length) {
+      hands = [
+        {
+          title: d?.eventName?.toUpperCase().startsWith("LUCKY") ? "LUCKY CARD" : "CARD",
+          hand: cards as unknown as Record<string, string>,
+        },
+      ];
+    }
+    if (hands.length) {
+      const remembered = new Map(layoutRef.current.map((h) => [h.title, h.count]));
+      const padded = hands.map((h) => {
+        const codes = Object.values(h.hand);
+        const want = Math.max(codes.length, remembered.get(h.title) ?? 0);
+        const hand: Record<string, string> = {};
+        for (let i = 0; i < want; i += 1) hand[String(i)] = codes[i] ?? "0";
+        return { title: h.title, hand };
+      });
+      layoutRef.current = padded.map((h) => ({
+        title: h.title,
+        count: Object.keys(h.hand).length,
+      }));
+      return padded;
+    }
+    // No cards in the feed yet → keep last round's shape with face-down cards.
+    return layoutRef.current.map((h) => {
+      const hand: Record<string, string> = {};
+      for (let i = 0; i < h.count; i += 1) hand[String(i)] = "0";
+      return { title: h.title, hand };
+    });
+  }, [cards, d?.eventName]);
+
+
+
   const isOriginal = gameId.startsWith("88.");
   const isBbb = gameId === "4.3544687543453";
   const raw = (d ?? {}) as unknown as {
@@ -2110,27 +2154,22 @@ function GamePage() {
           <p className="text-[0.75rem] font-black uppercase tracking-wide text-white drop-shadow sm:text-xs">
             RID: {d?.roundId ?? "—"}
           </p>
-          {Object.entries(cards).some(([, v]) => typeof v === "object" && v) ? (
-            Object.entries(cards).map(([k, v]) =>
-              typeof v === "object" && v ? <Cards key={k} title={k} hand={v} /> : null,
-            )
-          ) : Object.keys(cards).length ? (
-            <Cards
-              title={d?.eventName?.toUpperCase().startsWith("LUCKY") ? "LUCKY CARD" : "CARD"}
-              hand={cards as unknown as Record<string, string>}
-            />
-          ) : null}
+          {handLayout.map((h) => (
+            <Cards key={h.title} title={h.title} hand={h.hand} />
+          ))}
         </div>
         {!suspended && (d?.leftSec ?? 0) > 0
           ? (() => {
               const secs = Math.max(0, Math.round((d?.leftSec ?? 0) - age));
-              const total = Math.max(secs, 30);
+              if (secs <= 0) return null;
+              const total = 30;
               const pct = Math.max(0, Math.min(1, secs / total));
+              const ring = secs <= 5 ? "#EF4444" : "#22C55E";
               return (
                 <span
                   className="pointer-events-none absolute right-2 top-2 z-20 grid h-12 w-12 place-items-center rounded-full sm:h-14 sm:w-14"
                   style={{
-                    background: `conic-gradient(#22C55E ${pct * 360}deg, rgba(255,255,255,0.25) 0deg)`,
+                    background: `conic-gradient(${ring} ${pct * 360}deg, rgba(255,255,255,0.25) 0deg)`,
                   }}
                 >
                   <span className="grid h-[80%] w-[80%] place-items-center rounded-full bg-black/85 text-[0.95rem] font-black text-white sm:text-lg">
@@ -2140,6 +2179,7 @@ function GamePage() {
               );
             })()
           : null}
+
 
         <ResultBanner results={results} gameId={gameId} />
       </div>
