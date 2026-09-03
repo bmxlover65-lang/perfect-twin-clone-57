@@ -96,10 +96,11 @@ function Cards({ hand, title }: { hand: Record<string, string>; title: string })
   if (!codes.length) return null;
   return (
     <div>
-      <p className="text-[0.75rem] font-black uppercase tracking-wide text-white drop-shadow sm:text-xs md:text-sm">
-        {title.replace(/_/g, " ")}
+      <p className="text-[0.7rem] font-semibold capitalize tracking-wide text-white drop-shadow">
+        {title.replace(/_/g, " ").toLowerCase()}
       </p>
-      <div className="mt-1 flex gap-1 sm:gap-1.5">
+      <div className="mt-0.5 flex gap-1">
+
         {codes.map((c, i) => (
           <Card key={`${c}-${i}`} code={c} />
         ))}
@@ -1848,6 +1849,10 @@ function GamePage() {
   // dealer has not turned the cards yet we still show face-down placeholders and
   // only swap in the real card once the feed sends its code.
   const layoutRef = useRef<{ title: string; count: number }[]>([]);
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const overlayRef = useRef<HTMLDivElement | null>(null);
+  const [overlayScale, setOverlayScale] = useState(1);
+
   const handLayout = useMemo(() => {
     const nested = Object.entries(cards).filter(
       ([, v]) => typeof v === "object" && v !== null,
@@ -1895,6 +1900,31 @@ function GamePage() {
       return { title: h.title, hand };
     });
   }, [cards, d?.eventName]);
+
+
+
+  // Keep the card overlay fully inside the video like the live table does.
+  useEffect(() => {
+    const fit = () => {
+      const stage = stageRef.current;
+      const overlay = overlayRef.current;
+      if (!stage || !overlay) return;
+      const availH = stage.clientHeight - 24;
+      const availW = stage.clientWidth - 24;
+      const h = overlay.offsetHeight;
+      const w = overlay.offsetWidth;
+      if (!h || !w || availH <= 0) return;
+      const next = Math.min(1, availH / h, availW / w);
+      setOverlayScale((prev) => (Math.abs(prev - next) > 0.01 ? next : prev));
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    if (stageRef.current) ro.observe(stageRef.current);
+    if (overlayRef.current) ro.observe(overlayRef.current);
+    return () => ro.disconnect();
+  }, [handLayout]);
+
+
 
 
 
@@ -2133,7 +2163,7 @@ function GamePage() {
 
       {error ? <p className="mt-3 text-sm text-live-lose">{error}</p> : null}
 
-      <div className="relative mt-4 overflow-hidden rounded-md bg-black">
+      <div ref={stageRef} className="relative mt-4 overflow-hidden rounded-md bg-black">
         {stream ? (
           <iframe
             title="Live game stream"
@@ -2146,19 +2176,18 @@ function GamePage() {
           <div className="aspect-video w-full bg-black" />
         )}
         <div
-          className={`pointer-events-none absolute left-3 top-3 z-20 max-w-[calc(100%-1.5rem)] origin-top-left overflow-visible ${
-            handLayout.length >= 3
-              ? "space-y-0.5 scale-[0.7] sm:scale-[0.85] md:scale-100"
-              : "space-y-2"
-          }`}
+          ref={overlayRef}
+          className="pointer-events-none absolute left-3 top-3 z-20 max-w-[calc(100%-1.5rem)] origin-top-left space-y-1 overflow-visible"
+          style={{ transform: `scale(${overlayScale})` }}
         >
-          <p className="text-[0.75rem] font-black uppercase tracking-wide text-white drop-shadow sm:text-xs">
+          <p className="text-[0.7rem] font-bold uppercase tracking-wide text-white drop-shadow">
             RID: {d?.roundId ?? "—"}
           </p>
           {handLayout.map((h) => (
             <Cards key={h.title} title={h.title} hand={h.hand} />
           ))}
         </div>
+
 
         <RoundTimer
           leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
