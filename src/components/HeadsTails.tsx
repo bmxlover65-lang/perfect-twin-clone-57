@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { RoundTimer } from "@/components/RoundTimer";
 import headsCoin from "@/assets/coin/heads.png.asset.json";
 import tailsCoin from "@/assets/coin/tails.png.asset.json";
 import coinSound from "@/assets/coin/coinsound.mp3.asset.json";
@@ -63,7 +64,7 @@ export function CoinStageImage({
       setFlipping(false);
       setShown(winner);
       play(winner === "HEADS" ? headWinSound.url : tailWinSound.url);
-    }, 8000);
+    }, 2600);
     timers.current.push(stop);
     return () => window.clearTimeout(stop);
   }, [suspended, winner, roundId]);
