@@ -40,3 +40,7 @@ export function cardImage(code: string): string | null {
   if (!c || c === "0" || c === "1") return CARD_BACK;
   return CARD_IMAGES[c] ?? null;
 }
+
+/** Shared card shape/size — identical across every game and stage. */
+export const CARD_SIZE =
+  "h-[46px] w-[39px] shrink-0 rounded-[5px] shadow-md";

@@ -1,5 +1,5 @@
 import type { PlayingCard } from "@/lib/live-engine";
-import { CARD_BACK, cardImage } from "@/lib/card-assets";
+import { CARD_BACK, CARD_SIZE, cardImage } from "@/lib/card-assets";
 
 const SUIT_GLYPH: Record<PlayingCard["suit"], string> = {
   S: "♠",
@@ -8,7 +8,6 @@ const SUIT_GLYPH: Record<PlayingCard["suit"], string> = {
   D: "♦",
 };
 
-const CARD_SIZE = "h-[46px] w-[39px] shrink-0 rounded-[5px] shadow-md";
 
 function Card({ card }: { card: PlayingCard }) {
   if (card.hidden) {
