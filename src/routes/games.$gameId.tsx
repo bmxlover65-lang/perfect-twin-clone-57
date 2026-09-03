@@ -1967,7 +1967,7 @@ function GamePage() {
           Live · Universe Original
         </p>
         <h1 className="text-[1.35rem] font-extrabold uppercase text-foreground">
-          {d?.eventName ?? "Loading game…"}
+          {cleanGameName(d?.eventName) ?? "Loading game…"}
         </h1>
         <p className="mt-1 flex flex-wrap items-center gap-2 text-[0.8rem] font-bold text-foreground/80">
           <span>RID: {d?.roundId ?? "—"}</span> <BalanceChip />
