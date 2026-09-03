@@ -205,11 +205,11 @@ function BetPanel({
   };
 
   return (
-    <div className="flex min-w-0 flex-col gap-[5px]">
+    <div className="flex min-w-0 flex-col gap-[6px]">
       <button
         type="button"
         onClick={press}
-        className={`rounded-full py-[8px] text-center text-[0.72rem] font-bold text-white shadow-[0_1px_0_rgba(0,0,0,0.4)] sm:py-[10px] sm:text-[0.95rem] ${tone}`}
+        className={`rounded-full py-[10px] text-center text-[0.78rem] font-bold text-white shadow-[0_1px_0_rgba(0,0,0,0.4)] sm:py-[12px] sm:text-[1.05rem] ${tone}`}
       >
         {label}
         {canCash ? (
@@ -317,34 +317,34 @@ function MobileBetSlot({
   };
 
   return (
-    <div className="flex min-w-0 flex-col gap-[6px]">
+    <div className="flex min-w-0 flex-col gap-[7px]">
       {mode === "auto" ? (
         <div className="flex items-center gap-2">
-          <span className="text-[0.66rem] font-semibold text-[#C9CBD1]">Auto</span>
+          <span className="text-[0.72rem] font-semibold text-[#C9CBD1]">Auto</span>
           <button
             type="button"
             onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
             aria-pressed={state.auto}
-            className={`relative h-[18px] w-[36px] shrink-0 rounded-full transition-colors ${
+            className={`relative h-[20px] w-[40px] shrink-0 rounded-full transition-colors ${
               state.auto ? "bg-[#18B800]" : "bg-[#2A2C30]"
             }`}
           >
             <span
-              className={`absolute top-[2px] h-[14px] w-[14px] rounded-full bg-white transition-all ${
-                state.auto ? "left-[20px]" : "left-[2px]"
+              className={`absolute top-[2px] h-[16px] w-[16px] rounded-full bg-white transition-all ${
+                state.auto ? "left-[22px]" : "left-[2px]"
               }`}
             />
           </button>
         </div>
       ) : null}
 
-      <div className="grid grid-cols-2 gap-[5px]">
+      <div className="grid grid-cols-2 gap-[6px]">
         {QUICK.map((q) => (
           <button
             key={q}
             type="button"
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`rounded-full border bg-[#151618] py-[4px] text-center text-[0.66rem] font-semibold ${
+            className={`rounded-full border bg-[#151618] py-[6px] text-center text-[0.72rem] font-semibold ${
               state.amount === q
                 ? "border-[#16C800] text-white"
                 : "border-[#44474D] text-[#C9CBD1]"
@@ -358,13 +358,13 @@ function MobileBetSlot({
       <button
         type="button"
         onClick={press}
-        className={`rounded-[8px] py-[10px] text-center text-[0.95rem] font-bold text-white ${tone}`}
+        className={`rounded-[8px] py-[12px] text-center text-[1rem] font-bold text-white ${tone}`}
       >
         {label}
       </button>
 
       {mode === "auto" ? (
-        <div className="flex items-center gap-1 rounded-full bg-[#0B0C0E] px-2 py-[2px]">
+        <div className="flex items-center gap-1 rounded-full bg-[#0B0C0E] px-2 py-[3px]">
           <input
             type="number"
             step="0.01"
@@ -374,7 +374,7 @@ function MobileBetSlot({
               const v = Number(e.target.value);
               setState((p) => ({ ...p, autoCashout: Number.isFinite(v) ? v : p.autoCashout }));
             }}
-            className="min-w-0 flex-1 bg-transparent text-center text-[0.72rem] font-bold text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+            className="min-w-0 flex-1 bg-transparent text-center text-[0.78rem] font-bold text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
           />
         </div>
       ) : null}
@@ -1011,18 +1011,18 @@ export function Aviator() {
 
 
   return (
-    <div className="overflow-hidden rounded-[16px] border border-[#303238] bg-[#090A0C] p-1.5 sm:p-2">
+    <div className="overflow-hidden rounded-[16px] border border-[#303238] bg-[#090A0C] p-2 sm:p-3">
       <div className="grid items-stretch gap-2 lg:h-[680px] lg:grid-cols-[minmax(340px,27%)_1fr]">
         {/* bets + chat */}
-        <div className="order-2 flex min-w-0 flex-col overflow-hidden rounded-[14px] border border-[#303238] bg-[#151618] p-1.5 lg:order-1 sm:p-2">
+        <div className="order-2 flex min-w-0 flex-col overflow-hidden rounded-[14px] border border-[#303238] bg-[#151618] p-2 lg:order-1 sm:p-3">
 
-          <div className="mx-auto flex w-full max-w-[280px] rounded-full bg-[#0B0C0E] p-[3px] text-[0.68rem] font-bold text-white/55 sm:w-[86%] sm:text-[0.72rem]">
+          <div className="mx-auto flex w-full max-w-[300px] rounded-full bg-[#0B0C0E] p-[4px] text-[0.72rem] font-bold text-white/55 sm:w-[86%] sm:text-[0.78rem]">
             {([["all", "All Bets"], ["my", "My Bets"]] as const).map(([k, l]) => (
               <button
                 key={k}
                 type="button"
                 onClick={() => setTab(k)}
-                className={`flex-1 rounded-full px-2 py-[4px] ${
+                className={`flex-1 rounded-full px-2 py-[5px] ${
                   tab === k ? "bg-[#2C2D30] text-white" : ""
                 }`}
               >
@@ -1032,36 +1032,34 @@ export function Aviator() {
           </div>
 
           {tab === "all" ? (
-            <div className="mt-2 flex items-start justify-between text-[0.78rem] font-bold text-white/85">
+            <div className="mt-3 flex items-start justify-between text-[0.82rem] font-bold text-white/85">
               <span className="flex flex-col leading-tight">
                 ALL BETS
-                <span className="text-[0.74rem] font-semibold text-white/60">{bets.length}</span>
+                <span className="text-[0.78rem] font-semibold text-white/60">{bets.length}</span>
               </span>
               <span className="flex flex-col items-end leading-tight">
                 <span>Users</span>
-                <span className="text-[0.74rem] font-semibold text-white/60">{online.toLocaleString()}</span>
+                <span className="text-[0.78rem] font-semibold text-white/60">{online.toLocaleString()}</span>
               </span>
-
-
             </div>
           ) : null}
 
           {tab === "my" ? (
-            <div className="mt-2 flex items-start justify-between text-[0.78rem] font-bold text-white/85">
+            <div className="mt-3 flex items-start justify-between text-[0.82rem] font-bold text-white/85">
               <span className="flex flex-col leading-tight">
                 MY BETS
-                <span className="text-[0.74rem] font-semibold text-white/60">
+                <span className="text-[0.78rem] font-semibold text-white/60">
                   {myBets.length + slots.filter((p) => p.staged || p.active).length}
                 </span>
               </span>
               <span className="flex flex-col items-end leading-tight">
                 <span>Balance</span>
-                <span className="text-[0.74rem] font-semibold text-[#18C800]">{fmt(balance)}</span>
+                <span className="text-[0.78rem] font-semibold text-[#18C800]">{fmt(balance)}</span>
               </span>
             </div>
           ) : null}
 
-          <div className="mt-2 grid grid-cols-[1fr_38px_44px_54px] gap-x-2 border-b border-white/10 px-2 pb-1 text-[0.65rem] font-semibold text-white/40">
+          <div className="mt-3 grid grid-cols-[1fr_38px_44px_54px] gap-x-2 border-b border-white/10 px-2 pb-1 text-[0.7rem] font-semibold text-white/40">
             <span>{tab === "my" ? "Round" : "User"}</span>
             <span>Bet</span>
             <span>X</span>
@@ -1069,7 +1067,7 @@ export function Aviator() {
           </div>
 
           <div
-            className="flex h-[340px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-1 lg:h-0 lg:min-h-0"
+            className="flex h-[360px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-2 lg:h-0 lg:min-h-0"
             style={{
               overscrollBehavior: "contain",
               WebkitOverflowScrolling: "touch",
@@ -1086,19 +1084,19 @@ export function Aviator() {
                     .map((p, i) => (
                       <div
                         key={`live-${i}`}
-                        className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-1.5 rounded-[7px] border border-[#20BFFF]/40 bg-[#0C1C2B] px-1.5 py-[5px] text-[0.68rem] text-white sm:gap-x-3 sm:px-2 sm:text-[0.72rem]"
+                        className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-1.5 rounded-[7px] border border-[#20BFFF]/40 bg-[#0C1C2B] px-1.5 py-[6px] text-[0.72rem] text-white sm:gap-x-3 sm:px-2 sm:text-[0.78rem]"
                       >
                         <span className="flex min-w-0 items-center gap-2">
-                          <img src={AVATARS[0]} alt="" className="h-[22px] w-[22px] rounded-full object-cover" />
+                          <img src={AVATARS[0]} alt="" className="h-[24px] w-[24px] rounded-full object-cover" />
                           <span className="flex min-w-0 flex-col leading-tight">
                             <span className="truncate font-semibold text-[#20BFFF]">You</span>
-                            <span className="text-[0.6rem] text-white/45">
+                            <span className="text-[0.64rem] text-white/45">
                               #{round} {p.staged ? "queued" : "live"}
                             </span>
                           </span>
                         </span>
                         <span className="font-semibold">{p.amount}</span>
-                        <span className="rounded-full bg-[#0B1B27] px-[6px] py-[1px] text-[0.62rem] font-bold text-[#20BFFF]">
+                        <span className="rounded-full bg-[#0B1B27] px-[6px] py-[1px] text-[0.66rem] font-bold text-[#20BFFF]">
                           {p.cashedAt ? `${fmt(p.cashedAt)}x` : phase === "flying" ? `${fmt(multiplier)}x` : "—"}
                         </span>
                         <span className="text-right font-bold">
@@ -1109,22 +1107,22 @@ export function Aviator() {
                   ...myBets.map((b, i) => (
                     <div
                       key={`${b.round}-${i}`}
-                      className={`grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-1.5 rounded-[7px] border px-1.5 py-[5px] text-[0.68rem] sm:gap-x-3 sm:px-2 sm:text-[0.72rem] ${
+                      className={`grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-1.5 rounded-[7px] border px-1.5 py-[6px] text-[0.72rem] sm:gap-x-3 sm:px-2 sm:text-[0.78rem] ${
                         b.cashedAt
                           ? "border-[#3B8F20] bg-[#0D4206] text-white"
                           : "border-white/[0.06] bg-[#1A1113] text-white/50"
                       }`}
                     >
                       <span className="flex min-w-0 items-center gap-2">
-                        <img src={AVATARS[0]} alt="" className="h-[22px] w-[22px] rounded-full object-cover" />
+                        <img src={AVATARS[0]} alt="" className="h-[24px] w-[24px] rounded-full object-cover" />
                         <span className="flex min-w-0 flex-col leading-tight">
                           <span className="truncate font-semibold">You</span>
-                          <span className="text-[0.6rem] text-white/40">#{b.round}</span>
+                          <span className="text-[0.64rem] text-white/40">#{b.round}</span>
                         </span>
                       </span>
                       <span className="font-semibold">{b.amount}</span>
                       <span
-                        className={`rounded-full px-[6px] py-[1px] text-[0.62rem] font-bold ${
+                        className={`rounded-full px-[6px] py-[1px] text-[0.66rem] font-bold ${
                           b.cashedAt ? "bg-[#052208] text-[#7CFF56]" : "bg-[#2A1113] text-[#F98080]"
                         }`}
                       >
@@ -1141,14 +1139,13 @@ export function Aviator() {
                   return (
                     <div
                       key={`${b.id}-${i}`}
-                      className={`grid shrink-0 grid-cols-[1fr_38px_44px_54px] items-center gap-x-2 px-2 py-[7px] text-[0.72rem] sm:text-[0.76rem] ${
+                      className={`grid shrink-0 grid-cols-[1fr_38px_44px_54px] items-center gap-x-2 px-2 py-[8px] text-[0.76rem] sm:text-[0.8rem] ${
                         freshIds.includes(b.id) ? "av-row-in" : ""
                       } ${
                         done
                           ? "rounded-[7px] border border-[#3B8F20] bg-[#0D4206] text-white"
                           : "border-b border-white/[0.05] bg-[#131416] text-white/70"
                       }`}
-
                     >
                       <span className="flex min-w-0 items-center gap-2">
                         <img
@@ -1157,7 +1154,7 @@ export function Aviator() {
                           loading="lazy"
                           width={96}
                           height={96}
-                          className="h-[26px] w-[26px] shrink-0 rounded-full object-cover"
+                          className="h-[28px] w-[28px] shrink-0 rounded-full object-cover"
                         />
                         <span className={`truncate ${done ? "font-semibold text-white" : "text-[#7E92B5]"}`}>
                           {maskName(b.user)}
@@ -1166,7 +1163,7 @@ export function Aviator() {
                       <span className={`font-semibold ${done ? "text-white" : "text-white/90"}`}>{b.amount}</span>
 
                       <span
-                        className={`shrink-0 justify-self-start rounded-full px-2 py-[1px] text-[0.65rem] font-bold ${
+                        className={`shrink-0 justify-self-start rounded-full px-2 py-[1px] text-[0.68rem] font-bold ${
                           done ? "border border-[#3B8F20]/60 bg-[#052208] text-[#7CFF56]" : ""
                         }`}
                       >
@@ -1186,10 +1183,10 @@ export function Aviator() {
             ) : null}
           </div>
 
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-x-2 gap-y-[2px] border-t border-white/10 px-1 pt-[6px] text-[0.6rem] text-white/45 sm:text-[0.66rem]">
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-x-2 gap-y-[2px] border-t border-white/10 px-1 pt-[8px] text-[0.64rem] text-white/45 sm:text-[0.7rem]">
             <span className="flex items-center gap-1">
               This game is
-              <img src={fairIcon} alt="" className="h-[13px] w-[12px]" />
+              <img src={fairIcon} alt="" className="h-[14px] w-[13px]" />
               <span className="font-semibold text-white/80">Provably Fair</span>
             </span>
             <span>
@@ -1237,8 +1234,8 @@ export function Aviator() {
 
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} feedLive={feedLive} />
 
-          <div className="rounded-[12px] border border-[#292D32] bg-[#111315] p-[10px] sm:p-3">
-            <div className="mx-auto mb-2 flex w-[200px] rounded-full bg-[#0B0C0E] p-[3px] text-[0.72rem] font-bold text-white/55">
+          <div className="rounded-[12px] border border-[#292D32] bg-[#111315] p-3 sm:p-4">
+            <div className="mx-auto mb-3 flex w-[220px] rounded-full bg-[#0B0C0E] p-[4px] text-[0.78rem] font-bold text-white/55">
               {(["bet", "auto"] as const).map((m) => (
                 <button
                   key={m}
@@ -1246,7 +1243,7 @@ export function Aviator() {
                   onClick={() => {
                     setMode(m);
                   }}
-                  className={`flex-1 rounded-full py-[4px] capitalize ${
+                  className={`flex-1 rounded-full py-[6px] capitalize ${
                     mode === m ? "bg-[#2C2D30] text-white" : ""
                   }`}
                 >
@@ -1256,7 +1253,7 @@ export function Aviator() {
             </div>
 
             {/* mobile: two slots with own stake grids + center action column */}
-            <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-[8px] sm:hidden">
+            <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-3 sm:hidden">
               <MobileBetSlot
                 state={slots[0]!}
                 setState={(fn) => setSlot(0, fn)}
@@ -1266,35 +1263,35 @@ export function Aviator() {
                 balance={balance}
                 mode={mode}
               />
-              <div className="flex w-[62px] flex-col gap-[6px] pt-[6px]">
+              <div className="flex w-[72px] flex-col gap-[7px] pt-[7px]">
                 <button
                   type="button"
                   onClick={() => {
                     const v = Number(window.prompt("Custom stake", String(slots[0]!.amount)) ?? "");
                     if (Number.isFinite(v) && v >= 10) setAllSlots((p) => ({ ...p, amount: v }));
                   }}
-                  className="rounded-full bg-[#F59E0B] py-[5px] text-[0.7rem] font-bold text-white"
+                  className="rounded-full bg-[#F59E0B] py-[7px] text-[0.75rem] font-bold text-white"
                 >
                   Edit
                 </button>
                 <button
                   type="button"
                   onClick={() => setAllSlots((p) => ({ ...p, amount: 10, staged: false }))}
-                  className="rounded-full bg-[#EF0000] py-[5px] text-[0.7rem] font-bold text-white"
+                  className="rounded-full bg-[#EF0000] py-[7px] text-[0.75rem] font-bold text-white"
                 >
                   Clear
                 </button>
                 <button
                   type="button"
                   onClick={() => setAllSlots((p) => ({ ...p, amount: 10 }))}
-                  className="rounded-full border border-[#44474D] bg-[#151618] py-[5px] text-[0.7rem] font-semibold text-[#9CA3AF]"
+                  className="rounded-full border border-[#44474D] bg-[#151618] py-[7px] text-[0.75rem] font-semibold text-[#9CA3AF]"
                 >
                   Min
                 </button>
                 <button
                   type="button"
                   onClick={() => setAllSlots((p) => ({ ...p, amount: 10000 }))}
-                  className="rounded-full border border-[#44474D] bg-[#151618] py-[5px] text-[0.7rem] font-semibold text-[#9CA3AF]"
+                  className="rounded-full border border-[#44474D] bg-[#151618] py-[7px] text-[0.75rem] font-semibold text-[#9CA3AF]"
                 >
                   Max
                 </button>
@@ -1310,13 +1307,13 @@ export function Aviator() {
               />
             </div>
 
-            <div className="hidden grid-cols-4 gap-[6px] sm:grid sm:gap-[8px]">
+            <div className="hidden grid-cols-4 gap-[8px] sm:grid sm:gap-[10px]">
               {QUICK.map((q) => (
                 <button
                   key={q}
                   type="button"
                   onClick={() => setAllSlots((p) => ({ ...p, amount: q }))}
-                  className={`rounded-full border bg-[#151618] py-[6px] text-center text-[0.68rem] font-semibold transition-colors sm:py-[7px] sm:text-[0.82rem] ${
+                  className={`rounded-full border bg-[#151618] py-[8px] text-center text-[0.75rem] font-semibold transition-colors sm:py-[9px] sm:text-[0.9rem] ${
                     slots[0]!.amount === q
                       ? "border-[#16C800] text-white"
                       : "border-[#44474D] text-[#C9CBD1] hover:text-white"
@@ -1329,14 +1326,14 @@ export function Aviator() {
               <button
                 type="button"
                 onClick={() => setAllSlots((p) => ({ ...p, amount: 10 }))}
-                className="rounded-full border border-[#44474D] bg-[#151618] py-[6px] text-[0.68rem] font-semibold text-[#9CA3AF] sm:py-[7px] sm:text-[0.82rem]"
+                className="rounded-full border border-[#44474D] bg-[#151618] py-[8px] text-[0.75rem] font-semibold text-[#9CA3AF] sm:py-[9px] sm:text-[0.9rem]"
               >
                 Min
               </button>
               <button
                 type="button"
                 onClick={() => setAllSlots((p) => ({ ...p, amount: 10000 }))}
-                className="rounded-full border border-[#44474D] bg-[#151618] py-[6px] text-[0.68rem] font-semibold text-[#9CA3AF] sm:py-[7px] sm:text-[0.82rem]"
+                className="rounded-full border border-[#44474D] bg-[#151618] py-[8px] text-[0.75rem] font-semibold text-[#9CA3AF] sm:py-[9px] sm:text-[0.9rem]"
               >
                 Max
               </button>
@@ -1346,20 +1343,20 @@ export function Aviator() {
                   const v = Number(window.prompt("Custom stake", String(slots[0]!.amount)) ?? "");
                   if (Number.isFinite(v) && v >= 10) setAllSlots((p) => ({ ...p, amount: v }));
                 }}
-                className="rounded-full bg-[#F59E0B] py-[6px] text-[0.68rem] font-bold text-white sm:py-[7px] sm:text-[0.82rem]"
+                className="rounded-full bg-[#F59E0B] py-[8px] text-[0.75rem] font-bold text-white sm:py-[9px] sm:text-[0.9rem]"
               >
                 Edit
               </button>
               <button
                 type="button"
                 onClick={() => setAllSlots((p) => ({ ...p, amount: 10, staged: false }))}
-                className="rounded-full bg-[#EF0000] py-[6px] text-[0.68rem] font-bold text-white sm:py-[7px] sm:text-[0.82rem]"
+                className="rounded-full bg-[#EF0000] py-[8px] text-[0.75rem] font-bold text-white sm:py-[9px] sm:text-[0.9rem]"
               >
                 Clear
               </button>
             </div>
 
-            <div className="mt-2 hidden grid-cols-4 gap-[6px] sm:mt-3 sm:grid sm:gap-[8px]">
+            <div className="mt-3 hidden grid-cols-4 gap-[8px] sm:mt-4 sm:grid sm:gap-[10px]">
               {slots.map((s, i) => (
                 <BetPanel
                   key={i}
