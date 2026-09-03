@@ -358,7 +358,7 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
               key={String(r.selectionId)}
               className={`grid items-center border-t border-[#e6e6e6] ${cols}`}
             >
-              <span className="truncate px-2 py-2 text-[0.82rem] font-bold uppercase text-[#1f4b66]">
+              <span className="px-2 py-2 text-[0.82rem] font-bold text-[#1f4b66]">
                 {names[String(r.selectionId)] ?? String(r.selectionId)}
               </span>
               {cell(r.price?.back?.[0], "back", runnerOpen)}
@@ -379,39 +379,44 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
 }
 
 
-/** Dark sectioned board with 2-column rounded price plates (Lucky 7, 20-20 TP, 20-20 DT). */
+/** Light blue sectioned board with 2-column plates (Lucky 7, 20-20 TP, 20-20 DT) — original style. */
 function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
+  const odd = runners.length % 2 === 1;
   return (
-    <div className="mt-3">
-      <header className="flex items-center justify-between gap-2 px-1 pb-1">
-        <h3 className="text-[0.82rem] font-extrabold uppercase tracking-[0.03em] text-[#9fd0ea]">
+    <div className="mt-0">
+      <header className="flex items-center justify-between gap-2 bg-black px-2 py-[5px]">
+        <h3 className="text-[0.78rem] font-extrabold uppercase tracking-[0.02em] text-white">
           {market.marketName}
         </h3>
-        <span className="text-[0.68rem] font-semibold text-[#8b98a5]">
+        <span className="text-[0.66rem] font-semibold text-white/85">
           Min/Max: {market.min ?? 0} - {market.max ?? 0}
         </span>
       </header>
-      <div className="relative rounded-md bg-[#1f2733] p-2">
-        <div className="grid grid-cols-2 gap-2">
-          {runners.map((r) => {
+      <div className="relative bg-gradient-to-b from-[#dff0fb] to-[#a9d4ef] px-3 py-3">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+          {runners.map((r, i) => {
             const p = r.price?.back?.[0];
             const locked = !suspended && (!isOpenStatus(r.status ?? "ONLINE") || !p?.price);
+            const last = odd && i === runners.length - 1;
             return (
-              <div key={String(r.selectionId)} className="min-w-0">
-                <p className="truncate px-1 pb-1 text-center text-[0.72rem] font-bold uppercase text-[#dbe6f0]">
+              <div
+                key={String(r.selectionId)}
+                className={`min-w-0 ${last ? "col-span-2 mx-auto w-[calc(50%-0.5rem)]" : ""}`}
+              >
+                <p className="truncate px-1 pb-1 text-center text-[0.72rem] font-bold uppercase text-[#0d2a3c]">
                   {names[String(r.selectionId)] ?? String(r.selectionId)}
                 </p>
-                <div className="relative flex h-[46px] flex-col items-center justify-center rounded-md bg-[#3E6C88] text-white">
+                <div className="relative flex h-[42px] flex-col items-center justify-center rounded-[6px] border border-[#7fb4d6] bg-gradient-to-b from-[#bfe0f6] to-[#8ec5e8] text-[#0a2233] shadow-sm">
                   <span className="text-[0.95rem] font-extrabold leading-none">
                     {fmtOdds(p?.price)}
                   </span>
-                  <span className="mt-0.5 text-[0.62rem] font-semibold text-white/75">
+                  <span className="mt-0.5 text-[0.66rem] font-semibold text-[#0a2233]/75">
                     {fmtSize(p?.size)}
                   </span>
                   {locked ? (
-                    <span className="absolute inset-0 flex items-center justify-center rounded-md bg-black/45 text-sm">
+                    <span className="absolute inset-0 flex items-center justify-center rounded-[6px] bg-black/35 text-sm">
                       🔒
                     </span>
                   ) : null}
@@ -421,17 +426,17 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
           })}
         </div>
         {suspended ? (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-md bg-black/60">
-            <span className="text-xl font-extrabold uppercase tracking-[0.08em] text-white">
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white/55">
+            <span className="text-xl font-extrabold uppercase tracking-[0.08em] text-[#c0392b]">
               Suspended
             </span>
           </div>
         ) : null}
-
       </div>
     </div>
   );
 }
+
 
 /** Dark row board: label left, blue back (and pink lay) plates right (Joker TP, 1Day TP). */
 function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
@@ -663,8 +668,9 @@ function AndarBaharPanel({
             ? "bg-white text-black"
             : "bg-[#9A9A93] text-black/60"
           : r.open
-            ? "bg-[#1272CE] text-white"
+            ? "bg-[#183A5A] text-white"
             : "bg-[#173049] text-white/45"
+
       }`}
     >
       <span className="uppercase">{r.label}</span>

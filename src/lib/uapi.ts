@@ -139,15 +139,16 @@ export function runnerName(market: Market | UEvent, selectionId: string | number
 
 export function fmtOdds(price: number | undefined | null): string {
   if (!price) return "—";
-  return String(Math.round(price * 100) / 100);
+  const v = Math.round(price * 100) / 100;
+  return Number.isInteger(v) ? String(v) : v.toFixed(2);
 }
+
 
 export function fmtSize(size: number | undefined | null): string {
   if (!size) return "";
-  if (size >= 1000000) return `${(size / 1000000).toFixed(1)}M`;
-  if (size >= 1000) return `${(size / 1000).toFixed(1)}K`;
   return String(Math.round(size));
 }
+
 
 export function fmtInt(n: number | undefined | null): string {
   return new Intl.NumberFormat("en-US").format(Math.round(n ?? 0));
