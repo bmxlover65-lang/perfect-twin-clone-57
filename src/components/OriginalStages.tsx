@@ -785,8 +785,16 @@ export function BalloonStage({
 
 
   return (
-    <div className="w-full rounded-[14px] bg-black p-1.5">
-      <div className="relative aspect-[9/16] w-full max-h-[calc(100vh-132px)] overflow-hidden rounded-[10px] sm:aspect-[16/10] sm:max-h-none bg-[linear-gradient(180deg,#4FB6CE_0%,#7ACBD6_38%,#BFE0CC_66%,#F3E4B4_88%,#F7EFD2_100%)]">
+    <div className="w-full rounded-[16px] bg-[linear-gradient(160deg,#2B2B2E_0%,#0A0A0B_55%,#1A1A1D_100%)] p-1.5 shadow-[0_18px_44px_-18px_rgba(0,0,0,0.9)] ring-1 ring-inset ring-white/10">
+      <div className="relative aspect-[9/16] w-full max-h-[calc(100vh-132px)] overflow-hidden rounded-[12px] sm:aspect-[16/10] sm:max-h-none bg-[linear-gradient(180deg,#4FB6CE_0%,#7ACBD6_38%,#BFE0CC_66%,#F3E4B4_88%,#F7EFD2_100%)]">
+        {/* premium cinematic vignette + top sheen */}
+        <div
+          className="pointer-events-none absolute inset-0 z-30"
+          style={{
+            background:
+              "radial-gradient(120% 85% at 50% 40%, transparent 52%, rgba(0,0,0,0.42) 100%), linear-gradient(180deg, rgba(255,255,255,0.16) 0%, transparent 22%)",
+          }}
+        />
         {/* sky artwork — parallax: the ground drops away as the balloon climbs */}
         <div className="absolute inset-0 overflow-hidden">
           <img
