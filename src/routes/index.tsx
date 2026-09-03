@@ -85,32 +85,25 @@ function Lobby() {
 
 
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-6">
-      <div className="rounded-2xl border border-border/60 bg-lobby p-5">
-        <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
-              Universal API
-            </p>
-            <h1 className="text-3xl font-bold text-foreground">Universe Live</h1>
-            <p className="mt-1 max-w-[640px] text-muted-foreground">
-              Live casino table games via the Universal API.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <span className="rounded-full bg-card px-3 py-1.5 text-sm font-semibold text-foreground shadow-sm">
+    <div className="mx-auto max-w-[1200px] px-4 py-5">
+      <div>
+        <div className="mb-4">
+          <p className="text-[0.7rem] uppercase tracking-[0.12em] text-muted-foreground">
+            Universal API
+          </p>
+          <h1 className="mt-1 text-[1.75rem] font-bold leading-tight text-foreground">
+            Universe Live
+          </h1>
+          <p className="mt-1 max-w-[640px] text-[0.95rem] text-muted-foreground">
+            Live casino table games via the Universal API.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span className="rounded-full bg-card px-3 py-1.5 text-sm font-semibold text-foreground">
               {list.length} games
             </span>
-            <span className="rounded-full bg-card px-3 py-1.5 text-sm font-semibold text-foreground shadow-sm">
+            <span className="rounded-full bg-card px-3 py-1.5 text-sm font-semibold text-foreground">
               Universe Live
             </span>
-            <button
-              type="button"
-              onClick={() => void load()}
-              className="rounded-full bg-card px-3 py-1.5 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-accent"
-            >
-              Refresh
-            </button>
           </div>
         </div>
 
