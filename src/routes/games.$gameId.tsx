@@ -2135,7 +2135,13 @@ function GamePage() {
         ) : (
           <div className="aspect-video w-full bg-black" />
         )}
-        <div className="pointer-events-none absolute left-3 top-3 z-20 max-w-[calc(100%-1.5rem)] space-y-2 overflow-visible">
+        <div
+          className={`pointer-events-none absolute left-3 top-3 z-20 max-w-[calc(100%-1.5rem)] origin-top-left overflow-visible ${
+            handLayout.length >= 3
+              ? "space-y-0.5 scale-[0.7] sm:scale-[0.85] md:scale-100"
+              : "space-y-2"
+          }`}
+        >
           <p className="text-[0.75rem] font-black uppercase tracking-wide text-white drop-shadow sm:text-xs">
             RID: {d?.roundId ?? "—"}
           </p>
@@ -2143,6 +2149,7 @@ function GamePage() {
             <Cards key={h.title} title={h.title} hand={h.hand} />
           ))}
         </div>
+
         <RoundTimer
           leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
           suspended={suspended}
