@@ -81,6 +81,18 @@ function cleanGameName(name?: string | null): string | undefined {
   return name.replace(/\s*[-–]\s*[A-Z]$/i, "").trim();
 }
 
+/** Andar Bahar shows the two rows as plain "A" / "B" like the live table. */
+function isAndarBahar(name?: string | null): boolean {
+  return /andar\s*bahar/i.test(name ?? "");
+}
+
+function handTitleFor(title: string, gameName?: string | null): string {
+  if (!isAndarBahar(gameName)) return title;
+  if (/andar/i.test(title)) return "A";
+  if (/bahar/i.test(title)) return "B";
+  return title;
+}
+
 function Card({ code }: { code: string }) {
   return <CardFace code={code} />;
 }
