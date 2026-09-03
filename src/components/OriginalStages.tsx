@@ -1026,9 +1026,9 @@ export function BalloonStage({
           </span>
         ) : null}
 
-        {/* bottom controls — mobile: solid purple panel like the reference */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[36%] bg-[linear-gradient(180deg,transparent_0%,rgba(0,0,0,0.08)_40%,rgba(0,0,0,0.32)_100%)] sm:block" />
-        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-1.5 rounded-b-[10px] bg-[#3A2538] px-2 pb-2 pt-2 sm:gap-4 sm:bg-transparent sm:px-4 sm:pb-4 sm:pt-0">
+        {/* bottom controls — transparent/black background, no colored panel */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[36%] bg-[linear-gradient(180deg,transparent_0%,rgba(0,0,0,0.55)_100%)] sm:block" />
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-1.5 rounded-b-[10px] bg-black/70 px-2 pb-2 pt-2 backdrop-blur-sm sm:gap-4 sm:bg-transparent sm:px-4 sm:pb-4 sm:pt-0">
           {/* left cluster: auto toggles + stakes + edits/clear/min/max */}
           <div className="shrink-0">
             <div className="mb-1.5 flex items-end gap-1 sm:mb-1.5 sm:gap-2">
