@@ -8,7 +8,7 @@ const SUIT_GLYPH: Record<PlayingCard["suit"], string> = {
   D: "♦",
 };
 
-const CARD_SIZE = "h-[50px] w-[36px] shrink-0 rounded-[3px] shadow";
+const CARD_SIZE = "h-[46px] w-[39px] shrink-0 rounded-[5px] shadow-md";
 
 function Card({ card }: { card: PlayingCard }) {
   if (card.hidden) {
