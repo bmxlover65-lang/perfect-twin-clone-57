@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { RoundTimer } from "@/components/RoundTimer";
+import { SuccessToast } from "@/components/betting";
 import { creditWin, debit, useWallet } from "@/lib/wallet";
 import luckyBg from "@/assets/lucky-bg.gif.asset.json";
 import dreamBg from "@/assets/dream/dreambg.png.asset.json";
@@ -386,6 +387,7 @@ export function BalloonStage({
   const [flash, setFlash] = useState<(null | { text: string; win: boolean })[]>([null, null]);
   // one bet per round per panel
   const [used, setUsed] = useState<[boolean, boolean]>([false, false]);
+  const [betOk, setBetOk] = useState<string | null>(null);
   const usedRef = useRef(used);
   usedRef.current = used;
 
@@ -721,6 +723,7 @@ export function BalloonStage({
         if (stake <= 0) return prev;
         if (!debit(stake)) return prev;
         next[i] = { entry: 1, stake, pending: true };
+        setBetOk("Casino BetPlace Successful.");
         setUsed((u) => {
           const n = [...u] as [boolean, boolean];
           n[i] = true;
@@ -1004,6 +1007,8 @@ export function BalloonStage({
 
 
 
+
+        {betOk ? <SuccessToast message={betOk} onDone={() => setBetOk(null)} /> : null}
 
         {/* countdown */}
         {!flying ? (
