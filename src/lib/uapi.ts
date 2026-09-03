@@ -139,8 +139,10 @@ export function runnerName(market: Market | UEvent, selectionId: string | number
 
 export function fmtOdds(price: number | undefined | null): string {
   if (!price) return "—";
-  return String(Math.round(price * 100) / 100);
+  const v = Math.round(price * 100) / 100;
+  return Number.isInteger(v) ? String(v) : v.toFixed(2);
 }
+
 
 export function fmtSize(size: number | undefined | null): string {
   if (!size) return "";
