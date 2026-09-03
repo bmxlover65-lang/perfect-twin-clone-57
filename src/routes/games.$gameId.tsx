@@ -1848,6 +1848,10 @@ function GamePage() {
   // dealer has not turned the cards yet we still show face-down placeholders and
   // only swap in the real card once the feed sends its code.
   const layoutRef = useRef<{ title: string; count: number }[]>([]);
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const overlayRef = useRef<HTMLDivElement | null>(null);
+  const [overlayScale, setOverlayScale] = useState(1);
+
   const handLayout = useMemo(() => {
     const nested = Object.entries(cards).filter(
       ([, v]) => typeof v === "object" && v !== null,
