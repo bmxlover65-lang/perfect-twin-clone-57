@@ -96,10 +96,11 @@ function Cards({ hand, title }: { hand: Record<string, string>; title: string })
   if (!codes.length) return null;
   return (
     <div>
-      <p className="text-[0.75rem] font-black uppercase tracking-wide text-white drop-shadow sm:text-xs md:text-sm">
-        {title.replace(/_/g, " ")}
+      <p className="text-[0.7rem] font-semibold capitalize tracking-wide text-white drop-shadow">
+        {title.replace(/_/g, " ").toLowerCase()}
       </p>
-      <div className="mt-1 flex gap-1 sm:gap-1.5">
+      <div className="mt-0.5 flex gap-1">
+
         {codes.map((c, i) => (
           <Card key={`${c}-${i}`} code={c} />
         ))}
