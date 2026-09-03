@@ -76,15 +76,9 @@ export const Route = createFileRoute("/games/$gameId")({
 function Card({ code }: { code: string }) {
   const clean = code.replace(/_+$/, "");
   const hidden = !clean || clean === "0" || clean === "1";
-  const img = hidden ? CARD_BACK : cardImage(clean);
-  if (img) {
+  if (hidden) {
     return (
-      <img
-        src={img}
-        alt={clean || "card"}
-        className={`${CARD_SIZE} bg-white object-fill`}
-        loading="lazy"
-      />
+      <img src={CARD_BACK} alt="card" className={`${CARD_SIZE} bg-white object-fill`} loading="lazy" />
     );
   }
   const suit = clean.slice(0, 1);
@@ -102,6 +96,7 @@ function Card({ code }: { code: string }) {
     </span>
   );
 }
+
 
 
 
