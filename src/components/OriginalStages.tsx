@@ -1119,7 +1119,7 @@ export function BalloonStage({
                         ? "bg-[linear-gradient(180deg,#F0A500_0%,#D98200_100%)] shadow-[0_3px_0_#8A5600]"
                         : bet
                           ? "bg-[linear-gradient(180deg,#8C96A3_0%,#6B7480_100%)] shadow-[0_3px_0_#454C55]"
-                          : "bg-[linear-gradient(180deg,#22C93A_0%,#0FA524_100%)] shadow-[0_3px_0_#0B6B18]"
+                          : "bg-white/20 backdrop-blur-md shadow-[0_3px_0_rgba(255,255,255,0.25)]"
                   }`}
                 >
                   {live ? (
