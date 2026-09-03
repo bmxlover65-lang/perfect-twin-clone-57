@@ -319,8 +319,9 @@ function EventPage() {
             src={`/api/public/uapi/tv/sports/player?sportId=${sportId}&exEventId=${eventId}&tv=true`}
             allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
             allowFullScreen
-            className="h-[340px] w-full border-0 bg-black"
+            className="aspect-video h-[340px] max-h-[340px] w-full border-0 bg-black"
           />
+
         </div>
 
         <div className="overflow-hidden rounded-lg border border-white/10 bg-black">

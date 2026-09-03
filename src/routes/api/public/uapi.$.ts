@@ -47,34 +47,62 @@ async function upstream(path: string, search: string, token: string, body?: stri
   });
 }
 
-// The stream provider only allows its own client hostname. Fetch the player
-// page server-side with that referer and re-serve it from our origin.
+// The stream provider only allows its own client hostname. Everything that the
+// player loads (page, scripts, RTS signalling) is fetched server-side with that
+// referer and re-served from our origin, otherwise the CDN answers 403.
 const STREAM_REFERER = "https://universeapi.shop/";
 
-async function streamPage(rawUrl: string) {
+const STREAM_HOSTS = /(^|\.)(diamondtech\.shop|livestream11\.com|xfeed247\.live|zfeed247\.live|feed247\.live)$/i;
+
+function proxyPrefix(origin: string) {
+  return `${origin}/api/public/uapi/sproxy/`;
+}
+
+function rewriteStreamText(text: string, origin: string) {
+  return text.replace(
+    /https:\/\/[a-z0-9.-]*(?:diamondtech\.shop|livestream11\.com|[xz]?feed247\.live)/gi,
+    (m) => `${proxyPrefix(origin)}${m}`,
+  );
+}
+
+async function streamPage(rawUrl: string, origin: string, method = "GET", body?: string) {
   let target: URL;
   try {
     target = new URL(rawUrl);
   } catch {
     return new Response("Bad stream url", { status: 400 });
   }
-  if (!/(^|\.)diamondtech\.shop$/i.test(target.hostname)) {
+  if (!STREAM_HOSTS.test(target.hostname)) {
     return new Response("Stream host not allowed", { status: 403 });
   }
   const res = await fetch(target.toString(), {
+    method,
     redirect: "follow",
     headers: {
       referer: STREAM_REFERER,
       origin: STREAM_REFERER.replace(/\/$/, ""),
       "user-agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36",
-      accept: "text/html,application/xhtml+xml,*/*",
+      accept: "*/*",
+      ...(body === undefined ? {} : { "content-type": "application/json" }),
     },
+    ...(body === undefined ? {} : { body }),
   });
-  const html = await res.text();
-  return new Response(html, {
+
+  const type = res.headers.get("content-type") ?? "application/octet-stream";
+  const textual = /text\/html|javascript|text\/css|json|mpegurl/i.test(type);
+  const headers: Record<string, string> = {
+    "content-type": type,
+    "cache-control": "no-store",
+    "access-control-allow-origin": "*",
+  };
+
+  if (!textual) {
+    return new Response(await res.arrayBuffer(), { status: res.status, headers });
+  }
+  return new Response(rewriteStreamText(await res.text(), origin), {
     status: res.status,
-    headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
+    headers,
   });
 }
 
@@ -84,6 +112,7 @@ function rewriteTvHtml(html: string, origin: string) {
     return `${origin}/api/public/uapi/stream?u=${encodeURIComponent(clean)}`;
   });
 }
+
 
 
 // Secondary results mirror: used when the primary feed returns 5xx/empty
@@ -123,8 +152,14 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
   try {
     if (splat === "stream") {
       const u = new URLSearchParams(search).get("u") ?? "";
-      return streamPage(u);
+      return streamPage(u, origin, "GET");
     }
+
+    if (splat.startsWith("sproxy/")) {
+      const raw = splat.slice("sproxy/".length).replace(/^(https?):\/+/i, "$1://");
+      return streamPage(`${raw}${search}`, origin, body === undefined ? "GET" : "POST", body);
+    }
+
 
     if (splat === "health") {
       const t0 = Date.now();
