@@ -1860,6 +1860,50 @@ function GamePage() {
   const markets = d?.marketArr ?? [];
   const cards = (d?.cardsArr ?? {}) as Record<string, Record<string, string>>;
 
+  // Keep the hand layout stable across the round (like the live table): while the
+  // dealer has not turned the cards yet we still show face-down placeholders and
+  // only swap in the real card once the feed sends its code.
+  const layoutRef = useRef<{ title: string; count: number }[]>([]);
+  const handLayout = useMemo(() => {
+    const nested = Object.entries(cards).filter(
+      ([, v]) => typeof v === "object" && v !== null,
+    ) as [string, Record<string, string>][];
+    let hands: { title: string; hand: Record<string, string> }[] = [];
+    if (nested.length) {
+      hands = nested.map(([k, v]) => ({ title: k, hand: v }));
+    } else if (Object.keys(cards).length) {
+      hands = [
+        {
+          title: d?.eventName?.toUpperCase().startsWith("LUCKY") ? "LUCKY CARD" : "CARD",
+          hand: cards as unknown as Record<string, string>,
+        },
+      ];
+    }
+    if (hands.length) {
+      const remembered = new Map(layoutRef.current.map((h) => [h.title, h.count]));
+      const padded = hands.map((h) => {
+        const codes = Object.values(h.hand);
+        const want = Math.max(codes.length, remembered.get(h.title) ?? 0);
+        const hand: Record<string, string> = {};
+        for (let i = 0; i < want; i += 1) hand[String(i)] = codes[i] ?? "0";
+        return { title: h.title, hand };
+      });
+      layoutRef.current = padded.map((h) => ({
+        title: h.title,
+        count: Object.keys(h.hand).length,
+      }));
+      return padded;
+    }
+    // No cards in the feed yet → keep last round's shape with face-down cards.
+    return layoutRef.current.map((h) => {
+      const hand: Record<string, string> = {};
+      for (let i = 0; i < h.count; i += 1) hand[String(i)] = "0";
+      return { title: h.title, hand };
+    });
+  }, [cards, d?.eventName]);
+
+
+
   const isOriginal = gameId.startsWith("88.");
   const isBbb = gameId === "4.3544687543453";
   const raw = (d ?? {}) as unknown as {
