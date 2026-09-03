@@ -318,25 +318,23 @@ function MobileBetSlot({
 
   return (
     <div className="flex min-w-0 flex-col gap-[7px]">
-      {mode === "auto" ? (
-        <div className="flex items-center gap-2">
-          <span className="text-[0.72rem] font-semibold text-[#C9CBD1]">Auto</span>
-          <button
-            type="button"
-            onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
-            aria-pressed={state.auto}
-            className={`relative h-[20px] w-[40px] shrink-0 rounded-full transition-colors ${
-              state.auto ? "bg-[#18B800]" : "bg-[#2A2C30]"
+      <div className="flex items-center justify-between gap-2 px-1">
+        <span className="text-[0.72rem] font-semibold text-[#C9CBD1]">Auto</span>
+        <button
+          type="button"
+          onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
+          aria-pressed={state.auto}
+          className={`relative h-[20px] w-[40px] shrink-0 rounded-full transition-colors ${
+            state.auto ? "bg-[#18B800]" : "bg-[#2A2C30]"
+          }`}
+        >
+          <span
+            className={`absolute top-[2px] h-[16px] w-[16px] rounded-full bg-white transition-all ${
+              state.auto ? "left-[22px]" : "left-[2px]"
             }`}
-          >
-            <span
-              className={`absolute top-[2px] h-[16px] w-[16px] rounded-full bg-white transition-all ${
-                state.auto ? "left-[22px]" : "left-[2px]"
-              }`}
-            />
-          </button>
-        </div>
-      ) : null}
+          />
+        </button>
+      </div>
 
       <div className="grid grid-cols-2 gap-[6px]">
         {QUICK.map((q) => (
@@ -358,10 +356,11 @@ function MobileBetSlot({
       <button
         type="button"
         onClick={press}
-        className={`rounded-[8px] py-[12px] text-center text-[1rem] font-bold text-white ${tone}`}
+        className={`rounded-[10px] py-[13px] text-center text-[1.05rem] font-bold text-white ${tone}`}
       >
         {label}
       </button>
+
 
       {mode === "auto" ? (
         <div className="flex items-center gap-1 rounded-full bg-[#0B0C0E] px-2 py-[3px]">
