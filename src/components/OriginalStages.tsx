@@ -785,8 +785,16 @@ export function BalloonStage({
 
 
   return (
-    <div className="w-full rounded-[14px] bg-black p-1.5">
-      <div className="relative aspect-[9/16] w-full max-h-[calc(100vh-132px)] overflow-hidden rounded-[10px] sm:aspect-[16/10] sm:max-h-none bg-[linear-gradient(180deg,#4FB6CE_0%,#7ACBD6_38%,#BFE0CC_66%,#F3E4B4_88%,#F7EFD2_100%)]">
+    <div className="w-full rounded-[16px] bg-[linear-gradient(160deg,#2B2B2E_0%,#0A0A0B_55%,#1A1A1D_100%)] p-1.5 shadow-[0_18px_44px_-18px_rgba(0,0,0,0.9)] ring-1 ring-inset ring-white/10">
+      <div className="relative aspect-[9/16] w-full max-h-[calc(100vh-132px)] overflow-hidden rounded-[12px] sm:aspect-[16/10] sm:max-h-none bg-[linear-gradient(180deg,#4FB6CE_0%,#7ACBD6_38%,#BFE0CC_66%,#F3E4B4_88%,#F7EFD2_100%)]">
+        {/* premium cinematic vignette + top sheen */}
+        <div
+          className="pointer-events-none absolute inset-0 z-[5]"
+          style={{
+            background:
+              "radial-gradient(120% 85% at 50% 40%, transparent 52%, rgba(0,0,0,0.42) 100%), linear-gradient(180deg, rgba(255,255,255,0.16) 0%, transparent 22%)",
+          }}
+        />
         {/* sky artwork — parallax: the ground drops away as the balloon climbs */}
         <div className="absolute inset-0 overflow-hidden">
           <img
@@ -924,7 +932,13 @@ export function BalloonStage({
               </svg>
             </div>
             {flying ? (
-              <p className="absolute left-1/2 top-[36%] w-[120%] -translate-x-1/2 text-center text-[clamp(2.1rem,6.4vw,4.2rem)] font-extrabold leading-none text-white drop-shadow-[0_3px_10px_rgba(0,0,0,0.45)]">
+              <p
+                className="absolute left-1/2 top-[36%] w-[120%] -translate-x-1/2 text-center text-[clamp(2.1rem,6.4vw,4.2rem)] font-extrabold leading-none tracking-tight text-white"
+                style={{
+                  textShadow:
+                    "0 2px 2px rgba(0,0,0,0.45), 0 0 18px rgba(255,255,255,0.55), 0 0 42px rgba(120,220,255,0.45)",
+                }}
+              >
                 {shown.toFixed(2)}x
               </p>
             ) : (
@@ -956,7 +970,7 @@ export function BalloonStage({
             {histList.map((v, i) => (
               <span
                 key={i}
-                className={`shrink-0 rounded-[5px] px-2 py-[3px] text-[0.7rem] font-extrabold sm:px-2.5 sm:text-[0.78rem] ${histColor2(v)}`}
+                className={`shrink-0 rounded-full px-2 py-[3px] text-[0.7rem] font-extrabold shadow-[0_1px_3px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.28)] ring-1 ring-inset ring-white/15 sm:px-2.5 sm:text-[0.78rem] ${histColor2(v)}`}
               >
                 {v.toFixed(2)}x
               </span>
@@ -1077,7 +1091,7 @@ export function BalloonStage({
                     key={s}
                     type="button"
                     onClick={() => setStake(s)}
-                    className={`h-[26px] w-[76px] rounded-full bg-[#0E2C5C] text-[0.65rem] font-extrabold text-white shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
+                    className={`h-[26px] w-[76px] rounded-full bg-[linear-gradient(180deg,#1B4585_0%,#0E2C5C_60%,#08203F_100%)] text-[0.65rem] font-extrabold text-white shadow-[0_2px_4px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.22)] ring-1 ring-inset ring-white/10 transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
                       stake === s ? "ring-2 ring-[#E01E1E]" : ""
                     }`}
                   >
@@ -1127,7 +1141,7 @@ export function BalloonStage({
                         ? "bg-[linear-gradient(180deg,#F0A500_0%,#D98200_100%)] shadow-[0_3px_0_#8A5600]"
                         : bet
                           ? "bg-[linear-gradient(180deg,#8C96A3_0%,#6B7480_100%)] shadow-[0_3px_0_#454C55]"
-                          : "bg-[linear-gradient(180deg,#3FD24F_0%,#1B9E2E_100%)] shadow-[0_3px_0_#0E6B1D]"
+                          : "bg-[linear-gradient(180deg,#57E066_0%,#2FBB40_48%,#149329_100%)] shadow-[0_4px_0_#0E6B1D,0_10px_20px_-8px_rgba(20,147,41,0.75),inset_0_1px_0_rgba(255,255,255,0.55)]"
                   }`}
                 >
                   {live ? (
