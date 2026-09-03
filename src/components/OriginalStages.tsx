@@ -871,7 +871,7 @@ export function BalloonStage({
           <div
             className="absolute left-1/2 z-10 w-[62%] min-w-[160px] max-w-[420px] sm:w-[34%] sm:min-w-[200px]"
             style={{
-              bottom: `${20 + grow * 12}%`,
+              bottom: `${32 + grow * 16}%`,
               transform: `translateX(-50%) scale(${flying ? 1 + grow * 0.18 : 1})`,
               transition: "bottom 240ms linear, transform 240ms linear",
             }}
