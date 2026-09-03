@@ -10,7 +10,7 @@ import { logResult } from "@/lib/telemetry";
 import { BalanceChip, BetLayer, MyBets } from "@/components/betting";
 import { settleLatest, settleRound } from "@/lib/wallet";
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
-import { cardImage, CARD_BACK } from "@/lib/card-assets";
+import { cardImage, CARD_BACK, CARD_SIZE } from "@/lib/card-assets";
 
 import dream1x from "@/assets/dream/note1.png.asset.json";
 import dream2x from "@/assets/dream/note2.png.asset.json";
@@ -97,8 +97,8 @@ function Card({ code }: { code: string }) {
         red ? "text-red-600" : "text-black"
       }`}
     >
-      <span className="text-[0.8rem] sm:text-[0.95rem] md:text-[1.05rem]">{rank || "?"}</span>
-      <span className="text-[0.85rem] sm:text-base md:text-lg">{map[suit] ?? "?"}</span>
+      <span className="text-[0.9rem]">{rank || "?"}</span>
+      <span className="text-[0.95rem]">{map[suit] ?? "?"}</span>
     </span>
   );
 }
