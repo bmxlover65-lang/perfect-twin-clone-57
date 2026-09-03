@@ -72,7 +72,7 @@ export const Route = createFileRoute("/games/$gameId")({
 });
 
 const CARD_SIZE =
-  "h-[42px] w-[30px] shrink-0 rounded-[4px] shadow sm:h-[54px] sm:w-[38px] md:h-[64px] md:w-[46px]";
+  "h-[40px] w-[34px] shrink-0 rounded-[5px] shadow-md sm:h-[50px] sm:w-[42px] md:h-[58px] md:w-[49px]";
 
 function Card({ code }: { code: string }) {
   const clean = code.replace(/_+$/, "");
@@ -94,15 +94,16 @@ function Card({ code }: { code: string }) {
   const red = suit === "H" || suit === "D";
   return (
     <span
-      className={`${CARD_SIZE} inline-flex flex-col items-center justify-center bg-white text-[0.9rem] font-bold leading-none sm:text-[1.1rem] md:text-[1.25rem] ${
+      className={`${CARD_SIZE} inline-flex flex-col items-start justify-between bg-white px-[3px] py-[2px] font-bold leading-none ${
         red ? "text-red-600" : "text-black"
       }`}
     >
-      <span>{rank || "?"}</span>
-      <span className="text-sm sm:text-base md:text-lg">{map[suit] ?? "?"}</span>
+      <span className="text-[0.8rem] sm:text-[0.95rem] md:text-[1.05rem]">{rank || "?"}</span>
+      <span className="text-[0.85rem] sm:text-base md:text-lg">{map[suit] ?? "?"}</span>
     </span>
   );
 }
+
 
 
 
