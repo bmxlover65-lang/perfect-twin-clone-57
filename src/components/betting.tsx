@@ -187,6 +187,9 @@ export function BetLayer({
   const [stake, setStake] = useState(DEFAULT_STAKE);
   const [err, setErr] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  // Chips shown under the market cell the user bet on (cleared each round).
+  const [chips, setChips] = useState<{ id: number; x: number; y: number; amount: number }[]>([]);
+  const cellPos = useRef<{ x: number; y: number } | null>(null);
   const busy = useRef(false);
   const wallet = useWallet();
 
@@ -195,9 +198,14 @@ export function BetLayer({
     setStake(readLastStake());
   }, []);
 
+  useEffect(() => {
+    setChips([]);
+  }, [round]);
+
   const close = () => {
     setPick(null);
   };
+
 
 
   const submit = () => {
