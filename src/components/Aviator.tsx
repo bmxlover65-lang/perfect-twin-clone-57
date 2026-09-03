@@ -842,7 +842,9 @@ export function Aviator() {
     let fRid = "";
     let fPhase: Phase | "" = "";
     let fPeak = 1;
+    let shown = 1; // smoothed multiplier so the counter ticks 1.01, 1.02, … instead of jumping
     let waitStart = 0;
+
 
 
 
