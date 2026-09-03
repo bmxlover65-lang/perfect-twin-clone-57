@@ -188,24 +188,24 @@ function ThemeToggle() {
 function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-nav-foreground/10 bg-nav">
-      <div className="mx-auto flex h-[60px] max-w-[1600px] items-center justify-between px-4">
-        <Link to="/" className="flex items-center gap-3">
+      <div className="mx-auto flex min-h-[60px] max-w-[1600px] items-center justify-between gap-3 px-4 py-2">
+        <Link to="/" className="flex shrink-0 items-center gap-2 sm:gap-3">
           <img
             src="/favicon.svg"
             alt="Universal API"
             className="h-8 w-8 rounded-lg"
           />
-          <span className="text-xl font-bold tracking-tight text-nav-foreground">
+          <span className="max-w-[80px] text-lg font-bold leading-tight tracking-tight text-nav-foreground sm:max-w-none sm:text-xl">
             Universal API
           </span>
         </Link>
-        <nav className="flex items-center gap-5">
+        <nav className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1 sm:gap-5">
           {NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
               activeOptions={{ exact: item.to === "/" }}
-              className="hidden text-[0.95rem] font-semibold text-nav-foreground transition-colors hover:text-nav-active sm:block"
+              className="text-[0.82rem] font-semibold leading-tight text-nav-foreground transition-colors hover:text-nav-active sm:text-[0.95rem]"
               activeProps={{ className: "!text-nav-active" }}
             >
               {item.label}
@@ -213,7 +213,7 @@ function SiteHeader() {
           ))}
           <Link
             to="/console"
-            className="hidden text-[0.95rem] font-semibold text-nav-foreground transition-colors hover:text-nav-active sm:block"
+            className="text-[0.82rem] font-semibold leading-tight text-nav-foreground transition-colors hover:text-nav-active sm:text-[0.95rem]"
             activeProps={{ className: "!text-nav-active" }}
           >
             Console
