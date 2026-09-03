@@ -1889,11 +1889,13 @@ function GamePage() {
     }
     // Live table shows the joker/blind card on top of the player hands.
     hands = hands
-      .map((h, i) => ({ h, i }))
+      .map((h, i) => ({ h: { ...h, title: handTitleFor(h.title, d?.eventName) }, i }))
       .sort((a, b) => {
         const ja = /JOKER/i.test(a.h.title) ? 0 : 1;
         const jb = /JOKER/i.test(b.h.title) ? 0 : 1;
-        return ja - jb || a.i - b.i;
+        const ab = a.h.title === "A" ? 0 : a.h.title === "B" ? 1 : 2;
+        const bb = b.h.title === "A" ? 0 : b.h.title === "B" ? 1 : 2;
+        return ja - jb || ab - bb || a.i - b.i;
       })
       .map(({ h }) => h);
     if (hands.length) {
