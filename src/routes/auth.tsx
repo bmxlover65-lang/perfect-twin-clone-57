@@ -30,11 +30,23 @@ function AuthPage() {
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  /** Admin -> /console, operator (or anyone else) -> /operator. */
+  const goToPanel = async (userId: string) => {
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    void navigate({ to: data ? "/console" : "/operator", replace: true });
+  };
+
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {
-      if (data.session) void navigate({ to: "/console", replace: true });
+      if (data.session) void goToPanel(data.session.user.id);
     });
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +58,7 @@ function AuthPage() {
       setMsg(res.error.message);
       return;
     }
-    if (res.data.session) void navigate({ to: "/console", replace: true });
+    if (res.data.session) void goToPanel(res.data.session.user.id);
   };
 
   return (
