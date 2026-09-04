@@ -165,6 +165,16 @@ function ConsolePage() {
   const paid = bets.reduce((s, b) => s + Number(b.payout), 0);
   const openBets = bets.filter((b) => b.status === "open").length;
 
+  const current = ops.find((o) => o.id === sel) as (Operator & { callback_secret?: string }) | undefined;
+  const userBets = userSel ? bets.filter((b) => b.operator_user_id === userSel) : bets;
+  const userRow = (sum?.users ?? []).find((u) => u.userId === userSel);
+  const userIds = Array.from(new Set(bets.map((b) => String(b.operator_user_id ?? "")))).filter(Boolean);
+  const openManage = (id: string) => {
+    setSel(id);
+    setUserSel("");
+    setTab("manage");
+  };
+
   return (
     <DashShell
       title="Admin"
