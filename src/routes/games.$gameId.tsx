@@ -121,7 +121,7 @@ function Cards({ hand, title }: { hand: Record<string, string>; title: string })
       <p className="text-[0.55rem] font-bold uppercase tracking-wide text-white drop-shadow sm:text-[0.7rem]">
         {title.replace(/_/g, " ").toUpperCase()}
       </p>
-      <div className="mt-0.5 flex gap-[3px] sm:gap-1">
+      <div className="mt-0.5 flex flex-wrap justify-center gap-0">
 
         {codes.map((c, i) => (
           <Card key={`${c}-${i}`} code={c} />

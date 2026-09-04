@@ -14,9 +14,8 @@ function normalize(code: unknown): string {
 const SUIT_GLYPH: Record<string, string> = { S: "♠", H: "♥", D: "♦", C: "♣" };
 
 /**
- * Live-table card: shows the real printed card artwork when we have it,
- * otherwise a white tile with the rank above and the suit symbol below.
- * Face-down cards keep the printed card back.
+ * Live-table card: shows the real printed card artwork edge-to-edge
+ * (no white padding, no gaps). Face-down cards keep the printed card back.
  */
 export function CardFace({ code }: { code: string }) {
   const c = normalize(code);
@@ -30,7 +29,7 @@ export function CardFace({ code }: { code: string }) {
       <img
         src={CARD_BACK}
         alt="card"
-        className={`${CARD_SIZE} bg-white object-contain`}
+        className={`${CARD_SIZE} block object-cover`}
         loading="lazy"
       />
     );
@@ -42,7 +41,7 @@ export function CardFace({ code }: { code: string }) {
       <img
         src={img}
         alt={c}
-        className={`${CARD_SIZE} bg-white object-cover`}
+        className={`${CARD_SIZE} block object-cover`}
         loading="lazy"
       />
     );
@@ -65,4 +64,3 @@ export function CardFace({ code }: { code: string }) {
     </span>
   );
 }
-

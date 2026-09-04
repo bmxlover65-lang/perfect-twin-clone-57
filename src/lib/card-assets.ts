@@ -51,4 +51,4 @@ export function cardImage(code: string): string | null {
 /** Shared card shape/size — identical across every game and stage (real card ratio 2.5:3.5).
  *  Matches the live table overlay: compact on mobile, slightly larger on desktop. */
 export const CARD_SIZE =
-  "h-[30px] w-[21px] shrink-0 rounded-[3px] shadow-md sm:h-[42px] sm:w-[30px] sm:rounded-[4px]";
+  "h-[36px] w-[25px] shrink-0 overflow-hidden rounded-[3px] shadow-md sm:h-[50px] sm:w-[34px] sm:rounded-[4px]";
