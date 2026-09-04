@@ -65,6 +65,12 @@ function rewriteStreamText(text: string, origin: string) {
   );
 }
 
+const RETRY_PAGE = `<!doctype html><html><head><meta charset="utf-8"/>
+<style>html,body{margin:0;height:100%;background:#000;color:#cfd6dd;font:13px/1.4 system-ui,sans-serif;display:flex;align-items:center;justify-content:center}</style>
+<script>setTimeout(function(){location.reload()},5000)</script>
+</head><body>Live TV reconnecting…</body></html>`;
+
+
 async function streamPage(rawUrl: string, origin: string, method = "GET", body?: string) {
   let target: URL;
   try {
