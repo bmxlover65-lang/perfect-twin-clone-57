@@ -212,6 +212,7 @@ function BaccaratPanel({
         ))}
         {pairSusp ? <Overlay /> : null}
       </div>
+      <ChipRow />
     </div>
 
   );
