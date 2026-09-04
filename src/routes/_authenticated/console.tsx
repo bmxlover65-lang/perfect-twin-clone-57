@@ -64,12 +64,14 @@ import {
 } from "@/components/dash";
 
 import { AdminGuide } from "@/components/dash-guide";
+import { AdminKit } from "@/components/console-kit";
 import { GameControl } from "@/components/game-control";
 import { BalloonPanel } from "@/components/BalloonPanel";
 
 const TABS = [
   { id: "overview", label: "Overview" },
   { id: "operators", label: "Operators" },
+  { id: "manage", label: "Manage operator" },
   { id: "keys", label: "API keys & access" },
   { id: "gamecontrol", label: "Game control" },
   { id: "balloon", label: "Balloon rounds" },
@@ -113,6 +115,7 @@ function ConsolePage() {
   const [sum, setSum] = useState<Awaited<ReturnType<typeof operatorSummary>> | null>(null);
   const [cred, setCred] = useState<Awaited<ReturnType<typeof provisionOperator>> | null>(null);
   const [pwd, setPwd] = useState<string>("");
+  const [userSel, setUserSel] = useState<string>("");
 
 
   const run = async (fn: () => Promise<void>) => {
@@ -161,6 +164,16 @@ function ConsolePage() {
   const staked = bets.reduce((s, b) => s + Number(b.stake), 0);
   const paid = bets.reduce((s, b) => s + Number(b.payout), 0);
   const openBets = bets.filter((b) => b.status === "open").length;
+
+  const current = ops.find((o) => o.id === sel) as (Operator & { callback_secret?: string }) | undefined;
+  const userBets = userSel ? bets.filter((b) => b.operator_user_id === userSel) : bets;
+  const userRow = (sum?.users ?? []).find((u) => u.userId === userSel);
+  const userIds = Array.from(new Set(bets.map((b) => String(b.operator_user_id ?? "")))).filter(Boolean);
+  const openManage = (id: string) => {
+    setSel(id);
+    setUserSel("");
+    setTab("manage");
+  };
 
   return (
     <DashShell
@@ -240,7 +253,11 @@ function ConsolePage() {
 
 
       {sel && tab === "users" ? (
-        <Panel title="Users & GGR (selected operator)">
+        <>
+        <Panel title={`Players & GGR · ${current?.name ?? ""}`}>
+          <p className="mb-2 text-xs text-muted-foreground">
+            Kisi bhi player par click karo — neeche sirf usi ki bet history aur totals dikhengi.
+          </p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead className="text-muted-foreground">
@@ -257,7 +274,13 @@ function ConsolePage() {
               </thead>
               <tbody>
                 {(sum?.users ?? []).map((u) => (
-                  <tr key={u.userId} className="border-t border-border">
+                  <tr
+                    key={u.userId}
+                    onClick={() => setUserSel(u.userId === userSel ? "" : u.userId)}
+                    className={`cursor-pointer border-t border-border hover:bg-muted/50 ${
+                      userSel === u.userId ? "bg-muted/60" : ""
+                    }`}
+                  >
                     <td className="p-2 font-mono">{u.userId}</td>
                     <td className="p-2 text-right">{u.bets}</td>
                     <td className="p-2 text-right">{u.open}</td>
@@ -281,6 +304,63 @@ function ConsolePage() {
             </table>
           </div>
         </Panel>
+
+        {userSel ? (
+          <Panel
+            title={`Player ${userSel}`}
+            action={
+              <button className={ghost} onClick={() => setUserSel("")}>
+                Clear
+              </button>
+            }
+          >
+            <div className="grid gap-3 sm:grid-cols-4">
+              <Stat label="Bets" value={String(userRow?.bets ?? userBets.length)} />
+              <Stat label="Staked" value={`₹${Math.round(userRow?.staked ?? 0).toLocaleString("en-IN")}`} />
+              <Stat label="Payout" value={`₹${Math.round(userRow?.payout ?? 0).toLocaleString("en-IN")}`} />
+              <Stat
+                label="GGR"
+                value={`₹${Math.round((userRow?.staked ?? 0) - (userRow?.payout ?? 0)).toLocaleString("en-IN")}`}
+              />
+            </div>
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead className="text-muted-foreground">
+                  <tr>
+                    <th className="p-2 text-left">Game</th>
+                    <th className="p-2 text-left">Round</th>
+                    <th className="p-2 text-left">Selection</th>
+                    <th className="p-2 text-right">Odds</th>
+                    <th className="p-2 text-right">Stake</th>
+                    <th className="p-2 text-right">Payout</th>
+                    <th className="p-2 text-left">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {userBets.map((b) => (
+                    <tr key={b.id} className="border-t border-border">
+                      <td className="p-2">{b.game_id}</td>
+                      <td className="p-2">{b.round_id}</td>
+                      <td className="p-2">{b.selection}</td>
+                      <td className="p-2 text-right">{Number(b.odds).toFixed(2)}</td>
+                      <td className="p-2 text-right">{Number(b.stake).toLocaleString("en-IN")}</td>
+                      <td className="p-2 text-right">{Number(b.payout).toLocaleString("en-IN")}</td>
+                      <td className="p-2">{b.status}</td>
+                    </tr>
+                  ))}
+                  {!userBets.length ? (
+                    <tr>
+                      <td className="p-3 text-muted-foreground" colSpan={7}>
+                        Is player ki koi bet nahi mili.
+                      </td>
+                    </tr>
+                  ) : null}
+                </tbody>
+              </table>
+            </div>
+          </Panel>
+        ) : null}
+        </>
       ) : null}
 
       {sel && tab === "rejected" ? (
@@ -462,7 +542,7 @@ function ConsolePage() {
                   </td>
                   <td className="max-w-[220px] truncate p-2">{o.callback_url ?? "—"}</td>
                   <td className="space-x-1 p-2 text-right">
-                    <button className={ghost} onClick={() => setSel(o.id)}>
+                    <button className={btn} onClick={() => openManage(o.id)}>
                       Manage
                     </button>
                     <button
@@ -511,8 +591,125 @@ function ConsolePage() {
 
       {sel ? (
         <>
+          {tab === "manage" && current ? (
+            <>
+              <Panel title={`Manage · ${current.name}`}>
+                <div className="grid gap-3 sm:grid-cols-4">
+                  <Stat label="Status" value={current.status} />
+                  <Stat
+                    label="Valid till"
+                    value={
+                      current.plan_expires_at
+                        ? new Date(current.plan_expires_at).toLocaleDateString()
+                        : "—"
+                    }
+                  />
+                  <Stat label="Active keys" value={String((detail?.keys ?? []).filter((k: any) => k.active).length)} />
+                  <Stat label="Players" value={String((sum?.users ?? []).length)} />
+                </div>
+
+                <form
+                  className="mt-4 grid gap-2 rounded-lg border border-border p-3 sm:grid-cols-[1fr_auto]"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const f = new FormData(e.currentTarget as HTMLFormElement);
+                    void run(async () => {
+                      await update({
+                        data: { id: current.id, callbackUrl: String(f.get("cb") || "") || null },
+                      });
+                      setNote("Callback wallet URL saved.");
+                      await refresh();
+                    });
+                  }}
+                >
+                  <label className="grid gap-1 text-xs text-muted-foreground">
+                    Callback wallet URL — is endpoint par hum balance / debit / credit / rollback bhejte hain
+                    <input
+                      name="cb"
+                      defaultValue={current.callback_url ?? ""}
+                      key={current.id + (current.callback_url ?? "")}
+                      placeholder="https://site.com/api/wallet"
+                      className={input}
+                    />
+                  </label>
+                  <div className="flex items-end">
+                    <button className={btn}>Save callback URL</button>
+                  </div>
+                  {current.callback_secret ? (
+                    <p className="text-[0.72rem] text-muted-foreground sm:col-span-2 break-all">
+                      Callback secret (HMAC-SHA256 of raw body → <code>x-signature</code>):{" "}
+                      <span className="font-mono text-foreground">{current.callback_secret}</span>
+                    </p>
+                  ) : null}
+                </form>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    className={ghost}
+                    onClick={() =>
+                      run(async () => {
+                        await update({
+                          data: {
+                            id: current.id,
+                            status: current.status === "active" ? "suspended" : "active",
+                          },
+                        });
+                        await refresh();
+                      })
+                    }
+                  >
+                    {current.status === "active" ? "Suspend operator" : "Activate operator"}
+                  </button>
+                  <button
+                    className={ghost}
+                    onClick={() =>
+                      run(async () => {
+                        await update({ data: { id: current.id, planDays: 30 } });
+                        setNote("Validity extended by 30 days.");
+                        await refresh();
+                      })
+                    }
+                  >
+                    Extend 30 days
+                  </button>
+                  <button className={ghost} onClick={() => setTab("keys")}>
+                    API keys & access
+                  </button>
+                  <button className={ghost} onClick={() => setTab("wallet")}>
+                    Test callback wallet
+                  </button>
+                  <button className={ghost} onClick={() => setTab("users")}>
+                    Players & GGR
+                  </button>
+                </div>
+              </Panel>
+
+              <Panel title="This operator at a glance">
+                <div className="grid gap-3 sm:grid-cols-4">
+                  <Stat label="Staked" value={`₹${Math.round(staked).toLocaleString("en-IN")}`} />
+                  <Stat label="Paid out" value={`₹${Math.round(paid).toLocaleString("en-IN")}`} />
+                  <Stat label="GGR" value={`₹${Math.round(staked - paid).toLocaleString("en-IN")}`} />
+                  <Stat label="Open bets" value={String(openBets)} />
+                </div>
+                <ul className="mt-3 space-y-1 text-xs">
+                  {cbLogs.slice(0, 8).map((l) => (
+                    <li key={l.id} className="border-t border-border py-1.5">
+                      <span className={l.ok ? "text-live-win" : "text-destructive"}>
+                        {l.ok ? "OK" : "FAIL"}
+                      </span>{" "}
+                      {l.endpoint} · {l.status_code} · {new Date(l.created_at).toLocaleTimeString()}
+                    </li>
+                  ))}
+                  {!cbLogs.length ? (
+                    <li className="text-muted-foreground">Abhi tak koi wallet callback nahi gaya.</li>
+                  ) : null}
+                </ul>
+              </Panel>
+            </>
+          ) : null}
+
           {tab === "keys" ? (
-          <Panel title="API keys & access">
+          <Panel title={`API keys & access · ${current?.name ?? ""}`}>
             <p className="text-xs text-muted-foreground">
               Har operator ko key issue karo. IP aur domain whitelist us key ke andar hi set hoti hai —
               key ke saath sirf wahi IP / domain kaam karenge. Whitelist khali chhodo to us key par koi
@@ -656,7 +853,21 @@ function ConsolePage() {
           ) : null}
 
           {tab === "wallet" ? (
-          <Panel title="Callback wallet test">
+          <Panel title={`Callback wallet test · ${current?.name ?? ""}`}>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Ye test aapke operator ke callback URL par ek signed request bhejta hai — bilkul waisi hi
+              jaisi hum real bet par bhejte hain. <b>balance</b> = player ka balance padho, <b>debit</b> =
+              bet lagte waqt paisa kaato, <b>credit</b> = jeetne par paisa do, <b>rollback</b> = round
+              cancel hone par debit wapas. Neeche har call ka result log dikhta hai.
+              {current?.callback_url ? (
+                <>
+                  {" "}Target: <span className="font-mono text-foreground">{current.callback_url}</span>
+                </>
+              ) : (
+                <> Abhi koi callback URL set nahi hai — Manage tab me daalein.</>
+              )}
+            </p>
+
 
             <form
               className="grid gap-2 sm:grid-cols-5"
@@ -708,11 +919,32 @@ function ConsolePage() {
 
           {tab === "aviator" ? <BalloonPanel heading="Aviator" /> : null}
 
-          {tab === "guide" ? <AdminGuide /> : null}
+          {tab === "guide" ? (
+            <>
+              <AdminKit />
+              <AdminGuide />
+            </>
+          ) : null}
 
           {tab === "bets" ? (
 
-          <Panel title="Bet ledger">
+          <Panel
+            title={`Bet history · ${current?.name ?? ""}`}
+            action={
+              <select
+                className={`${input} h-8 max-w-[200px]`}
+                value={userSel}
+                onChange={(e) => setUserSel(e.target.value)}
+              >
+                <option value="">All players</option>
+                {userIds.map((u) => (
+                  <option key={u} value={u}>
+                    {u}
+                  </option>
+                ))}
+              </select>
+            }
+          >
 
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
@@ -729,9 +961,13 @@ function ConsolePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {bets.map((b) => (
-                    <tr key={b.id} className="border-t border-border">
-                      <td className="p-2">{b.operator_user_id}</td>
+                  {userBets.map((b) => (
+                    <tr
+                      key={b.id}
+                      onClick={() => setUserSel(String(b.operator_user_id ?? ""))}
+                      className="cursor-pointer border-t border-border hover:bg-muted/50"
+                    >
+                      <td className="p-2 font-mono">{b.operator_user_id}</td>
                       <td className="p-2">{b.game_id}</td>
                       <td className="p-2">{b.round_id}</td>
                       <td className="p-2">{b.selection}</td>
@@ -741,7 +977,7 @@ function ConsolePage() {
                       <td className="p-2">{b.status}</td>
                     </tr>
                   ))}
-                  {!bets.length ? (
+                  {!userBets.length ? (
                     <tr>
                       <td className="p-3 text-muted-foreground" colSpan={8}>
                         No bets through the API yet.
