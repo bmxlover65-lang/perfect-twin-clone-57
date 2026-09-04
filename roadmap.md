@@ -49,13 +49,13 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [ ] Re-test every table at mobile and desktop widths with no runtime errors
 
 ## Phase 6 — Pending fixes (user list, Sep 5)
-- [ ] Dream Catcher + Lucky 0-9: chip amounts (100,200,500,1k,2k,5k,10k,25k,50k), show "U" in round middle, bigger wheel, different music
-- [ ] Baccarat + Muflis TP: chips (100…100k), card display like original
-- [ ] 20-20 TP + Lucky 7: Recent Result attached under last market; card display; Tie shown as "T"
+- [x] Dream Catcher + Lucky 0-9: chips 100…100k, "U" in wheel centre, bigger Dream wheel, own spin sound
+- [~] Baccarat + Muflis TP: chips done; card display pending
+- [~] 20-20 TP + Lucky 7: Recent Result attached + Tie shown as "T"; card display pending
 - [ ] 1Day TP + DTL: card display; Recent Result under last market; DTL rate box
 - [ ] 1 Day Dragon Tiger: rate box + video card display
 - [ ] Joker TP, 20-20 DT, Andar Bahar, 20-20 Poker, 32 Cards: cards + Recent Result under last market
 - [ ] Card Race: market box + Recent Result placement
 - [ ] Amar Akbar Anthony: rate box (Odd/Even, Colour, Under/Over) + cards
-- [ ] VIMAAN: spelling, first in lobby, Ball By Ball last, original flying + result
+- [~] VIMAAN: spelling + lobby order done; flying/result pending
 - [ ] Balloon: visuals, recent result, flying like original
