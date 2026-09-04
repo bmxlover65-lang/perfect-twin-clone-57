@@ -459,7 +459,7 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                 <div className="px-1 pb-1 text-center text-[0.72rem] font-bold uppercase text-[#0d2a3c]">
                   {(() => {
                     const label = String(names[String(r.selectionId)] ?? r.selectionId).trim();
-                    return RANKS.includes(label.toUpperCase())
+                    return /CARD/i.test(market.marketName ?? "") && RANKS.includes(label.toUpperCase())
                       ? <RankCardLabel rank={label.toUpperCase()} />
                       : <span className="block truncate">{label}</span>;
                   })()}
