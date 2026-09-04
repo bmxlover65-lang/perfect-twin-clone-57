@@ -92,7 +92,7 @@ function Lobby() {
             Universal API
           </p>
           <h1 className="mt-1.5 text-[2rem] font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-[2.4rem]">
-            Universe Live
+            Universe Live — Live Casino Games Lobby
           </h1>
 
           <p className="mt-2 max-w-[640px] text-[0.95rem] leading-relaxed text-muted-foreground">

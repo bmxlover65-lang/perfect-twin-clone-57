@@ -15,6 +15,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CasinoDocsRouteImport } from './routes/casino-docs'
 import { Route as MyBetsRouteImport } from './routes/my-bets'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SportsDocsRouteImport } from './routes/sports-docs'
 import { Route as AuthenticatedConsoleRouteImport } from './routes/_authenticated/console'
 import { Route as AuthenticatedOperatorRouteImport } from './routes/_authenticated/operator'
@@ -53,6 +54,11 @@ const CasinoDocsRoute = CasinoDocsRouteImport.update({
 const MyBetsRoute = MyBetsRouteImport.update({
   id: '/my-bets',
   path: '/my-bets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SportsDocsRoute = SportsDocsRouteImport.update({
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/casino-docs': typeof CasinoDocsRoute
   '/my-bets': typeof MyBetsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sports-docs': typeof SportsDocsRoute
   '/console': typeof AuthenticatedConsoleRoute
   '/operator': typeof AuthenticatedOperatorRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/casino-docs': typeof CasinoDocsRoute
   '/my-bets': typeof MyBetsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sports-docs': typeof SportsDocsRoute
   '/console': typeof AuthenticatedConsoleRoute
   '/operator': typeof AuthenticatedOperatorRoute
@@ -148,6 +156,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/casino-docs': typeof CasinoDocsRoute
   '/my-bets': typeof MyBetsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sports-docs': typeof SportsDocsRoute
   '/_authenticated/console': typeof AuthenticatedConsoleRoute
   '/_authenticated/operator': typeof AuthenticatedOperatorRoute
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/casino-docs'
     | '/my-bets'
+    | '/sitemap.xml'
     | '/sports-docs'
     | '/console'
     | '/operator'
@@ -184,6 +194,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/casino-docs'
     | '/my-bets'
+    | '/sitemap.xml'
     | '/sports-docs'
     | '/console'
     | '/operator'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/casino-docs'
     | '/my-bets'
+    | '/sitemap.xml'
     | '/sports-docs'
     | '/_authenticated/console'
     | '/_authenticated/operator'
@@ -221,6 +233,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CasinoDocsRoute: typeof CasinoDocsRoute
   MyBetsRoute: typeof MyBetsRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SportsDocsRoute: typeof SportsDocsRoute
   GamesGameIdRoute: typeof GamesGameIdRoute
   SportsIndexRoute: typeof SportsIndexRoute
@@ -273,6 +286,13 @@ declare module '@tanstack/react-router' {
       path: '/my-bets'
       fullPath: '/my-bets'
       preLoaderRoute: typeof MyBetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sports-docs': {
@@ -368,6 +388,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CasinoDocsRoute: CasinoDocsRoute,
   MyBetsRoute: MyBetsRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   SportsDocsRoute: SportsDocsRoute,
   GamesGameIdRoute: GamesGameIdRoute,
   SportsIndexRoute: SportsIndexRoute,

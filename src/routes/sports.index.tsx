@@ -140,7 +140,7 @@ function SportsPage() {
     <div className="mx-auto max-w-[1200px] px-4 py-8">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Sports</h1>
+          <h1 className="text-3xl font-bold text-foreground">Live Sports Events &amp; Odds</h1>
           <p className="mt-2 max-w-[620px] text-muted-foreground">
             All events for each sport (in-play + pre-match). Open one to verify odds, TV, and
             scoreboard.
