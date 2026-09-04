@@ -529,7 +529,7 @@ function OperatorPage() {
                 </p>
               </Panel>
 
-              <Panel title="Test your wallet">
+              <Panel title="Test your callback (wallet)">
                 <div className="flex flex-wrap items-center gap-2">
                   <input
                     value={userId}
@@ -537,22 +537,48 @@ function OperatorPage() {
                     placeholder="your user id"
                     className={`${input} max-w-[220px]`}
                   />
+                  <select
+                    className={input}
+                    value={testAction}
+                    onChange={(e) => setTestAction(e.target.value as typeof testAction)}
+                  >
+                    <option value="balance">balance</option>
+                    <option value="debit">debit</option>
+                    <option value="credit">credit</option>
+                    <option value="rollback">rollback</option>
+                  </select>
+                  <input
+                    value={testAmount}
+                    onChange={(e) => setTestAmount(e.target.value)}
+                    placeholder="amount"
+                    className={`${input} max-w-[120px]`}
+                  />
                   <button
                     className={btn}
                     onClick={() =>
                       run(async () => {
                         const r = await walletTest({
-                          data: { operatorId: sel, action: "balance", userId, amount: 0 },
+                          data: {
+                            operatorId: sel,
+                            action: testAction,
+                            userId,
+                            amount: testAction === "balance" ? 0 : Number(testAmount) || 0,
+                          },
                         });
-                        setBalance(r.ok ? String(r.balance ?? "—") : `error: ${r.message}`);
+                        setBalance(
+                          r.ok ? `OK · balance ${r.balance ?? "—"}` : `error: ${r.message}`,
+                        );
                         await load(sel);
                       })
                     }
                   >
-                    Fetch balance
+                    Send test call
                   </button>
-                  <span className="text-sm font-bold text-foreground">Balance: {balance}</span>
+                  <span className="text-sm font-bold text-foreground">Result: {balance}</span>
                 </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Yeh aapke callback URL pe signed request bhejta hai — response niche "Callback logs" me dikhega.
+                </p>
               </Panel>
 
               <Panel title="Callback logs">
