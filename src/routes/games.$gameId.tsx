@@ -78,8 +78,10 @@ export const Route = createFileRoute("/games/$gameId")({
 /** Strip table-suffixes like " - A" / " B" from the feed's event name. */
 function cleanGameName(name?: string | null): string | undefined {
   if (!name) return undefined;
-  return name.replace(/\s*[-–]\s*[A-Z]$/i, "").trim();
+  const cleaned = name.replace(/\s*[-–]\s*[A-Z]$/i, "").trim();
+  return /card\s*race/i.test(cleaned) ? "CARD RACE" : cleaned;
 }
+
 
 /** Andar Bahar shows the two rows as plain "A" / "B" like the live table. */
 function isAndarBahar(name?: string | null): boolean {
