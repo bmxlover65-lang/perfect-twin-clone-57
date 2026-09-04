@@ -2270,19 +2270,20 @@ function deriveWinner(r?: AnyResult): string {
   const nested = (r.results ?? []).find((m) => /winner/i.test(m.marketName ?? "")) ?? r.results?.[0];
   const nRunners = nested?.runners as unknown;
   if (!nested) return flat;
+  let derived = "";
   if (Array.isArray(nRunners)) {
     const w = (nRunners as { selectionId?: string | number; result?: string }[]).find(
       (x) => x.result === "WINNER",
     );
-    return w ? ((nested.runnersName ?? {})[String(w.selectionId)] ?? "") : "";
-  }
-  if (nRunners && typeof nRunners === "object") {
+    if (w) derived = (nested.runnersName ?? {})[String(w.selectionId)] ?? "";
+  } else if (nRunners && typeof nRunners === "object") {
     const id = Object.entries(nRunners as Record<string, string>).find(
       ([, v]) => v === "WINNER",
     )?.[0];
-    return id ? ((nested.runnersName ?? {})[id] ?? "") : "";
+    if (id) derived = (nested.runnersName ?? {})[id] ?? "";
   }
-  return "";
+  // Prefer the human-readable nested name; fall back to the flat winner.
+  return derived || flat.replace(/_/g, " ");
 }
 
 function ResultBanner({
