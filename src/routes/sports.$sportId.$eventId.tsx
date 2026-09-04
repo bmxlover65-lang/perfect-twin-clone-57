@@ -228,6 +228,8 @@ function EventPage() {
   const [error, setError] = useState<string | null>(null);
   const closedSince = useRef<number>(0);
   const [age, setAge] = useState(0);
+  const [tvKey, setTvKey] = useState(0);
+
 
   const load = useCallback(async () => {
     try {
