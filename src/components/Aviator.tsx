@@ -485,6 +485,205 @@ function MobileCenterActions({
   );
 }
 
+/* ---------------- desktop bet board (Bet | Auto tabs) ---------------- */
+
+const DESKTOP_PRESETS = [10, 50, 100, 500, 1000, 2500, 5000, 10000];
+
+function DesktopBetBoard({
+  slots,
+  setSlot,
+  setAll,
+  phase,
+  multiplier,
+  onWin,
+  balance,
+}: {
+  slots: PanelState[];
+  setSlot: (i: number, fn: (p: PanelState) => PanelState) => void;
+  setAll: (fn: (p: PanelState) => PanelState) => void;
+  phase: Phase;
+  multiplier: number;
+  onWin: (amount: number) => void;
+  balance: number;
+}) {
+  const mode = slots[0]?.mode ?? "bet";
+  const [editing, setEditing] = useState(false);
+  const [custom, setCustom] = useState("");
+
+  const cell =
+    "h-[34px] rounded-[10px] bg-[#17191C] text-[0.82rem] font-semibold text-[#C6C9CE] transition-colors hover:bg-[#1E2124]";
+
+  const press = (i: number) => {
+    const s = slots[i];
+    if (!s) return;
+    const canCash = phase === "flying" && s.active && s.cashedAt === null;
+    const pending = s.staged || (s.active && s.cashedAt === null);
+    if (canCash) {
+      onWin(s.amount * multiplier);
+      setSlot(i, (p) => ({ ...p, cashedAt: multiplier }));
+      return;
+    }
+    if (pending) {
+      setSlot(i, (p) => ({ ...p, staged: false, active: false }));
+      return;
+    }
+    if (s.amount > balance) return;
+    setSlot(i, (p) => ({ ...p, staged: true, cashedAt: null }));
+  };
+
+  return (
+    <div className="flex flex-col gap-[10px]">
+      <div className="flex justify-center">
+        <div className="flex w-[220px] rounded-[8px] bg-[#0B0C0E] p-[3px] text-[0.78rem] font-semibold text-white/55">
+          {(["bet", "auto"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setAll((p) => ({ ...p, mode: m }))}
+              className={`flex-1 rounded-[6px] py-[4px] capitalize ${
+                mode === m ? "bg-[#2C2D30] text-white" : ""
+              }`}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {editing ? (
+        <div className="flex items-center justify-center gap-2">
+          <input
+            type="number"
+            value={custom}
+            placeholder="Custom amount"
+            onChange={(e) => setCustom(e.target.value)}
+            className="h-[34px] w-[180px] rounded-[10px] bg-[#17191C] px-3 text-center text-[0.82rem] font-semibold text-white outline-none"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              const v = Number(custom);
+              if (Number.isFinite(v) && v >= 10) setAll((p) => ({ ...p, amount: v }));
+              setEditing(false);
+            }}
+            className="h-[34px] rounded-[10px] bg-[#16A62A] px-4 text-[0.8rem] font-semibold text-white"
+          >
+            Apply
+          </button>
+        </div>
+      ) : null}
+
+      <div className="grid grid-cols-4 gap-[10px]">
+        {DESKTOP_PRESETS.map((q) => (
+          <button
+            key={q}
+            type="button"
+            onClick={() => setAll((p) => ({ ...p, amount: q }))}
+            className={`${cell} ${slots[0]?.amount === q ? "text-white" : ""}`}
+          >
+            {q}
+          </button>
+        ))}
+        <button type="button" onClick={() => setAll((p) => ({ ...p, amount: 10 }))} className={cell}>
+          Min
+        </button>
+        <button
+          type="button"
+          onClick={() => setAll((p) => ({ ...p, amount: 10000 }))}
+          className={cell}
+        >
+          Max
+        </button>
+        <button
+          type="button"
+          onClick={() => setEditing((v) => !v)}
+          className="h-[34px] rounded-[10px] bg-[#D9821A] text-[0.82rem] font-semibold text-white"
+        >
+          Edit
+        </button>
+        <button
+          type="button"
+          onClick={() => setAll((p) => ({ ...p, amount: 10, staged: false }))}
+          className="h-[34px] rounded-[10px] bg-[#F20000] text-[0.82rem] font-semibold text-white"
+        >
+          Clear
+        </button>
+      </div>
+
+      <div className="grid grid-cols-4 gap-[10px]">
+        {slots.map((s, i) => {
+          const canCash = phase === "flying" && s.active && s.cashedAt === null;
+          const pending = s.staged || (s.active && s.cashedAt === null);
+          const tone = canCash ? "bg-[#F59E0B]" : pending ? "bg-[#EF0000]" : "bg-[#22B322]";
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => press(i)}
+              className={`h-[34px] rounded-[10px] text-[0.85rem] font-semibold text-white ${tone}`}
+            >
+              {canCash
+                ? `Cash Out ${fmt(s.amount * multiplier)}`
+                : pending
+                  ? "Cancel"
+                  : "Cash In"}
+            </button>
+          );
+        })}
+      </div>
+
+      {mode === "auto" ? (
+        <div className="grid grid-cols-4 gap-[10px]">
+          {slots.map((s, i) => (
+            <div key={i} className="flex items-center gap-[8px]">
+              <button
+                type="button"
+                onClick={() => setSlot(i, (p) => ({ ...p, auto: !p.auto }))}
+                aria-pressed={s.auto}
+                className={`relative h-[18px] w-[36px] shrink-0 rounded-full transition-colors ${
+                  s.auto ? "bg-[#16A62A]" : "bg-[#2A2C30]"
+                }`}
+              >
+                <span
+                  className={`absolute top-[2px] h-[14px] w-[14px] rounded-full bg-white transition-all ${
+                    s.auto ? "left-[20px]" : "left-[2px]"
+                  }`}
+                />
+              </button>
+              <div className="flex min-w-0 flex-1 items-center gap-1 rounded-[8px] bg-[#0B0C0E] px-3 py-[4px]">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="1.01"
+                  value={s.autoCashout}
+                  onChange={(e) => {
+                    const v = Number(e.target.value);
+                    setSlot(i, (p) => ({
+                      ...p,
+                      autoCashout: Number.isFinite(v) ? v : p.autoCashout,
+                    }));
+                  }}
+                  className="min-w-0 flex-1 bg-transparent text-center text-[0.8rem] font-bold text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setSlot(i, (p) => ({ ...p, autoCashout: 1.1, auto: false }))}
+                  aria-label="Clear auto cashout"
+                  className="shrink-0 text-[0.85rem] leading-none text-white/45 hover:text-white"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+
+
 
 
 
