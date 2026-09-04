@@ -5,7 +5,12 @@ import { useEmbed } from "@/lib/embed";
 
 export type Pick = { label: string; odds: number };
 
-const CHIPS = [100, 200, 500, 1000, 10000, 25000, 50000, 100000];
+const CHIPS = [100, 200, 500, 1000, 2000, 5000, 10000, 25000, 50000, 100000];
+
+/** Short chip label: 1000 → 1k, 25000 → 25k. */
+function chipText(v: number) {
+  return v >= 1000 ? `${v / 1000}k` : String(v);
+}
 
 const DEFAULT_STAKE = 1000;
 const LAST_STAKE_KEY = "uapi.lastStake";
@@ -333,7 +338,7 @@ export function BetLayer({
                 <Stepper value={stake} onChange={(v) => setStake(v)} step={100} decimals={0} />
               </div>
 
-              <div className="mt-2 grid grid-cols-4 gap-2">
+              <div className="mt-2 grid grid-cols-5 gap-1.5">
                 {CHIPS.map((c) => (
                   <button
                     key={c}
@@ -348,10 +353,11 @@ export function BetLayer({
                         : "border-[#c9d6de] bg-white text-[#20384a]"
                     }`}
                   >
-                    {c.toLocaleString("en-IN")}
+                    {chipText(c)}
                   </button>
                 ))}
               </div>
+
 
 
               <div className="mt-2 flex items-center justify-between px-1 text-[0.75rem] font-bold text-[#4a6274]">

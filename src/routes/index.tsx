@@ -32,9 +32,14 @@ function hue(id: string, offset: number) {
   return (h + offset) % 360;
 }
 
+/** Feed sometimes spells the plane game "VIMAN" — always show "VIMAAN". */
+function fixName(name: string) {
+  return name.replace(/\bVIMAN\b/gi, "VIMAAN");
+}
+
 function toDef(g: CasinoGame): GameDef {
   const local = GAMES.find((x) => x.id === g.eventId);
-  if (local) return { ...local, name: g.eventName };
+  if (local) return { ...local, name: fixName(g.eventName) };
   const words = g.eventName.split(/\s+/).filter(Boolean);
   const glyph = words
     .slice(0, 2)
@@ -78,10 +83,13 @@ function Lobby() {
   }, [load]);
 
   const BBB = "4.3544687543453";
+  const VIMAAN = "88.0030";
   const fromApi = games.length ? games.map(toDef) : GAMES;
   const extras = GAMES.filter((g) => !fromApi.some((x) => x.id === g.id));
   const raw = [...fromApi, ...extras];
-  const list = [...raw].sort((a, b) => (a.id === BBB ? -1 : b.id === BBB ? 1 : 0));
+  // VIMAAN always first, Ball by Ball always last.
+  const rank = (id: string) => (id === VIMAAN ? -1 : id === BBB ? 1 : 0);
+  const list = [...raw].sort((a, b) => rank(a.id) - rank(b.id));
 
 
   return (

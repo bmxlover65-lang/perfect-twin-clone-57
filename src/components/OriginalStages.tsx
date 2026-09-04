@@ -139,6 +139,9 @@ export function LuckyWheel({
             })}
             <circle cx={cx} cy={cy} r={54} fill="#151515" stroke="#F2C500" strokeWidth={2} />
           </svg>
+          <span className="pointer-events-none absolute left-1/2 top-1/2 flex h-[86px] w-[86px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-[#F2C500] bg-[#151515] text-[2.2rem] font-black leading-none text-[#F2C500]">
+            U
+          </span>
           <span className="pointer-events-none absolute left-1/2 top-[-4px] -translate-x-1/2 text-[1.4rem] leading-none text-[#F2C500]">
             ▼
           </span>
@@ -156,6 +159,37 @@ export function LuckyWheel({
 }
 
 /* ---------- Dream Catcher wheel ---------- */
+
+/** Dream Catcher's own sound: a slowing flapper tick, different from Lucky 0-9. */
+function playDreamSpin() {
+  try {
+    const Ctx =
+      window.AudioContext ??
+      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    const start = ctx.currentTime;
+    let t = 0;
+    let gap = 0.045;
+    while (t < 6) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "square";
+      osc.frequency.value = 1400 - t * 90;
+      gain.gain.setValueAtTime(0.09, start + t);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + t + 0.035);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(start + t);
+      osc.stop(start + t + 0.04);
+      t += gap;
+      gap *= 1.045;
+    }
+    window.setTimeout(() => void ctx.close().catch(() => undefined), 7000);
+  } catch {
+    // audio unavailable
+  }
+}
+
 
 const DREAM_SEGMENTS: number[] = (() => {
   const out: number[] = [];
@@ -205,13 +239,7 @@ export function DreamWheel({
     setShowWin(false);
     setSpin(true);
     setRot(base + 360 * 6 - seg);
-    try {
-      const audio = new Audio("/wheel-spin.mp3");
-      audio.volume = 0.6;
-      void audio.play().catch(() => undefined);
-    } catch {
-      // audio not available
-    }
+    playDreamSpin();
     const t = window.setTimeout(() => {
       setSpin(false);
       setShowWin(true);
@@ -248,7 +276,7 @@ export function DreamWheel({
             transition: spin ? "transform 6s cubic-bezier(0.12,0.7,0.12,1)" : "none",
           }}
         >
-          <svg viewBox="0 0 400 400" className="h-[300px] w-[300px] max-w-full drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)] sm:h-[420px] sm:w-[420px]">
+          <svg viewBox="0 0 400 400" className="h-[360px] w-[360px] max-w-full drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)] sm:h-[540px] sm:w-[540px]">
             <circle cx={cx} cy={cy} r={r + 6} fill="#111" />
             {DREAM_SEGMENTS.map((v, i) => {
               const a0 = i * step;
@@ -285,12 +313,16 @@ export function DreamWheel({
         <img
           src={dreamHub.url}
           alt=""
-          className="pointer-events-none absolute left-1/2 top-1/2 h-[92px] w-[92px] -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-[128px] sm:w-[128px]"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[110px] w-[110px] -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-[164px] sm:w-[164px]"
         />
+        <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[2.4rem] font-black leading-none text-[#F2C500] drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] sm:text-[3.4rem]">
+          U
+        </span>
 
         <span className="pointer-events-none absolute left-1/2 top-[-14px] -translate-x-1/2 text-[1.7rem] leading-none text-[#F2C500] drop-shadow">
           ▼
         </span>
+
 
         {showWin && winner ? (
           <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-[#F2C500] px-4 py-1 text-[0.8rem] font-extrabold uppercase text-black">
