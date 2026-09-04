@@ -31,6 +31,7 @@ export const createOperator = createServerFn({ method: "POST" })
         callbackUrl: z.string().url().optional(),
         planAmount: z.number().min(0).default(0),
         planDays: z.number().min(1).max(3650).default(30),
+        products: z.array(z.enum(["casino", "sports"])).min(1).default(["casino", "sports"]),
       })
       .parse(input),
   )
@@ -48,6 +49,7 @@ export const createOperator = createServerFn({ method: "POST" })
         callback_secret: callbackSecret,
         plan_amount: data.planAmount,
         plan_expires_at: expires,
+        products: data.products,
       })
       .select("*")
       .single();
@@ -65,6 +67,7 @@ export const updateOperator = createServerFn({ method: "POST" })
         status: z.enum(["active", "suspended"]).optional(),
         planDays: z.number().min(0).max(3650).optional(),
         planAmount: z.number().min(0).optional(),
+        products: z.array(z.enum(["casino", "sports"])).min(1).optional(),
       })
       .parse(input),
   )
@@ -75,6 +78,7 @@ export const updateOperator = createServerFn({ method: "POST" })
     if (data.callbackUrl !== undefined) patch['callback_url'] = data.callbackUrl;
     if (data.status) patch['status'] = data.status;
     if (data.planAmount !== undefined) patch['plan_amount'] = data.planAmount;
+    if (data.products) patch['products'] = data.products;
     if (data.planDays) patch['plan_expires_at'] = new Date(Date.now() + data.planDays * 864e5).toISOString();
     const { error } = await supabaseAdmin.from("operators").update(patch as never).eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -85,7 +89,13 @@ export const updateOperator = createServerFn({ method: "POST" })
 export const issueApiKey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ operatorId: z.string().uuid(), label: z.string().max(40).default("default") }).parse(input),
+    z
+      .object({
+        operatorId: z.string().uuid(),
+        label: z.string().max(40).default("default"),
+        products: z.array(z.enum(["casino", "sports"])).min(1).default(["casino", "sports"]),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
@@ -99,6 +109,7 @@ export const issueApiKey = createServerFn({ method: "POST" })
       label: data.label,
       key_prefix: prefix,
       key_hash: hashKey(key),
+      products: data.products,
     });
     if (error) throw new Error(error.message);
     return { apiKey: key, prefix };
@@ -111,6 +122,28 @@ export const revokeApiKey = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("api_keys").update({ active: false }).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Casino / sports scope for one API key. */
+export const setKeyProducts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        products: z.array(z.enum(["casino", "sports"])).min(1),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("api_keys")
+      .update({ products: data.products })
+      .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -163,7 +196,7 @@ export const listWhitelist = createServerFn({ method: "POST" })
       context.supabase.from("domain_whitelist").select("*").eq("operator_id", data.operatorId),
       context.supabase
         .from("api_keys")
-        .select("id, label, key_prefix, active, last_used_at, created_at")
+        .select("id, label, key_prefix, active, last_used_at, created_at, products")
         .eq("operator_id", data.operatorId)
         .order("created_at", { ascending: false }),
     ]);
@@ -286,6 +319,7 @@ export const provisionOperator = createServerFn({ method: "POST" })
         password: z.string().min(6).max(72),
         callbackUrl: z.string().url().optional(),
         days: z.number().min(1).max(3650).default(30),
+        products: z.array(z.enum(["casino", "sports"])).min(1).default(["casino", "sports"]),
       })
       .parse(input),
   )
@@ -331,6 +365,7 @@ export const provisionOperator = createServerFn({ method: "POST" })
         callback_secret: callbackSecret,
         plan_amount: 0,
         plan_expires_at: expires,
+        products: data.products,
         owner_id: userId,
       })
       .select("*")
@@ -346,6 +381,7 @@ export const provisionOperator = createServerFn({ method: "POST" })
       label: "default",
       key_prefix: prefix,
       key_hash: hashKey(apiKey),
+      products: data.products,
     });
     if (ke) throw new Error(ke.message);
 
