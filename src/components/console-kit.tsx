@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Panel, dashGhost as ghost } from "@/components/dash";
+import { GAMES } from "@/data/games";
 
 const BASE = "https://universeapi.store";
 
@@ -369,6 +370,34 @@ const ENDPOINTS: [string, string][] = [
   ["WS  /ws/sports?sportId=&exEventId=&apiKey=", "Odds push"],
 ];
 
+const GAME_JSON = JSON.stringify(
+  {
+    status: "ok",
+    count: GAMES.length,
+    games: GAMES.map((g) => ({
+      gameId: g.id,
+      name: g.name,
+      type: g.kind,
+      product: "casino",
+      markets: g.markets.map((m) => ({
+        market: m.name,
+        selections: m.selections.map((sel) => ({ selection: sel.name, odds: sel.odds })),
+      })),
+      launchUrl: `${BASE}/games/${g.id}?embed=1&apiKey=YOUR_KEY&userId=PLAYER_ID`,
+      image: g.image ?? null,
+    })),
+  },
+  null,
+  2,
+);
+
+const GAME_FETCH = `// Live list — same shape as below, always current
+const res = await fetch("${BASE}/api/public/v1/games", {
+  headers: { "x-api-key": process.env.UNIVERSE_API_KEY },
+});
+const { games } = await res.json();
+// games[i].gameId ko /state, /bet aur launch URL me use karein`;
+
 export function AdminKit({ role = "admin" }: { role?: "admin" | "operator" } = {}) {
   const [lang, setLang] = useState<string>("node");
   const active = LANGS.find((l) => l.id === lang) ?? LANGS[0];
@@ -409,6 +438,21 @@ export function AdminKit({ role = "admin" }: { role?: "admin" | "operator" } = {
             Sports docs
           </a>
         </p>
+      </Panel>
+
+      <Panel title="Casino game list (JSON)">
+        <div className="space-y-4">
+          <Block
+            title="Fetch the live list"
+            note="Yahi list API se aati hai — apne lobby me isi ko render karein."
+            code={GAME_FETCH}
+          />
+          <Block
+            title="All casino games — full JSON"
+            note={`${GAMES.length} games: gameId, markets, selections, odds aur ready launch URL.`}
+            code={GAME_JSON}
+          />
+        </div>
       </Panel>
 
       <Panel
