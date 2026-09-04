@@ -258,3 +258,45 @@ export const operatorSummary = createServerFn({ method: "POST" })
       },
     };
   });
+
+/** Operator self-service: add own IP / domain to the whitelist. */
+export const myWhitelistAdd = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        operatorId: z.string().uuid(),
+        kind: z.enum(["ip", "domain"]),
+        value: z.string().min(3).max(120),
+        apiKeyId: z.string().uuid().nullable().optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const table = data.kind === "ip" ? "ip_whitelist" : "domain_whitelist";
+    const value =
+      data.kind === "ip"
+        ? data.value.trim()
+        : data.value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0];
+    const payload = {
+      operator_id: data.operatorId,
+      api_key_id: data.apiKeyId ?? null,
+      ...(data.kind === "ip" ? { ip: value } : { domain: value }),
+    };
+    const { error } = await context.supabase.from(table).insert(payload as never);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Operator self-service: remove one of its own whitelist entries. */
+export const myWhitelistRemove = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ id: z.string().uuid(), kind: z.enum(["ip", "domain"]) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const table = data.kind === "ip" ? "ip_whitelist" : "domain_whitelist";
+    const { error } = await context.supabase.from(table).delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
