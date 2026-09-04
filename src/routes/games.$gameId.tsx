@@ -642,11 +642,11 @@ function DTLPanel({
         {cards.map((r) => {
           const rank = r.label.replace(`${tab} `, "");
           return (
-            <div key={r.id} className="w-[48px] text-center">
-              <div className="relative flex h-[52px] flex-col items-center justify-center rounded-[2px] bg-gradient-to-b from-[#d9d9d9] to-[#a8a8a8] text-[1.15rem] font-extrabold text-[#111]">
+            <div key={r.id} className="w-[44px] text-center">
+              <div className="relative flex h-[56px] flex-col items-center justify-center rounded-[3px] border border-[#4A5058] bg-gradient-to-b from-[#3A4048] to-[#22272D] text-[1.05rem] font-extrabold text-white/90">
                 {rank}
-                <span className="absolute bottom-0.5 left-0.5 text-[0.6rem] text-[#111]">♣ ♠</span>
-                <span className="absolute bottom-0.5 right-0.5 text-[0.6rem] text-[#E0393B]">♥ ♦</span>
+                <span className="absolute bottom-0.5 left-0.5 text-[0.55rem] text-white/70">♣ ♠</span>
+                <span className="absolute bottom-0.5 right-0.5 text-[0.55rem] text-[#E0393B]">♥ ♦</span>
                 {!r.open ? (
                   <span className="absolute inset-0 flex items-center justify-center text-base">🔒</span>
                 ) : null}
@@ -658,6 +658,7 @@ function DTLPanel({
           );
         })}
       </div>
+
     </div>
   );
 }
