@@ -135,6 +135,7 @@ type PanelState = {
   staged: boolean; // queued for next round
   active: boolean; // in play this round
   cashedAt: number | null;
+  mode: "bet" | "auto";
   auto: boolean;
   autoCashout: number;
 };
@@ -144,9 +145,36 @@ const initialPanel = (amount: number): PanelState => ({
   staged: false,
   active: false,
   cashedAt: null,
+  mode: "bet",
   auto: false,
   autoCashout: 1.1,
 });
+
+/** Small Bet | Auto pill toggle shown at the top of every bet panel. */
+function PanelModeTabs({
+  state,
+  setState,
+}: {
+  state: PanelState;
+  setState: (fn: (p: PanelState) => PanelState) => void;
+}) {
+  return (
+    <div className="flex w-[110px] rounded-full bg-[#0B0C0E] p-[3px] text-[0.62rem] font-bold uppercase tracking-wide text-white/55">
+      {(["bet", "auto"] as const).map((m) => (
+        <button
+          key={m}
+          type="button"
+          onClick={() => setState((p) => ({ ...p, mode: m }))}
+          className={`flex-1 rounded-full py-[3px] capitalize ${
+            state.mode === m ? "bg-[#2C2D30] text-white" : ""
+          }`}
+        >
+          {m}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 const QUICK = [100, 200, 500, 1000];
 
