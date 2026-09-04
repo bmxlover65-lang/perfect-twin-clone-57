@@ -552,6 +552,7 @@ function ConsolePage() {
               <tr>
                 <th className="p-2 text-left">Name</th>
                 <th className="p-2 text-left">Status</th>
+                <th className="p-2 text-left">API access</th>
                 <th className="p-2 text-left">Expires</th>
                 <th className="p-2 text-left">Callback</th>
                 <th className="p-2" />
