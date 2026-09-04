@@ -1356,23 +1356,6 @@ export function Aviator() {
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} feedLive={feedLive} />
 
           <div className="rounded-[12px] border border-[#292D32] bg-[#111315] p-2 sm:p-4">
-            <div className="mx-auto mb-2 flex w-[205px] rounded-full bg-[#0B0C0E] p-[3px] text-[0.72rem] font-bold text-white/55 sm:mb-3 sm:w-[220px] sm:p-[4px] sm:text-[0.78rem]">
-              {(["bet", "auto"] as const).map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => {
-                    setMode(m);
-                  }}
-                  className={`flex-1 rounded-full py-[5px] capitalize sm:py-[6px] ${
-                    mode === m ? "bg-[#2C2D30] text-white" : ""
-                  }`}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
-
             {/* mobile: two bet slots, same as the original app */}
             <div className="grid grid-cols-2 items-start gap-2 sm:hidden">
               {slots.map((s, i) => (
@@ -1384,7 +1367,6 @@ export function Aviator() {
                   multiplier={multiplier}
                   onWin={win}
                   balance={balance}
-                  mode={mode}
                 />
               ))}
             </div>
