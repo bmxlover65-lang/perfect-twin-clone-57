@@ -127,10 +127,15 @@ function ConsolePage() {
 
   const refresh = useCallback(async () => {
     const r = await me();
-    setInfo({ isAdmin: r.isAdmin, email: r.email });
+    // Admin console is admin-only: an operator login is sent to its own panel.
+    if (!r.isAdmin && !r.canClaimAdmin) {
+      void navigate({ to: "/operator", replace: true });
+      return;
+    }
+    setInfo({ isAdmin: r.isAdmin, canClaimAdmin: r.canClaimAdmin, email: r.email });
     setOps(r.operators as Operator[]);
     if (!sel && r.operators.length) setSel(r.operators[0]!.id);
-  }, [me, sel]);
+  }, [me, sel, navigate]);
 
   useEffect(() => {
     void run(refresh);
