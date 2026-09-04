@@ -1016,11 +1016,6 @@ function ConsolePage() {
           </Panel>
           ) : null}
 
-          {tab === "gamecontrol" ? <GameControl /> : null}
-
-          {tab === "balloon" ? <BalloonPanel /> : null}
-
-          {tab === "aviator" ? <BalloonPanel heading="Aviator" /> : null}
 
           {tab === "guide" ? (
             <>
