@@ -579,7 +579,7 @@ function DesktopBetBoard({
             key={q}
             type="button"
             onClick={() => setAll((p) => ({ ...p, amount: q }))}
-            className={`${cell} ${slots[0]?.amount === q ? "border-[#F20000] text-white" : ""}`}
+            className={`${cell} ${slots[0]?.amount === q ? "border-[#F20000] text-white" : "border-transparent"}`}
           >
             {q}
           </button>
