@@ -337,7 +337,6 @@ function ConsolePage() {
                     <th className="p-2 text-right">Stake</th>
                     <th className="p-2 text-right">Payout</th>
                     <th className="p-2 text-left">Status</th>
-                <th className="p-2 text-left">API access</th>
                   </tr>
                 </thead>
                 <tbody>
