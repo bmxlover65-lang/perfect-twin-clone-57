@@ -40,3 +40,10 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
       per-user activity, bet history, rejected bets, self-service callback URL + secret rotate
 - [x] `bet_rejections` table — har failed bet attempt (invalid key, closed round, wallet decline) log hoti hai
 - [x] Public API smoke-tested: balance / bet (idempotent) / bets, invalid key + wallet decline paths
+
+## Phase 5 — Original table parity (in progress)
+- [ ] Compare all 21 casino games against universeapi.shop at mobile width
+- [ ] Verify video area, timer, round ID, live cards and result banner per table
+- [ ] Match every game's market names, order, layout, odds/lock states and min/max text
+- [ ] Match recent-result labels/colors and table-specific result rules
+- [ ] Re-test every table at mobile and desktop widths with no runtime errors
