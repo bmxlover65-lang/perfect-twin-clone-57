@@ -1837,8 +1837,9 @@ function GamePage() {
         .then((r) => alive && setResults(r.data ?? []))
         .catch(() => undefined);
     void run();
-    const burst = [300, 800, 1500, 2500].map((ms) => setTimeout(run, ms));
-    const t = setInterval(run, 1500);
+    const burst = [200, 500, 900, 1400, 2000, 2800].map((ms) => setTimeout(run, ms));
+    const t = setInterval(run, 600);
+
     return () => {
       alive = false;
       burst.forEach(clearTimeout);
@@ -1872,7 +1873,35 @@ function GamePage() {
   const status = (d?.status ?? "").toUpperCase();
   const suspended = status ? !isOpenStatus(status) : false;
   const markets = d?.marketArr ?? [];
-  const cards = (d?.cardsArr ?? {}) as Record<string, Record<string, string>>;
+  const liveCards = (d?.cardsArr ?? {}) as Record<string, Record<string, string>>;
+  // When the live feed has already cleared the table for the next round but the
+  // settled round is still on screen, show the cards from the declared result so
+  // players see the real dealt cards instead of face-down placeholders.
+  const resultCards = useMemo(() => {
+    const raw = (results[0]?.cards ?? {}) as Record<string, unknown>;
+    const out: Record<string, Record<string, string>> = {};
+    for (const [k, v] of Object.entries(raw)) {
+      if (Array.isArray(v)) {
+        const hand: Record<string, string> = {};
+        v.forEach((c, i) => (hand[String(i)] = String(c)));
+        out[k.replace(/_/g, " ").trim().toUpperCase()] = hand;
+      } else if (v && typeof v === "object") {
+        out[k.replace(/_/g, " ").trim().toUpperCase()] = v as Record<string, string>;
+      } else if (typeof v === "string") {
+        out[k.replace(/_/g, " ").trim().toUpperCase() || "CARD"] = { "0": v };
+      }
+    }
+    return out;
+  }, [results]);
+
+  const liveHasRealCard = Object.values(liveCards).some((h) =>
+    h && typeof h === "object"
+      ? Object.values(h).some((c) => c && String(c) !== "0")
+      : Boolean(h) && String(h) !== "0",
+  );
+  const cards = liveHasRealCard || !Object.keys(resultCards).length ? liveCards : resultCards;
+
+
 
   // Keep the hand layout stable across the round (like the live table): while the
   // dealer has not turned the cards yet we still show face-down placeholders and
@@ -2303,24 +2332,32 @@ type AnyResult = CasinoResult & { _id?: string; result?: string; selectionName?:
 function deriveWinner(r?: AnyResult): string {
   if (!r) return "";
   const flat = (r.winner ?? r.result ?? r.selectionName ?? "").toString().trim();
-  const nested = (r.results ?? []).find((m) => /winner/i.test(m.marketName ?? "")) ?? r.results?.[0];
-  const nRunners = nested?.runners as unknown;
-  if (!nested) return flat;
-  let derived = "";
-  if (Array.isArray(nRunners)) {
-    const w = (nRunners as { selectionId?: string | number; result?: string }[]).find(
-      (x) => x.result === "WINNER",
-    );
-    if (w) derived = (nested.runnersName ?? {})[String(w.selectionId)] ?? "";
-  } else if (nRunners && typeof nRunners === "object") {
-    const id = Object.entries(nRunners as Record<string, string>).find(
-      ([, v]) => v === "WINNER",
-    )?.[0];
-    if (id) derived = (nested.runnersName ?? {})[id] ?? "";
+  const markets = r.results ?? [];
+  // Prefer an explicit WINNER market, but fall back to ANY market that has a
+  // declared winning runner — some tables never publish a "WINNER" market.
+  const ordered = [
+    ...markets.filter((m) => /winner/i.test(m.marketName ?? "")),
+    ...markets.filter((m) => !/winner/i.test(m.marketName ?? "")),
+  ];
+  for (const nested of ordered) {
+    const nRunners = nested?.runners as unknown;
+    let derived = "";
+    if (Array.isArray(nRunners)) {
+      const w = (nRunners as { selectionId?: string | number; result?: string }[]).find(
+        (x) => String(x.result ?? "").toUpperCase() === "WINNER",
+      );
+      if (w) derived = (nested.runnersName ?? {})[String(w.selectionId)] ?? "";
+    } else if (nRunners && typeof nRunners === "object") {
+      const id = Object.entries(nRunners as Record<string, string>).find(
+        ([, v]) => String(v).toUpperCase() === "WINNER",
+      )?.[0];
+      if (id) derived = (nested.runnersName ?? {})[id] ?? "";
+    }
+    if (derived) return derived;
   }
-  // Prefer the human-readable nested name; fall back to the flat winner.
-  return derived || flat.replace(/_/g, " ");
+  return flat.replace(/_/g, " ");
 }
+
 
 function ResultBanner({
   results,
