@@ -1884,11 +1884,11 @@ function GamePage() {
       if (Array.isArray(v)) {
         const hand: Record<string, string> = {};
         v.forEach((c, i) => (hand[String(i)] = String(c)));
-        out[k.replace(/_/g, " ").trim()] = hand;
+        out[k.replace(/_/g, " ").trim().toUpperCase()] = hand;
       } else if (v && typeof v === "object") {
-        out[k.replace(/_/g, " ").trim()] = v as Record<string, string>;
+        out[k.replace(/_/g, " ").trim().toUpperCase()] = v as Record<string, string>;
       } else if (typeof v === "string") {
-        out[k.replace(/_/g, " ").trim() || "CARD"] = { "0": v };
+        out[k.replace(/_/g, " ").trim().toUpperCase() || "CARD"] = { "0": v };
       }
     }
     return out;
