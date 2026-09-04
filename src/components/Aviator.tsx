@@ -366,7 +366,24 @@ function MobileBetSlot({
   onWin: (amount: number) => void;
   balance: number;
 }) {
-...
+  const canCash = phase === "flying" && state.active && state.cashedAt === null;
+  const pending = state.staged || (state.active && state.cashedAt === null);
+  const tone = canCash ? "bg-[#F59E0B]" : pending ? "bg-[#EF0000]" : "bg-[#18C800]";
+
+  const press = () => {
+    if (canCash) {
+      onWin(state.amount * multiplier);
+      setState((p) => ({ ...p, cashedAt: multiplier }));
+      return;
+    }
+    if (pending) {
+      setState((p) => ({ ...p, staged: false, active: false }));
+      return;
+    }
+    if (state.amount > balance) return;
+    setState((p) => ({ ...p, staged: true, cashedAt: null }));
+  };
+
   return (
     <div className="flex min-w-0 flex-col gap-[6px]">
       <PanelModeTabs state={state} setState={setState} />
