@@ -2362,10 +2362,19 @@ function lucky7Label(winner: string): string | null {
 type AnyResult = CasinoResult & { _id?: string; result?: string; selectionName?: string };
 
 /** Winner label from a result row — flat `winner` field or nested market results. */
-function deriveWinner(r?: AnyResult): string {
+function deriveWinner(r?: AnyResult, lucky7?: boolean): string {
   if (!r) return "";
   const flat = (r.winner ?? r.result ?? r.selectionName ?? "").toString().trim();
   const markets = r.results ?? [];
+  // Lucky 7 rule: when the dealt card is a 7 the round is a TIE — neither
+  // LOW nor HIGH wins, so the feed reports no WINNER-market winner.
+  if (lucky7) {
+    const cardCode = String((r as { cards?: { card?: string } }).cards?.card ?? "");
+    const clean = cardCode.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+    let rank = clean.slice(1);
+    if (rank === "T") rank = "10";
+    if (rank === "7") return "TIE";
+  }
   // Prefer an explicit WINNER market, but fall back to ANY market that has a
   // declared winning runner — some tables never publish a "WINNER" market.
   const ordered = [
@@ -2404,7 +2413,7 @@ function ResultBanner({
 
   const top = results[0] as AnyResult | undefined;
   const key = String(top?.roundId ?? top?._id ?? "");
-  const winner = deriveWinner(top);
+  const winner = deriveWinner(top, !!gameId && LUCKY7_GAMES.includes(gameId));
   const seen = useRef<string>("");
   const [show, setShow] = useState(false);
 
@@ -2494,7 +2503,7 @@ function RecentStrip({
 
         {results.slice(0, 10).map((r, idx) => {
           const rr = r as AnyResult;
-          const raw = (deriveWinner(rr) || "-").trim();
+          const raw = (deriveWinner(rr, lucky7) || "-").trim();
           const playerMatch = raw.match(/player[\s_]*([a-z]|\d+)/i);
           const w = chipLabel(raw);
           const lower = w.toLowerCase();
