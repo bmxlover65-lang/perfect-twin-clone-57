@@ -1409,20 +1409,27 @@ export function Aviator() {
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} feedLive={feedLive} />
 
           <div className="rounded-[12px] border border-[#292D32] bg-[#111315] p-2 sm:p-4">
-            {/* mobile: two bet slots, same as the original app */}
-            <div className="grid grid-cols-2 items-start gap-2 sm:hidden">
-              {slots.map((s, i) => (
-                <MobileBetSlot
-                  key={i}
-                  state={s}
-                  setState={(fn) => setSlot(i, fn)}
-                  phase={phase}
-                  multiplier={multiplier}
-                  onWin={win}
-                  balance={balance}
-                />
-              ))}
+            {/* mobile: left presets | center actions | right presets */}
+            <div className="flex items-start justify-between gap-[6px] rounded-[10px] border border-[#292D32] bg-[#0D0E10] p-[8px] sm:hidden">
+              <MobileBetSlot
+                state={slots[0]}
+                setState={(fn) => setSlot(0, fn)}
+                phase={phase}
+                multiplier={multiplier}
+                onWin={win}
+                balance={balance}
+              />
+              <MobileCenterActions setSlot={setSlot} />
+              <MobileBetSlot
+                state={slots[1]}
+                setState={(fn) => setSlot(1, fn)}
+                phase={phase}
+                multiplier={multiplier}
+                onWin={win}
+                balance={balance}
+              />
             </div>
+
 
             <div className="mt-2 hidden grid-cols-2 gap-[10px] sm:mt-3 sm:grid">
 
