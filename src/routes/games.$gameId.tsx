@@ -2343,25 +2343,8 @@ function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: bool
         <span className="mr-1 shrink-0 text-base font-bold text-ex-text">Recent Result</span>
 
         {results.slice(0, 10).map((r, idx) => {
-          const rr = r as CasinoResult & { result?: string; selectionName?: string };
-          // Derive winner from the nested results feed (market "WINNER" -> runner flagged WINNER).
-          let derived = "";
-          const nested = (rr.results ?? []).find((m) => /winner/i.test(m.marketName ?? "")) ?? rr.results?.[0];
-          const nRunners = nested?.runners as unknown;
-          if (nested) {
-            if (Array.isArray(nRunners)) {
-              const w = (nRunners as { selectionId?: string | number; result?: string }[]).find(
-                (x) => x.result === "WINNER",
-              );
-              if (w) derived = (nested.runnersName ?? {})[String(w.selectionId)] ?? "";
-            } else if (nRunners && typeof nRunners === "object") {
-              const id = Object.entries(nRunners as Record<string, string>).find(
-                ([, v]) => v === "WINNER",
-              )?.[0];
-              if (id) derived = (nested.runnersName ?? {})[id] ?? "";
-            }
-          }
-          const raw = (rr.winner ?? derived ?? rr.result ?? rr.selectionName ?? "-").toString().trim();
+          const rr = r as AnyResult;
+          const raw = (deriveWinner(rr) || "-").trim();
           const playerMatch = raw.match(/player\s*([a-z]|\d+)/i);
           const w = /^EXTRA/i.test(raw)
             ? "EX"
