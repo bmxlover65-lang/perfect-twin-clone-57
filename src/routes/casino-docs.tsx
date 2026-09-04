@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Block, Code, Endpoint, H2, H3, Note, P, Step, Table } from "@/components/docs-kit";
 import { LiveApiDemo } from "@/components/LiveApiDemo";
 import { GAMES } from "@/data/games";
+import { ODDS_CSS, ODDS_HTML, MODAL_CSS, MODAL_HTML } from "@/data/docs-snippets";
+
 
 export const Route = createFileRoute("/casino-docs")({
   head: () => ({
