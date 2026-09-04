@@ -15,14 +15,14 @@ import chip200 from "@/assets/chips/chips200.svg.asset.json";
 import chip500 from "@/assets/chips/chips500.svg.asset.json";
 
 const CHIPS = [
-  { v: "100", src: chip100.url },
-  { v: "400", src: chip200.url },
-  { v: "500", src: chip500.url },
-  { v: "1k", src: chip1k.url },
-  { v: "3k", src: chip20.url },
-  { v: "3.2k", src: chip10.url },
-  { v: "5k", src: chip5.url },
-  { v: "100k", src: chip50.url },
+  { v: "100", src: chip1k.url },
+  { v: "200", src: chip5.url },
+  { v: "500", src: chip10.url },
+  { v: "1k", src: chip20.url },
+  { v: "10k", src: chip50.url },
+  { v: "25k", src: chip100.url },
+  { v: "50k", src: chip200.url },
+  { v: "100k", src: chip500.url },
 ];
 
 export type CoinSide = "HEADS" | "TAILS";

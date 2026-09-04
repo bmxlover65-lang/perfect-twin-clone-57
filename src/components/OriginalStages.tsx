@@ -355,7 +355,7 @@ export function CoinStage({ side }: { side: "HEADS" | "TAILS" }) {
 
 /* ---------- Balloon ---------- */
 
-const BALLOON_STAKES = [10, 50, 100, 500, 1000, 2500, 5000, 10000];
+const BALLOON_STAKES = [100, 200, 500, 1000, 10000, 25000, 50000, 100000];
 
 
 export function BalloonStage({

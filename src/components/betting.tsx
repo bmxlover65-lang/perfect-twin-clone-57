@@ -5,7 +5,7 @@ import { useEmbed } from "@/lib/embed";
 
 export type Pick = { label: string; odds: number };
 
-const CHIPS = [1000, 5000, 10000, 25000, 50000, 100000, 200000, 500000];
+const CHIPS = [100, 200, 500, 1000, 10000, 25000, 50000, 100000];
 
 const DEFAULT_STAKE = 1000;
 const LAST_STAKE_KEY = "uapi.lastStake";

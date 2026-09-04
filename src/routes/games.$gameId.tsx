@@ -1261,14 +1261,14 @@ function MuflisPanel({
     );
 
   const chips: { v: string; src: string }[] = [
-    { v: "1k", src: chip1k.url },
-    { v: "5k", src: chip5.url },
-    { v: "10k", src: chip10.url },
-    { v: "25k", src: chip20.url },
-    { v: "50k", src: chip50.url },
-    { v: "100k", src: chip100.url },
-    { v: "200k", src: chip200.url },
-    { v: "500k", src: chip500.url },
+    { v: "100", src: chip1k.url },
+    { v: "200", src: chip5.url },
+    { v: "500", src: chip10.url },
+    { v: "1k", src: chip20.url },
+    { v: "10k", src: chip50.url },
+    { v: "25k", src: chip100.url },
+    { v: "50k", src: chip200.url },
+    { v: "100k", src: chip500.url },
   ];
 
 
@@ -1353,19 +1353,18 @@ function Fit({
 }
 
 const PANEL_CHIPS: { v: string; src: string }[] = [
-
-  { v: "1k", src: chip1k.url },
-  { v: "5k", src: chip5.url },
-  { v: "10k", src: chip10.url },
-  { v: "25k", src: chip20.url },
-  { v: "50k", src: chip50.url },
-  { v: "100k", src: chip100.url },
-  { v: "200k", src: chip200.url },
-  { v: "500k", src: chip500.url },
+  { v: "100", src: chip1k.url },
+  { v: "200", src: chip5.url },
+  { v: "500", src: chip10.url },
+  { v: "1k", src: chip20.url },
+  { v: "10k", src: chip50.url },
+  { v: "25k", src: chip100.url },
+  { v: "50k", src: chip200.url },
+  { v: "100k", src: chip500.url },
 ];
 
 function ChipRow() {
-  const [sel, setSel] = useState("1k");
+  const [sel, setSel] = useState("100");
   return (
     <div className="mt-3 flex flex-nowrap items-center gap-2 overflow-x-auto rounded-b-[6px] bg-[#1F1F1F] px-2 py-2 sm:gap-3 sm:px-3">
       {PANEL_CHIPS.map((c) => {
