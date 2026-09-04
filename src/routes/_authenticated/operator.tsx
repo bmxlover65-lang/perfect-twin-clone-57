@@ -18,12 +18,12 @@ export const Route = createFileRoute("/_authenticated/operator")({
       {
         name: "description",
         content:
-          "Operator panel: your API keys, IP and domain whitelist, monthly plan, per-user bet history, rejected bets and callback URL settings.",
+          "Operator panel: your API keys, IP and domain whitelist, validity, per-user bet history, rejected bets and callback URL settings.",
       },
       { property: "og:title", content: "Operator panel | Universal API" },
       {
         property: "og:description",
-        content: "API key, whitelist, plan, bet ledger and callback settings for Universal API operators.",
+        content: "API key, whitelist, validity, bet ledger and callback settings for Universal API operators.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
