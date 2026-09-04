@@ -81,6 +81,18 @@ function cleanGameName(name?: string | null): string | undefined {
   return name.replace(/\s*[-–]\s*[A-Z]$/i, "").trim();
 }
 
+/** Andar Bahar shows the two rows as plain "A" / "B" like the live table. */
+function isAndarBahar(name?: string | null): boolean {
+  return /andar\s*bahar/i.test(name ?? "");
+}
+
+function handTitleFor(title: string, gameName?: string | null): string {
+  if (!isAndarBahar(gameName)) return title;
+  if (/andar/i.test(title)) return "A";
+  if (/bahar/i.test(title)) return "B";
+  return title;
+}
+
 function Card({ code }: { code: string }) {
   return <CardFace code={code} />;
 }
@@ -1877,11 +1889,13 @@ function GamePage() {
     }
     // Live table shows the joker/blind card on top of the player hands.
     hands = hands
-      .map((h, i) => ({ h, i }))
+      .map((h, i) => ({ h: { ...h, title: handTitleFor(h.title, d?.eventName) }, i }))
       .sort((a, b) => {
         const ja = /JOKER/i.test(a.h.title) ? 0 : 1;
         const jb = /JOKER/i.test(b.h.title) ? 0 : 1;
-        return ja - jb || a.i - b.i;
+        const ab = a.h.title === "A" ? 0 : a.h.title === "B" ? 1 : 2;
+        const bb = b.h.title === "A" ? 0 : b.h.title === "B" ? 1 : 2;
+        return ja - jb || ab - bb || a.i - b.i;
       })
       .map(({ h }) => h);
     if (hands.length) {
@@ -2203,7 +2217,7 @@ function GamePage() {
           size="h-12 w-12 sm:h-14 sm:w-14"
         />
 
-        <ResultBanner results={results} gameId={gameId} />
+        <ResultBanner results={results} gameId={gameId} gameName={d?.eventName ?? null} />
       </div>
 
 
@@ -2273,7 +2287,15 @@ function lucky7Label(winner: string): string | null {
   return null;
 }
 
-function ResultBanner({ results, gameId }: { results: CasinoResult[]; gameId?: string }) {
+function ResultBanner({
+  results,
+  gameId,
+  gameName,
+}: {
+  results: CasinoResult[];
+  gameId?: string;
+  gameName?: string | null;
+}) {
 
   const top = results[0] as (CasinoResult & { _id?: string; result?: string; selectionName?: string }) | undefined;
   const key = String(top?.roundId ?? top?._id ?? "");
@@ -2296,9 +2318,13 @@ function ResultBanner({ results, gameId }: { results: CasinoResult[]; gameId?: s
 
   if (!show || !winner) return null;
   const l7 = gameId && LUCKY7_GAMES.includes(gameId) ? lucky7Label(winner) : null;
-  const expanded = /^(player\s*)?[ab]$/i.test(winner)
-    ? `PLAYER ${winner.replace(/player\s*/i, "").toUpperCase()}`
-    : winner.toUpperCase();
+  const short = winner.replace(/player\s*/i, "").trim().toUpperCase();
+  const ab = isAndarBahar(gameName);
+  const dt = /dragon\s*tiger/i.test(gameName ?? "");
+  let expanded = winner.toUpperCase();
+  if (ab && (short === "A" || short === "B")) expanded = short === "A" ? "ANDAR" : "BAHAR";
+  else if (dt && (short === "D" || short === "T")) expanded = short === "D" ? "DRAGON" : "TIGER";
+  else if (/^(player\s*)?[ab]$/i.test(winner)) expanded = `PLAYER ${short}`;
   const label = l7 ?? (/win/i.test(expanded) ? expanded : `${expanded} WIN`);
 
   return (
