@@ -142,13 +142,10 @@ function SportsPage() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">Sports</h1>
           <p className="mt-2 max-w-[620px] text-muted-foreground">
-            Real in-play and pre-match events with live exchange odds. Data source:{" "}
-            <span className="font-semibold text-foreground">
-              Universal API (universeapi.store/public)
-            </span>{" "}
-            through the server proxy <code className="font-mono">/api/public/uapi/sports/…</code>,
-            polled every 15s.
+            All events for each sport (in-play + pre-match). Open one to verify odds, TV, and
+            scoreboard.
           </p>
+
           <p className="mt-2 text-sm text-muted-foreground">
             {loading
               ? "Loading live events…"
