@@ -160,6 +160,37 @@ export function LuckyWheel({
 
 /* ---------- Dream Catcher wheel ---------- */
 
+/** Dream Catcher's own sound: a slowing flapper tick, different from Lucky 0-9. */
+function playDreamSpin() {
+  try {
+    const Ctx =
+      window.AudioContext ??
+      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    const start = ctx.currentTime;
+    let t = 0;
+    let gap = 0.045;
+    while (t < 6) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "square";
+      osc.frequency.value = 1400 - t * 90;
+      gain.gain.setValueAtTime(0.09, start + t);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + t + 0.035);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(start + t);
+      osc.stop(start + t + 0.04);
+      t += gap;
+      gap *= 1.045;
+    }
+    window.setTimeout(() => void ctx.close().catch(() => undefined), 7000);
+  } catch {
+    // audio unavailable
+  }
+}
+
+
 const DREAM_SEGMENTS: number[] = (() => {
   const out: number[] = [];
   const pattern = [1, 2, 1, 5, 1, 2, 1, 10, 1, 2, 1, 5, 1, 2, 1, 20, 1, 2, 1, 5, 1, 2, 1, 10, 1, 2, 1, 40];
