@@ -1425,10 +1425,12 @@ export function Aviator() {
                   {myBets.length + slots.filter((p) => p.staged || p.active).length}
                 </span>
               </span>
-              <span className="flex flex-col items-end leading-tight">
-                <span>Balance</span>
-                <span className="text-[0.78rem] font-semibold text-[#18C800]">{fmt(balance)}</span>
-              </span>
+              {embedded ? null : (
+                <span className="flex flex-col items-end leading-tight">
+                  <span>Balance</span>
+                  <span className="text-[0.78rem] font-semibold text-[#18C800]">{fmt(balance)}</span>
+                </span>
+              )}
             </div>
           ) : null}
 

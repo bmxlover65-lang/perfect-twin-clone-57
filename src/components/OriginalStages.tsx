@@ -1017,9 +1017,11 @@ export function BalloonStage({
         {/* profile pill + balance */}
         <div className="absolute left-0 top-[14%] flex items-center gap-2 rounded-r-full bg-[#8B9AA1]/90 py-[3px] pl-2 pr-[3px] shadow-[0_1px_3px_rgba(0,0,0,0.25)]">
           <img src={profileIcon.url} alt="" className="h-[18px] w-[18px] shrink-0" />
-          <span className="text-[0.78rem] font-bold leading-none tracking-tight text-white">
-            {Math.round(balance).toLocaleString("en-IN")}
-          </span>
+          {embedded ? null : (
+            <span className="text-[0.78rem] font-bold leading-none tracking-tight text-white">
+              {Math.round(balance).toLocaleString("en-IN")}
+            </span>
+          )}
           <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#2C7BE5]">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M6 14.5l6-6 6 6" />

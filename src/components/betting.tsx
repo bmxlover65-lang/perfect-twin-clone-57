@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { placeBet, readWallet, useWallet, type Bet } from "@/lib/wallet";
+import { useEmbed } from "@/lib/embed";
 
 export type Pick = { label: string; odds: number };
 
@@ -308,9 +309,11 @@ export function BetLayer({
               <span className="text-[0.72rem] font-bold uppercase tracking-[0.1em] text-white/80">
                 {pick.label}
               </span>
-              <span className="text-[0.78rem] font-extrabold text-white">
-                Bal {Math.round(wallet.balance).toLocaleString("en-IN")}
-              </span>
+              {embed ? null : (
+                <span className="text-[0.78rem] font-extrabold text-white">
+                  Bal {Math.round(wallet.balance).toLocaleString("en-IN")}
+                </span>
+              )}
             </div>
 
             <div className="px-3 pb-3 pt-2">
@@ -374,6 +377,8 @@ export function BetLayer({
 
 export function BalanceChip() {
   const wallet = useWallet();
+  const embed = useEmbed();
+  if (embed) return null;
   return (
     <span className="rounded-full bg-[#123A73] px-3 py-1 text-[0.8rem] font-extrabold text-white">
       Bal {Math.round(wallet.balance).toLocaleString("en-IN")}
