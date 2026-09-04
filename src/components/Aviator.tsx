@@ -1611,9 +1611,10 @@ export function Aviator() {
 
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} feedLive={feedLive} />
 
-          <div className="rounded-[12px] border border-[#292D32] bg-[#111315] p-2 sm:p-4 lg:flex lg:flex-1 lg:flex-col lg:justify-start">
+          <div className="bg-[#111315] p-2 sm:rounded-[12px] sm:border sm:border-[#292D32] sm:p-4 lg:flex lg:flex-1 lg:flex-col lg:justify-start">
             {/* mobile: left presets | center actions | right presets */}
-            <div className="flex items-start justify-between gap-[6px] rounded-[10px] border border-[#292D32] bg-[#0D0E10] p-[8px] sm:hidden">
+            <div className="flex items-start justify-between gap-[6px] rounded-[10px] bg-[#0D0E10] p-[8px] sm:hidden">
+
               <MobileBetSlot
                 state={slots[0]!}
                 setState={(fn) => setSlot(0, fn)}
