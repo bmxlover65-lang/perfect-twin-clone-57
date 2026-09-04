@@ -511,7 +511,7 @@ function DesktopBetBoard({
   const [custom, setCustom] = useState("");
 
   const cell =
-    "h-[34px] rounded-full border border-transparent bg-[#17191C] text-[0.82rem] font-semibold text-[#C6C9CE] transition-colors hover:bg-[#1E2124]";
+    "h-[34px] rounded-full border bg-[#17191C] text-[0.82rem] font-semibold text-[#C6C9CE] transition-colors hover:bg-[#1E2124]";
 
   const press = (i: number) => {
     const s = slots[i];
