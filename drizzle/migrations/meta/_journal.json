@@ -29,6 +29,13 @@
       "when": 1788380158820,
       "tag": "0003_create_bet_rejections",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788522991264,
+      "tag": "0004_add_product_scope",
+      "breakpoints": true
     }
   ]
 }

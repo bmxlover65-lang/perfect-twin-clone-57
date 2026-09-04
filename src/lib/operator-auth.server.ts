@@ -11,7 +11,15 @@ export type Operator = {
 };
 
 export type AuthFailure = { ok: false; status: number; error: string; code: string };
-export type AuthSuccess = { ok: true; operator: Operator; apiKeyId: string; ip: string };
+export type Product = "casino" | "sports";
+export type AuthSuccess = {
+  ok: true;
+  operator: Operator;
+  apiKeyId: string;
+  ip: string;
+  /** Products this API key is allowed to use (casino and/or sports). */
+  products: Product[];
+};
 export type AuthResult = AuthFailure | AuthSuccess;
 
 export function hashKey(key: string) {
@@ -46,7 +54,7 @@ export async function authenticateOperator(request: Request): Promise<AuthResult
 
   const { data: keyRow } = await supabaseAdmin
     .from("api_keys")
-    .select("id, operator_id, active")
+    .select("id, operator_id, active, products")
     .eq("key_hash", hashKey(raw))
     .maybeSingle();
 
@@ -56,7 +64,7 @@ export async function authenticateOperator(request: Request): Promise<AuthResult
 
   const { data: operator } = await supabaseAdmin
     .from("operators")
-    .select("id, name, currency, callback_url, callback_secret, status, plan_expires_at")
+    .select("id, name, currency, callback_url, callback_secret, status, plan_expires_at, products")
     .eq("id", keyRow.operator_id)
     .maybeSingle();
 
@@ -101,7 +109,29 @@ export async function authenticateOperator(request: Request): Promise<AuthResult
     .update({ last_used_at: new Date().toISOString() })
     .eq("id", keyRow.id);
 
-  return { ok: true, operator: operator as Operator, apiKeyId: keyRow.id, ip };
+  const opProducts = ((operator as { products?: string[] }).products ?? ["casino", "sports"]) as Product[];
+  const keyProducts = ((keyRow as { products?: string[] }).products ?? ["casino", "sports"]) as Product[];
+  const products = keyProducts.filter((p) => opProducts.includes(p));
+
+  return { ok: true, operator: operator as Operator, apiKeyId: keyRow.id, ip, products };
+}
+
+/**
+ * Casino event ids are dotted (88.0023, 99.0010, 4.35446…); sports events are
+ * plain numeric exchange ids. Used to scope a request to casino or sports.
+ */
+export function productOf(gameId: string): Product {
+  return /^\d+\.\d/.test(gameId.trim()) ? "casino" : "sports";
+}
+
+export function productDenied(auth: AuthSuccess, product: Product): AuthFailure | null {
+  if (auth.products.includes(product)) return null;
+  return {
+    ok: false,
+    status: 403,
+    code: "product_not_allowed",
+    error: `This API key is not allowed to use the ${product} API`,
+  };
 }
 
 export function jsonError(res: AuthFailure) {

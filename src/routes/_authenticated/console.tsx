@@ -10,6 +10,7 @@ import {
   provisionOperator,
   removeWhitelist,
   revokeApiKey,
+  setKeyProducts,
   updateOperator,
 } from "@/lib/operator-admin.functions";
 import {
@@ -51,6 +52,7 @@ type Operator = {
   callback_url: string | null;
   plan_amount: number;
   plan_expires_at: string | null;
+  products?: string[] | null;
   owner_id: string | null;
 };
 
@@ -94,6 +96,7 @@ function ConsolePage() {
   const revoke = useServerFn(revokeApiKey);
   const addWl = useServerFn(addWhitelist);
   const rmWl = useServerFn(removeWhitelist);
+  const setKeyScope = useServerFn(setKeyProducts);
   const wl = useServerFn(listWhitelist);
   const ledger = useServerFn(operatorLedger);
   const logs = useServerFn(listCallbackLogs);
@@ -395,7 +398,7 @@ function ConsolePage() {
                 ))}
                 {!(sum?.rejected ?? []).length ? (
                   <tr>
-                    <td className="p-3 text-muted-foreground" colSpan={5}>
+                    <td className="p-3 text-muted-foreground" colSpan={6}>
                       No rejected bets.
                     </td>
                   </tr>
@@ -423,6 +426,9 @@ function ConsolePage() {
                   password: String(f.get("password")),
                   callbackUrl: String(f.get("cb") || "") || undefined,
                   days: Math.min(3650, Math.max(1, Number(f.get("days")) || 30)),
+                  products: (f.getAll("products").map(String) as ("casino" | "sports")[]).length
+                    ? (f.getAll("products").map(String) as ("casino" | "sports")[])
+                    : (["casino"] as ("casino" | "sports")[]),
                 },
               });
               form.reset();
@@ -469,6 +475,17 @@ function ConsolePage() {
             Callback URL (optional)
             <input name="cb" placeholder="https://site.com/api/wallet" className={input} />
           </label>
+          <fieldset className="grid gap-1 text-xs text-muted-foreground sm:col-span-2">
+            <legend>Allowed API — is operator ko kya dena hai?</legend>
+            <div className="flex gap-4 pt-1 text-foreground">
+              <label className="flex items-center gap-2">
+                <input type="checkbox" name="products" value="casino" defaultChecked /> Casino API
+              </label>
+              <label className="flex items-center gap-2">
+                <input type="checkbox" name="products" value="sports" /> Sports API
+              </label>
+            </div>
+          </fieldset>
           <label className="grid gap-1 text-xs text-muted-foreground">
             Validity — kitne din ke liye?
             <input
@@ -534,6 +551,7 @@ function ConsolePage() {
               <tr>
                 <th className="p-2 text-left">Name</th>
                 <th className="p-2 text-left">Status</th>
+                <th className="p-2 text-left">API access</th>
                 <th className="p-2 text-left">Expires</th>
                 <th className="p-2 text-left">Callback</th>
                 <th className="p-2" />
@@ -547,6 +565,7 @@ function ConsolePage() {
                 >
                   <td className="p-2 font-semibold text-foreground">{o.name}</td>
                   <td className="p-2">{o.status}</td>
+                  <td className="p-2">{(o.products ?? ["casino", "sports"]).join(" + ")}</td>
                   <td className="p-2">
                     {o.plan_expires_at ? new Date(o.plan_expires_at).toLocaleDateString() : "—"}
                   </td>
@@ -590,7 +609,7 @@ function ConsolePage() {
               ))}
               {!ops.length ? (
                 <tr>
-                  <td className="p-3 text-muted-foreground" colSpan={5}>
+                  <td className="p-3 text-muted-foreground" colSpan={6}>
                     No operators yet.
                   </td>
                 </tr>
@@ -608,6 +627,10 @@ function ConsolePage() {
               <Panel title={`Manage · ${current.name}`}>
                 <div className="grid gap-3 sm:grid-cols-4">
                   <Stat label="Status" value={current.status} />
+                  <Stat
+                    label="API access"
+                    value={(current.products ?? ["casino", "sports"]).join(" + ")}
+                  />
                   <Stat
                     label="Valid till"
                     value={
@@ -686,6 +709,32 @@ function ConsolePage() {
                   >
                     Extend validity
                   </button>
+                  {(["casino", "sports"] as const).map((pr) => {
+                    const cur = (current.products ?? ["casino", "sports"]) as string[];
+                    const on = cur.includes(pr);
+                    return (
+                      <button
+                        key={pr}
+                        className={on ? btn : ghost}
+                        onClick={() =>
+                          run(async () => {
+                            const next = on ? cur.filter((x) => x !== pr) : [...cur, pr];
+                            if (!next.length) {
+                              setNote("Kam se kam ek API (casino ya sports) allowed rakhna zaroori hai.");
+                              return;
+                            }
+                            await update({
+                              data: { id: current.id, products: next as ("casino" | "sports")[] },
+                            });
+                            setNote(`API access: ${next.join(" + ")}`);
+                            await refresh();
+                          })
+                        }
+                      >
+                        {on ? `✓ ${pr} API` : `${pr} API off`}
+                      </button>
+                    );
+                  })}
                   <button className={ghost} onClick={() => setTab("keys")}>
                     API keys & access
                   </button>
@@ -738,7 +787,13 @@ function ConsolePage() {
                   (e.currentTarget as HTMLFormElement).reset();
                   void run(async () => {
                     const r = await issue({
-                      data: { operatorId: sel, label: String(f.get("lb") || "") || "default" },
+                      data: {
+                        operatorId: sel,
+                        label: String(f.get("lb") || "") || "default",
+                        products: (f.getAll("kp").map(String) as ("casino" | "sports")[]).length
+                          ? (f.getAll("kp").map(String) as ("casino" | "sports")[])
+                          : (["casino"] as ("casino" | "sports")[]),
+                      },
                     });
                     setNote(`New API key (shown once): ${r.apiKey}`);
                     await loadDetail(sel);
@@ -746,6 +801,12 @@ function ConsolePage() {
                 }}
               >
                 <input name="lb" placeholder="key label e.g. production" className={input} />
+                <label className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <input type="checkbox" name="kp" value="casino" defaultChecked /> casino
+                </label>
+                <label className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <input type="checkbox" name="kp" value="sports" /> sports
+                </label>
                 <button className={btn}>Issue key</button>
               </form>
               <form
@@ -775,10 +836,37 @@ function ConsolePage() {
                       <span className="font-mono text-xs font-bold text-foreground">
                         {k.key_prefix}…{" "}
                         <span className="font-sans font-normal text-muted-foreground">
-                          {k.label} · {k.active ? "active" : "revoked"} ·{" "}
+                          {k.label} · {(k.products ?? ["casino", "sports"]).join("+")} ·{" "}
+                          {k.active ? "active" : "revoked"} ·{" "}
                           {k.last_used_at ? `used ${new Date(k.last_used_at).toLocaleString()}` : "never used"}
                         </span>
                       </span>
+                      <span className="flex flex-wrap gap-2">
+                      {(["casino", "sports"] as const).map((pr) => {
+                        const cur = (k.products ?? ["casino", "sports"]) as string[];
+                        const on = cur.includes(pr);
+                        return (
+                          <button
+                            key={pr}
+                            className={on ? btn : ghost}
+                            onClick={() =>
+                              run(async () => {
+                                const next = on ? cur.filter((x: string) => x !== pr) : [...cur, pr];
+                                if (!next.length) {
+                                  setNote("Key ke liye kam se kam ek API allowed rakho.");
+                                  return;
+                                }
+                                await setKeyScope({
+                                  data: { id: k.id, products: next as ("casino" | "sports")[] },
+                                });
+                                await loadDetail(sel);
+                              })
+                            }
+                          >
+                            {on ? `✓ ${pr}` : `${pr} off`}
+                          </button>
+                        );
+                      })}
                       {k.active ? (
                         <button
                           className={ghost}
@@ -792,6 +880,7 @@ function ConsolePage() {
                           Revoke
                         </button>
                       ) : null}
+                      </span>
                     </div>
 
                     <div className="mt-3 grid gap-3 sm:grid-cols-2">

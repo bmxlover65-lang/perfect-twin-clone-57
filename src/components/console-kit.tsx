@@ -295,15 +295,16 @@ public function handle(Request $request)
     });
 }`;
 
-const IFRAME = `<!-- Launch a casino table inside your site -->
+const IFRAME = `<!-- Launch ONE game (embed=1 => sirf game, koi site header/nav nahi) -->
 <iframe
-  src="${BASE}/games/99.0010?apiKey=YOUR_KEY&userId=player-1042"
+  src="${BASE}/games/99.0010?embed=1&apiKey=YOUR_KEY&userId=player-1042"
   allow="autoplay; fullscreen"
   style="width:100%;aspect-ratio:16/10;border:0;border-radius:12px"
 ></iframe>
 
-<!-- Sports event -->
-<iframe src="${BASE}/sports/1/10020269215118469" ...></iframe>`;
+<!-- Mobile webview: same URL, layout khud mobile ban jaata hai -->
+<!-- Sports event (sirf tab jab key me sports allowed ho) -->
+<iframe src="${BASE}/sports/1/10020269215118469?embed=1" ...></iframe>`;
 
 const LANGS = [
   {
@@ -348,6 +349,7 @@ const FLOW: { t: string; b: string }[] = [
 ];
 
 const ENDPOINTS: [string, string][] = [
+  ["GET /api/public/v1/me", "Is key ko casino / sports me se kya allowed hai"],
   ["GET /api/public/v1/games", "Casino table list + ids"],
   ["GET /api/public/v1/state?eventId=", "Live markets, cards, timer, results"],
   ["WS  /ws?eventId=&apiKey=", "Same state, pushed (recommended)"],

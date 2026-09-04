@@ -4,6 +4,7 @@ import { Aviator } from "@/components/Aviator";
 import { FitBoard } from "@/components/FitBoard";
 import { RoundTimer } from "@/components/RoundTimer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useEmbed } from "@/lib/embed";
 
 import { applyOverride, useAdminConfig } from "@/lib/admin";
 import { logResult } from "@/lib/telemetry";
@@ -1772,6 +1773,9 @@ function DragonTigerPanel({
 
 
 function GamePage() {
+  const embed = useEmbed();
+  const shell = (w: string) =>
+    embed ? "mx-auto w-full max-w-full px-0 py-0" : `mx-auto ${w} px-2 py-4 sm:px-4 sm:py-5`;
   const { gameId } = Route.useParams();
   const isMobileView = useIsMobile();
   const { admin, cfg } = useAdminConfig();
@@ -2000,11 +2004,17 @@ function GamePage() {
 
   if (isBbb) {
     return (
-      <div className="mx-auto max-w-[900px] px-2 py-4 sm:px-4 sm:py-5">
+      <div className={shell("max-w-[900px]")}>
         <div className="bg-[#EDEDED] px-3 py-2">
-          <Link to="/" className="text-sm text-[#2563EB] hover:underline">
-            ← Back to lobby
-          </Link>
+          {embed ? null : (
+
+            <Link to="/" className="text-sm text-[#2563EB] hover:underline">
+
+              ← Back to lobby
+
+            </Link>
+
+          )}
         </div>
         <div className="flex items-center justify-between bg-[#2E4B5C] px-3 py-2">
           <span className="text-[0.95rem] font-bold uppercase text-white">
@@ -2049,10 +2059,16 @@ function GamePage() {
 
   if (gameId === "88.0030") {
     return (
-      <div className="mx-auto max-w-[1080px] px-2 py-4 sm:px-4 sm:py-5">
-        <Link to="/" className="text-sm text-[#2563EB] hover:underline">
-          ← Back to lobby
-        </Link>
+      <div className={shell("max-w-[1080px]")}>
+        {embed ? null : (
+
+          <Link to="/" className="text-sm text-[#2563EB] hover:underline">
+
+            ← Back to lobby
+
+          </Link>
+
+        )}
         <p className="mt-2 text-[0.7rem] font-bold uppercase tracking-[0.14em] text-muted-foreground">
           Live · Universe Original
         </p>
@@ -2066,10 +2082,16 @@ function GamePage() {
 
   if (isOriginal) {
     return (
-      <div className="mx-auto max-w-[1240px] px-2 py-4 sm:px-4 sm:py-5">
-        <Link to="/" className="text-sm text-[#2563EB] hover:underline">
-          ← Back to lobby
-        </Link>
+      <div className={shell("max-w-[1240px]")}>
+        {embed ? null : (
+
+          <Link to="/" className="text-sm text-[#2563EB] hover:underline">
+
+            ← Back to lobby
+
+          </Link>
+
+        )}
         <p className="mt-2 text-[0.7rem] font-bold uppercase tracking-[0.14em] text-muted-foreground">
           Live · Universe Original
         </p>
@@ -2198,12 +2220,18 @@ function GamePage() {
   }
 
   return (
-    <div className="mx-auto max-w-[900px] px-2 py-4 sm:px-4 sm:py-5">
+    <div className={shell("max-w-[900px]")}>
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
-          <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
-            ← Back to lobby
-          </Link>
+          {embed ? null : (
+
+            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
+
+              ← Back to lobby
+
+            </Link>
+
+          )}
           <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
             Live · Universe Live
           </p>
