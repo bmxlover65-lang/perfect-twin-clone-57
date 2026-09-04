@@ -270,3 +270,91 @@ export const operatorLedger = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return rows ?? [];
   });
+
+/**
+ * One-shot operator provisioning: creates the login, the operator row,
+ * a 30-day validity window and the first API key — all in one call.
+ * Plaintext password + API key + callback secret are returned exactly once.
+ */
+export const provisionOperator = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        name: z.string().min(2).max(80),
+        email: z.string().email(),
+        password: z.string().min(6).max(72),
+        callbackUrl: z.string().url().optional(),
+        days: z.number().min(1).max(3650).default(30),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { hashKey } = await import("@/lib/operator-auth.server");
+
+    const email = data.email.trim().toLowerCase();
+
+    // 1. login (reuse an existing one with the same email)
+    let userId: string | null = null;
+    const created = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password: data.password,
+      email_confirm: true,
+    });
+    if (created.error) {
+      const { data: list, error: le } = await supabaseAdmin.auth.admin.listUsers({ perPage: 200 });
+      if (le) throw new Error(le.message);
+      const existing = list.users.find((u) => (u.email ?? "").toLowerCase() === email);
+      if (!existing) throw new Error(created.error.message);
+      await supabaseAdmin.auth.admin.updateUserById(existing.id, { password: data.password });
+      userId = existing.id;
+    } else {
+      userId = created.data.user?.id ?? null;
+    }
+    if (!userId) throw new Error("Could not create the operator login");
+
+    await supabaseAdmin
+      .from("user_roles")
+      .upsert({ user_id: userId, role: "operator" }, { onConflict: "user_id,role" });
+
+    // 2. operator row
+    const callbackSecret = crypto.randomUUID().replace(/-/g, "");
+    const expires = new Date(Date.now() + data.days * 864e5).toISOString();
+    const { data: op, error: oe } = await supabaseAdmin
+      .from("operators")
+      .insert({
+        name: data.name,
+        contact_email: email,
+        callback_url: data.callbackUrl ?? null,
+        callback_secret: callbackSecret,
+        plan_amount: 0,
+        plan_expires_at: expires,
+        owner_id: userId,
+      })
+      .select("*")
+      .single();
+    if (oe) throw new Error(oe.message);
+
+    // 3. first API key
+    const secret = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
+    const prefix = `ua_${secret.slice(0, 6)}`;
+    const apiKey = `${prefix}_${secret.slice(6)}`;
+    const { error: ke } = await supabaseAdmin.from("api_keys").insert({
+      operator_id: op.id,
+      label: "default",
+      key_prefix: prefix,
+      key_hash: hashKey(apiKey),
+    });
+    if (ke) throw new Error(ke.message);
+
+    return {
+      operator: op,
+      email,
+      password: data.password,
+      apiKey,
+      callbackSecret,
+      expiresAt: expires,
+    };
+  });

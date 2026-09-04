@@ -4,10 +4,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import {
   addWhitelist,
-  createOperator,
   issueApiKey,
   listWhitelist,
   operatorLedger,
+  provisionOperator,
   removeWhitelist,
   revokeApiKey,
   updateOperator,
@@ -86,7 +86,7 @@ function ConsolePage() {
   const navigate = useNavigate();
   const me = useServerFn(whoAmI);
   const claim = useServerFn(bootstrapAdmin);
-  const create = useServerFn(createOperator);
+  const provision = useServerFn(provisionOperator);
   const update = useServerFn(updateOperator);
   const issue = useServerFn(issueApiKey);
   const revoke = useServerFn(revokeApiKey);
@@ -111,6 +111,8 @@ function ConsolePage() {
   const [err, setErr] = useState<string>("");
   const [tab, setTab] = useState<string>("overview");
   const [sum, setSum] = useState<Awaited<ReturnType<typeof operatorSummary>> | null>(null);
+  const [cred, setCred] = useState<Awaited<ReturnType<typeof provisionOperator>> | null>(null);
+  const [pwd, setPwd] = useState<string>("");
 
 
   const run = async (fn: () => Promise<void>) => {
@@ -328,34 +330,111 @@ function ConsolePage() {
       <Panel title="Operators">
 
         <form
-          className="grid gap-2 sm:grid-cols-5"
+          className="grid gap-2 rounded-lg border border-border p-3 sm:grid-cols-2"
           onSubmit={(e) => {
             e.preventDefault();
-            const f = new FormData(e.currentTarget as HTMLFormElement);
+            const form = e.currentTarget as HTMLFormElement;
+            const f = new FormData(form);
             void run(async () => {
-              const res = await create({
+              const res = await provision({
                 data: {
                   name: String(f.get("name")),
-                  contactEmail: String(f.get("email") || "") || undefined,
+                  email: String(f.get("email")).trim(),
+                  password: String(f.get("password")),
                   callbackUrl: String(f.get("cb") || "") || undefined,
-                  planAmount: Number(f.get("amount") || 0),
-                  planDays: Number(f.get("days") || 30),
+                  days: 30,
                 },
               });
-              setNote(`Operator created. Callback secret: ${res.callbackSecret}`);
+              form.reset();
+              setCred(res);
+              setNote("");
               await refresh();
+              setSel(res.operator.id);
             });
           }}
         >
-          <input name="name" required placeholder="Operator name" className={input} />
-          <input name="email" type="email" placeholder="Contact email" className={input} />
-          <input name="cb" placeholder="https://site.com/api/wallet" className={input} />
-          <input name="amount" type="number" placeholder="Plan ₹" className={input} />
-          <div className="flex gap-2">
-            <input name="days" type="number" defaultValue={30} className={input} />
-            <button className={btn}>Create</button>
+          <div className="sm:col-span-2 text-xs font-semibold text-muted-foreground">
+            New operator — login, 30-day validity aur API key ek saath ban jayenge.
+          </div>
+          <label className="grid gap-1 text-xs text-muted-foreground">
+            Operator name
+            <input name="name" required placeholder="Acme Gaming" className={input} />
+          </label>
+          <label className="grid gap-1 text-xs text-muted-foreground">
+            Login email
+            <input name="email" type="email" required placeholder="operator@site.com" className={input} />
+          </label>
+          <label className="grid gap-1 text-xs text-muted-foreground">
+            Password (min 6)
+            <div className="flex gap-2">
+              <input
+                name="password"
+                required
+                minLength={6}
+                value={pwd}
+                onChange={(e) => setPwd(e.target.value)}
+                placeholder="Password"
+                className={input}
+              />
+              <button
+                type="button"
+                className={ghost}
+                onClick={() => setPwd(Math.random().toString(36).slice(2, 8) + Math.random().toString(36).slice(2, 6).toUpperCase())}
+              >
+                Generate
+              </button>
+            </div>
+          </label>
+          <label className="grid gap-1 text-xs text-muted-foreground">
+            Callback URL (optional)
+            <input name="cb" placeholder="https://site.com/api/wallet" className={input} />
+          </label>
+          <div className="sm:col-span-2">
+            <button className={btn}>Create operator + API key</button>
           </div>
         </form>
+
+        {cred ? (
+          <div className="mt-3 space-y-1 rounded-lg border border-primary/40 bg-primary/5 p-3 text-xs">
+            <p className="text-sm font-bold text-foreground">
+              {cred.operator.name} ready — ye details ek hi baar dikhengi
+            </p>
+            <p>
+              <span className="text-muted-foreground">Login:</span>{" "}
+              <span className="font-mono">{cred.email}</span> /{" "}
+              <span className="font-mono">{cred.password}</span>
+            </p>
+            <p className="break-all">
+              <span className="text-muted-foreground">API key:</span>{" "}
+              <span className="font-mono">{cred.apiKey}</span>
+            </p>
+            <p className="break-all">
+              <span className="text-muted-foreground">Callback secret:</span>{" "}
+              <span className="font-mono">{cred.callbackSecret}</span>
+            </p>
+            <p>
+              <span className="text-muted-foreground">Valid till:</span>{" "}
+              {new Date(cred.expiresAt).toLocaleDateString()}
+            </p>
+            <div className="flex gap-2 pt-1">
+              <button
+                type="button"
+                className={ghost}
+                onClick={() =>
+                  void navigator.clipboard.writeText(
+                    `Operator: ${cred.operator.name}\nLogin: ${cred.email}\nPassword: ${cred.password}\nAPI key: ${cred.apiKey}\nCallback secret: ${cred.callbackSecret}`,
+                  )
+                }
+              >
+                Copy all
+              </button>
+              <button type="button" className={ghost} onClick={() => setCred(null)}>
+                Hide
+              </button>
+            </div>
+          </div>
+        ) : null}
+
 
         <div className="mt-3 overflow-x-auto">
           <table className="w-full text-xs">
