@@ -12,6 +12,7 @@ import {
 } from "@/lib/uapi";
 import { BalanceChip, BetLayer } from "@/components/betting";
 import { Scoreboard } from "@/components/Scoreboard";
+import { LiveTv } from "@/components/LiveTv";
 import { settleFromRunners, voidOpen } from "@/lib/wallet";
 
 export const Route = createFileRoute("/sports/$sportId/$eventId")({
@@ -228,7 +229,6 @@ function EventPage() {
   const [error, setError] = useState<string | null>(null);
   const closedSince = useRef<number>(0);
   const [age, setAge] = useState(0);
-  const [tvKey, setTvKey] = useState(0);
 
 
   const load = useCallback(async () => {
