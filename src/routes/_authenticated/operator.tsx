@@ -18,12 +18,12 @@ export const Route = createFileRoute("/_authenticated/operator")({
       {
         name: "description",
         content:
-          "Operator panel: your API keys, IP and domain whitelist, monthly plan, per-user bet history, rejected bets and callback URL settings.",
+          "Operator panel: your API keys, IP and domain whitelist, validity, per-user bet history, rejected bets and callback URL settings.",
       },
       { property: "og:title", content: "Operator panel | Universal API" },
       {
         property: "og:description",
-        content: "API key, whitelist, plan, bet ledger and callback settings for Universal API operators.",
+        content: "API key, whitelist, validity, bet ledger and callback settings for Universal API operators.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -129,7 +129,7 @@ function OperatorPage() {
       title="Operator"
       subtitle={
         op
-          ? `${op.name} · ${op.status} · plan till ${
+          ? `${op.name} · ${op.status} · valid till ${
               op.plan_expires_at ? new Date(op.plan_expires_at).toLocaleDateString() : "—"
             }${daysLeft !== null ? ` (${daysLeft} days left)` : ""}`
           : "No operator linked to this login yet."
@@ -185,18 +185,17 @@ function OperatorPage() {
                 <Stat label="Open bets" value={String(totals?.open ?? 0)} />
                 <Stat label="Rejected bets" value={String(totals?.rejected ?? 0)} />
                 <Stat
-                  label="Plan"
+                  label="Validity"
                   value={daysLeft === null ? "—" : `${daysLeft} days left`}
                 />
               </div>
-              <Panel title="Plan & account">
+              <Panel title="Account">
                 <ul className="space-y-1 text-xs text-muted-foreground">
                   <li>Operator: {op?.name}</li>
                   <li>Status: {op?.status}</li>
                   <li>Currency: {op?.currency}</li>
-                  <li>Monthly plan amount: {inr(Number(op?.plan_amount ?? 0))}</li>
                   <li>
-                    Plan valid till:{" "}
+                    Access valid till:{" "}
                     {op?.plan_expires_at ? new Date(op.plan_expires_at).toLocaleString() : "—"}
                   </li>
                   <li>Callback URL: {op?.callback_url ?? "not configured"}</li>

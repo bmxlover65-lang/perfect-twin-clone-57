@@ -228,7 +228,7 @@ function ConsolePage() {
             <Stat label="GGR (stake − payout)" value={`₹${(staked - paid).toLocaleString("en-IN")}`} />
             <Stat label="Rejected bets" value={String(sum?.totals.rejected ?? 0)} />
             <Stat
-              label="Plan expiring"
+              label="Expiring soon"
               value={
                 ops.filter(
                   (o) =>
@@ -395,7 +395,7 @@ function ConsolePage() {
                 ))}
                 {!(sum?.rejected ?? []).length ? (
                   <tr>
-                    <td className="p-3 text-muted-foreground" colSpan={6}>
+                    <td className="p-3 text-muted-foreground" colSpan={5}>
                       No rejected bets.
                     </td>
                   </tr>
@@ -422,7 +422,7 @@ function ConsolePage() {
                   email: String(f.get("email")).trim(),
                   password: String(f.get("password")),
                   callbackUrl: String(f.get("cb") || "") || undefined,
-                  days: 30,
+                  days: Math.min(3650, Math.max(1, Number(f.get("days")) || 30)),
                 },
               });
               form.reset();
@@ -434,7 +434,7 @@ function ConsolePage() {
           }}
         >
           <div className="sm:col-span-2 text-xs font-semibold text-muted-foreground">
-            New operator — login, 30-day validity aur API key ek saath ban jayenge.
+            New operator — login, validity (jitne din aap chaho) aur API key ek saath ban jayenge.
           </div>
           <label className="grid gap-1 text-xs text-muted-foreground">
             Operator name
@@ -468,6 +468,18 @@ function ConsolePage() {
           <label className="grid gap-1 text-xs text-muted-foreground">
             Callback URL (optional)
             <input name="cb" placeholder="https://site.com/api/wallet" className={input} />
+          </label>
+          <label className="grid gap-1 text-xs text-muted-foreground">
+            Validity — kitne din ke liye?
+            <input
+              name="days"
+              type="number"
+              min={1}
+              max={3650}
+              defaultValue={30}
+              required
+              className={input}
+            />
           </label>
           <div className="sm:col-span-2">
             <button className={btn}>Create operator + API key</button>
@@ -522,7 +534,6 @@ function ConsolePage() {
               <tr>
                 <th className="p-2 text-left">Name</th>
                 <th className="p-2 text-left">Status</th>
-                <th className="p-2 text-left">Plan</th>
                 <th className="p-2 text-left">Expires</th>
                 <th className="p-2 text-left">Callback</th>
                 <th className="p-2" />
@@ -536,7 +547,6 @@ function ConsolePage() {
                 >
                   <td className="p-2 font-semibold text-foreground">{o.name}</td>
                   <td className="p-2">{o.status}</td>
-                  <td className="p-2">₹{Number(o.plan_amount).toLocaleString("en-IN")}</td>
                   <td className="p-2">
                     {o.plan_expires_at ? new Date(o.plan_expires_at).toLocaleDateString() : "—"}
                   </td>
@@ -565,20 +575,22 @@ function ConsolePage() {
                       className={ghost}
                       onClick={() =>
                         run(async () => {
-                          await update({ data: { id: o.id, planDays: 30 } });
-                          setNote("Plan extended by 30 days.");
+                          const d = Number(window.prompt("Kitne din add karein?", "30"));
+                          if (!d || d < 1) return;
+                          await update({ data: { id: o.id, planDays: Math.min(3650, d) } });
+                          setNote(`Validity extended by ${Math.min(3650, d)} days.`);
                           await refresh();
                         })
                       }
                     >
-                      +30d
+                      + days
                     </button>
                   </td>
                 </tr>
               ))}
               {!ops.length ? (
                 <tr>
-                  <td className="p-3 text-muted-foreground" colSpan={6}>
+                  <td className="p-3 text-muted-foreground" colSpan={5}>
                     No operators yet.
                   </td>
                 </tr>
@@ -664,13 +676,15 @@ function ConsolePage() {
                     className={ghost}
                     onClick={() =>
                       run(async () => {
-                        await update({ data: { id: current.id, planDays: 30 } });
-                        setNote("Validity extended by 30 days.");
+                        const d = Number(window.prompt("Kitne din add karein?", "30"));
+                        if (!d || d < 1) return;
+                        await update({ data: { id: current.id, planDays: Math.min(3650, d) } });
+                        setNote(`Validity extended by ${Math.min(3650, d)} days.`);
                         await refresh();
                       })
                     }
                   >
-                    Extend 30 days
+                    Extend validity
                   </button>
                   <button className={ghost} onClick={() => setTab("keys")}>
                     API keys & access
