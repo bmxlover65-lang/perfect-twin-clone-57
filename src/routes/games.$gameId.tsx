@@ -2287,7 +2287,15 @@ function lucky7Label(winner: string): string | null {
   return null;
 }
 
-function ResultBanner({ results, gameId }: { results: CasinoResult[]; gameId?: string }) {
+function ResultBanner({
+  results,
+  gameId,
+  gameName,
+}: {
+  results: CasinoResult[];
+  gameId?: string;
+  gameName?: string | null;
+}) {
 
   const top = results[0] as (CasinoResult & { _id?: string; result?: string; selectionName?: string }) | undefined;
   const key = String(top?.roundId ?? top?._id ?? "");
@@ -2310,9 +2318,13 @@ function ResultBanner({ results, gameId }: { results: CasinoResult[]; gameId?: s
 
   if (!show || !winner) return null;
   const l7 = gameId && LUCKY7_GAMES.includes(gameId) ? lucky7Label(winner) : null;
-  const expanded = /^(player\s*)?[ab]$/i.test(winner)
-    ? `PLAYER ${winner.replace(/player\s*/i, "").toUpperCase()}`
-    : winner.toUpperCase();
+  const short = winner.replace(/player\s*/i, "").trim().toUpperCase();
+  const ab = isAndarBahar(gameName);
+  const dt = /dragon\s*tiger/i.test(gameName ?? "");
+  let expanded = winner.toUpperCase();
+  if (ab && (short === "A" || short === "B")) expanded = short === "A" ? "ANDAR" : "BAHAR";
+  else if (dt && (short === "D" || short === "T")) expanded = short === "D" ? "DRAGON" : "TIGER";
+  else if (/^(player\s*)?[ab]$/i.test(winner)) expanded = `PLAYER ${short}`;
   const label = l7 ?? (/win/i.test(expanded) ? expanded : `${expanded} WIN`);
 
   return (
