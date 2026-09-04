@@ -1873,7 +1873,29 @@ function GamePage() {
   const status = (d?.status ?? "").toUpperCase();
   const suspended = status ? !isOpenStatus(status) : false;
   const markets = d?.marketArr ?? [];
-  const cards = (d?.cardsArr ?? {}) as Record<string, Record<string, string>>;
+  const liveCards = (d?.cardsArr ?? {}) as Record<string, Record<string, string>>;
+  // When the live feed has already cleared the table for the next round but the
+  // settled round is still on screen, show the cards from the declared result so
+  // players see the real dealt cards instead of face-down placeholders.
+  const resultCards = useMemo(() => {
+    const raw = (results[0]?.cards ?? {}) as Record<string, unknown>;
+    const out: Record<string, Record<string, string>> = {};
+    for (const [k, v] of Object.entries(raw)) {
+      if (Array.isArray(v)) {
+        const hand: Record<string, string> = {};
+        v.forEach((c, i) => (hand[String(i)] = String(c)));
+        out[k.replace(/_/g, " ").trim()] = hand;
+      } else if (v && typeof v === "object") {
+        out[k.replace(/_/g, " ").trim()] = v as Record<string, string>;
+      } else if (typeof v === "string") {
+        out[k.replace(/_/g, " ").trim() || "CARD"] = { "0": v };
+      }
+    }
+    return out;
+  }, [results]);
+
+  const cards = Object.keys(liveCards).length ? liveCards : resultCards;
+
 
   // Keep the hand layout stable across the round (like the live table): while the
   // dealer has not turned the cards yet we still show face-down placeholders and
