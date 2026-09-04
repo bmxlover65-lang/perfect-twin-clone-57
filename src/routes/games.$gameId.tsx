@@ -2212,7 +2212,11 @@ function GamePage() {
         {gameId !== "88.0023" ? <MyBets gameId={gameId} /> : null}
 
         {gameId !== "88.0021" && gameId !== "88.0023" ? (
-          <RecentStrip results={results} dream={gameId === "88.0020"} />
+          <RecentStrip
+            results={results}
+            dream={gameId === "88.0020"}
+            lucky7={gameId === "99.0030"}
+          />
         ) : null}
 
       </div>
@@ -2335,7 +2339,7 @@ function GamePage() {
         <p className="mt-3 text-sm text-muted-foreground">Loading live markets…</p>
       ) : null}
 
-      <RecentStrip results={results} />
+      <RecentStrip results={results} lucky7={gameId === "99.0030"} />
 
     </div>
   );
@@ -2436,7 +2440,15 @@ function ResultBanner({
 
 }
 
-function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: boolean }) {
+function RecentStrip({
+  results,
+  dream,
+  lucky7,
+}: {
+  results: CasinoResult[];
+  dream?: boolean;
+  lucky7?: boolean;
+}) {
   return (
 
       <div className="mt-0 flex items-center gap-2 overflow-x-auto bg-ex-panel px-3 py-2">
@@ -2455,9 +2467,10 @@ function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: bool
                 ? playerMatch[1]!
                 : (raw.match(/^\d+/)?.[0] ?? raw);
           const lower = w.toLowerCase();
-          const isTie = lower.startsWith("tie") || lower.startsWith("draw");
-          const isNum = /^\d+$/.test(w);
-          const first = isTie ? "Tie" : isNum ? w : w.slice(0, 1).toUpperCase();
+          const l7Tie = !!lucky7 && (/^(7|0*7)$/.test(w) || lower.startsWith("tie"));
+          const isTie = !l7Tie && (lower.startsWith("tie") || lower.startsWith("draw"));
+          const isNum = !l7Tie && /^\d+$/.test(w);
+          const first = l7Tie ? "T" : isTie ? "Tie" : isNum ? w : w.slice(0, 1).toUpperCase();
           const PLAYER32_TONE: Record<string, string> = {
             "8": "bg-[#E67E22] text-white",
             "9": "bg-[#27AE60] text-white",
@@ -2481,7 +2494,9 @@ function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: bool
                       ? "bg-ex-lay text-ex-cell-foreground"
                       : "bg-ex-back text-ex-cell-foreground";
 
-          const finalTone = (dream ? DREAM_TONE[first] : undefined) ?? tone;
+          const finalTone = l7Tie
+            ? "bg-[#8CD9B5] text-[#0F172A]"
+            : ((dream ? DREAM_TONE[first] : undefined) ?? tone);
 
           const suit = /heart/i.test(raw)
             ? "♥"
