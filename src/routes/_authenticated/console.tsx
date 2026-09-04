@@ -253,7 +253,11 @@ function ConsolePage() {
 
 
       {sel && tab === "users" ? (
-        <Panel title="Users & GGR (selected operator)">
+        <>
+        <Panel title={`Players & GGR · ${current?.name ?? ""}`}>
+          <p className="mb-2 text-xs text-muted-foreground">
+            Kisi bhi player par click karo — neeche sirf usi ki bet history aur totals dikhengi.
+          </p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead className="text-muted-foreground">
@@ -270,7 +274,13 @@ function ConsolePage() {
               </thead>
               <tbody>
                 {(sum?.users ?? []).map((u) => (
-                  <tr key={u.userId} className="border-t border-border">
+                  <tr
+                    key={u.userId}
+                    onClick={() => setUserSel(u.userId === userSel ? "" : u.userId)}
+                    className={`cursor-pointer border-t border-border hover:bg-muted/50 ${
+                      userSel === u.userId ? "bg-muted/60" : ""
+                    }`}
+                  >
                     <td className="p-2 font-mono">{u.userId}</td>
                     <td className="p-2 text-right">{u.bets}</td>
                     <td className="p-2 text-right">{u.open}</td>
@@ -294,6 +304,63 @@ function ConsolePage() {
             </table>
           </div>
         </Panel>
+
+        {userSel ? (
+          <Panel
+            title={`Player ${userSel}`}
+            action={
+              <button className={ghost} onClick={() => setUserSel("")}>
+                Clear
+              </button>
+            }
+          >
+            <div className="grid gap-3 sm:grid-cols-4">
+              <Stat label="Bets" value={String(userRow?.bets ?? userBets.length)} />
+              <Stat label="Staked" value={`₹${Math.round(userRow?.staked ?? 0).toLocaleString("en-IN")}`} />
+              <Stat label="Payout" value={`₹${Math.round(userRow?.payout ?? 0).toLocaleString("en-IN")}`} />
+              <Stat
+                label="GGR"
+                value={`₹${Math.round((userRow?.staked ?? 0) - (userRow?.payout ?? 0)).toLocaleString("en-IN")}`}
+              />
+            </div>
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead className="text-muted-foreground">
+                  <tr>
+                    <th className="p-2 text-left">Game</th>
+                    <th className="p-2 text-left">Round</th>
+                    <th className="p-2 text-left">Selection</th>
+                    <th className="p-2 text-right">Odds</th>
+                    <th className="p-2 text-right">Stake</th>
+                    <th className="p-2 text-right">Payout</th>
+                    <th className="p-2 text-left">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {userBets.map((b) => (
+                    <tr key={b.id} className="border-t border-border">
+                      <td className="p-2">{b.game_id}</td>
+                      <td className="p-2">{b.round_id}</td>
+                      <td className="p-2">{b.selection}</td>
+                      <td className="p-2 text-right">{Number(b.odds).toFixed(2)}</td>
+                      <td className="p-2 text-right">{Number(b.stake).toLocaleString("en-IN")}</td>
+                      <td className="p-2 text-right">{Number(b.payout).toLocaleString("en-IN")}</td>
+                      <td className="p-2">{b.status}</td>
+                    </tr>
+                  ))}
+                  {!userBets.length ? (
+                    <tr>
+                      <td className="p-3 text-muted-foreground" colSpan={7}>
+                        Is player ki koi bet nahi mili.
+                      </td>
+                    </tr>
+                  ) : null}
+                </tbody>
+              </table>
+            </div>
+          </Panel>
+        ) : null}
+        </>
       ) : null}
 
       {sel && tab === "rejected" ? (
