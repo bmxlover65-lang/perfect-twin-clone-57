@@ -10,6 +10,7 @@ import {
   provisionOperator,
   removeWhitelist,
   revokeApiKey,
+  setKeyProducts,
   updateOperator,
 } from "@/lib/operator-admin.functions";
 import {
@@ -51,6 +52,7 @@ type Operator = {
   callback_url: string | null;
   plan_amount: number;
   plan_expires_at: string | null;
+  products?: string[] | null;
   owner_id: string | null;
 };
 
@@ -94,6 +96,7 @@ function ConsolePage() {
   const revoke = useServerFn(revokeApiKey);
   const addWl = useServerFn(addWhitelist);
   const rmWl = useServerFn(removeWhitelist);
+  const setKeyScope = useServerFn(setKeyProducts);
   const wl = useServerFn(listWhitelist);
   const ledger = useServerFn(operatorLedger);
   const logs = useServerFn(listCallbackLogs);
@@ -334,6 +337,7 @@ function ConsolePage() {
                     <th className="p-2 text-right">Stake</th>
                     <th className="p-2 text-right">Payout</th>
                     <th className="p-2 text-left">Status</th>
+                <th className="p-2 text-left">API access</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -395,7 +399,7 @@ function ConsolePage() {
                 ))}
                 {!(sum?.rejected ?? []).length ? (
                   <tr>
-                    <td className="p-3 text-muted-foreground" colSpan={5}>
+                    <td className="p-3 text-muted-foreground" colSpan={6}>
                       No rejected bets.
                     </td>
                   </tr>
@@ -423,6 +427,9 @@ function ConsolePage() {
                   password: String(f.get("password")),
                   callbackUrl: String(f.get("cb") || "") || undefined,
                   days: Math.min(3650, Math.max(1, Number(f.get("days")) || 30)),
+                  products: (f.getAll("products").map(String) as ("casino" | "sports")[]).length
+                    ? (f.getAll("products").map(String) as ("casino" | "sports")[])
+                    : (["casino"] as ("casino" | "sports")[]),
                 },
               });
               form.reset();
@@ -469,6 +476,17 @@ function ConsolePage() {
             Callback URL (optional)
             <input name="cb" placeholder="https://site.com/api/wallet" className={input} />
           </label>
+          <fieldset className="grid gap-1 text-xs text-muted-foreground sm:col-span-2">
+            <legend>Allowed API — is operator ko kya dena hai?</legend>
+            <div className="flex gap-4 pt-1 text-foreground">
+              <label className="flex items-center gap-2">
+                <input type="checkbox" name="products" value="casino" defaultChecked /> Casino API
+              </label>
+              <label className="flex items-center gap-2">
+                <input type="checkbox" name="products" value="sports" /> Sports API
+              </label>
+            </div>
+          </fieldset>
           <label className="grid gap-1 text-xs text-muted-foreground">
             Validity — kitne din ke liye?
             <input
@@ -547,6 +565,7 @@ function ConsolePage() {
                 >
                   <td className="p-2 font-semibold text-foreground">{o.name}</td>
                   <td className="p-2">{o.status}</td>
+                  <td className="p-2">{(o.products ?? ["casino", "sports"]).join(" + ")}</td>
                   <td className="p-2">
                     {o.plan_expires_at ? new Date(o.plan_expires_at).toLocaleDateString() : "—"}
                   </td>
@@ -590,7 +609,7 @@ function ConsolePage() {
               ))}
               {!ops.length ? (
                 <tr>
-                  <td className="p-3 text-muted-foreground" colSpan={5}>
+                  <td className="p-3 text-muted-foreground" colSpan={6}>
                     No operators yet.
                   </td>
                 </tr>
