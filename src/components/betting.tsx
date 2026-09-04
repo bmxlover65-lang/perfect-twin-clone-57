@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { placeBet, readWallet, useWallet, type Bet } from "@/lib/wallet";
+import { BET_ERR, placeBet, readWallet, useWallet, type Bet } from "@/lib/wallet";
+import { playerSession } from "@/lib/player";
 import { useEmbed } from "@/lib/embed";
 
 export type Pick = { label: string; odds: number };
@@ -204,6 +205,13 @@ export function BetLayer({
     setChips([]);
   }, [round]);
 
+  // The operator wallet can refuse an integrated bet after it was sent.
+  useEffect(() => {
+    const onErr = (e: Event) => setErr((e as CustomEvent<string>).detail);
+    window.addEventListener(BET_ERR, onErr);
+    return () => window.removeEventListener(BET_ERR, onErr);
+  }, []);
+
   const close = () => {
     setPick(null);
   };
@@ -220,7 +228,7 @@ export function BetLayer({
       setErr("Please enter a valid stake.");
       return;
     }
-    if (stake > readWallet().balance) {
+    if (!playerSession() && stake > readWallet().balance) {
       setErr("You have Insufficient Balance.");
       return;
     }

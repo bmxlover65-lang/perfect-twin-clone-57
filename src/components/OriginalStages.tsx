@@ -2,7 +2,8 @@ import { useEmbed } from "@/lib/embed";
 import { useEffect, useRef, useState } from "react";
 import { RoundTimer } from "@/components/RoundTimer";
 import { SuccessToast } from "@/components/betting";
-import { creditWin, debit, useWallet } from "@/lib/wallet";
+import { cancelBet, cashOut, placeBet, useWallet } from "@/lib/wallet";
+import { playerSession } from "@/lib/player";
 import luckyBg from "@/assets/lucky-bg.gif.asset.json";
 import dreamBg from "@/assets/dream/dreambg.png.asset.json";
 import dreamHub from "@/assets/dream/wheelhub3.png.asset.json";
@@ -382,7 +383,7 @@ export function BalloonStage({
   const wallet = useWallet();
   const balance = wallet.balance;
   const embedded = useEmbed();
-  const [bets, setBets] = useState<(null | { entry: number; stake: number; pending?: boolean })[]>([
+  const [bets, setBets] = useState<(null | { entry: number; stake: number; pending?: boolean; ref?: string })[]>([
     null,
     null,
   ]);
@@ -543,8 +544,16 @@ export function BalloonStage({
           if (b?.pending) return { entry: 1, stake: b.stake };
           if (b) return b;
           if (!autoRef.current[i]) return null;
-          if (!debit(stakeRef.current)) return null;
-          return { entry: 1, stake: stakeRef.current };
+          const ref = placeBet({
+            gameId: "balloon",
+            gameName: "Balloon",
+            round: String(curRound ?? roundRef.current ?? "live"),
+            label: "Cash out",
+            odds: 1,
+            stake: stakeRef.current,
+          });
+          if (!ref) return null;
+          return { entry: 1, stake: stakeRef.current, ref };
         }),
       );
       setFlash([null, null]);
@@ -700,7 +709,7 @@ export function BalloonStage({
       if (b?.pending) {
         // cancel a queued bet (only allowed while the round has not started)
         if (phase === "flying") return prev;
-        creditWin(b.stake);
+        cancelBet(b.ref, b.stake);
         next[i] = null;
         setUsed((u) => {
           const n = [...u] as [boolean, boolean];
@@ -711,8 +720,7 @@ export function BalloonStage({
       }
       if (b) {
         if (phase !== "flying") return prev;
-        const payout = Math.round(b.stake * shown);
-        creditWin(payout);
+        const payout = cashOut(b.ref, b.stake, shown);
         setFlash((f) => {
           const n = [...f];
           n[i] = { text: `+${payout.toLocaleString("en-IN")}`, win: true };
@@ -723,8 +731,16 @@ export function BalloonStage({
         // no new bets once the round has started, and only one bet per round
         if (phase === "flying" || usedRef.current[i]) return prev;
         if (stake <= 0) return prev;
-        if (!debit(stake)) return prev;
-        next[i] = { entry: 1, stake, pending: true };
+        const ref = placeBet({
+          gameId: "balloon",
+          gameName: "Balloon",
+          round: String(roundRef.current ?? "live"),
+          label: "Cash out",
+          odds: 1,
+          stake,
+        });
+        if (!ref) return prev;
+        next[i] = { entry: 1, stake, pending: true, ref };
         setBetOk("Casino BetPlace Successful.");
         setUsed((u) => {
           const n = [...u] as [boolean, boolean];
@@ -750,8 +766,7 @@ export function BalloonStage({
       const target = Number(autoX[i]);
       const b = bets[i];
       if (!b || b.pending || !(target > 1) || shown < target) return;
-      const payout = Math.round(b.stake * target);
-      creditWin(payout);
+      const payout = cashOut(b.ref, b.stake, target);
       setFlash((f) => {
         const n = [...f];
         n[i] = { text: `+${payout.toLocaleString("en-IN")}`, win: true };

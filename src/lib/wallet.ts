@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { logBet, setBalance as logBalance } from "@/lib/telemetry";
+import { playerSession, remoteBet, remoteCashout } from "@/lib/player";
 
 /** Shared client wallet + bet book used by every casino game. */
 
@@ -46,19 +47,52 @@ function write(next: Wallet) {
   logBalance(Math.round(next.balance));
 }
 
+/**
+ * Place a bet.
+ *
+ * Integrated launch (`?apiKey=…&userId=…`): the stake is taken from the
+ * operator's own wallet through the public API — our demo balance is never
+ * touched. Standalone demo play falls back to the local balance.
+ *
+ * Returns the bet reference, or null when the bet could not be placed.
+ */
 export function placeBet(
   input: Omit<Bet, "id" | "ts" | "status" | "payout">,
-): boolean {
+): string | null {
   const w = readWallet();
-  if (input.stake <= 0 || input.stake > w.balance) return false;
+  const session = playerSession();
+  if (input.stake <= 0) return null;
+  if (!session && input.stake > w.balance) return null;
+  const ref = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
   const bet: Bet = {
     ...input,
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    id: ref,
     ts: Date.now(),
     status: "open",
     payout: 0,
   };
-  write({ balance: w.balance - input.stake, bets: [bet, ...w.bets].slice(0, LIMIT) });
+  write({
+    balance: session ? w.balance : w.balance - input.stake,
+    bets: [bet, ...w.bets].slice(0, LIMIT),
+  });
+  if (session) {
+    void remoteBet(session, {
+      gameId: input.gameId,
+      roundId: input.round,
+      selection: input.label,
+      odds: input.odds,
+      stake: input.stake,
+      reference: ref,
+    }).then((r) => {
+      if (r.ok) return;
+      dropBet(ref);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent(BET_ERR, { detail: r.message ?? "Bet was declined." }),
+        );
+      }
+    });
+  }
   logBet({
     ts: bet.ts,
     gameId: bet.gameId,
@@ -68,7 +102,40 @@ export function placeBet(
     multiplier: bet.odds,
     payout: 0,
   });
-  return true;
+  return ref;
+}
+
+export const BET_ERR = "uapi-bet-error";
+
+/** Remove a bet the operator wallet refused (no local money moved). */
+function dropBet(ref: string) {
+  const w = readWallet();
+  write({ ...w, bets: w.bets.filter((b) => b.id !== ref) });
+}
+
+/**
+ * Cash out a crash-game bet. Integrated play credits the operator wallet;
+ * demo play credits the local balance.
+ */
+export function cashOut(ref: string | undefined, stake: number, multiplier: number): number {
+  const payout = Math.round(stake * multiplier);
+  const session = playerSession();
+  const w = readWallet();
+  const bets = w.bets.map((b) =>
+    b.id === ref ? { ...b, status: "won" as const, odds: multiplier, payout } : b,
+  );
+  write({ balance: session ? w.balance : w.balance + payout, bets });
+  if (session && ref) void remoteCashout(session, ref, multiplier);
+  return payout;
+}
+
+/** Cancel a queued bet before the round starts. */
+export function cancelBet(ref: string | undefined, stake: number) {
+  const session = playerSession();
+  const w = readWallet();
+  const bets = w.bets.filter((b) => b.id !== ref);
+  write({ balance: session ? w.balance : w.balance + stake, bets });
+  if (session && ref) void remoteCashout(session, ref, 1);
 }
 
 function norm(s: string) {
