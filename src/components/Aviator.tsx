@@ -350,7 +350,9 @@ function BetPanel({
 }
 
 
-/** Mobile slot: own stake grid + auto row + cash-in button (matches mobile reference). */
+const MOBILE_PRESETS = [10, 50, 100, 500, 1000, 2500, 5000, 10000];
+
+/** Mobile slot: Auto toggle + compact preset grid + Cash In (matches mobile reference). */
 function MobileBetSlot({
   state,
   setState,
@@ -368,7 +370,8 @@ function MobileBetSlot({
 }) {
   const canCash = phase === "flying" && state.active && state.cashedAt === null;
   const pending = state.staged || (state.active && state.cashedAt === null);
-  const tone = canCash ? "bg-[#F59E0B]" : pending ? "bg-[#EF0000]" : "bg-[#18C800]";
+  const locked = pending || canCash;
+  const tone = canCash ? "bg-[#F59E0B]" : pending ? "bg-[#EF0000]" : "bg-[#16A62A]";
 
   const press = () => {
     if (canCash) {
@@ -385,61 +388,48 @@ function MobileBetSlot({
   };
 
   return (
-    <div className="flex min-w-0 flex-col gap-[6px]">
-      <PanelModeTabs state={state} setState={setState} />
-      {state.mode === "auto" ? (
-        <div className="flex items-center justify-between gap-2 px-1">
-          <span className="text-[0.72rem] font-semibold text-[#C9CBD1]">Auto Bet</span>
+    <div className="flex min-w-0 flex-col items-center gap-[5px]">
+      <div className="flex items-center gap-[6px]">
+        <span className="text-[0.72rem] font-bold text-white">Auto</span>
+        <button
+          type="button"
+          onClick={() => setState((p) => ({ ...p, auto: !p.auto, mode: !p.auto ? "auto" : "bet" }))}
+          aria-pressed={state.auto}
+          className={`relative h-[18px] w-[38px] shrink-0 rounded-full border border-[#4A4E55] transition-colors ${
+            state.auto ? "bg-[#16A62A]" : "bg-[#17191C]"
+          }`}
+        >
+          <span
+            className={`absolute top-[2px] h-[12px] w-[12px] rounded-full bg-white transition-all ${
+              state.auto ? "left-[23px]" : "left-[3px]"
+            }`}
+          />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-[4px]">
+        {MOBILE_PRESETS.map((q) => (
           <button
+            key={q}
             type="button"
-            onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
-            aria-pressed={state.auto}
-            className={`relative h-[22px] w-[44px] shrink-0 rounded-full transition-colors ${
-              state.auto ? "bg-[#18B800]" : "bg-[#2A2C30]"
+            disabled={locked}
+            onClick={() => setState((p) => ({ ...p, amount: q }))}
+            className={`h-[20px] w-[57px] rounded-full border bg-[#17191C] text-[0.69rem] font-semibold leading-none disabled:opacity-40 ${
+              state.amount === q ? "border-[#16C800] text-white" : "border-[#4A4E55] text-[#D2D4D9]"
             }`}
           >
-            <span
-              className={`absolute top-[3px] h-[16px] w-[16px] rounded-full bg-white transition-all ${
-                state.auto ? "left-[25px]" : "left-[3px]"
-              }`}
-            />
+            {q}
           </button>
-        </div>
-      ) : null}
-
-      <StakeControl state={state} setState={setState} locked={pending || canCash} big />
+        ))}
+      </div>
 
       <button
         type="button"
         onClick={press}
-        className={`flex flex-col items-center rounded-[12px] py-[9px] text-white ${tone}`}
+        className={`h-[44px] w-[118px] rounded-[8px] text-[0.95rem] font-bold text-white ${tone}`}
       >
-        <span className="text-[0.95rem] font-black uppercase leading-tight">
-          {canCash ? "Cash Out" : pending ? "Cancel" : "Bet"}
-        </span>
-        <span className="text-[0.72rem] font-bold leading-tight">
-          {canCash ? `${fmt(state.amount * multiplier)} INR` : `${state.amount.toFixed(2)} INR`}
-        </span>
+        {canCash ? "Cash Out" : pending ? "Cancel" : "Cash In"}
       </button>
-
-
-
-
-      {state.mode === "auto" ? (
-        <div className="flex items-center gap-1 rounded-full bg-[#0B0C0E] px-2 py-[3px]">
-          <input
-            type="number"
-            step="0.01"
-            min="1.01"
-            value={state.autoCashout}
-            onChange={(e) => {
-              const v = Number(e.target.value);
-              setState((p) => ({ ...p, autoCashout: Number.isFinite(v) ? v : p.autoCashout }));
-            }}
-            className="min-w-0 flex-1 bg-transparent text-center text-[0.78rem] font-bold text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
-          />
-        </div>
-      ) : null}
 
       {state.cashedAt ? (
         <p className="text-center text-[0.6rem] font-bold text-[#18B800]">
@@ -449,6 +439,52 @@ function MobileBetSlot({
     </div>
   );
 }
+
+/** Center column actions for the mobile betting controls. */
+function MobileCenterActions({
+  setSlot,
+}: {
+  setSlot: (i: number, fn: (p: PanelState) => PanelState) => void;
+}) {
+  const both = (fn: (p: PanelState) => PanelState) => {
+    setSlot(0, fn);
+    setSlot(1, fn);
+  };
+  const btn = "h-[26px] w-[58px] rounded-[6px] text-[0.75rem] font-semibold leading-none";
+  return (
+    <div className="flex flex-col items-center gap-[6px] pt-[22px]">
+      <button
+        type="button"
+        onClick={() => both((p) => ({ ...p, mode: p.mode === "bet" ? "auto" : "bet" }))}
+        className={`${btn} bg-[#F0821E] text-white`}
+      >
+        Edit
+      </button>
+      <button
+        type="button"
+        onClick={() => both((p) => ({ ...p, amount: 10, staged: false }))}
+        className={`${btn} bg-[#E01B1B] text-white`}
+      >
+        Clear
+      </button>
+      <button
+        type="button"
+        onClick={() => both((p) => ({ ...p, amount: 10 }))}
+        className={`${btn} border border-[#4A4E55] bg-[#17191C] text-[#9AA0A8]`}
+      >
+        Min
+      </button>
+      <button
+        type="button"
+        onClick={() => both((p) => ({ ...p, amount: 10000 }))}
+        className={`${btn} border border-[#4A4E55] bg-[#17191C] text-[#9AA0A8]`}
+      >
+        Max
+      </button>
+    </div>
+  );
+}
+
 
 
 
@@ -1373,20 +1409,27 @@ export function Aviator() {
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} feedLive={feedLive} />
 
           <div className="rounded-[12px] border border-[#292D32] bg-[#111315] p-2 sm:p-4">
-            {/* mobile: two bet slots, same as the original app */}
-            <div className="grid grid-cols-2 items-start gap-2 sm:hidden">
-              {slots.map((s, i) => (
-                <MobileBetSlot
-                  key={i}
-                  state={s}
-                  setState={(fn) => setSlot(i, fn)}
-                  phase={phase}
-                  multiplier={multiplier}
-                  onWin={win}
-                  balance={balance}
-                />
-              ))}
+            {/* mobile: left presets | center actions | right presets */}
+            <div className="flex items-start justify-between gap-[6px] rounded-[10px] border border-[#292D32] bg-[#0D0E10] p-[8px] sm:hidden">
+              <MobileBetSlot
+                state={slots[0]!}
+                setState={(fn) => setSlot(0, fn)}
+                phase={phase}
+                multiplier={multiplier}
+                onWin={win}
+                balance={balance}
+              />
+              <MobileCenterActions setSlot={setSlot} />
+              <MobileBetSlot
+                state={slots[1]!}
+                setState={(fn) => setSlot(1, fn)}
+                phase={phase}
+                multiplier={multiplier}
+                onWin={win}
+                balance={balance}
+              />
             </div>
+
 
             <div className="mt-2 hidden grid-cols-2 gap-[10px] sm:mt-3 sm:grid">
 
