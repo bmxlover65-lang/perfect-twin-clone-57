@@ -10,7 +10,7 @@ import {
   type Market,
   type OddsResponse,
 } from "@/lib/uapi";
-import { BalanceChip, BetLayer, MyBets } from "@/components/betting";
+import { BalanceChip, BetLayer } from "@/components/betting";
 import { Scoreboard } from "@/components/Scoreboard";
 import { settleFromRunners, voidOpen } from "@/lib/wallet";
 
@@ -392,7 +392,6 @@ function EventPage() {
         </div>
       </BetLayer>
 
-      <MyBets gameId={`sports-${eventId}`} />
 
 
     </div>

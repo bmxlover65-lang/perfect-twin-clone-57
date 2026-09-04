@@ -293,13 +293,15 @@ export const Route = createFileRoute("/api/public/uapi/$")({
       GET: async ({ request, params }) => {
         const splat = (params as { _splat?: string })._splat ?? "";
         const url = new URL(request.url);
-        return proxy(splat, url.search, undefined, url.origin);
+        // Same-origin relative URLs: the worker's internal request origin can be
+        // localhost, which the browser cannot load from inside the iframe.
+        return proxy(splat, url.search, undefined, "");
       },
       POST: async ({ request, params }) => {
         const splat = (params as { _splat?: string })._splat ?? "";
         const url = new URL(request.url);
         const body = await request.text().catch(() => "{}");
-        return proxy(splat, url.search, body || "{}", url.origin);
+        return proxy(splat, url.search, body || "{}", "");
 
       },
     },
