@@ -422,7 +422,7 @@ function ConsolePage() {
                   email: String(f.get("email")).trim(),
                   password: String(f.get("password")),
                   callbackUrl: String(f.get("cb") || "") || undefined,
-                  days: 30,
+                  days: Math.min(3650, Math.max(1, Number(f.get("days")) || 30)),
                 },
               });
               form.reset();
