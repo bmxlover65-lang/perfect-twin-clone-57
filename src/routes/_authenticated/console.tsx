@@ -4,7 +4,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import {
   addWhitelist,
-  createOperator,
   issueApiKey,
   listWhitelist,
   operatorLedger,
@@ -87,7 +86,6 @@ function ConsolePage() {
   const navigate = useNavigate();
   const me = useServerFn(whoAmI);
   const claim = useServerFn(bootstrapAdmin);
-  const create = useServerFn(createOperator);
   const provision = useServerFn(provisionOperator);
   const update = useServerFn(updateOperator);
   const issue = useServerFn(issueApiKey);
