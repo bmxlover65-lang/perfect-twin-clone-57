@@ -524,8 +524,125 @@ function ConsolePage() {
 
       {sel ? (
         <>
+          {tab === "manage" && current ? (
+            <>
+              <Panel title={`Manage · ${current.name}`}>
+                <div className="grid gap-3 sm:grid-cols-4">
+                  <Stat label="Status" value={current.status} />
+                  <Stat
+                    label="Valid till"
+                    value={
+                      current.plan_expires_at
+                        ? new Date(current.plan_expires_at).toLocaleDateString()
+                        : "—"
+                    }
+                  />
+                  <Stat label="Active keys" value={String((detail?.keys ?? []).filter((k: any) => k.active).length)} />
+                  <Stat label="Players" value={String((sum?.users ?? []).length)} />
+                </div>
+
+                <form
+                  className="mt-4 grid gap-2 rounded-lg border border-border p-3 sm:grid-cols-[1fr_auto]"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const f = new FormData(e.currentTarget as HTMLFormElement);
+                    void run(async () => {
+                      await update({
+                        data: { id: current.id, callbackUrl: String(f.get("cb") || "") || null },
+                      });
+                      setNote("Callback wallet URL saved.");
+                      await refresh();
+                    });
+                  }}
+                >
+                  <label className="grid gap-1 text-xs text-muted-foreground">
+                    Callback wallet URL — is endpoint par hum balance / debit / credit / rollback bhejte hain
+                    <input
+                      name="cb"
+                      defaultValue={current.callback_url ?? ""}
+                      key={current.id + (current.callback_url ?? "")}
+                      placeholder="https://site.com/api/wallet"
+                      className={input}
+                    />
+                  </label>
+                  <div className="flex items-end">
+                    <button className={btn}>Save callback URL</button>
+                  </div>
+                  {current.callback_secret ? (
+                    <p className="text-[0.72rem] text-muted-foreground sm:col-span-2 break-all">
+                      Callback secret (HMAC-SHA256 of raw body → <code>x-signature</code>):{" "}
+                      <span className="font-mono text-foreground">{current.callback_secret}</span>
+                    </p>
+                  ) : null}
+                </form>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    className={ghost}
+                    onClick={() =>
+                      run(async () => {
+                        await update({
+                          data: {
+                            id: current.id,
+                            status: current.status === "active" ? "suspended" : "active",
+                          },
+                        });
+                        await refresh();
+                      })
+                    }
+                  >
+                    {current.status === "active" ? "Suspend operator" : "Activate operator"}
+                  </button>
+                  <button
+                    className={ghost}
+                    onClick={() =>
+                      run(async () => {
+                        await update({ data: { id: current.id, planDays: 30 } });
+                        setNote("Validity extended by 30 days.");
+                        await refresh();
+                      })
+                    }
+                  >
+                    Extend 30 days
+                  </button>
+                  <button className={ghost} onClick={() => setTab("keys")}>
+                    API keys & access
+                  </button>
+                  <button className={ghost} onClick={() => setTab("wallet")}>
+                    Test callback wallet
+                  </button>
+                  <button className={ghost} onClick={() => setTab("users")}>
+                    Players & GGR
+                  </button>
+                </div>
+              </Panel>
+
+              <Panel title="This operator at a glance">
+                <div className="grid gap-3 sm:grid-cols-4">
+                  <Stat label="Staked" value={`₹${Math.round(staked).toLocaleString("en-IN")}`} />
+                  <Stat label="Paid out" value={`₹${Math.round(paid).toLocaleString("en-IN")}`} />
+                  <Stat label="GGR" value={`₹${Math.round(staked - paid).toLocaleString("en-IN")}`} />
+                  <Stat label="Open bets" value={String(openBets)} />
+                </div>
+                <ul className="mt-3 space-y-1 text-xs">
+                  {cbLogs.slice(0, 8).map((l) => (
+                    <li key={l.id} className="border-t border-border py-1.5">
+                      <span className={l.ok ? "text-live-win" : "text-destructive"}>
+                        {l.ok ? "OK" : "FAIL"}
+                      </span>{" "}
+                      {l.endpoint} · {l.status_code} · {new Date(l.created_at).toLocaleTimeString()}
+                    </li>
+                  ))}
+                  {!cbLogs.length ? (
+                    <li className="text-muted-foreground">Abhi tak koi wallet callback nahi gaya.</li>
+                  ) : null}
+                </ul>
+              </Panel>
+            </>
+          ) : null}
+
           {tab === "keys" ? (
-          <Panel title="API keys & access">
+          <Panel title={`API keys & access · ${current?.name ?? ""}`}>
             <p className="text-xs text-muted-foreground">
               Har operator ko key issue karo. IP aur domain whitelist us key ke andar hi set hoti hai —
               key ke saath sirf wahi IP / domain kaam karenge. Whitelist khali chhodo to us key par koi
