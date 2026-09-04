@@ -8,7 +8,7 @@ import { useEmbed } from "@/lib/embed";
 
 import { applyOverride, useAdminConfig } from "@/lib/admin";
 import { logResult } from "@/lib/telemetry";
-import { BalanceChip, BetLayer, MyBets } from "@/components/betting";
+import { BalanceChip, BetLayer } from "@/components/betting";
 import { settleLatest, settleRound } from "@/lib/wallet";
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
 
@@ -2052,7 +2052,6 @@ function GamePage() {
           />
 
         </BetLayer>
-        <MyBets gameId={gameId} />
       </div>
 
     );
@@ -2210,7 +2209,6 @@ function GamePage() {
 
         </BetLayer>
 
-        {gameId !== "88.0023" ? <MyBets gameId={gameId} /> : null}
 
         {gameId !== "88.0021" && gameId !== "88.0023" ? (
           <RecentStrip
@@ -2332,7 +2330,6 @@ function GamePage() {
         )}
         </Fit>
       </BetLayer>
-      <MyBets gameId={gameId} />
 
 
 
