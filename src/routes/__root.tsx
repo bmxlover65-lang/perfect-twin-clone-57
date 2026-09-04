@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useEmbed } from "@/lib/embed";
 import {
   Outlet,
   Link,
@@ -227,11 +228,12 @@ function SiteHeader() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const embed = useEmbed();
 
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen bg-background">
-        <SiteHeader />
+        {embed ? null : <SiteHeader />}
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
       </div>
