@@ -393,7 +393,23 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
 }
 
 
+/** Rank label ("A", "2" … "K") rendered as the real printed card artwork. */
+const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+function RankCardLabel({ rank }: { rank: string }) {
+  const src = cardImage(`S${rank}`);
+  if (!src) return <>{rank}</>;
+  return (
+    <img
+      src={src}
+      alt={rank}
+      loading="lazy"
+      className="mx-auto block h-[40px] w-[29px] rounded-[3px] object-cover shadow-sm sm:h-[46px] sm:w-[33px]"
+    />
+  );
+}
+
 /** Light blue sectioned board with 2-column plates (Lucky 7, 20-20 TP, 20-20 DT) — original style. */
+
 function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
   const raw = market.runners ?? [];
