@@ -110,8 +110,8 @@ function Cards({ hand, title }: { hand: Record<string, string>; title: string })
   if (!codes.length) return null;
   return (
     <div>
-      <p className="text-[0.7rem] font-semibold capitalize tracking-wide text-white drop-shadow">
-        {title.replace(/_/g, " ").toLowerCase()}
+      <p className="text-[0.6rem] font-bold uppercase tracking-wide text-white drop-shadow">
+        {title.replace(/_/g, " ").toUpperCase()}
       </p>
       <div className="mt-0.5 flex gap-1">
 

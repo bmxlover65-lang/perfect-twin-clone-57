@@ -21,7 +21,7 @@ export function CardFace({ code }: { code: string }) {
     <img
       src={src ?? CARD_BACK}
       alt={hidden ? "card" : c}
-      className={`${CARD_SIZE} bg-white object-fill`}
+      className={`${CARD_SIZE} bg-white object-contain`}
       loading="lazy"
     />
   );

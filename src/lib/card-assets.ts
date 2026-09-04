@@ -50,4 +50,4 @@ export function cardImage(code: string): string | null {
 
 /** Shared card shape/size — identical across every game and stage (real card ratio 2.5:3.5). */
 export const CARD_SIZE =
-  "h-[46px] w-[33px] shrink-0 rounded-[4px] shadow-md";
+  "h-[38px] w-[27px] shrink-0 rounded-[3px] shadow-md sm:h-[42px] sm:w-[30px]";
