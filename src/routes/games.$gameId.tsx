@@ -378,7 +378,15 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
 /** Light blue sectioned board with 2-column plates (Lucky 7, 20-20 TP, 20-20 DT) — original style. */
 function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
-  const runners = market.runners ?? [];
+  const raw = market.runners ?? [];
+  // 20-20 Dragon Tiger: TIE runner sits centered on its own row below Dragon/Tiger.
+  const tieIdx = raw.findIndex(
+    (r) => (names[String(r.selectionId)] ?? "").trim().toUpperCase() === "TIE",
+  );
+  const runners =
+    tieIdx > -1 && tieIdx !== raw.length - 1
+      ? [...raw.slice(0, tieIdx), ...raw.slice(tieIdx + 1), raw[tieIdx]!]
+      : raw;
   const odd = runners.length % 2 === 1;
   return (
     <div className="mt-0">
@@ -2312,28 +2320,40 @@ function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: bool
         {results.slice(0, 10).map((r, idx) => {
           const rr = r as CasinoResult & { result?: string; selectionName?: string };
           const raw = (rr.winner ?? rr.result ?? rr.selectionName ?? "-").toString().trim();
+          const playerMatch = raw.match(/player\s*([a-z]|\d+)/i);
           const w = /^EXTRA/i.test(raw)
             ? "EX"
             : /^WICKET/i.test(raw)
               ? "W"
-              : (raw.match(/^\d+/)?.[0] ?? raw);
+              : playerMatch
+                ? playerMatch[1]!
+                : (raw.match(/^\d+/)?.[0] ?? raw);
           const lower = w.toLowerCase();
           const isTie = lower.startsWith("tie") || lower.startsWith("draw");
           const isNum = /^\d+$/.test(w);
           const first = isTie ? "Tie" : isNum ? w : w.slice(0, 1).toUpperCase();
-          const tone = isNum
-            ? w === "0"
-              ? "bg-[#12563A] text-white"
-              : Number(w) % 2 === 1
-                ? "bg-[#D9483B] text-white"
-                : "bg-[#1E1E1E] text-white"
-            : isTie
-              ? "bg-[#8CD9B5] text-[#0F172A]"
-              : first === "L"
-                ? "bg-[#8E44C7] text-white"
-                : ["B", "T"].includes(first)
-                  ? "bg-ex-lay text-ex-cell-foreground"
-                  : "bg-ex-back text-ex-cell-foreground";
+          const PLAYER32_TONE: Record<string, string> = {
+            "8": "bg-[#E67E22] text-white",
+            "9": "bg-[#27AE60] text-white",
+            "10": "bg-[#E67E22] text-white",
+            "11": "bg-[#8E44AD] text-white",
+          };
+          const tone =
+            isNum && playerMatch
+              ? (PLAYER32_TONE[w] ?? "bg-[#E67E22] text-white")
+              : isNum
+                ? w === "0"
+                  ? "bg-[#12563A] text-white"
+                  : Number(w) % 2 === 1
+                    ? "bg-[#D9483B] text-white"
+                    : "bg-[#1E1E1E] text-white"
+                : isTie
+                  ? "bg-[#8CD9B5] text-[#0F172A]"
+                  : first === "L"
+                    ? "bg-[#8E44C7] text-white"
+                    : ["B", "T"].includes(first)
+                      ? "bg-ex-lay text-ex-cell-foreground"
+                      : "bg-ex-back text-ex-cell-foreground";
 
           const finalTone = (dream ? DREAM_TONE[first] : undefined) ?? tone;
 
