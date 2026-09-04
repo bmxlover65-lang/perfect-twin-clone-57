@@ -2417,6 +2417,28 @@ function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: bool
 
           const finalTone = (dream ? DREAM_TONE[first] : undefined) ?? tone;
 
+          const suit = /heart/i.test(raw)
+            ? "♥"
+            : /spade/i.test(raw)
+              ? "♠"
+              : /diamond/i.test(raw)
+                ? "♦"
+                : /club/i.test(raw)
+                  ? "♣"
+                  : null;
+          if (suit) {
+            return (
+              <span
+                key={`${r.roundId ?? ""}-${idx}`}
+                title={`Round ${r.roundId}`}
+                className="flex h-9 min-w-9 shrink-0 items-center justify-center rounded-full bg-white px-2 text-base font-bold"
+                style={{ color: suit === "♥" || suit === "♦" ? "#E01B24" : "#111" }}
+              >
+                {suit}
+              </span>
+            );
+          }
+
           return (
             <span
               key={`${r.roundId ?? ""}-${idx}`}
@@ -2426,6 +2448,7 @@ function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: bool
               {first || "-"}
             </span>
           );
+
         })}
       </div>
   );
