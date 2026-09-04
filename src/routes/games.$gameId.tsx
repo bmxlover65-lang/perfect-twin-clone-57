@@ -2498,7 +2498,9 @@ function RecentStrip({
           const playerMatch = raw.match(/player[\s_]*([a-z]|\d+)/i);
           const w = chipLabel(raw);
           const lower = w.toLowerCase();
-          const l7Tie = !!lucky7 && (/^(7|0*7)$/.test(w) || lower.startsWith("tie"));
+          // Lucky 7: only LOW / HIGH are real outcomes — a 7 voids the winner
+          // market, so anything else the feed reports is the tie round.
+          const l7Tie = !!lucky7 && !["L", "H"].includes(w.toUpperCase());
           const isTie = !l7Tie && (lower.startsWith("tie") || lower.startsWith("draw"));
           const isNum = !l7Tie && /^\d+$/.test(w);
           const first = l7Tie ? "T" : isTie ? "Tie" : isNum ? w : w.slice(0, 1).toUpperCase();
