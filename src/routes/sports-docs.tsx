@@ -798,7 +798,9 @@ GET  https://universeapi.store/api/sports/4/{exEventId}/score`}
             </li>
             <li>
               <strong className="text-foreground">403</strong> — subscription inactive, sports
-              product not enabled, domain not on allowlist (also blocks <Code>GET /score</Code> when
+              product not enabled, caller IP not on Allowed IPs (when configured), domain not on
+              allowlist (also blocks <Code>GET /score</Code> when
+
               allowlist is empty), missing browser Referer/Origin on iframe, or token bound to a
               different embed domain
             </li>
