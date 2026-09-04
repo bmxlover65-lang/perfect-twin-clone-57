@@ -108,12 +108,13 @@ async function streamPage(rawUrl: string, origin: string, method = "GET", body?:
     }
     await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
   }
-  if (!res) {
+  if (!res || (res.status >= 500 && /text\/html/i.test(res.headers.get("content-type") ?? ""))) {
     return new Response(RETRY_PAGE, {
       status: 200,
       headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
     });
   }
+
 
 
   const type = res.headers.get("content-type") ?? "application/octet-stream";
