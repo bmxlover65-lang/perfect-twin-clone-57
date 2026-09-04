@@ -434,12 +434,12 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
 }
 
 
-/** Dark row board: label left, blue back (and pink lay) plates right (Joker TP, 1Day TP). */
+/** Light row board: label left, blue back (and pink lay) boxes right (Joker TP, 1Day TP) — original style. */
 function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
   const hasLay = runners.some((r) => Boolean(r.price?.lay?.[0]?.price));
-  const cols = hasLay ? "grid-cols-[1fr_88px_88px]" : "grid-cols-[1fr_100px]";
+  const cols = hasLay ? "grid-cols-[1fr_92px_92px]" : "grid-cols-[1fr_110px]";
 
   const plate = (
     p: { price?: number | null; size?: number | null } | undefined,
@@ -447,37 +447,49 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
     locked: boolean,
   ) => (
     <div
-      className={`relative m-[3px] flex h-[42px] flex-col items-center justify-center rounded-md ${
-        side === "back" ? "bg-[#3E6C88] text-white" : "bg-[#8E4F63] text-white"
+      className={`relative m-[2px] flex h-[44px] flex-col items-center justify-center border border-[#7fb4d6] ${
+        side === "back" ? "bg-[#72BBEF]" : "bg-[#F9C9D4]"
       }`}
     >
-      <span className="text-[0.92rem] font-extrabold leading-none">{fmtOdds(p?.price)}</span>
-      <span className="mt-0.5 text-[0.6rem] font-semibold text-white/75">{fmtSize(p?.size)}</span>
       {locked ? (
-        <span className="absolute inset-0 flex items-center justify-center rounded-md bg-black/45 text-sm">
-          🔒
-        </span>
-      ) : null}
+        <span className="absolute inset-0 flex items-center justify-center text-sm">🔒</span>
+      ) : (
+        <>
+          <span className="text-[0.95rem] font-extrabold leading-none text-[#111]">
+            {fmtOdds(p?.price)}
+          </span>
+          <span className="mt-0.5 text-[0.64rem] font-semibold text-[#111]/70">
+            {fmtSize(p?.size)}
+          </span>
+        </>
+      )}
     </div>
   );
 
   return (
-    <div className="mt-3 overflow-hidden rounded-md bg-[#1f2733]">
-      <div className={`grid ${cols} items-center bg-[#2b3644] px-2`}>
-        <span className="py-1 text-[0.78rem] font-extrabold uppercase text-[#9fd0ea]">
+    <div className="mt-0 overflow-hidden border border-[#d9e2ea] bg-gradient-to-b from-[#eaf5fd] to-[#cfe7f7]">
+      <div className={`grid ${cols} items-center px-2`}>
+        <span className="py-1.5 text-[0.8rem] font-extrabold uppercase text-[#12303f]">
           {market.marketName}
         </span>
-        <span className="py-1 text-center text-[0.68rem] font-semibold text-[#8b98a5]">
-          {market.min ?? 0} - {market.max ?? 0}
+        <span className="py-1.5 text-center text-[0.7rem] font-semibold text-[#5b6b76]">
+          Min: {market.min ?? 0} Max: {market.max ?? 0}
         </span>
-        {hasLay ? <span className="py-1 text-center text-[0.7rem] font-bold text-[#e6b7c4]">Lay</span> : null}
+        {hasLay ? (
+          <span className="py-1.5 text-center text-[0.72rem] font-bold text-[#12303f]">Back&nbsp;&nbsp;Lay</span>
+        ) : (
+          <span className="py-1.5 text-center text-[0.72rem] font-bold text-[#12303f]">Back</span>
+        )}
       </div>
       <div className="relative">
         {runners.map((r) => {
           const open = !suspended && isOpenStatus(r.status ?? "ONLINE");
           return (
-            <div key={String(r.selectionId)} className={`grid items-center ${cols} px-2`}>
-              <span className="truncate py-2 text-[0.82rem] font-bold uppercase text-[#dbe6f0]">
+            <div
+              key={String(r.selectionId)}
+              className={`grid items-center border-t border-white/70 ${cols} px-2`}
+            >
+              <span className="truncate py-1 text-[0.85rem] font-bold uppercase text-[#12303f]">
                 {names[String(r.selectionId)] ?? String(r.selectionId)}
               </span>
               {plate(r.price?.back?.[0], "back", !open || !r.price?.back?.[0]?.price)}
@@ -485,13 +497,6 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
             </div>
           );
         })}
-        {suspended ? (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/45">
-            <span className="text-xl font-extrabold uppercase tracking-wide text-[#c8d2dc]">
-              Suspended
-            </span>
-          </div>
-        ) : null}
       </div>
     </div>
   );
