@@ -408,7 +408,7 @@ function MobileBetSlot({
 
 
 
-      {mode === "auto" ? (
+      {state.mode === "auto" ? (
         <div className="flex items-center gap-1 rounded-full bg-[#0B0C0E] px-2 py-[3px]">
           <input
             type="number"
