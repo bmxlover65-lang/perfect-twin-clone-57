@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Block, Code, Endpoint, H2, H3, Note, P, Step, Table } from "@/components/docs-kit";
 import { LiveApiDemo } from "@/components/LiveApiDemo";
 import { GAMES } from "@/data/games";
+import { ODDS_CSS, ODDS_HTML, MODAL_CSS, MODAL_HTML } from "@/data/docs-snippets";
+
 
 export const Route = createFileRoute("/casino-docs")({
   head: () => ({
@@ -901,151 +903,14 @@ function cardImageUrl(code) {
 // After download: host files under /assets/ on your server`}
           />
           <H3>Live odds / markets UI</H3>
-          <Block
-            label="HTML"
-            code={`<div class="uc-markets-scroll">
-  <section class="uc-market">
-    <header class="uc-market-header">
-      <strong class="uc-market-title">PAIR PLUS A</strong>
-      <span class="uc-market-minmax">Min/Max: 100 - 25000</span>
-    </header>
-    <div class="uc-market-body">
-      <div class="uc-runners-row uc-runners-row-two">
-        <div class="uc-runner">
-          <span class="uc-runner-name">Pair A</span>
-          <div class="uc-odds-box">
-            <div class="uc-odds-price">2.5</div>
-            <div class="uc-odds-size">100</div>
-          </div>
-        </div>
-        <div class="uc-runner">
-          <span class="uc-runner-name">Pair B</span>
-          <div class="uc-odds-box">
-            <div class="uc-odds-price">2.5</div>
-            <div class="uc-odds-size">100</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-</div>`}
-          />
+          <Block label="HTML" code={ODDS_HTML} />
           <H3>CSS — odds panel</H3>
-          <Block
-            label="CSS"
-            code={`:root,
-[data-theme="light"] {
-  --casino-page-bg: var(--ifm-background-color);
-  --casino-shell-bg: #000;
-  --casino-markets-bg: #ededed;
-  --casino-market-header-bg: #000;
-  --casino-market-header-text: #fff;
-  --casino-market-body-bg: #fff;
-  --casino-text: #243a48;
-  --casino-runners-bg: linear-gradient(
-    90deg,
-    rgb(153 199 241) 0%,
-    rgb(138 189 216 / 50%) 49%,
-    rgb(146 198 246) 100%
-  );
-  --casino-odds-bg: rgba(114, 187, 239, 0.5);
-  --casino-odds-text: #111;
-  --casino-odds-shadow: 0 2px 7px 1px #67828be6;
-  --casino-back-bg: #72bbef;
-  --casino-lay-bg: #faa9ba;
-  --casino-results-bg: #000;
-  --casino-results-text: #fff;
-  --casino-card-border: #000;
-}
-
-[data-theme="dark"] {
-  --casino-shell-bg: #0d1117;
-  --casino-market-header-bg: #161b22;
-  --casino-odds-bg: rgba(114, 187, 239, 0.22);
-  --casino-odds-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
-  --casino-results-bg: #161b22;
-}
-
-.uc-market-header {
-  padding: 4px 8px;
-  font-size: 12px;
-  font-weight: 700;
-  background: var(--casino-market-header-bg);
-  color: var(--casino-market-header-text);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-}
-
-.uc-suspended-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.65);
-  border: 2px solid #666;
-  z-index: 1;
-}
-
-.uc-odds-box {
-  width: 100%;
-  max-width: 150px;
-  min-width: 72px;
-  border-radius: 5px;
-  padding: 4px 2px;
-  background: var(--casino-odds-bg);
-  box-shadow: var(--casino-odds-shadow);
-  color: var(--casino-odds-text);
-  text-align: center;
-  font-weight: 600;
-}`}
-          />
+          <Block label="CSS" code={ODDS_CSS} />
           <H3>Result modal UI</H3>
-          <Block
-            label="HTML"
-            code={`<div style="margin-bottom: 80px;">
-  <div class="modal-title p-2">
-    <h6 class="text-right round-id"><b>Round Id:</b> 952705064335</h6>
-  </div>
-  <div class="col-12 col-md-6 col-xs-12 paati_boxs">
-    <h6>Player A</h6>
-    <div class="card-Img-box">
-      <img src="/assets/cards/H7_.png" alt="Player A card 1" />
-      <img src="/assets/cards/D9_.png" alt="Player A card 2" />
-      <img src="/assets/cards/C3_.png" alt="Player A card 3" />
-    </div>
-    <div class="btn winner-team WinnerA">Winner</div>
-  </div>
-  <div class="col-12 col-md-6 col-xs-12 paati_boxs">
-    <h6>Player B</h6>
-    <div class="card-Img-box">
-      <img src="/assets/cards/S5_.png" alt="Player B card 1" />
-      <img src="/assets/cards/H2_.png" alt="Player B card 2" />
-      <img src="/assets/cards/D8_.png" alt="Player B card 3" />
-    </div>
-  </div>
-  <div class="clearfix"></div>
-  <div class="col-md-12 col-xs-12 all-market-winner">
-    <h6 class="text-center fw-bold">WINNER</h6>
-    <div class="dual-column-market-row">
-      <div class="card-Img-box sectionA p-1">
-        <i class="fa fa-trophy winner-icon" aria-hidden="true"></i>
-        <span class="teen-market-runner-name">PLAYER A</span>
-      </div>
-      <div class="card-Img-box sectionB p-1">
-        <i class="fa fa-trophy loser-icon" aria-hidden="true"></i>
-        <span class="teen-market-runner-name">PLAYER B</span>
-      </div>
-    </div>
-  </div>
-</div>`}
-          />
+          <Block label="HTML — result modal body" code={MODAL_HTML} />
+          <H3>CSS — result modal</H3>
+          <Block label="CSS" code={MODAL_CSS} />
+
 
           {/* Supported games */}
           <H2 id="supported-games">Supported games</H2>
