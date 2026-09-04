@@ -1006,7 +1006,16 @@ function CardRacePanel({
                   </div>
                 );
               })}
+              {runners.length > 0 &&
+              runners.every((r) => suspended || !isOpenStatus(r.status)) ? (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <span className="text-[1.45rem] font-extrabold uppercase tracking-[0.04em] text-[#8b98a3]">
+                    SUSPENDED
+                  </span>
+                </div>
+              ) : null}
             </div>
+
           </div>
         );
       })}
