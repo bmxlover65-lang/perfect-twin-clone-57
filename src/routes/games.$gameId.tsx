@@ -2426,11 +2426,14 @@ function ResultBanner({
   const short = winner.replace(/player\s*/i, "").trim().toUpperCase();
   const ab = isAndarBahar(gameName);
   const dt = /dragon\s*tiger/i.test(gameName ?? "");
-  let expanded = winner.toUpperCase();
-  if (ab && (short === "A" || short === "B")) expanded = short === "A" ? "ANDAR" : "BAHAR";
-  else if (dt && (short === "D" || short === "T")) expanded = short === "D" ? "DRAGON" : "TIGER";
+  let expanded = winner.toUpperCase().replace(/\s*\([^)]*\)\s*/g, " ").trim();
+  if (ab) {
+    const c = chipLabel(winner);
+    if (c === "A" || c === "B") expanded = c === "A" ? "ANDAR" : "BAHAR";
+  } else if (dt && (short === "D" || short === "T")) expanded = short === "D" ? "DRAGON" : "TIGER";
   else if (/^(player\s*)?[ab]$/i.test(winner)) expanded = `PLAYER ${short}`;
   const label = l7 ?? (/win/i.test(expanded) ? expanded : `${expanded} WIN`);
+
 
   return (
     <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
