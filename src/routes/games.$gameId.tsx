@@ -2339,8 +2339,9 @@ function ResultBanner({
 function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: boolean }) {
   return (
 
-      <div className="mt-4 flex items-center gap-2 overflow-x-auto rounded-md bg-ex-panel px-3 py-2">
-        <span className="mr-1 shrink-0 text-base font-bold text-ex-text">Recent Result</span>
+      <div className="mt-0 flex items-center gap-2 overflow-x-auto bg-ex-panel px-3 py-2">
+        <span className="mr-1 shrink-0 text-[0.95rem] font-bold text-ex-text">Recent Result</span>
+
 
         {results.slice(0, 10).map((r, idx) => {
           const rr = r as AnyResult;
