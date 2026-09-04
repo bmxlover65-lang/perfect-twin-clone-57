@@ -44,7 +44,7 @@ export function CardFace({ code }: { code: string }) {
       aria-label={c}
       className={`${CARD_SIZE} flex flex-col items-center justify-center bg-white leading-none ${tone}`}
     >
-      <span className="flex h-1/2 w-full items-center justify-center text-[0.62rem] font-extrabold sm:text-[0.8rem]">
+      <span className="flex h-1/2 w-full items-center justify-center border-b border-black/80 text-[0.62rem] font-extrabold sm:text-[0.8rem]">
         {rank}
       </span>
       <span className="flex h-1/2 w-full items-center justify-center text-[0.62rem] font-extrabold sm:text-[0.8rem]">
