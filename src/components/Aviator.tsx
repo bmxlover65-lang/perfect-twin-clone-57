@@ -415,7 +415,7 @@ function MobileBetSlot({
             disabled={locked}
             onClick={() => setState((p) => ({ ...p, amount: q }))}
             className={`h-[20px] w-[57px] rounded-full border bg-[#17191C] text-[0.69rem] font-semibold leading-none disabled:opacity-40 ${
-              state.amount === q ? "border-[#16C800] text-white" : "border-[#4A4E55] text-[#D2D4D9]"
+              state.amount === q ? "border-[#F20000] text-white" : "border-[#4A4E55] text-[#D2D4D9]"
             }`}
           >
             {q}
@@ -511,7 +511,7 @@ function DesktopBetBoard({
   const [custom, setCustom] = useState("");
 
   const cell =
-    "h-[34px] rounded-[10px] bg-[#17191C] text-[0.82rem] font-semibold text-[#C6C9CE] transition-colors hover:bg-[#1E2124]";
+    "h-[34px] rounded-full border border-transparent bg-[#17191C] text-[0.82rem] font-semibold text-[#C6C9CE] transition-colors hover:bg-[#1E2124]";
 
   const press = (i: number) => {
     const s = slots[i];
@@ -579,7 +579,7 @@ function DesktopBetBoard({
             key={q}
             type="button"
             onClick={() => setAll((p) => ({ ...p, amount: q }))}
-            className={`${cell} ${slots[0]?.amount === q ? "text-white" : ""}`}
+            className={`${cell} ${slots[0]?.amount === q ? "border-[#F20000] text-white" : ""}`}
           >
             {q}
           </button>
@@ -1607,7 +1607,7 @@ export function Aviator() {
 
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} feedLive={feedLive} />
 
-          <div className="rounded-[12px] border border-[#292D32] bg-[#111315] p-2 sm:p-4">
+          <div className="rounded-[12px] border border-[#292D32] bg-[#111315] p-2 sm:p-4 lg:flex lg:flex-1 lg:flex-col lg:justify-center">
             {/* mobile: left presets | center actions | right presets */}
             <div className="flex items-start justify-between gap-[6px] rounded-[10px] border border-[#292D32] bg-[#0D0E10] p-[8px] sm:hidden">
               <MobileBetSlot
