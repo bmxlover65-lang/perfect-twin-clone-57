@@ -919,11 +919,32 @@ function ConsolePage() {
 
           {tab === "aviator" ? <BalloonPanel heading="Aviator" /> : null}
 
-          {tab === "guide" ? <AdminGuide /> : null}
+          {tab === "guide" ? (
+            <>
+              <AdminKit />
+              <AdminGuide />
+            </>
+          ) : null}
 
           {tab === "bets" ? (
 
-          <Panel title="Bet ledger">
+          <Panel
+            title={`Bet history · ${current?.name ?? ""}`}
+            action={
+              <select
+                className={`${input} h-8 max-w-[200px]`}
+                value={userSel}
+                onChange={(e) => setUserSel(e.target.value)}
+              >
+                <option value="">All players</option>
+                {userIds.map((u) => (
+                  <option key={u} value={u}>
+                    {u}
+                  </option>
+                ))}
+              </select>
+            }
+          >
 
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
