@@ -751,7 +751,7 @@ export function Aviator() {
     (fn: (p: PanelState) => PanelState) => setSlots((s) => s.map(fn)),
     [],
   );
-  const [mode, setMode] = useState<"bet" | "auto">("bet");
+  
 
 
   const crashRef = useRef(1);
