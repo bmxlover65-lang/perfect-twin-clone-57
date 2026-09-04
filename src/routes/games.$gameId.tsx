@@ -2357,6 +2357,8 @@ function GamePage() {
           ))
         )}
         </Fit>
+        {/* Recent Result sits flush under the last market, like the original. */}
+        <RecentStrip results={results} lucky7={gameId === "99.0030"} />
       </BetLayer>
 
 
@@ -2365,7 +2367,7 @@ function GamePage() {
         <p className="mt-3 text-sm text-muted-foreground">Loading live markets…</p>
       ) : null}
 
-      <RecentStrip results={results} lucky7={gameId === "99.0030"} />
+
 
     </div>
   );
@@ -2536,7 +2538,7 @@ function RecentStrip({
           const l7Tie = !!lucky7 && !["L", "H"].includes(w.toUpperCase());
           const isTie = !l7Tie && (lower.startsWith("tie") || lower.startsWith("draw"));
           const isNum = !l7Tie && /^\d+$/.test(w);
-          const first = l7Tie ? "T" : isTie ? "Tie" : isNum ? w : w.slice(0, 1).toUpperCase();
+          const first = l7Tie ? "T" : isTie ? "T" : isNum ? w : w.slice(0, 1).toUpperCase();
 
           const PLAYER32_TONE: Record<string, string> = {
             "8": "bg-[#E67E22] text-white",
