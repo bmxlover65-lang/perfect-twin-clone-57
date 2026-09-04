@@ -139,6 +139,9 @@ export function LuckyWheel({
             })}
             <circle cx={cx} cy={cy} r={54} fill="#151515" stroke="#F2C500" strokeWidth={2} />
           </svg>
+          <span className="pointer-events-none absolute left-1/2 top-1/2 flex h-[86px] w-[86px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-[#F2C500] bg-[#151515] text-[2.2rem] font-black leading-none text-[#F2C500]">
+            U
+          </span>
           <span className="pointer-events-none absolute left-1/2 top-[-4px] -translate-x-1/2 text-[1.4rem] leading-none text-[#F2C500]">
             ▼
           </span>
