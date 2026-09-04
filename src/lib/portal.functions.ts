@@ -14,10 +14,23 @@ export const whoAmI = createServerFn({ method: "GET" })
       .from("operators")
       .select("*")
       .order("created_at", { ascending: false });
+
+    // Only relevant before the very first admin exists (one-time bootstrap).
+    let canClaimAdmin = false;
+    if (!isAdmin) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { count } = await supabaseAdmin
+        .from("user_roles")
+        .select("id", { count: "exact", head: true })
+        .eq("role", "admin");
+      canClaimAdmin = (count ?? 0) === 0;
+    }
+
     return {
       userId: context.userId,
       email: (context.claims as { email?: string } | null)?.email ?? "",
       isAdmin: Boolean(isAdmin),
+      canClaimAdmin,
       operators: operators ?? [],
     };
   });
