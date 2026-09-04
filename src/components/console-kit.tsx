@@ -377,7 +377,7 @@ export function AdminKit({ role = "admin" }: { role?: "admin" | "operator" } = {
     <>
       <Panel title="Integration flow — start to finish">
         <ol className="grid gap-2 sm:grid-cols-2">
-          {FLOW.map((f) => (
+          {(role === "operator" ? OP_FLOW : FLOW).map((f) => (
             <li key={f.t} className="rounded-md border border-border bg-background p-3">
               <p className="text-xs font-extrabold uppercase tracking-wide text-foreground">{f.t}</p>
               <p className="mt-1 text-[0.8rem] leading-relaxed text-muted-foreground">{f.b}</p>
