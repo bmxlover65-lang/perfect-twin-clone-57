@@ -1348,6 +1348,7 @@ function Fit({
   mobileNative?: boolean;
 }) {
   const mobile = useIsMobile();
+  if (embed) return <div className="w-full">{children}</div>;
   if (mobile && mobileNative) return <div className="w-full">{children}</div>;
   return <FitBoard designWidth={designWidth}>{children}</FitBoard>;
 }
@@ -2296,7 +2297,7 @@ function GamePage() {
         round={String(d?.roundId ?? "")}
         disabled={suspended}
       >
-        <FitBoard designWidth={isMobileView ? 430 : 860} minScale={0.5}>
+        <Fit designWidth={isMobileView ? 430 : 860}>
         {gameId === "99.0014" && markets.length ? (
           <MuflisPanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0018" && markets.length ? (
@@ -2328,7 +2329,7 @@ function GamePage() {
             <MarketBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
           ))
         )}
-        </FitBoard>
+        </Fit>
       </BetLayer>
       <MyBets gameId={gameId} />
 
