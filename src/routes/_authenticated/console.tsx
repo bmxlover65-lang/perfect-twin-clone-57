@@ -853,7 +853,21 @@ function ConsolePage() {
           ) : null}
 
           {tab === "wallet" ? (
-          <Panel title="Callback wallet test">
+          <Panel title={`Callback wallet test · ${current?.name ?? ""}`}>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Ye test aapke operator ke callback URL par ek signed request bhejta hai — bilkul waisi hi
+              jaisi hum real bet par bhejte hain. <b>balance</b> = player ka balance padho, <b>debit</b> =
+              bet lagte waqt paisa kaato, <b>credit</b> = jeetne par paisa do, <b>rollback</b> = round
+              cancel hone par debit wapas. Neeche har call ka result log dikhta hai.
+              {current?.callback_url ? (
+                <>
+                  {" "}Target: <span className="font-mono text-foreground">{current.callback_url}</span>
+                </>
+              ) : (
+                <> Abhi koi callback URL set nahi hai — Manage tab me daalein.</>
+              )}
+            </p>
+
 
             <form
               className="grid gap-2 sm:grid-cols-5"
