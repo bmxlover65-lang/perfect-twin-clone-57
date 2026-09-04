@@ -1,8 +1,8 @@
 import { CARD_BACK, CARD_SIZE } from "@/lib/card-assets";
 
 /** Normalise a feed card code ("H8__", "h8", "D10", "ST") to "H8" style. */
-function normalize(code: string): string {
-  const clean = (code ?? "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+function normalize(code: unknown): string {
+  const clean = String(code ?? "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
   if (!clean) return "";
   const suit = clean.slice(0, 1);
   let rank = clean.slice(1);
