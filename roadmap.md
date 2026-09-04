@@ -47,3 +47,15 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [ ] Match every game's market names, order, layout, odds/lock states and min/max text
 - [ ] Match recent-result labels/colors and table-specific result rules
 - [ ] Re-test every table at mobile and desktop widths with no runtime errors
+
+## Phase 6 — Pending fixes (user list, Sep 5)
+- [ ] Dream Catcher + Lucky 0-9: chip amounts (100,200,500,1k,2k,5k,10k,25k,50k), show "U" in round middle, bigger wheel, different music
+- [ ] Baccarat + Muflis TP: chips (100…100k), card display like original
+- [ ] 20-20 TP + Lucky 7: Recent Result attached under last market; card display; Tie shown as "T"
+- [ ] 1Day TP + DTL: card display; Recent Result under last market; DTL rate box
+- [ ] 1 Day Dragon Tiger: rate box + video card display
+- [ ] Joker TP, 20-20 DT, Andar Bahar, 20-20 Poker, 32 Cards: cards + Recent Result under last market
+- [ ] Card Race: market box + Recent Result placement
+- [ ] Amar Akbar Anthony: rate box (Odd/Even, Colour, Under/Over) + cards
+- [ ] VIMAAN: spelling, first in lobby, Ball By Ball last, original flying + result
+- [ ] Balloon: visuals, recent result, flying like original
