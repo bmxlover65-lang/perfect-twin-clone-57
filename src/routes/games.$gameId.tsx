@@ -304,6 +304,17 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
   const runners = market.runners ?? [];
   const hasLay = runners.some((r) => Boolean(r.price?.lay?.[0]?.price));
   const cols = hasLay ? "grid-cols-[1fr_130px_130px]" : "grid-cols-[1fr_130px]";
+  // Original strips the side prefix inside a side-specific section
+  // ("DRAGON ODD" -> "ODD" under the "DRAGON ODD/EVEN" header).
+  const sidePrefix = (market.marketName ?? "").trim().toUpperCase().split(/\s+/)[0] ?? "";
+  const runnerLabel = (raw: string) => {
+    const up = raw.trim();
+    if (sidePrefix && up.toUpperCase().startsWith(`${sidePrefix} `)) {
+      return up.slice(sidePrefix.length + 1);
+    }
+    return up;
+  };
+
 
 
 
