@@ -64,12 +64,14 @@ import {
 } from "@/components/dash";
 
 import { AdminGuide } from "@/components/dash-guide";
+import { AdminKit } from "@/components/console-kit";
 import { GameControl } from "@/components/game-control";
 import { BalloonPanel } from "@/components/BalloonPanel";
 
 const TABS = [
   { id: "overview", label: "Overview" },
   { id: "operators", label: "Operators" },
+  { id: "manage", label: "Manage operator" },
   { id: "keys", label: "API keys & access" },
   { id: "gamecontrol", label: "Game control" },
   { id: "balloon", label: "Balloon rounds" },
