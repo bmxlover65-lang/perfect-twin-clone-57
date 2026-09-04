@@ -338,17 +338,20 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
           side === "back" ? "bg-[#72BBEF]" : "bg-[#F9C9D4]"
         }`}
       >
-        <span className="text-sm font-bold leading-none text-[#111]">
-          {p?.price ? fmtOdds(p.price) : ""}
-        </span>
-        <span className="mt-0.5 text-[0.66rem] font-semibold text-[#111]/70">
-          {p?.price ? fmtSize(p?.size) : ""}
-        </span>
         {locked ? (
           <span className="absolute inset-0 flex items-center justify-center bg-white/45 text-sm">
             🔒
           </span>
-        ) : null}
+        ) : (
+          <>
+            <span className="text-sm font-bold leading-none text-[#111]">
+              {p?.price ? fmtOdds(p.price) : ""}
+            </span>
+            <span className="mt-0.5 text-[0.66rem] font-semibold text-[#111]/70">
+              {p?.price ? fmtSize(p?.size) : ""}
+            </span>
+          </>
+        )}
       </div>
     );
   };
@@ -466,17 +469,20 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                 </div>
 
                 <div className="relative flex h-[42px] flex-col items-center justify-center rounded-[6px] border border-[#7fb4d6] bg-gradient-to-b from-[#bfe0f6] to-[#8ec5e8] text-[#0a2233] shadow-sm">
-                  <span className="text-[0.95rem] font-extrabold leading-none">
-                    {fmtOdds(p?.price)}
-                  </span>
-                  <span className="mt-0.5 text-[0.66rem] font-semibold text-[#0a2233]/75">
-                    {fmtSize(p?.size)}
-                  </span>
                   {locked ? (
                     <span className="absolute inset-0 flex items-center justify-center rounded-[6px] bg-black/35 text-sm">
                       🔒
                     </span>
-                  ) : null}
+                  ) : (
+                    <>
+                      <span className="text-[0.95rem] font-extrabold leading-none">
+                        {fmtOdds(p?.price)}
+                      </span>
+                      <span className="mt-0.5 text-[0.66rem] font-semibold text-[#0a2233]/75">
+                        {fmtSize(p?.size)}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             );
@@ -1676,10 +1682,15 @@ function DragonTigerPanel({
     price?: number | null | undefined;
   }) => (
     <div className="text-center">
-      <p className="mb-1 text-[1.05rem] font-extrabold text-[#111]">{fmtOdds(price)}</p>
+      <p className="mb-1 text-[1.05rem] font-extrabold text-[#111]">
+        {r && !r.open ? "" : fmtOdds(price)}
+      </p>
       <div className="relative flex h-[62px] items-center justify-center rounded-xl bg-[#0D3B2B] px-4">
-        <span className="text-[1rem] font-bold uppercase text-white/55">{label}</span>
-        {r && !r.open ? <Lock /> : null}
+        {r && !r.open ? (
+          <Lock />
+        ) : (
+          <span className="text-[1rem] font-bold uppercase text-white/55">{label}</span>
+        )}
       </div>
     </div>
   );
