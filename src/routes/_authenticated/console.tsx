@@ -475,7 +475,7 @@ function ConsolePage() {
                   </td>
                   <td className="max-w-[220px] truncate p-2">{o.callback_url ?? "—"}</td>
                   <td className="space-x-1 p-2 text-right">
-                    <button className={ghost} onClick={() => setSel(o.id)}>
+                    <button className={btn} onClick={() => openManage(o.id)}>
                       Manage
                     </button>
                     <button
