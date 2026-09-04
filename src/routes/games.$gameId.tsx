@@ -2267,10 +2267,9 @@ type AnyResult = CasinoResult & { _id?: string; result?: string; selectionName?:
 function deriveWinner(r?: AnyResult): string {
   if (!r) return "";
   const flat = (r.winner ?? r.result ?? r.selectionName ?? "").toString().trim();
-  if (flat) return flat;
   const nested = (r.results ?? []).find((m) => /winner/i.test(m.marketName ?? "")) ?? r.results?.[0];
   const nRunners = nested?.runners as unknown;
-  if (!nested) return "";
+  if (!nested) return flat;
   if (Array.isArray(nRunners)) {
     const w = (nRunners as { selectionId?: string | number; result?: string }[]).find(
       (x) => x.result === "WINNER",
@@ -2345,7 +2344,7 @@ function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: bool
         {results.slice(0, 10).map((r, idx) => {
           const rr = r as AnyResult;
           const raw = (deriveWinner(rr) || "-").trim();
-          const playerMatch = raw.match(/player\s*([a-z]|\d+)/i);
+          const playerMatch = raw.match(/player[\s_]*([a-z]|\d+)/i);
           const w = /^EXTRA/i.test(raw)
             ? "EX"
             : /^WICKET/i.test(raw)
