@@ -110,10 +110,10 @@ function Cards({ hand, title }: { hand: Record<string, string>; title: string })
   if (!codes.length) return null;
   return (
     <div>
-      <p className="text-[0.6rem] font-bold uppercase tracking-wide text-white drop-shadow">
+      <p className="text-[0.55rem] font-bold uppercase tracking-wide text-white drop-shadow sm:text-[0.7rem]">
         {title.replace(/_/g, " ").toUpperCase()}
       </p>
-      <div className="mt-0.5 flex gap-1">
+      <div className="mt-0.5 flex gap-[3px] sm:gap-1">
 
         {codes.map((c, i) => (
           <Card key={`${c}-${i}`} code={c} />
@@ -2240,7 +2240,7 @@ function GamePage() {
           className="pointer-events-none absolute left-3 top-3 z-20 max-w-[calc(100%-1.5rem)] origin-top-left space-y-1 overflow-visible"
           style={{ transform: `scale(${overlayScale})` }}
         >
-          <p className="text-[0.7rem] font-bold uppercase tracking-wide text-white drop-shadow">
+          <p className="text-[0.6rem] font-bold uppercase tracking-wide text-white drop-shadow sm:text-[0.72rem]">
             RID: {d?.roundId ?? "—"}
           </p>
           {handLayout.map((h) => (
