@@ -100,7 +100,7 @@ function ConsolePage() {
   const assign = useServerFn(assignOperatorOwner);
   const summaryFn = useServerFn(operatorSummary);
 
-  const [info, setInfo] = useState<{ isAdmin: boolean; email: string } | null>(null);
+  const [info, setInfo] = useState<{ isAdmin: boolean; canClaimAdmin: boolean; email: string } | null>(null);
   const [ops, setOps] = useState<Operator[]>([]);
   const [sel, setSel] = useState<string>("");
   const [detail, setDetail] = useState<Awaited<ReturnType<typeof listWhitelist>> | null>(null);
