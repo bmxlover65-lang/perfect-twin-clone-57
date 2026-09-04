@@ -75,19 +75,40 @@ async function streamPage(rawUrl: string, origin: string, method = "GET", body?:
   if (!STREAM_HOSTS.test(target.hostname)) {
     return new Response("Stream host not allowed", { status: 403 });
   }
-  const res = await fetch(target.toString(), {
-    method,
-    redirect: "follow",
-    headers: {
-      referer: STREAM_REFERER,
-      origin: STREAM_REFERER.replace(/\/$/, ""),
-      "user-agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36",
-      accept: "*/*",
-      ...(body === undefined ? {} : { "content-type": "application/json" }),
-    },
-    ...(body === undefined ? {} : { body }),
-  });
+  const doFetch = () =>
+    fetch(target.toString(), {
+      method,
+      redirect: "follow",
+      headers: {
+        referer: STREAM_REFERER,
+        origin: STREAM_REFERER.replace(/\/$/, ""),
+        "user-agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36",
+        accept: "*/*",
+        ...(body === undefined ? {} : { "content-type": "application/json" }),
+      },
+      ...(body === undefined ? {} : { body }),
+    });
+
+  // The stream CDN drops connections fairly often; retry before giving up so
+  // the player iframe never lands on a broken-page error.
+  let res: Response | null = null;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      res = await doFetch();
+      if (res.status < 500) break;
+    } catch {
+      res = null;
+    }
+    await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
+  }
+  if (!res) {
+    return new Response(RETRY_PAGE, {
+      status: 200,
+      headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
+    });
+  }
+
 
   const type = res.headers.get("content-type") ?? "application/octet-stream";
   const textual = /text\/html|javascript|text\/css|json|mpegurl/i.test(type);
