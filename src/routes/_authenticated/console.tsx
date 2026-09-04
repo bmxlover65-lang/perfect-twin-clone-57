@@ -469,6 +469,18 @@ function ConsolePage() {
             Callback URL (optional)
             <input name="cb" placeholder="https://site.com/api/wallet" className={input} />
           </label>
+          <label className="grid gap-1 text-xs text-muted-foreground">
+            Validity — kitne din ke liye?
+            <input
+              name="days"
+              type="number"
+              min={1}
+              max={3650}
+              defaultValue={30}
+              required
+              className={input}
+            />
+          </label>
           <div className="sm:col-span-2">
             <button className={btn}>Create operator + API key</button>
           </div>
