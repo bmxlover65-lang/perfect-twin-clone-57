@@ -1,3 +1,4 @@
+import { useEmbed } from "@/lib/embed";
 import { useCallback, useEffect, useRef, useState } from "react";
 import plane0 from "@/assets/aviator/plane-0.svg";
 import plane1 from "@/assets/aviator/plane-1.svg";
@@ -972,6 +973,7 @@ export function Aviator() {
   const [history, setHistory] = useState<number[]>([2.31, 1.14, 5.62, 1.02, 11.4, 1.87, 3.05, 1.45, 4.35, 23.12, 2.53, 1.46, 3.53, 1.4, 14.99, 11.63, 3.68, 3.1, 1.75, 7.28, 1.79, 1.02, 1.0, 1.78, 27.0, 2.03, 2.45, 2.3, 2.48, 4.03]);
   const [round, setRound] = useState(1);
   const [balance, setBalance] = useState(5000);
+  const embedded = useEmbed();
   const [bets, setBets] = useState<LiveBet[]>(() => makeBets(1));
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [feed, setFeed] = useState<{ id: number; text: string; kind: "join" | "leave" | "win" }[]>([]);

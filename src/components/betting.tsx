@@ -193,6 +193,7 @@ export function BetLayer({
   const cellPos = useRef<{ x: number; y: number } | null>(null);
   const busy = useRef(false);
   const wallet = useWallet();
+  const embed = useEmbed();
 
   // Remember the last stake so the slip opens ready to bet in one tap.
   useEffect(() => {

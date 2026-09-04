@@ -1,3 +1,4 @@
+import { useEmbed } from "@/lib/embed";
 import { useEffect, useRef, useState } from "react";
 import { RoundTimer } from "@/components/RoundTimer";
 import { SuccessToast } from "@/components/betting";
@@ -380,6 +381,7 @@ export function BalloonStage({
 
   const wallet = useWallet();
   const balance = wallet.balance;
+  const embedded = useEmbed();
   const [bets, setBets] = useState<(null | { entry: number; stake: number; pending?: boolean })[]>([
     null,
     null,
