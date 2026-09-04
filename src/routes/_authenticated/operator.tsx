@@ -185,18 +185,17 @@ function OperatorPage() {
                 <Stat label="Open bets" value={String(totals?.open ?? 0)} />
                 <Stat label="Rejected bets" value={String(totals?.rejected ?? 0)} />
                 <Stat
-                  label="Plan"
+                  label="Validity"
                   value={daysLeft === null ? "—" : `${daysLeft} days left`}
                 />
               </div>
-              <Panel title="Plan & account">
+              <Panel title="Account">
                 <ul className="space-y-1 text-xs text-muted-foreground">
                   <li>Operator: {op?.name}</li>
                   <li>Status: {op?.status}</li>
                   <li>Currency: {op?.currency}</li>
-                  <li>Monthly plan amount: {inr(Number(op?.plan_amount ?? 0))}</li>
                   <li>
-                    Plan valid till:{" "}
+                    Access valid till:{" "}
                     {op?.plan_expires_at ? new Date(op.plan_expires_at).toLocaleString() : "—"}
                   </li>
                   <li>Callback URL: {op?.callback_url ?? "not configured"}</li>
