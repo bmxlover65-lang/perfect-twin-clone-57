@@ -1837,8 +1837,9 @@ function GamePage() {
         .then((r) => alive && setResults(r.data ?? []))
         .catch(() => undefined);
     void run();
-    const burst = [300, 800, 1500, 2500].map((ms) => setTimeout(run, ms));
-    const t = setInterval(run, 1500);
+    const burst = [200, 500, 900, 1400, 2000, 2800].map((ms) => setTimeout(run, ms));
+    const t = setInterval(run, 600);
+
     return () => {
       alive = false;
       burst.forEach(clearTimeout);
