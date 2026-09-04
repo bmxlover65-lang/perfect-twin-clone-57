@@ -31,6 +31,7 @@ const TOC = [
   ["sport-ids", "Sport IDs"],
   ["event-fields", "Event fields"],
   ["endpoints", "Endpoints"],
+  ["websocket-odds", "WebSocket odds"],
   ["tv-scoreboard", "TV & scoreboard"],
   ["live-demo", "Live demo"],
   ["polling-guide", "Polling guide"],
@@ -128,6 +129,24 @@ function SportsDocs() {
           <Block label="Header" code={`X-API-Key: your-partner-api-key`} />
           <P>Or:</P>
           <Block label="Bearer" code={`Authorization: Bearer your-partner-api-key`} />
+
+          <H3>IP allowlist</H3>
+          <P>
+            Admin → client <strong className="text-foreground">Allowed IPs</strong> applies to all
+            B2B sports <strong className="text-foreground">REST</strong> and{" "}
+            <strong className="text-foreground">WebSocket</strong> calls from your servers:
+          </P>
+          <ul className="mt-3 list-disc space-y-1.5 pl-6 text-[0.95rem] text-muted-foreground">
+            <li>Leave empty — any source IP may use the API key (default).</li>
+            <li>
+              Non-empty — only those IPs (your backend egress) are accepted. Others get{" "}
+              <Code>403</Code> / WebSocket close <Code>IP not allowlisted</Code>.
+            </li>
+          </ul>
+          <P>
+            The gateway reads the first hop of <Code>X-Forwarded-For</Code> when present (set by the
+            reverse proxy in front of the API).
+          </P>
 
           {/* Sport IDs */}
           {/* API key & endpoint setup */}
@@ -377,6 +396,54 @@ UAPI_KEY=uapi_live_xxxxxxxxxxxxxxxx`}
             Browser iframe HTML for the live scoreboard (soccer / tennis / cricket). Same query
             params as the TV player. Soft-polls scores about every 5s in-page (no full reload).
           </P>
+
+          {/* WebSocket odds */}
+          <H2 id="websocket-odds">WebSocket odds</H2>
+          <P>
+            Push live odds from your <strong className="text-foreground">backend</strong> instead of
+            polling HTTP for every tick. Prefer WebSocket for in-play viewing; keep{" "}
+            <Code>GET /sports/:sportId/:exEventId/odds</Code> as a reconnect fallback.
+          </P>
+          <Block
+            label="URL (path is on the site origin, not under /api)"
+            code={`wss://universeapi.store/ws/sports?sportId={sportId}&exEventId={exEventId}&apiKey=YOUR_KEY`}
+          />
+          <ul className="mt-3 list-disc space-y-1.5 pl-6 text-[0.95rem] text-muted-foreground">
+            <li>
+              Auth: <Code>apiKey</Code> query param (same key as <Code>X-API-Key</Code>) + Sports
+              product + IP allowlist (same rules as REST).
+            </li>
+            <li>
+              On connect you receive{" "}
+              <Code>{'{ "type": "subscribed", "sportId", "exEventId", "client" }'}</Code>.
+            </li>
+            <li>
+              Updates are{" "}
+              <Code>{'{ "type": "odds", "sportId", "exEventId", "data": { … } }'}</Code> —{" "}
+              <Code>data</Code> has the same shape as <Code>GET /odds</Code>.
+            </li>
+            <li>
+              Rejected connections close with code <Code>1008</Code> (e.g. <Code>Unauthorized</Code>,{" "}
+              <Code>IP not allowlisted</Code>, <Code>Product not enabled: sports</Code>).
+            </li>
+          </ul>
+          <Block
+            label="Node example"
+            code={`import WebSocket from "ws";
+
+const sportId = "4";
+const exEventId = "40020266291998437";
+const apiKey = process.env.UNIVERSAL_API_KEY;
+const ws = new WebSocket(
+  \`wss://universeapi.store/ws/sports?sportId=\${sportId}&exEventId=\${exEventId}&apiKey=\${apiKey}\`
+);
+ws.on("message", (raw) => {
+  const msg = JSON.parse(String(raw));
+  if (msg.type === "odds") {
+    // msg.data.matchOdds / fancy / …
+  }
+});`}
+          />
 
           {/* TV & scoreboard */}
           <H2 id="tv-scoreboard">TV &amp; scoreboard embeds</H2>
