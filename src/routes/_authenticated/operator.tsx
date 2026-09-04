@@ -81,6 +81,11 @@ function OperatorPage() {
   const [err, setErr] = useState("");
   const [tab, setTab] = useState("overview");
   const [filterUser, setFilterUser] = useState("");
+  const [newIp, setNewIp] = useState("");
+  const [newDomain, setNewDomain] = useState("");
+  const [testAction, setTestAction] = useState<"balance" | "debit" | "credit" | "rollback">("balance");
+  const [testAmount, setTestAmount] = useState("10");
+
 
   const run = async (fn: () => Promise<void>) => {
     setErr("");
