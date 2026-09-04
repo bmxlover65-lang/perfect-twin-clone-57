@@ -434,7 +434,7 @@ function ConsolePage() {
           }}
         >
           <div className="sm:col-span-2 text-xs font-semibold text-muted-foreground">
-            New operator — login, 30-day validity aur API key ek saath ban jayenge.
+            New operator — login, validity (jitne din aap chaho) aur API key ek saath ban jayenge.
           </div>
           <label className="grid gap-1 text-xs text-muted-foreground">
             Operator name
