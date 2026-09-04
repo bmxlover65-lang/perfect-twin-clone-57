@@ -2426,11 +2426,14 @@ function ResultBanner({
   const short = winner.replace(/player\s*/i, "").trim().toUpperCase();
   const ab = isAndarBahar(gameName);
   const dt = /dragon\s*tiger/i.test(gameName ?? "");
-  let expanded = winner.toUpperCase();
-  if (ab && (short === "A" || short === "B")) expanded = short === "A" ? "ANDAR" : "BAHAR";
-  else if (dt && (short === "D" || short === "T")) expanded = short === "D" ? "DRAGON" : "TIGER";
+  let expanded = winner.toUpperCase().replace(/\s*\([^)]*\)\s*/g, " ").trim();
+  if (ab) {
+    const c = chipLabel(winner);
+    if (c === "A" || c === "B") expanded = c === "A" ? "ANDAR" : "BAHAR";
+  } else if (dt && (short === "D" || short === "T")) expanded = short === "D" ? "DRAGON" : "TIGER";
   else if (/^(player\s*)?[ab]$/i.test(winner)) expanded = `PLAYER ${short}`;
   const label = l7 ?? (/win/i.test(expanded) ? expanded : `${expanded} WIN`);
+
 
   return (
     <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
@@ -2440,6 +2443,37 @@ function ResultBanner({
     </div>
   );
 
+}
+
+/**
+ * Real feed winner label -> the short chip label each table shows on
+ * universeapi.shop (A/B, D/T/L, P/B/T, L/H, 8..11, H/T, numbers, suits).
+ */
+function chipLabel(raw: string): string {
+  const u = raw.toUpperCase().trim();
+  if (!u || u === "-") return "-";
+  if (/^EXTRA/.test(u)) return "EX";
+  if (/^WICKET/.test(u)) return "W";
+  if (/(1ST|2ND|1st|2nd)\s*BET\s*A\b/i.test(u) || /^ANDAR/.test(u)) return "A";
+  if (/(1ST|2ND|1st|2nd)\s*BET\s*B\b/i.test(u) || /^BAHAR/.test(u)) return "B";
+  if (/^AMAR/.test(u)) return "A";
+  if (/^AKBAR/.test(u)) return "B";
+  if (/^ANTHONY/.test(u)) return "C";
+  if (/^LOW\s*CARD/.test(u)) return "L";
+  if (/^HIGH\s*CARD/.test(u)) return "H";
+  if (/^DRAGON/.test(u)) return "D";
+  if (/^TIGER/.test(u)) return "T";
+  if (/^LION/.test(u)) return "L";
+  if (/^BANKER/.test(u)) return "B";
+  if (/^HEAD/.test(u)) return "H";
+  if (/^TAIL/.test(u)) return "T";
+  if (/^TIE|^DRAW/.test(u)) return "Tie";
+  const player = u.match(/PLAYER[\s_]*([A-Z]|\d+)/);
+  if (player) return player[1]!;
+  if (/^PLAYER$/.test(u)) return "P";
+  const num = u.match(/^\d+(\.\d+)?/);
+  if (num) return num[0]!;
+  return u.slice(0, 1);
 }
 
 function RecentStrip({
@@ -2462,18 +2496,15 @@ function RecentStrip({
           const rr = r as AnyResult;
           const raw = (deriveWinner(rr) || "-").trim();
           const playerMatch = raw.match(/player[\s_]*([a-z]|\d+)/i);
-          const w = /^EXTRA/i.test(raw)
-            ? "EX"
-            : /^WICKET/i.test(raw)
-              ? "W"
-              : playerMatch
-                ? playerMatch[1]!
-                : (raw.match(/^\d+/)?.[0] ?? raw);
+          const w = chipLabel(raw);
           const lower = w.toLowerCase();
-          const l7Tie = !!lucky7 && (/^(7|0*7)$/.test(w) || lower.startsWith("tie"));
+          // Lucky 7: only LOW / HIGH are real outcomes — a 7 voids the winner
+          // market, so anything else the feed reports is the tie round.
+          const l7Tie = !!lucky7 && !["L", "H"].includes(w.toUpperCase());
           const isTie = !l7Tie && (lower.startsWith("tie") || lower.startsWith("draw"));
           const isNum = !l7Tie && /^\d+$/.test(w);
           const first = l7Tie ? "T" : isTie ? "Tie" : isNum ? w : w.slice(0, 1).toUpperCase();
+
           const PLAYER32_TONE: Record<string, string> = {
             "8": "bg-[#E67E22] text-white",
             "9": "bg-[#27AE60] text-white",
