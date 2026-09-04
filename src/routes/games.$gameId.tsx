@@ -1353,7 +1353,7 @@ function MuflisPanel({
         <Side letter="A" />
         <Side letter="B" />
       </div>
-      <div className="mt-4 flex flex-nowrap items-center justify-center gap-2 overflow-x-auto">
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
         {chips.map((c) => (
           <span key={c.v} className="relative inline-flex h-[54px] w-[54px] shrink-0 items-center justify-center">
             <img
