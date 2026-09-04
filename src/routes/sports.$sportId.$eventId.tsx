@@ -12,6 +12,7 @@ import {
 } from "@/lib/uapi";
 import { BalanceChip, BetLayer } from "@/components/betting";
 import { Scoreboard } from "@/components/Scoreboard";
+import { LiveTv } from "@/components/LiveTv";
 import { settleFromRunners, voidOpen } from "@/lib/wallet";
 
 export const Route = createFileRoute("/sports/$sportId/$eventId")({
@@ -228,7 +229,6 @@ function EventPage() {
   const [error, setError] = useState<string | null>(null);
   const closedSince = useRef<number>(0);
   const [age, setAge] = useState(0);
-  const [tvKey, setTvKey] = useState(0);
 
 
   const load = useCallback(async () => {
@@ -307,27 +307,11 @@ function EventPage() {
       {error ? <p className="mt-3 text-sm text-live-lose">{error}</p> : null}
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        <div className="overflow-hidden rounded-lg bg-ex-panel">
-          <header className="flex items-center justify-between bg-ex-header px-4 py-2.5 text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-ex-text">
-            Live TV
-            <button
-              type="button"
-              onClick={() => setTvKey((k) => k + 1)}
-              className="rounded bg-white/15 px-2 py-1 text-[0.65rem] font-bold tracking-normal hover:bg-white/25"
-            >
-              Reload
-            </button>
-          </header>
-          <iframe
-            key={tvKey}
-            title="Live TV"
-            src={`/api/public/uapi/tv/sports/player?sportId=${sportId}&exEventId=${eventId}&tv=true&r=${tvKey}`}
-            allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-            allowFullScreen
-            className="aspect-video h-[340px] max-h-[340px] w-full border-0 bg-black"
-          />
-
-        </div>
+        <LiveTv
+          sportId={sportId}
+          eventId={eventId}
+          className="overflow-hidden rounded-lg bg-ex-panel"
+        />
 
 
         <div className="overflow-hidden rounded-lg border border-white/10 bg-black">
