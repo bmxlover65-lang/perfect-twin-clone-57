@@ -319,9 +319,11 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
           side === "back" ? "bg-[#72BBEF]" : "bg-[#F9C9D4]"
         }`}
       >
-        <span className="text-sm font-bold leading-none text-[#111]">{fmtOdds(p?.price)}</span>
+        <span className="text-sm font-bold leading-none text-[#111]">
+          {p?.price ? fmtOdds(p.price) : ""}
+        </span>
         <span className="mt-0.5 text-[0.66rem] font-semibold text-[#111]/70">
-          {fmtSize(p?.size)}
+          {p?.price ? fmtSize(p?.size) : ""}
         </span>
         {locked ? (
           <span className="absolute inset-0 flex items-center justify-center bg-white/45 text-sm">
@@ -972,13 +974,6 @@ function CardRacePanel({
                   </div>
                 );
               })}
-              {allClosed && runners.length ? (
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center pr-[268px]">
-                  <span className="text-[1.6rem] font-extrabold uppercase tracking-wide text-[#9aa0a6]">
-                    Suspended
-                  </span>
-                </div>
-              ) : null}
             </div>
           </div>
         );
