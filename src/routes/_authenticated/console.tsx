@@ -961,9 +961,13 @@ function ConsolePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {bets.map((b) => (
-                    <tr key={b.id} className="border-t border-border">
-                      <td className="p-2">{b.operator_user_id}</td>
+                  {userBets.map((b) => (
+                    <tr
+                      key={b.id}
+                      onClick={() => setUserSel(String(b.operator_user_id ?? ""))}
+                      className="cursor-pointer border-t border-border hover:bg-muted/50"
+                    >
+                      <td className="p-2 font-mono">{b.operator_user_id}</td>
                       <td className="p-2">{b.game_id}</td>
                       <td className="p-2">{b.round_id}</td>
                       <td className="p-2">{b.selection}</td>
@@ -973,7 +977,7 @@ function ConsolePage() {
                       <td className="p-2">{b.status}</td>
                     </tr>
                   ))}
-                  {!bets.length ? (
+                  {!userBets.length ? (
                     <tr>
                       <td className="p-3 text-muted-foreground" colSpan={8}>
                         No bets through the API yet.
