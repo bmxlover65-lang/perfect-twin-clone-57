@@ -208,13 +208,7 @@ export function DreamWheel({
     setShowWin(false);
     setSpin(true);
     setRot(base + 360 * 6 - seg);
-    try {
-      const audio = new Audio("/wheel-spin.mp3");
-      audio.volume = 0.6;
-      void audio.play().catch(() => undefined);
-    } catch {
-      // audio not available
-    }
+    playDreamSpin();
     const t = window.setTimeout(() => {
       setSpin(false);
       setShowWin(true);
@@ -251,7 +245,7 @@ export function DreamWheel({
             transition: spin ? "transform 6s cubic-bezier(0.12,0.7,0.12,1)" : "none",
           }}
         >
-          <svg viewBox="0 0 400 400" className="h-[300px] w-[300px] max-w-full drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)] sm:h-[420px] sm:w-[420px]">
+          <svg viewBox="0 0 400 400" className="h-[360px] w-[360px] max-w-full drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)] sm:h-[540px] sm:w-[540px]">
             <circle cx={cx} cy={cy} r={r + 6} fill="#111" />
             {DREAM_SEGMENTS.map((v, i) => {
               const a0 = i * step;
@@ -288,12 +282,16 @@ export function DreamWheel({
         <img
           src={dreamHub.url}
           alt=""
-          className="pointer-events-none absolute left-1/2 top-1/2 h-[92px] w-[92px] -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-[128px] sm:w-[128px]"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[110px] w-[110px] -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-[164px] sm:w-[164px]"
         />
+        <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[2.4rem] font-black leading-none text-[#F2C500] drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] sm:text-[3.4rem]">
+          U
+        </span>
 
         <span className="pointer-events-none absolute left-1/2 top-[-14px] -translate-x-1/2 text-[1.7rem] leading-none text-[#F2C500] drop-shadow">
           ▼
         </span>
+
 
         {showWin && winner ? (
           <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-[#F2C500] px-4 py-1 text-[0.8rem] font-extrabold uppercase text-black">
