@@ -265,9 +265,7 @@ function PokerPanel({
           return (
             <div
               key={m.marketId}
-              className={`relative border-t border-[#c9c9c9] px-3 pb-4 pt-0 ${
-                isSusp ? "rounded-[14px] border border-[#e0403f]" : ""
-              }`}
+              className="relative border-t border-[#c9c9c9] px-3 pb-4 pt-0"
             >
               <div className="flex justify-center">
                 <div className="flex h-[38px] w-full max-w-[305px] items-center justify-center gap-1.5 rounded-b-[22px] bg-white px-3 text-center text-[0.78rem] font-extrabold uppercase leading-tight tracking-wide text-[#333] shadow-[0_3px_5px_rgba(0,0,0,0.18)]">
@@ -288,13 +286,6 @@ function PokerPanel({
                   size={b?.price?.back?.[0]?.size}
                   locked={isSusp}
                 />
-                {isSusp ? (
-                  <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-                    <span className="text-[1.2rem] font-extrabold uppercase leading-none text-[#e0201c]">
-                      Suspended
-                    </span>
-                  </div>
-                ) : null}
               </div>
 
             </div>
@@ -376,13 +367,6 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
             </div>
           );
         })}
-        {suspended ? (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white/55">
-            <span className="text-2xl font-extrabold uppercase tracking-wide text-[#5b6670]">
-              Suspended
-            </span>
-          </div>
-        ) : null}
       </div>
     </div>
   );
