@@ -161,9 +161,14 @@ Authorization: Bearer your-api-key`}
             head={["Route", "Who calls it", "Auth"]}
             rows={[
               [
-                <Code key="a">/api/*</Code>,
+                <Code key="a">/api/* (games, state, results, embed mint)</Code>,
                 "Your backend",
-                "API key + active subscription",
+                "API key + active subscription + Allowed IPs (if configured)",
+              ],
+              [
+                <Code key="w">/ws?eventId=&apiKey=</Code>,
+                "Your backend",
+                "API key query + subscription + Allowed IPs (same as REST)",
               ],
               [
                 <Code key="b">/api/tv/player</Code>,
@@ -176,10 +181,15 @@ Authorization: Bearer your-api-key`}
           <ul className="mt-3 list-disc space-y-1 pl-6 text-[0.95rem] text-muted-foreground">
             <li>API key is missing or invalid</li>
             <li>Your account is inactive or outside the subscription window</li>
+            <li>
+              Caller IP is not on your Admin <strong className="text-foreground">Allowed IPs</strong>{" "}
+              list (when that list is non-empty). Leave Allowed IPs empty to allow any source IP.
+            </li>
           </ul>
           <Note>
-            Server API calls are not restricted by caller IP — proxy them through your backend and
-            keep the key secret.
+            Proxy API and WebSocket calls through your backend and keep the key secret. Casino live
+            push uses <Code>wss://universeapi.store/ws?eventId=…&apiKey=…</Code> (same IP rules as
+            REST).
           </Note>
           <H3>TV embed requests</H3>
           <P>
@@ -206,6 +216,11 @@ Authorization: Bearer your-api-key`}
                 "GET",
                 <Code key="3">/games/:eventId/state</Code>,
                 "Live snapshot (poll from backend)",
+              ],
+              [
+                "WS",
+                <Code key="8">/ws?eventId=&apiKey=</Code>,
+                "Live state push (prefer over polling)",
               ],
               [
                 "GET / POST",
@@ -282,9 +297,11 @@ X-API-Key: your-api-key`}
 }`}
           />
           <P>
-            Poll this endpoint at a reasonable interval (e.g. every 1–2 seconds) or use it as a
-            fallback when streaming is unavailable. A <Code>503</Code> response means live data is
-            temporarily unavailable or stale — retry after a short delay.
+            Prefer WebSocket push for live screens:{" "}
+            <Code>wss://universeapi.store/ws?eventId=99.0010&apiKey=YOUR_KEY</Code> (frames use{" "}
+            <Code>type: "subscribed"</Code> then <Code>type: "state"</Code>). Poll this HTTP endpoint
+            as a reconnect fallback (e.g. every 1–2 seconds). A <Code>503</Code> response means live
+            data is temporarily unavailable or stale — retry after a short delay.
           </P>
           <Note>
             <Code>GET /tv/games/:eventId/state</Code> is an alias — same request and response.
