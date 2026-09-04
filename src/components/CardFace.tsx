@@ -1,5 +1,4 @@
 import { CARD_BACK, CARD_SIZE } from "@/lib/card-assets";
-import { CARD_FACE_IMAGES } from "@/lib/card-faces";
 
 /** Normalise a feed card code ("H8__", "h8", "D10", "ST") to "H8" style. */
 function normalize(code: string): string {
@@ -12,17 +11,45 @@ function normalize(code: string): string {
   return `${suit}${rank}`;
 }
 
-/** A real playing card image (classic deck artwork), face-down back when hidden. */
+const SUIT_GLYPH: Record<string, string> = { S: "♠", H: "♥", D: "♦", C: "♣" };
+
+/**
+ * Live-table card face: white tile split half/half — the rank value on the top
+ * half and the single suit symbol on the bottom half, exactly like the
+ * original stream overlay. Face-down cards keep the printed card back.
+ */
 export function CardFace({ code }: { code: string }) {
   const c = normalize(code);
-  const hidden = !c || c === "0" || c === "1" || (c.length === 1);
-  const src = hidden ? CARD_BACK : CARD_FACE_IMAGES[c];
+  const suit = c.slice(0, 1);
+  const rank = c.slice(1);
+  const glyph = SUIT_GLYPH[suit];
+  const hidden = !c || !glyph || !rank;
+
+  if (hidden) {
+    return (
+      <img
+        src={CARD_BACK}
+        alt="card"
+        className={`${CARD_SIZE} bg-white object-contain`}
+        loading="lazy"
+      />
+    );
+  }
+
+  const red = suit === "H" || suit === "D";
+  const tone = red ? "text-card-red" : "text-card-black";
+
   return (
-    <img
-      src={src ?? CARD_BACK}
-      alt={hidden ? "card" : c}
-      className={`${CARD_SIZE} bg-white object-contain`}
-      loading="lazy"
-    />
+    <span
+      aria-label={c}
+      className={`${CARD_SIZE} flex flex-col items-center justify-center bg-white leading-none ${tone}`}
+    >
+      <span className="flex h-1/2 w-full items-center justify-center text-[0.62rem] font-extrabold sm:text-[0.8rem]">
+        {rank}
+      </span>
+      <span className="flex h-1/2 w-full items-center justify-center text-[0.62rem] font-extrabold sm:text-[0.8rem]">
+        {glyph}
+      </span>
+    </span>
   );
 }
