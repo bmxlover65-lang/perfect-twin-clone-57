@@ -1932,7 +1932,13 @@ function GamePage() {
       ? Object.values(h).some((c) => c && String(c) !== "0")
       : Boolean(h) && String(h) !== "0",
   );
-  const cards = liveHasRealCard || !Object.keys(resultCards).length ? liveCards : resultCards;
+  // Prefer the live feed whenever it sends a card slot for this round (even a
+  // face-down "0"), so the table never shows the previous round's card.
+  const cards =
+    liveHasRealCard || Object.keys(liveCards).length || !Object.keys(resultCards).length
+      ? liveCards
+      : resultCards;
+
 
 
 
