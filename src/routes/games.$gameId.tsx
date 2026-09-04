@@ -226,16 +226,14 @@ function PokerPanel({
     locked: boolean;
   }) => (
     <div
-      className={`flex h-[52px] w-full min-w-0 flex-1 -skew-x-[18deg] items-center justify-center rounded-[2px] shadow-[0_2px_5px_rgba(0,0,0,0.25)] ${
-        locked
-          ? "bg-gradient-to-b from-[#cdd7d2] to-[#b7c4be]"
-          : "bg-gradient-to-br from-[#1f8f63] to-[#0a5b3b]"
+      className={`flex h-[52px] w-full min-w-0 flex-1 -skew-x-[18deg] items-center justify-center rounded-[2px] bg-gradient-to-br from-[#1f8f63] to-[#0a5b3b] shadow-[0_2px_5px_rgba(0,0,0,0.25)] ${
+        locked ? "opacity-55" : ""
       }`}
     >
       <div className="skew-x-[18deg] text-center leading-tight">
-        <p className="text-[1.05rem] font-extrabold text-white">{fmtOdds(price)}</p>
-        <p className={`text-[0.62rem] font-semibold ${locked ? "text-[#7c8a85]" : "text-white/60"}`}>
-          {fmtSize(size)}
+        <p className="text-[1.05rem] font-extrabold text-white">{locked ? "" : fmtOdds(price)}</p>
+        <p className="text-[0.62rem] font-semibold text-white/60">
+          {locked ? "" : fmtSize(size)}
         </p>
       </div>
     </div>
@@ -267,9 +265,7 @@ function PokerPanel({
           return (
             <div
               key={m.marketId}
-              className={`relative border-t border-[#c9c9c9] px-3 pb-4 pt-0 ${
-                isSusp ? "rounded-[14px] border border-[#e0403f]" : ""
-              }`}
+              className="relative border-t border-[#c9c9c9] px-3 pb-4 pt-0"
             >
               <div className="flex justify-center">
                 <div className="flex h-[38px] w-full max-w-[305px] items-center justify-center gap-1.5 rounded-b-[22px] bg-white px-3 text-center text-[0.78rem] font-extrabold uppercase leading-tight tracking-wide text-[#333] shadow-[0_3px_5px_rgba(0,0,0,0.18)]">
@@ -290,13 +286,6 @@ function PokerPanel({
                   size={b?.price?.back?.[0]?.size}
                   locked={isSusp}
                 />
-                {isSusp ? (
-                  <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-                    <span className="text-[1.2rem] font-extrabold uppercase leading-none text-[#e0201c]">
-                      Suspended
-                    </span>
-                  </div>
-                ) : null}
               </div>
 
             </div>
@@ -330,9 +319,11 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
           side === "back" ? "bg-[#72BBEF]" : "bg-[#F9C9D4]"
         }`}
       >
-        <span className="text-sm font-bold leading-none text-[#111]">{fmtOdds(p?.price)}</span>
+        <span className="text-sm font-bold leading-none text-[#111]">
+          {p?.price ? fmtOdds(p.price) : ""}
+        </span>
         <span className="mt-0.5 text-[0.66rem] font-semibold text-[#111]/70">
-          {fmtSize(p?.size)}
+          {p?.price ? fmtSize(p?.size) : ""}
         </span>
         {locked ? (
           <span className="absolute inset-0 flex items-center justify-center bg-white/45 text-sm">
@@ -378,13 +369,6 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
             </div>
           );
         })}
-        {suspended ? (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white/55">
-            <span className="text-2xl font-extrabold uppercase tracking-wide text-[#5b6670]">
-              Suspended
-            </span>
-          </div>
-        ) : null}
       </div>
     </div>
   );
@@ -394,7 +378,15 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
 /** Light blue sectioned board with 2-column plates (Lucky 7, 20-20 TP, 20-20 DT) — original style. */
 function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
-  const runners = market.runners ?? [];
+  const raw = market.runners ?? [];
+  // 20-20 Dragon Tiger: TIE runner sits centered on its own row below Dragon/Tiger.
+  const tieIdx = raw.findIndex(
+    (r) => (names[String(r.selectionId)] ?? "").trim().toUpperCase() === "TIE",
+  );
+  const runners =
+    tieIdx > -1 && tieIdx !== raw.length - 1
+      ? [...raw.slice(0, tieIdx), ...raw.slice(tieIdx + 1), raw[tieIdx]!]
+      : raw;
   const odd = runners.length % 2 === 1;
   return (
     <div className="mt-0">
@@ -450,12 +442,12 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
 }
 
 
-/** Dark row board: label left, blue back (and pink lay) plates right (Joker TP, 1Day TP). */
+/** Light row board: label left, blue back (and pink lay) boxes right (Joker TP, 1Day TP) — original style. */
 function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
   const hasLay = runners.some((r) => Boolean(r.price?.lay?.[0]?.price));
-  const cols = hasLay ? "grid-cols-[1fr_88px_88px]" : "grid-cols-[1fr_100px]";
+  const cols = hasLay ? "grid-cols-[1fr_92px_92px]" : "grid-cols-[1fr_110px]";
 
   const plate = (
     p: { price?: number | null; size?: number | null } | undefined,
@@ -463,37 +455,48 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
     locked: boolean,
   ) => (
     <div
-      className={`relative m-[3px] flex h-[42px] flex-col items-center justify-center rounded-md ${
-        side === "back" ? "bg-[#3E6C88] text-white" : "bg-[#8E4F63] text-white"
+      className={`relative m-[2px] flex h-[44px] flex-col items-center justify-center border border-[#7fb4d6] ${
+        side === "back" ? "bg-[#72BBEF]" : "bg-[#F9C9D4]"
       }`}
     >
-      <span className="text-[0.92rem] font-extrabold leading-none">{fmtOdds(p?.price)}</span>
-      <span className="mt-0.5 text-[0.6rem] font-semibold text-white/75">{fmtSize(p?.size)}</span>
       {locked ? (
-        <span className="absolute inset-0 flex items-center justify-center rounded-md bg-black/45 text-sm">
-          🔒
-        </span>
-      ) : null}
+        <span className="absolute inset-0 flex items-center justify-center text-sm">🔒</span>
+      ) : (
+        <>
+          <span className="text-[0.95rem] font-extrabold leading-none text-[#111]">
+            {fmtOdds(p?.price)}
+          </span>
+          <span className="mt-0.5 text-[0.64rem] font-semibold text-[#111]/70">
+            {fmtSize(p?.size)}
+          </span>
+        </>
+      )}
     </div>
   );
 
   return (
-    <div className="mt-3 overflow-hidden rounded-md bg-[#1f2733]">
-      <div className={`grid ${cols} items-center bg-[#2b3644] px-2`}>
-        <span className="py-1 text-[0.78rem] font-extrabold uppercase text-[#9fd0ea]">
-          {market.marketName}
+    <div className="mt-0 overflow-hidden border border-[#d9e2ea] bg-gradient-to-b from-[#eaf5fd] to-[#cfe7f7]">
+      <div className={`grid ${cols} items-center px-2`}>
+        <span className="py-1.5 text-[0.8rem] font-extrabold uppercase text-[#12303f]">
+          {market.marketName}{" "}
+          <span className="ml-1 text-[0.68rem] font-semibold normal-case text-[#5b6b76]">
+            Min: {market.min ?? 0} Max: {market.max ?? 0}
+          </span>
         </span>
-        <span className="py-1 text-center text-[0.68rem] font-semibold text-[#8b98a5]">
-          {market.min ?? 0} - {market.max ?? 0}
-        </span>
-        {hasLay ? <span className="py-1 text-center text-[0.7rem] font-bold text-[#e6b7c4]">Lay</span> : null}
+        <span className="py-1.5 text-center text-[0.72rem] font-bold text-[#12303f]">Back</span>
+        {hasLay ? (
+          <span className="py-1.5 text-center text-[0.72rem] font-bold text-[#12303f]">Lay</span>
+        ) : null}
       </div>
       <div className="relative">
         {runners.map((r) => {
           const open = !suspended && isOpenStatus(r.status ?? "ONLINE");
           return (
-            <div key={String(r.selectionId)} className={`grid items-center ${cols} px-2`}>
-              <span className="truncate py-2 text-[0.82rem] font-bold uppercase text-[#dbe6f0]">
+            <div
+              key={String(r.selectionId)}
+              className={`grid items-center border-t border-white/70 ${cols} px-2`}
+            >
+              <span className="truncate py-1 text-[0.85rem] font-bold uppercase text-[#12303f]">
                 {names[String(r.selectionId)] ?? String(r.selectionId)}
               </span>
               {plate(r.price?.back?.[0], "back", !open || !r.price?.back?.[0]?.price)}
@@ -501,13 +504,6 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
             </div>
           );
         })}
-        {suspended ? (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/45">
-            <span className="text-xl font-extrabold uppercase tracking-wide text-[#c8d2dc]">
-              Suspended
-            </span>
-          </div>
-        ) : null}
       </div>
     </div>
   );
@@ -763,11 +759,11 @@ function AndarBaharPanel({
         })}
       </div>
 
-      <div className="mt-5 flex flex-wrap justify-center gap-2">
+      <div className="mt-5 flex flex-wrap justify-center gap-1.5">
         {cards.map((r) => (
           <div key={r.id} className="text-center">
             <div
-              className={`flex h-[52px] w-[52px] flex-col items-center justify-center rounded border border-black/25 ${
+              className={`flex h-[52px] w-[48px] flex-col items-center justify-center rounded border border-black/25 ${
                 r.open ? "bg-[#C9C9BE]" : "bg-[#9A9A93]"
               }`}
             >
@@ -945,7 +941,6 @@ function CardRacePanel({
       {markets.map((m, mi) => {
         const names = m.runnersName ?? {};
         const runners = m.runners ?? [];
-        const allClosed = runners.every((r) => suspended || !isOpenStatus(r.status));
         return (
           <div key={`${m.marketId}-${mi}`} className="border border-[#d9d9d9]">
             <div className="flex items-center justify-between bg-black px-2 py-[5px]">
@@ -990,13 +985,6 @@ function CardRacePanel({
                   </div>
                 );
               })}
-              {allClosed && runners.length ? (
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center pr-[268px]">
-                  <span className="text-[1.6rem] font-extrabold uppercase tracking-wide text-[#9aa0a6]">
-                    Suspended
-                  </span>
-                </div>
-              ) : null}
             </div>
           </div>
         );
@@ -1116,13 +1104,6 @@ function AAAPanel({
                 </div>
               );
             })}
-            {suspended ? (
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center pr-[248px]">
-                <span className="text-[1.5rem] font-extrabold uppercase tracking-wide text-[#9aa0a6]/85">
-                  Suspended
-                </span>
-              </div>
-            ) : null}
           </div>
         </div>
       ) : null}
@@ -1217,13 +1198,6 @@ function AAAPanel({
                 </div>
               );
             })}
-            {suspended ? (
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center pr-[248px]">
-                <span className="text-[1.5rem] font-extrabold uppercase tracking-wide text-[#9aa0a6]/85">
-                  Suspended
-                </span>
-              </div>
-            ) : null}
           </div>
         </div>
       ) : null}
@@ -2287,6 +2261,31 @@ function lucky7Label(winner: string): string | null {
   return null;
 }
 
+type AnyResult = CasinoResult & { _id?: string; result?: string; selectionName?: string };
+
+/** Winner label from a result row — flat `winner` field or nested market results. */
+function deriveWinner(r?: AnyResult): string {
+  if (!r) return "";
+  const flat = (r.winner ?? r.result ?? r.selectionName ?? "").toString().trim();
+  const nested = (r.results ?? []).find((m) => /winner/i.test(m.marketName ?? "")) ?? r.results?.[0];
+  const nRunners = nested?.runners as unknown;
+  if (!nested) return flat;
+  let derived = "";
+  if (Array.isArray(nRunners)) {
+    const w = (nRunners as { selectionId?: string | number; result?: string }[]).find(
+      (x) => x.result === "WINNER",
+    );
+    if (w) derived = (nested.runnersName ?? {})[String(w.selectionId)] ?? "";
+  } else if (nRunners && typeof nRunners === "object") {
+    const id = Object.entries(nRunners as Record<string, string>).find(
+      ([, v]) => v === "WINNER",
+    )?.[0];
+    if (id) derived = (nested.runnersName ?? {})[id] ?? "";
+  }
+  // Prefer the human-readable nested name; fall back to the flat winner.
+  return derived || flat.replace(/_/g, " ");
+}
+
 function ResultBanner({
   results,
   gameId,
@@ -2297,9 +2296,9 @@ function ResultBanner({
   gameName?: string | null;
 }) {
 
-  const top = results[0] as (CasinoResult & { _id?: string; result?: string; selectionName?: string }) | undefined;
+  const top = results[0] as AnyResult | undefined;
   const key = String(top?.roundId ?? top?._id ?? "");
-  const winner = (top?.winner ?? top?.result ?? top?.selectionName ?? "").toString().trim();
+  const winner = deriveWinner(top);
   const seen = useRef<string>("");
   const [show, setShow] = useState(false);
 
@@ -2344,30 +2343,42 @@ function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: bool
         <span className="mr-1 shrink-0 text-base font-bold text-ex-text">Recent Result</span>
 
         {results.slice(0, 10).map((r, idx) => {
-          const rr = r as CasinoResult & { result?: string; selectionName?: string };
-          const raw = (rr.winner ?? rr.result ?? rr.selectionName ?? "-").toString().trim();
+          const rr = r as AnyResult;
+          const raw = (deriveWinner(rr) || "-").trim();
+          const playerMatch = raw.match(/player[\s_]*([a-z]|\d+)/i);
           const w = /^EXTRA/i.test(raw)
             ? "EX"
             : /^WICKET/i.test(raw)
               ? "W"
-              : (raw.match(/^\d+/)?.[0] ?? raw);
+              : playerMatch
+                ? playerMatch[1]!
+                : (raw.match(/^\d+/)?.[0] ?? raw);
           const lower = w.toLowerCase();
           const isTie = lower.startsWith("tie") || lower.startsWith("draw");
           const isNum = /^\d+$/.test(w);
           const first = isTie ? "Tie" : isNum ? w : w.slice(0, 1).toUpperCase();
-          const tone = isNum
-            ? w === "0"
-              ? "bg-[#12563A] text-white"
-              : Number(w) % 2 === 1
-                ? "bg-[#D9483B] text-white"
-                : "bg-[#1E1E1E] text-white"
-            : isTie
-              ? "bg-[#8CD9B5] text-[#0F172A]"
-              : first === "L"
-                ? "bg-[#8E44C7] text-white"
-                : ["B", "T"].includes(first)
-                  ? "bg-ex-lay text-ex-cell-foreground"
-                  : "bg-ex-back text-ex-cell-foreground";
+          const PLAYER32_TONE: Record<string, string> = {
+            "8": "bg-[#E67E22] text-white",
+            "9": "bg-[#27AE60] text-white",
+            "10": "bg-[#E67E22] text-white",
+            "11": "bg-[#8E44AD] text-white",
+          };
+          const tone =
+            isNum && playerMatch
+              ? (PLAYER32_TONE[w] ?? "bg-[#E67E22] text-white")
+              : isNum
+                ? w === "0"
+                  ? "bg-[#12563A] text-white"
+                  : Number(w) % 2 === 1
+                    ? "bg-[#D9483B] text-white"
+                    : "bg-[#1E1E1E] text-white"
+                : isTie
+                  ? "bg-[#8CD9B5] text-[#0F172A]"
+                  : first === "L"
+                    ? "bg-[#8E44C7] text-white"
+                    : ["B", "T"].includes(first)
+                      ? "bg-ex-lay text-ex-cell-foreground"
+                      : "bg-ex-back text-ex-cell-foreground";
 
           const finalTone = (dream ? DREAM_TONE[first] : undefined) ?? tone;
 
