@@ -469,14 +469,14 @@ function MobileCenterActions({
       </button>
       <button
         type="button"
-        onClick={() => both((p) => ({ ...p, amount: MOBILE_PRESETS[0] }))}
+        onClick={() => both((p) => ({ ...p, amount: 10 }))}
         className={`${btn} border border-[#4A4E55] bg-[#17191C] text-[#9AA0A8]`}
       >
         Min
       </button>
       <button
         type="button"
-        onClick={() => both((p) => ({ ...p, amount: MOBILE_PRESETS[MOBILE_PRESETS.length - 1] }))}
+        onClick={() => both((p) => ({ ...p, amount: 10000 }))}
         className={`${btn} border border-[#4A4E55] bg-[#17191C] text-[#9AA0A8]`}
       >
         Max
@@ -1412,7 +1412,7 @@ export function Aviator() {
             {/* mobile: left presets | center actions | right presets */}
             <div className="flex items-start justify-between gap-[6px] rounded-[10px] border border-[#292D32] bg-[#0D0E10] p-[8px] sm:hidden">
               <MobileBetSlot
-                state={slots[0]}
+                state={slots[0]!}
                 setState={(fn) => setSlot(0, fn)}
                 phase={phase}
                 multiplier={multiplier}
@@ -1421,7 +1421,7 @@ export function Aviator() {
               />
               <MobileCenterActions setSlot={setSlot} />
               <MobileBetSlot
-                state={slots[1]}
+                state={slots[1]!}
                 setState={(fn) => setSlot(1, fn)}
                 phase={phase}
                 multiplier={multiplier}
