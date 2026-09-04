@@ -1630,20 +1630,18 @@ export function Aviator() {
             </div>
 
 
-            <div className="mt-2 hidden grid-cols-2 gap-[10px] sm:mt-3 sm:grid">
-
-              {slots.map((s, i) => (
-                <BetPanel
-                  key={i}
-                  state={s}
-                  setState={(fn) => setSlot(i, fn)}
-                  phase={phase}
-                  multiplier={multiplier}
-                  onWin={win}
-                  balance={balance}
-                />
-              ))}
+            <div className="mt-2 hidden sm:mt-3 sm:block">
+              <DesktopBetBoard
+                slots={slots}
+                setSlot={setSlot}
+                setAll={setAll}
+                phase={phase}
+                multiplier={multiplier}
+                onWin={win}
+                balance={balance}
+              />
             </div>
+
           </div>
 
 
