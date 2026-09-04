@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { authenticateOperator, jsonError } from "@/lib/operator-auth.server";
+import { authenticateOperator, jsonError, productDenied, productOf } from "@/lib/operator-auth.server";
 import { walletCall } from "@/lib/callback-wallet.server";
 
 const schema = z.object({
@@ -47,6 +47,22 @@ export const Route = createFileRoute("/api/public/v1/bet")({
           );
         }
         const b = parsed.data;
+
+        // Casino vs sports scope of this API key.
+        const denied = productDenied(auth, productOf(b.gameId));
+        if (denied) {
+          await logReject({
+            operator_id: auth.operator.id,
+            operator_user_id: b.userId,
+            game_id: b.gameId,
+            round_id: b.roundId,
+            code: denied.code,
+            message: denied.error,
+            ip: auth.ip,
+          });
+          return jsonError(denied);
+        }
+
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
         // Round must still be open for bets.

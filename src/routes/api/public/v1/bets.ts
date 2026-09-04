@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { authenticateOperator, jsonError } from "@/lib/operator-auth.server";
+import { authenticateOperator, jsonError, productDenied, productOf } from "@/lib/operator-auth.server";
 
 export const Route = createFileRoute("/api/public/v1/bets")({
   server: {
@@ -22,6 +22,10 @@ export const Route = createFileRoute("/api/public/v1/bets")({
           .eq("operator_id", auth.operator.id)
           .order("created_at", { ascending: false })
           .limit(limit);
+        if (gameId) {
+          const denied = productDenied(auth, productOf(gameId));
+          if (denied) return jsonError(denied);
+        }
         if (userId) q = q.eq("operator_user_id", userId);
         if (gameId) q = q.eq("game_id", gameId);
 
