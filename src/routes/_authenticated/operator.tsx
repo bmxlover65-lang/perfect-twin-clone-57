@@ -65,6 +65,9 @@ function OperatorPage() {
   const logsFn = useServerFn(listCallbackLogs);
   const walletTest = useServerFn(testWalletCall);
   const saveCallback = useServerFn(updateMyCallback);
+  const wlAdd = useServerFn(myWhitelistAdd);
+  const wlRemove = useServerFn(myWhitelistRemove);
+
 
   const [ops, setOps] = useState<Array<{ id: string; name: string }>>([]);
   const [sel, setSel] = useState("");
