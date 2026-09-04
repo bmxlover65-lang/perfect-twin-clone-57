@@ -243,7 +243,6 @@ function BetPanel({
   multiplier,
   onWin,
   balance,
-  mode,
 }: {
   state: PanelState;
   setState: (fn: (p: PanelState) => PanelState) => void;
@@ -251,7 +250,6 @@ function BetPanel({
   multiplier: number;
   onWin: (amount: number) => void;
   balance: number;
-  mode: "bet" | "auto";
 }) {
   const canCash = phase === "flying" && state.active && state.cashedAt === null;
   const pending = state.staged || (state.active && state.cashedAt === null);
