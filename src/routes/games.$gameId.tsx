@@ -1092,13 +1092,6 @@ function AAAPanel({
                 </div>
               );
             })}
-            {suspended ? (
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center pr-[248px]">
-                <span className="text-[1.5rem] font-extrabold uppercase tracking-wide text-[#9aa0a6]/85">
-                  Suspended
-                </span>
-              </div>
-            ) : null}
           </div>
         </div>
       ) : null}
