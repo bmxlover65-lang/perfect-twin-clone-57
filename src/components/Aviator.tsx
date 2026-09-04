@@ -1382,7 +1382,6 @@ export function Aviator() {
                   multiplier={multiplier}
                   onWin={win}
                   balance={balance}
-                  mode={mode}
                 />
               ))}
             </div>
