@@ -2449,8 +2449,9 @@ function RecentStrip({
 }) {
   return (
 
-      <div className="mt-0 flex items-center gap-2 overflow-x-auto bg-ex-panel px-3 py-2">
-        <span className="mr-1 shrink-0 text-[0.95rem] font-bold text-ex-text">Recent Result</span>
+      <div className="mt-0 flex items-center gap-2 overflow-x-auto bg-black px-3 py-2.5">
+        <span className="mr-1 shrink-0 text-[0.95rem] font-bold text-white">Recent Result</span>
+
 
 
         {results.slice(0, 10).map((r, idx) => {
