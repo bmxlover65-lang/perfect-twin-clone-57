@@ -170,17 +170,15 @@ function BaccaratPanel({
   const pairSusp = groupSuspended(pair);
 
   return (
-    <div className="mt-3 space-y-3">
-      <p className="text-right text-[0.72rem] font-semibold text-ex-muted">
+    <div className="mt-2 space-y-2 bg-[#f2f2f2] px-2 pb-2 pt-1">
+      <p className="text-right text-[0.72rem] font-semibold text-[#6b7280]">
         Min/Max: {mm?.min ?? 0} - {mm?.max ?? 0}
       </p>
-      <div className="relative flex items-stretch overflow-hidden rounded-xl">
-        {winner.map((r, i) => (
+      <div className="relative flex items-stretch overflow-hidden">
+        {winner.map((r) => (
           <div
             key={r.id}
-            className={`flex flex-1 items-center justify-center py-7 ${tone(r.label)} ${
-              i === 0 ? "rounded-l-xl" : "rounded-r-xl"
-            }`}
+            className={`flex flex-1 items-center justify-center py-7 ${tone(r.label)}`}
           >
             <Body r={r} />
           </div>
@@ -194,18 +192,16 @@ function BaccaratPanel({
         ) : null}
         {winnerSusp ? <Overlay /> : null}
       </div>
-      <div className="relative grid grid-cols-2 gap-4">
+      <div className="relative grid grid-cols-2 gap-[6px]">
         {pair.map((r) => (
-          <div
-            key={r.id}
-            className={`flex items-center justify-center rounded-xl py-4 ${tone(r.label)}`}
-          >
+          <div key={r.id} className={`flex items-center justify-center py-4 ${tone(r.label)}`}>
             <Body r={r} />
           </div>
         ))}
         {pairSusp ? <Overlay /> : null}
       </div>
     </div>
+
   );
 }
 
