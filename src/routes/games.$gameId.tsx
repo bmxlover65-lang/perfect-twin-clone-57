@@ -13,6 +13,8 @@ import { settleLatest, settleRound } from "@/lib/wallet";
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
 
 import { CardFace } from "@/components/CardFace";
+import { cardImage } from "@/lib/card-assets";
+
 
 
 import dream1x from "@/assets/dream/note1.png.asset.json";
