@@ -324,7 +324,7 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
     const locked = !runnerOpen || !p?.price;
     return (
       <div
-        className={`relative m-[3px] flex h-[46px] flex-col items-center justify-center ${
+        className={`relative m-[3px] flex h-[40px] flex-col items-center justify-center ${
           side === "back" ? "bg-[#72BBEF]" : "bg-[#F9C9D4]"
         }`}
       >
@@ -830,7 +830,7 @@ function DT20Panel({
   );
 
   const CardTile = ({ rank }: { rank: string }) => (
-    <span className="inline-flex h-[46px] w-[34px] flex-col items-center justify-center rounded-[2px] border border-[#E3C96B] bg-white leading-none">
+    <span className="inline-flex h-[40px] w-[29px] flex-col items-center justify-center rounded-[2px] border border-[#E3C96B] bg-white leading-none">
       <span className="text-[0.85rem] font-bold text-[#555]">{rank}</span>
       <span className="mt-[2px] flex gap-[2px]">
         <Suits list={["♣", "♦"]} />
@@ -1208,7 +1208,7 @@ function AAAPanel({
               return (
                 <div key={`${r.selectionId}-${i}`} className="flex items-stretch border-t border-[#eee]">
                   <div className="flex min-h-[52px] flex-1 items-center px-2">
-                    <span className="inline-flex h-[42px] w-[34px] flex-col items-center justify-center rounded-[3px] border border-[#E3C96B] bg-white leading-none">
+                    <span className="inline-flex h-[40px] w-[29px] flex-col items-center justify-center rounded-[3px] border border-[#E3C96B] bg-white leading-none">
                       <span className="text-[1rem] font-bold text-[#333]">{rank}</span>
                       <span className="mt-[1px] text-[0.5rem] leading-none">
                         <span className="text-[#111]">♠</span>
