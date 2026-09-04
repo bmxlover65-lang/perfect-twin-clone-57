@@ -401,12 +401,13 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
   return (
     <div className="mt-0">
       <header className="flex items-center justify-between gap-2 bg-black px-2 py-[5px]">
-        <h3 className="text-[0.78rem] font-extrabold uppercase tracking-[0.02em] text-white">
+        <h3 className="truncate whitespace-nowrap text-[0.78rem] font-extrabold uppercase tracking-[0.02em] text-white">
           {market.marketName}
         </h3>
-        <span className="text-[0.66rem] font-semibold text-white/85">
+        <span className="shrink-0 whitespace-nowrap text-[0.66rem] font-semibold text-white/85">
           Min/Max: {market.min ?? 0} - {market.max ?? 0}
         </span>
+
       </header>
       <div className="relative bg-gradient-to-b from-[#dff0fb] to-[#a9d4ef] px-3 py-3">
         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
