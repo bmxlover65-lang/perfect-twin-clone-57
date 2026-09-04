@@ -771,7 +771,7 @@ function FlightStage({
   const glowMid = `rgba(${Math.round(8 + glow * 50)},44,${Math.round(82 + glow * 40)},${0.3 + glow * 0.16})`;
 
   return (
-    <div className="relative overflow-hidden rounded-[14px] border border-[#1B1D20] bg-black">
+    <div className="relative overflow-hidden bg-black sm:rounded-[14px] sm:border sm:border-[#1B1D20]">
       {/* spribe-style rotating sun rays from the bottom-left */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
