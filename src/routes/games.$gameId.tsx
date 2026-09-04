@@ -226,16 +226,14 @@ function PokerPanel({
     locked: boolean;
   }) => (
     <div
-      className={`flex h-[52px] w-full min-w-0 flex-1 -skew-x-[18deg] items-center justify-center rounded-[2px] shadow-[0_2px_5px_rgba(0,0,0,0.25)] ${
-        locked
-          ? "bg-gradient-to-b from-[#cdd7d2] to-[#b7c4be]"
-          : "bg-gradient-to-br from-[#1f8f63] to-[#0a5b3b]"
+      className={`flex h-[52px] w-full min-w-0 flex-1 -skew-x-[18deg] items-center justify-center rounded-[2px] bg-gradient-to-br from-[#1f8f63] to-[#0a5b3b] shadow-[0_2px_5px_rgba(0,0,0,0.25)] ${
+        locked ? "opacity-55" : ""
       }`}
     >
       <div className="skew-x-[18deg] text-center leading-tight">
-        <p className="text-[1.05rem] font-extrabold text-white">{fmtOdds(price)}</p>
-        <p className={`text-[0.62rem] font-semibold ${locked ? "text-[#7c8a85]" : "text-white/60"}`}>
-          {fmtSize(size)}
+        <p className="text-[1.05rem] font-extrabold text-white">{locked ? "" : fmtOdds(price)}</p>
+        <p className="text-[0.62rem] font-semibold text-white/60">
+          {locked ? "" : fmtSize(size)}
         </p>
       </div>
     </div>
@@ -763,11 +761,11 @@ function AndarBaharPanel({
         })}
       </div>
 
-      <div className="mt-5 flex flex-wrap justify-center gap-2">
+      <div className="mt-5 flex flex-wrap justify-center gap-1.5">
         {cards.map((r) => (
           <div key={r.id} className="text-center">
             <div
-              className={`flex h-[52px] w-[52px] flex-col items-center justify-center rounded border border-black/25 ${
+              className={`flex h-[52px] w-[48px] flex-col items-center justify-center rounded border border-black/25 ${
                 r.open ? "bg-[#C9C9BE]" : "bg-[#9A9A93]"
               }`}
             >
