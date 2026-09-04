@@ -1299,10 +1299,12 @@ function MuflisPanel({
     { v: "200", src: chip5.url },
     { v: "500", src: chip10.url },
     { v: "1k", src: chip20.url },
-    { v: "10k", src: chip50.url },
-    { v: "25k", src: chip100.url },
-    { v: "50k", src: chip200.url },
-    { v: "100k", src: chip500.url },
+    { v: "2k", src: chip50.url },
+    { v: "5k", src: chip100.url },
+    { v: "10k", src: chip200.url },
+    { v: "25k", src: chip500.url },
+    { v: "50k", src: chip1k.url },
+    { v: "100k", src: chip5.url },
   ];
 
 
@@ -1393,10 +1395,12 @@ const PANEL_CHIPS: { v: string; src: string }[] = [
   { v: "200", src: chip5.url },
   { v: "500", src: chip10.url },
   { v: "1k", src: chip20.url },
-  { v: "10k", src: chip50.url },
-  { v: "25k", src: chip100.url },
-  { v: "50k", src: chip200.url },
-  { v: "100k", src: chip500.url },
+  { v: "2k", src: chip50.url },
+  { v: "5k", src: chip100.url },
+  { v: "10k", src: chip200.url },
+  { v: "25k", src: chip500.url },
+  { v: "50k", src: chip1k.url },
+  { v: "100k", src: chip5.url },
 ];
 
 function ChipRow() {
