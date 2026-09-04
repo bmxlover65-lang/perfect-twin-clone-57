@@ -1634,7 +1634,7 @@ export function Aviator() {
               <DesktopBetBoard
                 slots={slots}
                 setSlot={setSlot}
-                setAll={setAll}
+                setAll={setAllSlots}
                 phase={phase}
                 multiplier={multiplier}
                 onWin={win}
