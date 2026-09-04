@@ -2261,6 +2261,31 @@ function lucky7Label(winner: string): string | null {
   return null;
 }
 
+type AnyResult = CasinoResult & { _id?: string; result?: string; selectionName?: string };
+
+/** Winner label from a result row — flat `winner` field or nested market results. */
+function deriveWinner(r?: AnyResult): string {
+  if (!r) return "";
+  const flat = (r.winner ?? r.result ?? r.selectionName ?? "").toString().trim();
+  if (flat) return flat;
+  const nested = (r.results ?? []).find((m) => /winner/i.test(m.marketName ?? "")) ?? r.results?.[0];
+  const nRunners = nested?.runners as unknown;
+  if (!nested) return "";
+  if (Array.isArray(nRunners)) {
+    const w = (nRunners as { selectionId?: string | number; result?: string }[]).find(
+      (x) => x.result === "WINNER",
+    );
+    return w ? ((nested.runnersName ?? {})[String(w.selectionId)] ?? "") : "";
+  }
+  if (nRunners && typeof nRunners === "object") {
+    const id = Object.entries(nRunners as Record<string, string>).find(
+      ([, v]) => v === "WINNER",
+    )?.[0];
+    return id ? ((nested.runnersName ?? {})[id] ?? "") : "";
+  }
+  return "";
+}
+
 function ResultBanner({
   results,
   gameId,
@@ -2271,9 +2296,9 @@ function ResultBanner({
   gameName?: string | null;
 }) {
 
-  const top = results[0] as (CasinoResult & { _id?: string; result?: string; selectionName?: string }) | undefined;
+  const top = results[0] as AnyResult | undefined;
   const key = String(top?.roundId ?? top?._id ?? "");
-  const winner = (top?.winner ?? top?.result ?? top?.selectionName ?? "").toString().trim();
+  const winner = deriveWinner(top);
   const seen = useRef<string>("");
   const [show, setShow] = useState(false);
 
