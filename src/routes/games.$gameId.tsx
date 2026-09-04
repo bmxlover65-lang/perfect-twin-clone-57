@@ -78,8 +78,10 @@ export const Route = createFileRoute("/games/$gameId")({
 /** Strip table-suffixes like " - A" / " B" from the feed's event name. */
 function cleanGameName(name?: string | null): string | undefined {
   if (!name) return undefined;
-  return name.replace(/\s*[-–]\s*[A-Z]$/i, "").trim();
+  const cleaned = name.replace(/\s*[-–]\s*[A-Z]$/i, "").trim();
+  return /card\s*race/i.test(cleaned) ? "CARD RACE" : cleaned;
 }
+
 
 /** Andar Bahar shows the two rows as plain "A" / "B" like the live table. */
 function isAndarBahar(name?: string | null): boolean {
@@ -170,17 +172,15 @@ function BaccaratPanel({
   const pairSusp = groupSuspended(pair);
 
   return (
-    <div className="mt-3 space-y-3">
-      <p className="text-right text-[0.72rem] font-semibold text-ex-muted">
+    <div className="mt-2 space-y-2 bg-[#f2f2f2] px-2 pb-2 pt-1">
+      <p className="text-right text-[0.72rem] font-semibold text-[#6b7280]">
         Min/Max: {mm?.min ?? 0} - {mm?.max ?? 0}
       </p>
-      <div className="relative flex items-stretch overflow-hidden rounded-xl">
-        {winner.map((r, i) => (
+      <div className="relative flex items-stretch overflow-hidden">
+        {winner.map((r) => (
           <div
             key={r.id}
-            className={`flex flex-1 items-center justify-center py-7 ${tone(r.label)} ${
-              i === 0 ? "rounded-l-xl" : "rounded-r-xl"
-            }`}
+            className={`flex flex-1 items-center justify-center py-7 ${tone(r.label)}`}
           >
             <Body r={r} />
           </div>
@@ -194,18 +194,16 @@ function BaccaratPanel({
         ) : null}
         {winnerSusp ? <Overlay /> : null}
       </div>
-      <div className="relative grid grid-cols-2 gap-4">
+      <div className="relative grid grid-cols-2 gap-[6px]">
         {pair.map((r) => (
-          <div
-            key={r.id}
-            className={`flex items-center justify-center rounded-xl py-4 ${tone(r.label)}`}
-          >
+          <div key={r.id} className={`flex items-center justify-center py-4 ${tone(r.label)}`}>
             <Body r={r} />
           </div>
         ))}
         {pairSusp ? <Overlay /> : null}
       </div>
     </div>
+
   );
 }
 
@@ -304,6 +302,17 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
   const runners = market.runners ?? [];
   const hasLay = runners.some((r) => Boolean(r.price?.lay?.[0]?.price));
   const cols = hasLay ? "grid-cols-[1fr_130px_130px]" : "grid-cols-[1fr_130px]";
+  // Original strips the side prefix inside a side-specific section
+  // ("DRAGON ODD" -> "ODD" under the "DRAGON ODD/EVEN" header).
+  const sidePrefix = (market.marketName ?? "").trim().toUpperCase().split(/\s+/)[0] ?? "";
+  const runnerLabel = (raw: string) => {
+    const up = raw.trim();
+    if (sidePrefix && up.toUpperCase().startsWith(`${sidePrefix} `)) {
+      return up.slice(sidePrefix.length + 1);
+    }
+    return up;
+  };
+
 
 
 
@@ -362,8 +371,9 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
               className={`grid items-center border-t border-[#e6e6e6] ${cols}`}
             >
               <span className="px-2 py-2 text-[0.82rem] font-bold text-[#1f4b66]">
-                {names[String(r.selectionId)] ?? String(r.selectionId)}
+                {runnerLabel(names[String(r.selectionId)] ?? String(r.selectionId))}
               </span>
+
               {cell(r.price?.back?.[0], "back", runnerOpen)}
               {hasLay ? cell(r.price?.lay?.[0], "lay", runnerOpen) : null}
             </div>
@@ -383,20 +393,31 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
   const tieIdx = raw.findIndex(
     (r) => (names[String(r.selectionId)] ?? "").trim().toUpperCase() === "TIE",
   );
-  const runners =
+  const reordered =
     tieIdx > -1 && tieIdx !== raw.length - 1
       ? [...raw.slice(0, tieIdx), ...raw.slice(tieIdx + 1), raw[tieIdx]!]
       : raw;
+  // Lucky 7 shows EVEN first, then ODD (matches the original board).
+  const runners = /LUCKY ODD\/EVEN/i.test(market.marketName ?? "")
+    ? [...reordered].sort((a, b) => {
+        const la = (names[String(a.selectionId)] ?? "").toUpperCase();
+        const lb = (names[String(b.selectionId)] ?? "").toUpperCase();
+        const rank = (l: string) => (l.startsWith("EVEN") ? 0 : l.startsWith("ODD") ? 1 : 2);
+        return rank(la) - rank(lb);
+      })
+    : reordered;
   const odd = runners.length % 2 === 1;
+
   return (
     <div className="mt-0">
       <header className="flex items-center justify-between gap-2 bg-black px-2 py-[5px]">
-        <h3 className="text-[0.78rem] font-extrabold uppercase tracking-[0.02em] text-white">
+        <h3 className="truncate whitespace-nowrap text-[0.78rem] font-extrabold uppercase tracking-[0.02em] text-white">
           {market.marketName}
         </h3>
-        <span className="text-[0.66rem] font-semibold text-white/85">
+        <span className="shrink-0 whitespace-nowrap text-[0.66rem] font-semibold text-white/85">
           Min/Max: {market.min ?? 0} - {market.max ?? 0}
         </span>
+
       </header>
       <div className="relative bg-gradient-to-b from-[#dff0fb] to-[#a9d4ef] px-3 py-3">
         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
@@ -430,12 +451,13 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
           })}
         </div>
         {suspended ? (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white/55">
-            <span className="text-xl font-extrabold uppercase tracking-[0.08em] text-[#c0392b]">
-              Suspended
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[#22303c]/78">
+            <span className="text-[1.35rem] font-extrabold uppercase tracking-[0.06em] text-white">
+              SUSPENDED
             </span>
           </div>
         ) : null}
+
       </div>
     </div>
   );
@@ -618,11 +640,11 @@ function DTLPanel({
         {cards.map((r) => {
           const rank = r.label.replace(`${tab} `, "");
           return (
-            <div key={r.id} className="w-[48px] text-center">
-              <div className="relative flex h-[52px] flex-col items-center justify-center rounded-[2px] bg-gradient-to-b from-[#d9d9d9] to-[#a8a8a8] text-[1.15rem] font-extrabold text-[#111]">
+            <div key={r.id} className="w-[44px] text-center">
+              <div className="relative flex h-[56px] flex-col items-center justify-center rounded-[3px] border border-[#4A5058] bg-gradient-to-b from-[#3A4048] to-[#22272D] text-[1.05rem] font-extrabold text-white/90">
                 {rank}
-                <span className="absolute bottom-0.5 left-0.5 text-[0.6rem] text-[#111]">♣ ♠</span>
-                <span className="absolute bottom-0.5 right-0.5 text-[0.6rem] text-[#E0393B]">♥ ♦</span>
+                <span className="absolute bottom-0.5 left-0.5 text-[0.55rem] text-white/70">♣ ♠</span>
+                <span className="absolute bottom-0.5 right-0.5 text-[0.55rem] text-[#E0393B]">♥ ♦</span>
                 {!r.open ? (
                   <span className="absolute inset-0 flex items-center justify-center text-base">🔒</span>
                 ) : null}
@@ -634,6 +656,7 @@ function DTLPanel({
           );
         })}
       </div>
+
     </div>
   );
 }
@@ -912,12 +935,16 @@ function CardRacePanel({
 
     if (kingSuit) {
       return (
-        <span className="inline-flex h-[42px] w-[32px] flex-col items-center justify-center rounded-[3px] border border-[#E3C96B] bg-white leading-none shadow-sm">
-          <span className="text-[0.95rem] font-bold" style={{ color: suitColor(kingSuit) }}>K</span>
-          <span className="text-[0.9rem]" style={{ color: suitColor(kingSuit) }}>{kingSuit}</span>
+        <span className="inline-flex items-center gap-2">
+          <span className="inline-flex h-[42px] w-[32px] shrink-0 flex-col items-center justify-center rounded-[3px] border border-[#E3C96B] bg-white leading-none shadow-sm">
+            <span className="text-[0.95rem] font-bold" style={{ color: suitColor(kingSuit) }}>K</span>
+            <span className="text-[0.9rem]" style={{ color: suitColor(kingSuit) }}>{kingSuit}</span>
+          </span>
+          <span className="text-[0.9rem] font-bold leading-tight text-[#555]">{up}</span>
         </span>
       );
     }
+
 
     const suffix =
       up === "RED" ? ["♥", "♦"] :
@@ -985,7 +1012,16 @@ function CardRacePanel({
                   </div>
                 );
               })}
+              {runners.length > 0 &&
+              runners.every((r) => suspended || !isOpenStatus(r.status)) ? (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <span className="text-[1.45rem] font-extrabold uppercase tracking-[0.04em] text-[#8b98a3]">
+                    SUSPENDED
+                  </span>
+                </div>
+              ) : null}
             </div>
+
           </div>
         );
       })}
@@ -2339,8 +2375,9 @@ function ResultBanner({
 function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: boolean }) {
   return (
 
-      <div className="mt-4 flex items-center gap-2 overflow-x-auto rounded-md bg-ex-panel px-3 py-2">
-        <span className="mr-1 shrink-0 text-base font-bold text-ex-text">Recent Result</span>
+      <div className="mt-0 flex items-center gap-2 overflow-x-auto bg-ex-panel px-3 py-2">
+        <span className="mr-1 shrink-0 text-[0.95rem] font-bold text-ex-text">Recent Result</span>
+
 
         {results.slice(0, 10).map((r, idx) => {
           const rr = r as AnyResult;
@@ -2382,6 +2419,28 @@ function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: bool
 
           const finalTone = (dream ? DREAM_TONE[first] : undefined) ?? tone;
 
+          const suit = /heart/i.test(raw)
+            ? "♥"
+            : /spade/i.test(raw)
+              ? "♠"
+              : /diamond/i.test(raw)
+                ? "♦"
+                : /club/i.test(raw)
+                  ? "♣"
+                  : null;
+          if (suit) {
+            return (
+              <span
+                key={`${r.roundId ?? ""}-${idx}`}
+                title={`Round ${r.roundId}`}
+                className="flex h-9 min-w-9 shrink-0 items-center justify-center rounded-full bg-white px-2 text-base font-bold"
+                style={{ color: suit === "♥" || suit === "♦" ? "#E01B24" : "#111" }}
+              >
+                {suit}
+              </span>
+            );
+          }
+
           return (
             <span
               key={`${r.roundId ?? ""}-${idx}`}
@@ -2391,6 +2450,7 @@ function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: bool
               {first || "-"}
             </span>
           );
+
         })}
       </div>
   );
