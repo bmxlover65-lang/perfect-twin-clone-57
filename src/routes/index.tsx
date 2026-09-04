@@ -32,9 +32,14 @@ function hue(id: string, offset: number) {
   return (h + offset) % 360;
 }
 
+/** Feed sometimes spells the plane game "VIMAN" — always show "VIMAAN". */
+function fixName(name: string) {
+  return name.replace(/\bVIMAN\b/gi, "VIMAAN");
+}
+
 function toDef(g: CasinoGame): GameDef {
   const local = GAMES.find((x) => x.id === g.eventId);
-  if (local) return { ...local, name: g.eventName };
+  if (local) return { ...local, name: fixName(g.eventName) };
   const words = g.eventName.split(/\s+/).filter(Boolean);
   const glyph = words
     .slice(0, 2)
