@@ -43,6 +43,7 @@ import {
 } from "@/components/dash";
 
 import { OperatorGuide } from "@/components/dash-guide";
+import { AdminKit } from "@/components/console-kit";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -597,7 +598,12 @@ function OperatorPage() {
             </>
           ) : null}
 
-          {tab === "guide" ? <OperatorGuide /> : null}
+          {tab === "guide" ? (
+            <>
+              <OperatorGuide />
+              <AdminKit role="operator" />
+            </>
+          ) : null}
         </>
       ) : null}
     </DashShell>
