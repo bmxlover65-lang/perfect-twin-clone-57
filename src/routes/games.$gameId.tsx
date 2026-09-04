@@ -2304,24 +2304,32 @@ type AnyResult = CasinoResult & { _id?: string; result?: string; selectionName?:
 function deriveWinner(r?: AnyResult): string {
   if (!r) return "";
   const flat = (r.winner ?? r.result ?? r.selectionName ?? "").toString().trim();
-  const nested = (r.results ?? []).find((m) => /winner/i.test(m.marketName ?? "")) ?? r.results?.[0];
-  const nRunners = nested?.runners as unknown;
-  if (!nested) return flat;
-  let derived = "";
-  if (Array.isArray(nRunners)) {
-    const w = (nRunners as { selectionId?: string | number; result?: string }[]).find(
-      (x) => x.result === "WINNER",
-    );
-    if (w) derived = (nested.runnersName ?? {})[String(w.selectionId)] ?? "";
-  } else if (nRunners && typeof nRunners === "object") {
-    const id = Object.entries(nRunners as Record<string, string>).find(
-      ([, v]) => v === "WINNER",
-    )?.[0];
-    if (id) derived = (nested.runnersName ?? {})[id] ?? "";
+  const markets = r.results ?? [];
+  // Prefer an explicit WINNER market, but fall back to ANY market that has a
+  // declared winning runner — some tables never publish a "WINNER" market.
+  const ordered = [
+    ...markets.filter((m) => /winner/i.test(m.marketName ?? "")),
+    ...markets.filter((m) => !/winner/i.test(m.marketName ?? "")),
+  ];
+  for (const nested of ordered) {
+    const nRunners = nested?.runners as unknown;
+    let derived = "";
+    if (Array.isArray(nRunners)) {
+      const w = (nRunners as { selectionId?: string | number; result?: string }[]).find(
+        (x) => String(x.result ?? "").toUpperCase() === "WINNER",
+      );
+      if (w) derived = (nested.runnersName ?? {})[String(w.selectionId)] ?? "";
+    } else if (nRunners && typeof nRunners === "object") {
+      const id = Object.entries(nRunners as Record<string, string>).find(
+        ([, v]) => String(v).toUpperCase() === "WINNER",
+      )?.[0];
+      if (id) derived = (nested.runnersName ?? {})[id] ?? "";
+    }
+    if (derived) return derived;
   }
-  // Prefer the human-readable nested name; fall back to the flat winner.
-  return derived || flat.replace(/_/g, " ");
+  return flat.replace(/_/g, " ");
 }
+
 
 function ResultBanner({
   results,
