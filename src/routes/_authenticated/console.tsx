@@ -8,6 +8,7 @@ import {
   issueApiKey,
   listWhitelist,
   operatorLedger,
+  provisionOperator,
   removeWhitelist,
   revokeApiKey,
   updateOperator,
@@ -87,6 +88,7 @@ function ConsolePage() {
   const me = useServerFn(whoAmI);
   const claim = useServerFn(bootstrapAdmin);
   const create = useServerFn(createOperator);
+  const provision = useServerFn(provisionOperator);
   const update = useServerFn(updateOperator);
   const issue = useServerFn(issueApiKey);
   const revoke = useServerFn(revokeApiKey);
@@ -111,6 +113,8 @@ function ConsolePage() {
   const [err, setErr] = useState<string>("");
   const [tab, setTab] = useState<string>("overview");
   const [sum, setSum] = useState<Awaited<ReturnType<typeof operatorSummary>> | null>(null);
+  const [cred, setCred] = useState<Awaited<ReturnType<typeof provisionOperator>> | null>(null);
+  const [pwd, setPwd] = useState<string>("");
 
 
   const run = async (fn: () => Promise<void>) => {
