@@ -2072,7 +2072,7 @@ function GamePage() {
         <p className="mt-2 text-[0.7rem] font-bold uppercase tracking-[0.14em] text-muted-foreground">
           Live · Universe Original
         </p>
-        <h1 className="text-[1.35rem] font-extrabold uppercase text-foreground">Aviator</h1>
+        <h1 className="text-[1.35rem] font-extrabold uppercase text-foreground">Viman</h1>
         <div className="mt-2">
           <Aviator />
         </div>
