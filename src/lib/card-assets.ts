@@ -10,6 +10,7 @@ import H7 from "@/assets/cards/H7.png.asset.json";
 import H8 from "@/assets/cards/H8.png.asset.json";
 import HK from "@/assets/cards/HK.png.asset.json";
 import S5 from "@/assets/cards/S5.png.asset.json";
+import { CARD_FACE_IMAGES } from "@/lib/card-faces";
 
 /** Face-down / hidden card image. */
 export const CARD_BACK = back.url;
@@ -29,18 +30,24 @@ export const CARD_IMAGES: Record<string, string> = {
   S5: S5.url,
 };
 
-/** Normalise a feed card code ("H8__", "h8") to "H8"; "0"/"" means face-down. */
+/** Normalise a feed card code ("H8__", "h8", "D10", "ST") to "H8"; "0"/"" means face-down. */
 export function normalizeCardCode(code: string): string {
-  return (code ?? "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+  const clean = (code ?? "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+  if (!clean) return "";
+  const suit = clean.slice(0, 1);
+  let rank = clean.slice(1);
+  if (rank === "1" || rank === "01") rank = "A";
+  if (rank === "T") rank = "10";
+  return `${suit}${rank}`;
 }
 
-/** Image URL for a card code, or null when no artwork exists for it. */
+/** Image URL for a card code (real card-face artwork), or null when face-down/unknown. */
 export function cardImage(code: string): string | null {
   const c = normalizeCardCode(code);
-  if (!c || c === "0" || c === "1") return CARD_BACK;
-  return CARD_IMAGES[c] ?? null;
+  if (!c || c === "0" || c === "1" || c.length === 1) return null;
+  return CARD_FACE_IMAGES[c] ?? CARD_IMAGES[c] ?? null;
 }
 
-/** Shared card shape/size — identical across every game and stage. */
+/** Shared card shape/size — identical across every game and stage (real card ratio 2.5:3.5). */
 export const CARD_SIZE =
-  "h-[46px] w-[39px] shrink-0 rounded-[5px] shadow-md";
+  "h-[46px] w-[33px] shrink-0 rounded-[4px] shadow-md";
