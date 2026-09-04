@@ -212,6 +212,7 @@ function BaccaratPanel({
         ))}
         {pairSusp ? <Overlay /> : null}
       </div>
+      <ChipRow />
     </div>
 
   );
@@ -338,17 +339,20 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
           side === "back" ? "bg-[#72BBEF]" : "bg-[#F9C9D4]"
         }`}
       >
-        <span className="text-sm font-bold leading-none text-[#111]">
-          {p?.price ? fmtOdds(p.price) : ""}
-        </span>
-        <span className="mt-0.5 text-[0.66rem] font-semibold text-[#111]/70">
-          {p?.price ? fmtSize(p?.size) : ""}
-        </span>
         {locked ? (
           <span className="absolute inset-0 flex items-center justify-center bg-white/45 text-sm">
             🔒
           </span>
-        ) : null}
+        ) : (
+          <>
+            <span className="text-sm font-bold leading-none text-[#111]">
+              {p?.price ? fmtOdds(p.price) : ""}
+            </span>
+            <span className="mt-0.5 text-[0.66rem] font-semibold text-[#111]/70">
+              {p?.price ? fmtSize(p?.size) : ""}
+            </span>
+          </>
+        )}
       </div>
     );
   };
@@ -466,17 +470,20 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                 </div>
 
                 <div className="relative flex h-[42px] flex-col items-center justify-center rounded-[6px] border border-[#7fb4d6] bg-gradient-to-b from-[#bfe0f6] to-[#8ec5e8] text-[#0a2233] shadow-sm">
-                  <span className="text-[0.95rem] font-extrabold leading-none">
-                    {fmtOdds(p?.price)}
-                  </span>
-                  <span className="mt-0.5 text-[0.66rem] font-semibold text-[#0a2233]/75">
-                    {fmtSize(p?.size)}
-                  </span>
                   {locked ? (
                     <span className="absolute inset-0 flex items-center justify-center rounded-[6px] bg-black/35 text-sm">
                       🔒
                     </span>
-                  ) : null}
+                  ) : (
+                    <>
+                      <span className="text-[0.95rem] font-extrabold leading-none">
+                        {fmtOdds(p?.price)}
+                      </span>
+                      <span className="mt-0.5 text-[0.66rem] font-semibold text-[#0a2233]/75">
+                        {fmtSize(p?.size)}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             );
@@ -1293,10 +1300,12 @@ function MuflisPanel({
     { v: "200", src: chip5.url },
     { v: "500", src: chip10.url },
     { v: "1k", src: chip20.url },
-    { v: "10k", src: chip50.url },
-    { v: "25k", src: chip100.url },
-    { v: "50k", src: chip200.url },
-    { v: "100k", src: chip500.url },
+    { v: "2k", src: chip50.url },
+    { v: "5k", src: chip100.url },
+    { v: "10k", src: chip200.url },
+    { v: "25k", src: chip500.url },
+    { v: "50k", src: chip1k.url },
+    { v: "100k", src: chip5.url },
   ];
 
 
@@ -1345,7 +1354,7 @@ function MuflisPanel({
         <Side letter="A" />
         <Side letter="B" />
       </div>
-      <div className="mt-4 flex flex-nowrap items-center justify-center gap-2 overflow-x-auto">
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
         {chips.map((c) => (
           <span key={c.v} className="relative inline-flex h-[54px] w-[54px] shrink-0 items-center justify-center">
             <img
@@ -1387,10 +1396,12 @@ const PANEL_CHIPS: { v: string; src: string }[] = [
   { v: "200", src: chip5.url },
   { v: "500", src: chip10.url },
   { v: "1k", src: chip20.url },
-  { v: "10k", src: chip50.url },
-  { v: "25k", src: chip100.url },
-  { v: "50k", src: chip200.url },
-  { v: "100k", src: chip500.url },
+  { v: "2k", src: chip50.url },
+  { v: "5k", src: chip100.url },
+  { v: "10k", src: chip200.url },
+  { v: "25k", src: chip500.url },
+  { v: "50k", src: chip1k.url },
+  { v: "100k", src: chip5.url },
 ];
 
 function ChipRow() {
@@ -1676,10 +1687,15 @@ function DragonTigerPanel({
     price?: number | null | undefined;
   }) => (
     <div className="text-center">
-      <p className="mb-1 text-[1.05rem] font-extrabold text-[#111]">{fmtOdds(price)}</p>
+      <p className="mb-1 text-[1.05rem] font-extrabold text-[#111]">
+        {r && !r.open ? "" : fmtOdds(price)}
+      </p>
       <div className="relative flex h-[62px] items-center justify-center rounded-xl bg-[#0D3B2B] px-4">
-        <span className="text-[1rem] font-bold uppercase text-white/55">{label}</span>
-        {r && !r.open ? <Lock /> : null}
+        {r && !r.open ? (
+          <Lock />
+        ) : (
+          <span className="text-[1rem] font-bold uppercase text-white/55">{label}</span>
+        )}
       </div>
     </div>
   );
