@@ -95,7 +95,9 @@ function CasinoDocs() {
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Client integration
           </p>
-          <h1 className="mt-2 text-4xl font-bold tracking-tight text-foreground">Universal API</h1>
+          <h1 className="mt-2 text-4xl font-bold tracking-tight text-foreground">
+            Universal API — Casino Integration Guide
+          </h1>
           <p className="mt-3 max-w-2xl text-[1.05rem] leading-relaxed text-muted-foreground">
             Integration guide — server-side API for live data, TV overlays, and iframe video embeds
             on your partner platform.

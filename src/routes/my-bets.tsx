@@ -47,7 +47,9 @@ function MyBetsPage() {
     <div className="mx-auto max-w-[1000px] space-y-4 px-3 py-5">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <div className="min-w-0">
-          <h1 className="truncate text-xl font-extrabold text-foreground">My bets</h1>
+          <h1 className="truncate text-xl font-extrabold text-foreground">
+            My Bets — Player History
+          </h1>
           <p className="text-xs text-muted-foreground">Casino aur sports — har bet ka record.</p>
         </div>
         <span className="shrink-0 rounded-full bg-[#123A73] px-3 py-1 text-sm font-extrabold text-white">
