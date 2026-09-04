@@ -361,7 +361,7 @@ const ENDPOINTS: [string, string][] = [
   ["WS  /ws/sports?sportId=&exEventId=&apiKey=", "Odds push"],
 ];
 
-export function AdminKit() {
+export function AdminKit({ role = "admin" }: { role?: "admin" | "operator" } = {}) {
   const [lang, setLang] = useState<string>("node");
   const active = LANGS.find((l) => l.id === lang) ?? LANGS[0];
 
