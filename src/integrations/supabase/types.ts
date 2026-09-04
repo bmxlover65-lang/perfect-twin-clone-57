@@ -24,6 +24,7 @@ export type Database = {
           label: string
           last_used_at: string | null
           operator_id: string
+          products: string[]
         }
         Insert: {
           active?: boolean
@@ -34,6 +35,7 @@ export type Database = {
           label?: string
           last_used_at?: string | null
           operator_id: string
+          products?: string[]
         }
         Update: {
           active?: boolean
@@ -44,6 +46,7 @@ export type Database = {
           label?: string
           last_used_at?: string | null
           operator_id?: string
+          products?: string[]
         }
         Relationships: [
           {
@@ -331,6 +334,7 @@ export type Database = {
           owner_id: string | null
           plan_amount: number
           plan_expires_at: string | null
+          products: string[]
           status: string
         }
         Insert: {
@@ -344,6 +348,7 @@ export type Database = {
           owner_id?: string | null
           plan_amount?: number
           plan_expires_at?: string | null
+          products?: string[]
           status?: string
         }
         Update: {
@@ -357,6 +362,7 @@ export type Database = {
           owner_id?: string | null
           plan_amount?: number
           plan_expires_at?: string | null
+          products?: string[]
           status?: string
         }
         Relationships: []
