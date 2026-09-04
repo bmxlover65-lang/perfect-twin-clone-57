@@ -2319,7 +2319,24 @@ function RecentStrip({ results, dream }: { results: CasinoResult[]; dream?: bool
 
         {results.slice(0, 10).map((r, idx) => {
           const rr = r as CasinoResult & { result?: string; selectionName?: string };
-          const raw = (rr.winner ?? rr.result ?? rr.selectionName ?? "-").toString().trim();
+          // Derive winner from the nested results feed (market "WINNER" -> runner flagged WINNER).
+          let derived = "";
+          const nested = (rr.results ?? []).find((m) => /winner/i.test(m.marketName ?? "")) ?? rr.results?.[0];
+          const nRunners = nested?.runners as unknown;
+          if (nested) {
+            if (Array.isArray(nRunners)) {
+              const w = (nRunners as { selectionId?: string | number; result?: string }[]).find(
+                (x) => x.result === "WINNER",
+              );
+              if (w) derived = (nested.runnersName ?? {})[String(w.selectionId)] ?? "";
+            } else if (nRunners && typeof nRunners === "object") {
+              const id = Object.entries(nRunners as Record<string, string>).find(
+                ([, v]) => v === "WINNER",
+              )?.[0];
+              if (id) derived = (nested.runnersName ?? {})[id] ?? "";
+            }
+          }
+          const raw = (rr.winner ?? derived ?? rr.result ?? rr.selectionName ?? "-").toString().trim();
           const playerMatch = raw.match(/player\s*([a-z]|\d+)/i);
           const w = /^EXTRA/i.test(raw)
             ? "EX"
