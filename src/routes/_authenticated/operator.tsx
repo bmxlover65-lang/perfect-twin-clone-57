@@ -129,7 +129,7 @@ function OperatorPage() {
       title="Operator"
       subtitle={
         op
-          ? `${op.name} · ${op.status} · plan till ${
+          ? `${op.name} · ${op.status} · valid till ${
               op.plan_expires_at ? new Date(op.plan_expires_at).toLocaleDateString() : "—"
             }${daysLeft !== null ? ` (${daysLeft} days left)` : ""}`
           : "No operator linked to this login yet."
