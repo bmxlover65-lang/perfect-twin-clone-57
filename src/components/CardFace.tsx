@@ -1,4 +1,4 @@
-import { CARD_BACK, CARD_SIZE } from "@/lib/card-assets";
+import { CARD_BACK, CARD_SIZE, cardImage } from "@/lib/card-assets";
 
 /** Normalise a feed card code ("H8__", "h8", "D10", "ST") to "H8" style. */
 function normalize(code: unknown): string {
@@ -14,9 +14,9 @@ function normalize(code: unknown): string {
 const SUIT_GLYPH: Record<string, string> = { S: "♠", H: "♥", D: "♦", C: "♣" };
 
 /**
- * Live-table card face: white tile split half/half — the rank value on the top
- * half and the single suit symbol on the bottom half, exactly like the
- * original stream overlay. Face-down cards keep the printed card back.
+ * Live-table card: shows the real printed card artwork when we have it,
+ * otherwise a white tile with the rank above and the suit symbol below.
+ * Face-down cards keep the printed card back.
  */
 export function CardFace({ code }: { code: string }) {
   const c = normalize(code);
@@ -31,6 +31,18 @@ export function CardFace({ code }: { code: string }) {
         src={CARD_BACK}
         alt="card"
         className={`${CARD_SIZE} bg-white object-contain`}
+        loading="lazy"
+      />
+    );
+  }
+
+  const img = cardImage(c);
+  if (img) {
+    return (
+      <img
+        src={img}
+        alt={c}
+        className={`${CARD_SIZE} bg-white object-cover`}
         loading="lazy"
       />
     );
@@ -53,3 +65,4 @@ export function CardFace({ code }: { code: string }) {
     </span>
   );
 }
+
