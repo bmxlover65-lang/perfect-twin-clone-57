@@ -1894,7 +1894,13 @@ function GamePage() {
     return out;
   }, [results]);
 
-  const cards = Object.keys(liveCards).length ? liveCards : resultCards;
+  const liveHasRealCard = Object.values(liveCards).some((h) =>
+    h && typeof h === "object"
+      ? Object.values(h).some((c) => c && String(c) !== "0")
+      : Boolean(h) && String(h) !== "0",
+  );
+  const cards = liveHasRealCard || !Object.keys(resultCards).length ? liveCards : resultCards;
+
 
 
   // Keep the hand layout stable across the round (like the live table): while the
