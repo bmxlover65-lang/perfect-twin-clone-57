@@ -454,9 +454,15 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                 key={String(r.selectionId)}
                 className={`min-w-0 ${last ? "col-span-2 mx-auto w-[calc(50%-0.5rem)]" : ""}`}
               >
-                <p className="truncate px-1 pb-1 text-center text-[0.72rem] font-bold uppercase text-[#0d2a3c]">
-                  {names[String(r.selectionId)] ?? String(r.selectionId)}
-                </p>
+                <div className="px-1 pb-1 text-center text-[0.72rem] font-bold uppercase text-[#0d2a3c]">
+                  {(() => {
+                    const label = String(names[String(r.selectionId)] ?? r.selectionId).trim();
+                    return RANKS.includes(label.toUpperCase())
+                      ? <RankCardLabel rank={label.toUpperCase()} />
+                      : <span className="block truncate">{label}</span>;
+                  })()}
+                </div>
+
                 <div className="relative flex h-[42px] flex-col items-center justify-center rounded-[6px] border border-[#7fb4d6] bg-gradient-to-b from-[#bfe0f6] to-[#8ec5e8] text-[#0a2233] shadow-sm">
                   <span className="text-[0.95rem] font-extrabold leading-none">
                     {fmtOdds(p?.price)}
