@@ -46,23 +46,26 @@ function SportsDocs() {
       <div className="grid gap-10 lg:grid-cols-[260px_1fr]">
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <nav className="rounded-xl border border-border bg-card p-4">
-            <p className="px-2 text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-              On this page
-            </p>
-            <ul className="mt-3 space-y-0.5">
-              {TOC.map(([id, label]) => (
-                <li key={id}>
-                  <a
-                    href={`#${id}`}
-                    className="block rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                  >
-                    {label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 lg:block">
+              <p className="px-2 text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+                On this page
+              </p>
+              <ul className="flex flex-wrap items-center gap-x-4 gap-y-2 lg:mt-3 lg:block lg:space-y-0.5">
+                {TOC.map(([id, label]) => (
+                  <li key={id}>
+                    <a
+                      href={`#${id}`}
+                      className="block rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                    >
+                      {label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </nav>
         </aside>
+
 
         <main className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
