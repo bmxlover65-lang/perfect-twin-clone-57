@@ -348,6 +348,14 @@ const FLOW: { t: string; b: string }[] = [
   { t: "5 · Settlement", b: "Result aate hi bet won/lost hoti hai aur win amount aapke wallet par credit callback se jaata hai — reference par idempotent rakhein." },
 ];
 
+const OP_FLOW: { t: string; b: string }[] = [
+  { t: "1 · Aapki key", b: "API key & whitelist tab me aapki key ka prefix aur validity dikhti hai. Poori key sirf ek baar milti hai — server env me rakhein, browser me kabhi nahi." },
+  { t: "2 · Whitelist", b: "Usi tab me apna server IP aur site domain add karein. List khali = koi restriction nahi; ek bhi entry add ki to sirf wahi allowed." },
+  { t: "3 · Callback wallet", b: "Callback URL tab me apna wallet endpoint save karein. Har bet par signed debit, win par credit, fail par rollback aata hai." },
+  { t: "4 · Games dikhao", b: "REST/WS se live state lein ya seedha iframe embed karein. Round id har bet ke saath bhejna zaroori hai." },
+  { t: "5 · Test karein", b: "Callback URL tab me balance / debit / credit / rollback test bhej kar apna endpoint verify karein — response Callback logs me dikhega." },
+];
+
 const ENDPOINTS: [string, string][] = [
   ["GET /api/public/v1/me", "Is key ko casino / sports me se kya allowed hai"],
   ["GET /api/public/v1/games", "Casino table list + ids"],
