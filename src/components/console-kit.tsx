@@ -380,8 +380,10 @@ const GAME_JSON = JSON.stringify(
       type: g.kind,
       product: "casino",
       markets: g.markets.map((m) => ({
-        market: m.name,
-        selections: m.selections.map((sel) => ({ selection: sel.name, odds: sel.odds })),
+        market: m.title,
+        min: m.min,
+        max: m.max,
+        selections: m.runners.map((r, i) => ({ selection: r, odds: m.odds[i] ?? null })),
       })),
       launchUrl: `${BASE}/games/${g.id}?embed=1&apiKey=YOUR_KEY&userId=PLAYER_ID`,
       image: g.image ?? null,
