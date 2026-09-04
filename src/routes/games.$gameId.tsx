@@ -929,7 +929,6 @@ function CardRacePanel({
       {markets.map((m, mi) => {
         const names = m.runnersName ?? {};
         const runners = m.runners ?? [];
-        const allClosed = runners.every((r) => suspended || !isOpenStatus(r.status));
         return (
           <div key={`${m.marketId}-${mi}`} className="border border-[#d9d9d9]">
             <div className="flex items-center justify-between bg-black px-2 py-[5px]">
