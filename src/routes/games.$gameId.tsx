@@ -470,16 +470,15 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
     <div className="mt-0 overflow-hidden border border-[#d9e2ea] bg-gradient-to-b from-[#eaf5fd] to-[#cfe7f7]">
       <div className={`grid ${cols} items-center px-2`}>
         <span className="py-1.5 text-[0.8rem] font-extrabold uppercase text-[#12303f]">
-          {market.marketName}
+          {market.marketName}{" "}
+          <span className="ml-1 text-[0.68rem] font-semibold normal-case text-[#5b6b76]">
+            Min: {market.min ?? 0} Max: {market.max ?? 0}
+          </span>
         </span>
-        <span className="py-1.5 text-center text-[0.7rem] font-semibold text-[#5b6b76]">
-          Min: {market.min ?? 0} Max: {market.max ?? 0}
-        </span>
+        <span className="py-1.5 text-center text-[0.72rem] font-bold text-[#12303f]">Back</span>
         {hasLay ? (
-          <span className="py-1.5 text-center text-[0.72rem] font-bold text-[#12303f]">Back&nbsp;&nbsp;Lay</span>
-        ) : (
-          <span className="py-1.5 text-center text-[0.72rem] font-bold text-[#12303f]">Back</span>
-        )}
+          <span className="py-1.5 text-center text-[0.72rem] font-bold text-[#12303f]">Lay</span>
+        ) : null}
       </div>
       <div className="relative">
         {runners.map((r) => {
