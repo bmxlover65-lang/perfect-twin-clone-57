@@ -135,6 +135,7 @@ type PanelState = {
   staged: boolean; // queued for next round
   active: boolean; // in play this round
   cashedAt: number | null;
+  mode: "bet" | "auto";
   auto: boolean;
   autoCashout: number;
 };
@@ -144,9 +145,36 @@ const initialPanel = (amount: number): PanelState => ({
   staged: false,
   active: false,
   cashedAt: null,
+  mode: "bet",
   auto: false,
   autoCashout: 1.1,
 });
+
+/** Small Bet | Auto pill toggle shown at the top of every bet panel. */
+function PanelModeTabs({
+  state,
+  setState,
+}: {
+  state: PanelState;
+  setState: (fn: (p: PanelState) => PanelState) => void;
+}) {
+  return (
+    <div className="flex w-[110px] rounded-full bg-[#0B0C0E] p-[3px] text-[0.62rem] font-bold uppercase tracking-wide text-white/55">
+      {(["bet", "auto"] as const).map((m) => (
+        <button
+          key={m}
+          type="button"
+          onClick={() => setState((p) => ({ ...p, mode: m }))}
+          className={`flex-1 rounded-full py-[3px] capitalize ${
+            state.mode === m ? "bg-[#2C2D30] text-white" : ""
+          }`}
+        >
+          {m}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 const QUICK = [100, 200, 500, 1000];
 
@@ -215,7 +243,6 @@ function BetPanel({
   multiplier,
   onWin,
   balance,
-  mode,
 }: {
   state: PanelState;
   setState: (fn: (p: PanelState) => PanelState) => void;
@@ -223,7 +250,6 @@ function BetPanel({
   multiplier: number;
   onWin: (amount: number) => void;
   balance: number;
-  mode: "bet" | "auto";
 }) {
   const canCash = phase === "flying" && state.active && state.cashedAt === null;
   const pending = state.staged || (state.active && state.cashedAt === null);
@@ -251,6 +277,7 @@ function BetPanel({
 
   return (
     <div className="flex min-w-0 flex-col gap-[6px]">
+      <PanelModeTabs state={state} setState={setState} />
       <div className="flex min-w-0 items-stretch gap-[8px]">
         <button
           type="button"
@@ -269,7 +296,7 @@ function BetPanel({
         <StakeControl state={state} setState={setState} locked={pending || canCash} />
       </div>
 
-      {mode === "auto" ? (
+      {state.mode === "auto" ? (
         <div className="flex items-center gap-[6px]">
           <button
             type="button"
@@ -331,7 +358,6 @@ function MobileBetSlot({
   multiplier,
   onWin,
   balance,
-  mode,
 }: {
   state: PanelState;
   setState: (fn: (p: PanelState) => PanelState) => void;
@@ -339,7 +365,6 @@ function MobileBetSlot({
   multiplier: number;
   onWin: (amount: number) => void;
   balance: number;
-  mode: "bet" | "auto";
 }) {
   const canCash = phase === "flying" && state.active && state.cashedAt === null;
   const pending = state.staged || (state.active && state.cashedAt === null);
@@ -361,23 +386,26 @@ function MobileBetSlot({
 
   return (
     <div className="flex min-w-0 flex-col gap-[6px]">
-      <div className="flex items-center justify-between gap-2 px-1">
-        <span className="text-[0.72rem] font-semibold text-[#C9CBD1]">Auto</span>
-        <button
-          type="button"
-          onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
-          aria-pressed={state.auto}
-          className={`relative h-[22px] w-[44px] shrink-0 rounded-full transition-colors ${
-            state.auto ? "bg-[#18B800]" : "bg-[#2A2C30]"
-          }`}
-        >
-          <span
-            className={`absolute top-[3px] h-[16px] w-[16px] rounded-full bg-white transition-all ${
-              state.auto ? "left-[25px]" : "left-[3px]"
+      <PanelModeTabs state={state} setState={setState} />
+      {state.mode === "auto" ? (
+        <div className="flex items-center justify-between gap-2 px-1">
+          <span className="text-[0.72rem] font-semibold text-[#C9CBD1]">Auto Bet</span>
+          <button
+            type="button"
+            onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
+            aria-pressed={state.auto}
+            className={`relative h-[22px] w-[44px] shrink-0 rounded-full transition-colors ${
+              state.auto ? "bg-[#18B800]" : "bg-[#2A2C30]"
             }`}
-          />
-        </button>
-      </div>
+          >
+            <span
+              className={`absolute top-[3px] h-[16px] w-[16px] rounded-full bg-white transition-all ${
+                state.auto ? "left-[25px]" : "left-[3px]"
+              }`}
+            />
+          </button>
+        </div>
+      ) : null}
 
       <StakeControl state={state} setState={setState} locked={pending || canCash} big />
 
@@ -397,7 +425,7 @@ function MobileBetSlot({
 
 
 
-      {mode === "auto" ? (
+      {state.mode === "auto" ? (
         <div className="flex items-center gap-1 rounded-full bg-[#0B0C0E] px-2 py-[3px]">
           <input
             type="number"
@@ -740,7 +768,7 @@ export function Aviator() {
     (fn: (p: PanelState) => PanelState) => setSlots((s) => s.map(fn)),
     [],
   );
-  const [mode, setMode] = useState<"bet" | "auto">("bet");
+  
 
 
   const crashRef = useRef(1);
@@ -1345,23 +1373,6 @@ export function Aviator() {
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} feedLive={feedLive} />
 
           <div className="rounded-[12px] border border-[#292D32] bg-[#111315] p-2 sm:p-4">
-            <div className="mx-auto mb-2 flex w-[205px] rounded-full bg-[#0B0C0E] p-[3px] text-[0.72rem] font-bold text-white/55 sm:mb-3 sm:w-[220px] sm:p-[4px] sm:text-[0.78rem]">
-              {(["bet", "auto"] as const).map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => {
-                    setMode(m);
-                  }}
-                  className={`flex-1 rounded-full py-[5px] capitalize sm:py-[6px] ${
-                    mode === m ? "bg-[#2C2D30] text-white" : ""
-                  }`}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
-
             {/* mobile: two bet slots, same as the original app */}
             <div className="grid grid-cols-2 items-start gap-2 sm:hidden">
               {slots.map((s, i) => (
@@ -1373,7 +1384,6 @@ export function Aviator() {
                   multiplier={multiplier}
                   onWin={win}
                   balance={balance}
-                  mode={mode}
                 />
               ))}
             </div>
@@ -1389,7 +1399,6 @@ export function Aviator() {
                   multiplier={multiplier}
                   onWin={win}
                   balance={balance}
-                  mode={mode}
                 />
               ))}
             </div>
