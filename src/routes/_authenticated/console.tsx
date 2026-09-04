@@ -67,17 +67,12 @@ import {
 
 import { AdminGuide } from "@/components/dash-guide";
 import { AdminKit } from "@/components/console-kit";
-import { GameControl } from "@/components/game-control";
-import { BalloonPanel } from "@/components/BalloonPanel";
 
 const TABS = [
   { id: "overview", label: "Overview" },
   { id: "operators", label: "Operators" },
   { id: "manage", label: "Manage operator" },
   { id: "keys", label: "API keys & access" },
-  { id: "gamecontrol", label: "Game control" },
-  { id: "balloon", label: "Balloon rounds" },
-  { id: "aviator", label: "Aviator rounds" },
   { id: "wallet", label: "Callback wallet" },
   { id: "bets", label: "Bet history" },
   { id: "users", label: "Users & GGR" },
@@ -1016,11 +1011,6 @@ function ConsolePage() {
           </Panel>
           ) : null}
 
-          {tab === "gamecontrol" ? <GameControl /> : null}
-
-          {tab === "balloon" ? <BalloonPanel /> : null}
-
-          {tab === "aviator" ? <BalloonPanel heading="Aviator" /> : null}
 
           {tab === "guide" ? (
             <>

@@ -4,6 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import {
   listCallbackLogs,
+  myWhitelistAdd,
+  myWhitelistRemove,
   operatorSummary,
   testWalletCall,
   updateMyCallback,
@@ -63,6 +65,9 @@ function OperatorPage() {
   const logsFn = useServerFn(listCallbackLogs);
   const walletTest = useServerFn(testWalletCall);
   const saveCallback = useServerFn(updateMyCallback);
+  const wlAdd = useServerFn(myWhitelistAdd);
+  const wlRemove = useServerFn(myWhitelistRemove);
+
 
   const [ops, setOps] = useState<Array<{ id: string; name: string }>>([]);
   const [sel, setSel] = useState("");
@@ -76,6 +81,11 @@ function OperatorPage() {
   const [err, setErr] = useState("");
   const [tab, setTab] = useState("overview");
   const [filterUser, setFilterUser] = useState("");
+  const [newIp, setNewIp] = useState("");
+  const [newDomain, setNewDomain] = useState("");
+  const [testAction, setTestAction] = useState<"balance" | "debit" | "credit" | "rollback">("balance");
+  const [testAmount, setTestAmount] = useState("10");
+
 
   const run = async (fn: () => Promise<void>) => {
     setErr("");
@@ -244,10 +254,43 @@ function OperatorPage() {
               </Panel>
 
               <Panel title="Whitelisted IPs">
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <input
+                    value={newIp}
+                    onChange={(e) => setNewIp(e.target.value)}
+                    placeholder="203.0.113.10 (your server IP)"
+                    className={`${input} max-w-[260px]`}
+                  />
+                  <button
+                    className={btn}
+                    onClick={() =>
+                      run(async () => {
+                        if (!newIp.trim()) return;
+                        await wlAdd({ data: { operatorId: sel, kind: "ip", value: newIp.trim() } });
+                        setNewIp("");
+                        setNote("IP whitelist updated.");
+                        await load(sel);
+                      })
+                    }
+                  >
+                    Add IP
+                  </button>
+                </div>
                 <ul className="space-y-1 text-xs text-muted-foreground">
                   {sum.ips.map((i: any) => (
-                    <li key={i.id} className="font-mono">
+                    <li key={i.id} className="flex items-center gap-2 font-mono">
                       {i.ip}
+                      <button
+                        className="text-destructive"
+                        onClick={() =>
+                          run(async () => {
+                            await wlRemove({ data: { id: i.id, kind: "ip" } });
+                            await load(sel);
+                          })
+                        }
+                      >
+                        remove
+                      </button>
                     </li>
                   ))}
                   {!sum.ips.length ? <li>Koi IP whitelist nahi — sabhi IP allowed hain.</li> : null}
@@ -255,10 +298,43 @@ function OperatorPage() {
               </Panel>
 
               <Panel title="Whitelisted domains">
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <input
+                    value={newDomain}
+                    onChange={(e) => setNewDomain(e.target.value)}
+                    placeholder="yoursite.com"
+                    className={`${input} max-w-[260px]`}
+                  />
+                  <button
+                    className={btn}
+                    onClick={() =>
+                      run(async () => {
+                        if (!newDomain.trim()) return;
+                        await wlAdd({ data: { operatorId: sel, kind: "domain", value: newDomain.trim() } });
+                        setNewDomain("");
+                        setNote("Domain whitelist updated.");
+                        await load(sel);
+                      })
+                    }
+                  >
+                    Add domain
+                  </button>
+                </div>
                 <ul className="space-y-1 text-xs text-muted-foreground">
                   {sum.domains.map((d: any) => (
-                    <li key={d.id} className="font-mono">
+                    <li key={d.id} className="flex items-center gap-2 font-mono">
                       {d.domain}
+                      <button
+                        className="text-destructive"
+                        onClick={() =>
+                          run(async () => {
+                            await wlRemove({ data: { id: d.id, kind: "domain" } });
+                            await load(sel);
+                          })
+                        }
+                      >
+                        remove
+                      </button>
                     </li>
                   ))}
                   {!sum.domains.length ? (
@@ -266,7 +342,7 @@ function OperatorPage() {
                   ) : null}
                 </ul>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  IP / domain change karwana ho to admin ko bolein — whitelist admin manage karta hai.
+                  List khali hai to sab allowed hain. Ek bhi entry add ki to sirf wahi IP / domain kaam karenge.
                 </p>
               </Panel>
             </>
@@ -453,7 +529,7 @@ function OperatorPage() {
                 </p>
               </Panel>
 
-              <Panel title="Test your wallet">
+              <Panel title="Test your callback (wallet)">
                 <div className="flex flex-wrap items-center gap-2">
                   <input
                     value={userId}
@@ -461,22 +537,48 @@ function OperatorPage() {
                     placeholder="your user id"
                     className={`${input} max-w-[220px]`}
                   />
+                  <select
+                    className={input}
+                    value={testAction}
+                    onChange={(e) => setTestAction(e.target.value as typeof testAction)}
+                  >
+                    <option value="balance">balance</option>
+                    <option value="debit">debit</option>
+                    <option value="credit">credit</option>
+                    <option value="rollback">rollback</option>
+                  </select>
+                  <input
+                    value={testAmount}
+                    onChange={(e) => setTestAmount(e.target.value)}
+                    placeholder="amount"
+                    className={`${input} max-w-[120px]`}
+                  />
                   <button
                     className={btn}
                     onClick={() =>
                       run(async () => {
                         const r = await walletTest({
-                          data: { operatorId: sel, action: "balance", userId, amount: 0 },
+                          data: {
+                            operatorId: sel,
+                            action: testAction,
+                            userId,
+                            amount: testAction === "balance" ? 0 : Number(testAmount) || 0,
+                          },
                         });
-                        setBalance(r.ok ? String(r.balance ?? "—") : `error: ${r.message}`);
+                        setBalance(
+                          r.ok ? `OK · balance ${r.balance ?? "—"}` : `error: ${r.message}`,
+                        );
                         await load(sel);
                       })
                     }
                   >
-                    Fetch balance
+                    Send test call
                   </button>
-                  <span className="text-sm font-bold text-foreground">Balance: {balance}</span>
+                  <span className="text-sm font-bold text-foreground">Result: {balance}</span>
                 </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Yeh aapke callback URL pe signed request bhejta hai — response niche "Callback logs" me dikhega.
+                </p>
               </Panel>
 
               <Panel title="Callback logs">
