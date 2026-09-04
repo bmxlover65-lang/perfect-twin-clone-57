@@ -48,6 +48,7 @@ export function cardImage(code: string): string | null {
   return CARD_FACE_IMAGES[c] ?? CARD_IMAGES[c] ?? null;
 }
 
-/** Shared card shape/size — identical across every game and stage (real card ratio 2.5:3.5). */
+/** Shared card shape/size — identical across every game and stage (real card ratio 2.5:3.5).
+ *  Mobile cards match the live table: large enough to read the pips on a phone. */
 export const CARD_SIZE =
-  "h-[38px] w-[27px] shrink-0 rounded-[3px] shadow-md sm:h-[42px] sm:w-[30px]";
+  "h-[56px] w-[40px] shrink-0 rounded-[4px] shadow-md sm:h-[42px] sm:w-[30px]";
