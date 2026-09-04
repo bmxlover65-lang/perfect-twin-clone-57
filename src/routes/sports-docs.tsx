@@ -740,9 +740,12 @@ GET  https://universeapi.store/api/sports/4/{exEventId}/score`}
           </P>
           <H3>How often you should poll</H3>
           <P>
-            Apply these rates per endpoint and only for events your users are actively viewing. Do
-            not poll the full event list at odds frequency.
+            Prefer <a href="#websocket-odds" className="underline underline-offset-2">WebSocket odds</a>{" "}
+            for live event screens. If you poll HTTP instead, apply these rates per endpoint and
+            only for events your users are actively viewing. Do not poll the full event list at odds
+            frequency.
           </P>
+
           <Table
             head={["Endpoint", "When", "Poll interval"]}
             rows={[
