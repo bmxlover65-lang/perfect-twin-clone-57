@@ -771,7 +771,7 @@ function FlightStage({
   const glowMid = `rgba(${Math.round(8 + glow * 50)},44,${Math.round(82 + glow * 40)},${0.3 + glow * 0.16})`;
 
   return (
-    <div className="relative overflow-hidden rounded-[14px] border border-[#1B1D20] bg-black">
+    <div className="relative overflow-hidden bg-black sm:rounded-[14px] sm:border sm:border-[#1B1D20]">
       {/* spribe-style rotating sun rays from the bottom-left */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
@@ -1386,10 +1386,10 @@ export function Aviator() {
 
 
   return (
-    <div className="overflow-hidden rounded-[16px] border border-[#303238] bg-[#090A0C] p-2 sm:p-3">
+    <div className="overflow-hidden bg-[#090A0C] sm:rounded-[16px] sm:border sm:border-[#303238] sm:p-3">
       <div className="grid items-stretch gap-2 lg:h-[680px] lg:grid-cols-[minmax(340px,27%)_1fr]">
         {/* bets + chat */}
-        <div className="order-2 flex min-w-0 flex-col overflow-hidden rounded-[14px] border border-[#303238] bg-[#151618] p-2 lg:order-1 sm:p-3">
+        <div className="order-2 flex min-w-0 flex-col overflow-hidden bg-[#151618] p-2 lg:order-1 sm:rounded-[14px] sm:border sm:border-[#303238] sm:p-3">
 
           <div className="mx-auto flex w-full max-w-[300px] rounded-full bg-[#0B0C0E] p-[4px] text-[0.72rem] font-bold text-white/55 sm:w-[86%] sm:text-[0.78rem]">
             {([["all", "All Bets"], ["my", "My Bets"]] as const).map(([k, l]) => (
@@ -1576,7 +1576,7 @@ export function Aviator() {
         {/* stage + panels */}
         <div className="order-1 flex min-w-0 flex-col gap-2 lg:order-2 lg:min-h-0">
           {/* history strip — sits above the flying stage */}
-          <div className="rounded-[8px] border border-[#34363B] bg-[#202125] px-3 py-2">
+          <div className="bg-[#090A0C] px-2 py-2 sm:rounded-[8px] sm:border sm:border-[#34363B] sm:bg-[#202125] sm:px-3">
             {histOpen ? (
               <div className="mb-2 flex items-center justify-between gap-2">
                 <span className="text-[0.72rem] font-semibold uppercase tracking-[0.03em] text-white">
@@ -1611,9 +1611,10 @@ export function Aviator() {
 
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} feedLive={feedLive} />
 
-          <div className="rounded-[12px] border border-[#292D32] bg-[#111315] p-2 sm:p-4 lg:flex lg:flex-1 lg:flex-col lg:justify-start">
+          <div className="bg-[#111315] p-2 sm:rounded-[12px] sm:border sm:border-[#292D32] sm:p-4 lg:flex lg:flex-1 lg:flex-col lg:justify-start">
             {/* mobile: left presets | center actions | right presets */}
-            <div className="flex items-start justify-between gap-[6px] rounded-[10px] border border-[#292D32] bg-[#0D0E10] p-[8px] sm:hidden">
+            <div className="flex items-start justify-between gap-[6px] rounded-[10px] bg-[#0D0E10] p-[8px] sm:hidden">
+
               <MobileBetSlot
                 state={slots[0]!}
                 setState={(fn) => setSlot(0, fn)}
