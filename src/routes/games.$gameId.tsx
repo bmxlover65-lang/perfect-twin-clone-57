@@ -1348,6 +1348,7 @@ function Fit({
   mobileNative?: boolean;
 }) {
   const mobile = useIsMobile();
+  const embed = useEmbed();
   if (embed) return <div className="w-full">{children}</div>;
   if (mobile && mobileNative) return <div className="w-full">{children}</div>;
   return <FitBoard designWidth={designWidth}>{children}</FitBoard>;
