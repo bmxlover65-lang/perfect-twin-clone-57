@@ -91,8 +91,9 @@ function isAndarBahar(name?: string | null): boolean {
 
 function handTitleFor(title: string, gameName?: string | null): string {
   if (!isAndarBahar(gameName)) return title;
-  if (/andar/i.test(title)) return "A";
-  if (/bahar/i.test(title)) return "B";
+  const t = title.toUpperCase();
+  if (/ANDAR|CAN\b|CARDSCAN/.test(t)) return "A";
+  if (/BAHAR|ARR\b|CARDSARR/.test(t)) return "B";
   return title;
 }
 
@@ -107,7 +108,13 @@ function Card({ code }: { code: string }) {
 
 
 function Cards({ hand, title }: { hand: Record<string, string>; title: string }) {
-  const codes = Object.values(hand).filter((c) => c !== undefined && c !== null);
+  const flatten = (v: unknown): string[] => {
+    if (v === undefined || v === null) return [];
+    if (Array.isArray(v)) return v.flatMap(flatten);
+    if (typeof v === "object") return Object.values(v as Record<string, unknown>).flatMap(flatten);
+    return [String(v)];
+  };
+  const codes = flatten(hand);
   if (!codes.length) return null;
   return (
     <div>
@@ -572,8 +579,7 @@ function DTLPanel({
   const PriceBox = ({ r }: { r?: Row | undefined }) =>
     r ? (
       <div className="relative flex h-[52px] w-[112px] items-center justify-center border border-[#4A7FB5] bg-[#1F2B3A] text-[0.95rem] font-bold text-white">
-        <span className={r.open ? "" : "opacity-50"}>{fmtOdds(r.price)}</span>
-        {!r.open ? <span className="absolute text-base">🔒</span> : null}
+        {r.open ? <span>{fmtOdds(r.price)}</span> : <span className="text-base">🔒</span>}
       </div>
     ) : (
       <div className="h-[52px] w-[112px]" />
@@ -643,12 +649,9 @@ function DTLPanel({
           return (
             <div key={r.id} className="w-[44px] text-center">
               <div className="relative flex h-[56px] flex-col items-center justify-center rounded-[3px] border border-[#4A5058] bg-gradient-to-b from-[#3A4048] to-[#22272D] text-[1.05rem] font-extrabold text-white/90">
-                {rank}
+                {r.open ? rank : <span className="text-base">🔒</span>}
                 <span className="absolute bottom-0.5 left-0.5 text-[0.55rem] text-white/70">♣ ♠</span>
                 <span className="absolute bottom-0.5 right-0.5 text-[0.55rem] text-[#E0393B]">♥ ♦</span>
-                {!r.open ? (
-                  <span className="absolute inset-0 flex items-center justify-center text-base">🔒</span>
-                ) : null}
               </div>
               <p className="bg-[#2A2E33] py-0.5 text-[0.72rem] font-bold text-[#3FA36B]">
                 {fmtOdds(r.price)}
@@ -686,9 +689,8 @@ function AndarBaharPanel({
   const minmax = byName("WINNER");
 
   const Price = ({ r }: { r: ABRunner }) => (
-    <span className="relative inline-flex items-center justify-center">
-      <span>{fmtOdds(r.price)}</span>
-      {!r.open ? <span className="absolute text-[0.85em]">🔒</span> : null}
+    <span className="inline-flex items-center justify-center">
+      {r.open ? fmtOdds(r.price) : <span className="text-[0.9em]">🔒</span>}
     </span>
   );
 
@@ -791,12 +793,14 @@ function AndarBaharPanel({
                 r.open ? "bg-[#C9C9BE]" : "bg-[#9A9A93]"
               }`}
             >
-              <span className="text-lg font-extrabold leading-none text-black/70">{r.label}</span>
+              <span className="text-lg font-extrabold leading-none text-black/70">
+                {r.open ? r.label : "🔒"}
+              </span>
               <span className="text-[0.6rem] leading-none">
                 <span className="text-black/70">♣</span>
                 <span className="text-[#E01B24]">♥</span>
               </span>
-              {!r.open ? <span className="absolute text-xs">🔒</span> : null}
+
             </div>
             <p className="mt-0.5 text-[0.72rem] font-bold text-[#E01B24]">{fmtOdds(r.price)}</p>
           </div>
