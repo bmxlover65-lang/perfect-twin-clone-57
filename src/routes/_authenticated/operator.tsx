@@ -254,10 +254,43 @@ function OperatorPage() {
               </Panel>
 
               <Panel title="Whitelisted IPs">
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <input
+                    value={newIp}
+                    onChange={(e) => setNewIp(e.target.value)}
+                    placeholder="203.0.113.10 (your server IP)"
+                    className={`${input} max-w-[260px]`}
+                  />
+                  <button
+                    className={btn}
+                    onClick={() =>
+                      run(async () => {
+                        if (!newIp.trim()) return;
+                        await wlAdd({ data: { operatorId: sel, kind: "ip", value: newIp.trim() } });
+                        setNewIp("");
+                        setNote("IP whitelist updated.");
+                        await load(sel);
+                      })
+                    }
+                  >
+                    Add IP
+                  </button>
+                </div>
                 <ul className="space-y-1 text-xs text-muted-foreground">
                   {sum.ips.map((i: any) => (
-                    <li key={i.id} className="font-mono">
+                    <li key={i.id} className="flex items-center gap-2 font-mono">
                       {i.ip}
+                      <button
+                        className="text-destructive"
+                        onClick={() =>
+                          run(async () => {
+                            await wlRemove({ data: { id: i.id, kind: "ip" } });
+                            await load(sel);
+                          })
+                        }
+                      >
+                        remove
+                      </button>
                     </li>
                   ))}
                   {!sum.ips.length ? <li>Koi IP whitelist nahi — sabhi IP allowed hain.</li> : null}
@@ -265,10 +298,43 @@ function OperatorPage() {
               </Panel>
 
               <Panel title="Whitelisted domains">
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <input
+                    value={newDomain}
+                    onChange={(e) => setNewDomain(e.target.value)}
+                    placeholder="yoursite.com"
+                    className={`${input} max-w-[260px]`}
+                  />
+                  <button
+                    className={btn}
+                    onClick={() =>
+                      run(async () => {
+                        if (!newDomain.trim()) return;
+                        await wlAdd({ data: { operatorId: sel, kind: "domain", value: newDomain.trim() } });
+                        setNewDomain("");
+                        setNote("Domain whitelist updated.");
+                        await load(sel);
+                      })
+                    }
+                  >
+                    Add domain
+                  </button>
+                </div>
                 <ul className="space-y-1 text-xs text-muted-foreground">
                   {sum.domains.map((d: any) => (
-                    <li key={d.id} className="font-mono">
+                    <li key={d.id} className="flex items-center gap-2 font-mono">
                       {d.domain}
+                      <button
+                        className="text-destructive"
+                        onClick={() =>
+                          run(async () => {
+                            await wlRemove({ data: { id: d.id, kind: "domain" } });
+                            await load(sel);
+                          })
+                        }
+                      >
+                        remove
+                      </button>
                     </li>
                   ))}
                   {!sum.domains.length ? (
@@ -276,7 +342,7 @@ function OperatorPage() {
                   ) : null}
                 </ul>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  IP / domain change karwana ho to admin ko bolein — whitelist admin manage karta hai.
+                  List khali hai to sab allowed hain. Ek bhi entry add ki to sirf wahi IP / domain kaam karenge.
                 </p>
               </Panel>
             </>
