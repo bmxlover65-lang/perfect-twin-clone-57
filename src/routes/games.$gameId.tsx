@@ -383,11 +383,21 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
   const tieIdx = raw.findIndex(
     (r) => (names[String(r.selectionId)] ?? "").trim().toUpperCase() === "TIE",
   );
-  const runners =
+  const reordered =
     tieIdx > -1 && tieIdx !== raw.length - 1
       ? [...raw.slice(0, tieIdx), ...raw.slice(tieIdx + 1), raw[tieIdx]!]
       : raw;
+  // Lucky 7 shows EVEN first, then ODD (matches the original board).
+  const runners = /LUCKY ODD\/EVEN/i.test(market.marketName ?? "")
+    ? [...reordered].sort((a, b) => {
+        const la = (names[String(a.selectionId)] ?? "").toUpperCase();
+        const lb = (names[String(b.selectionId)] ?? "").toUpperCase();
+        const rank = (l: string) => (l.startsWith("EVEN") ? 0 : l.startsWith("ODD") ? 1 : 2);
+        return rank(la) - rank(lb);
+      })
+    : reordered;
   const odd = runners.length % 2 === 1;
+
   return (
     <div className="mt-0">
       <header className="flex items-center justify-between gap-2 bg-black px-2 py-[5px]">
