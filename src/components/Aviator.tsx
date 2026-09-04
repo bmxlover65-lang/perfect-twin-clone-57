@@ -277,6 +277,7 @@ function BetPanel({
 
   return (
     <div className="flex min-w-0 flex-col gap-[6px]">
+      <PanelModeTabs state={state} setState={setState} />
       <div className="flex min-w-0 items-stretch gap-[8px]">
         <button
           type="button"
@@ -295,7 +296,7 @@ function BetPanel({
         <StakeControl state={state} setState={setState} locked={pending || canCash} />
       </div>
 
-      {mode === "auto" ? (
+      {state.mode === "auto" ? (
         <div className="flex items-center gap-[6px]">
           <button
             type="button"
