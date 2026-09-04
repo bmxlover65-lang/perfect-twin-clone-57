@@ -13,6 +13,8 @@ import { settleLatest, settleRound } from "@/lib/wallet";
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
 
 import { CardFace } from "@/components/CardFace";
+import { cardImage } from "@/lib/card-assets";
+
 
 
 import dream1x from "@/assets/dream/note1.png.asset.json";
@@ -393,7 +395,23 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
 }
 
 
+/** Rank label ("A", "2" … "K") rendered as the real printed card artwork. */
+const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+function RankCardLabel({ rank }: { rank: string }) {
+  const src = cardImage(`S${rank}`);
+  if (!src) return <>{rank}</>;
+  return (
+    <img
+      src={src}
+      alt={rank}
+      loading="lazy"
+      className="mx-auto block h-[40px] w-[29px] rounded-[3px] object-cover shadow-sm sm:h-[46px] sm:w-[33px]"
+    />
+  );
+}
+
 /** Light blue sectioned board with 2-column plates (Lucky 7, 20-20 TP, 20-20 DT) — original style. */
+
 function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
   const raw = market.runners ?? [];
@@ -438,9 +456,15 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                 key={String(r.selectionId)}
                 className={`min-w-0 ${last ? "col-span-2 mx-auto w-[calc(50%-0.5rem)]" : ""}`}
               >
-                <p className="truncate px-1 pb-1 text-center text-[0.72rem] font-bold uppercase text-[#0d2a3c]">
-                  {names[String(r.selectionId)] ?? String(r.selectionId)}
-                </p>
+                <div className="px-1 pb-1 text-center text-[0.72rem] font-bold uppercase text-[#0d2a3c]">
+                  {(() => {
+                    const label = String(names[String(r.selectionId)] ?? r.selectionId).trim();
+                    return /CARD/i.test(market.marketName ?? "") && RANKS.includes(label.toUpperCase())
+                      ? <RankCardLabel rank={label.toUpperCase()} />
+                      : <span className="block truncate">{label}</span>;
+                  })()}
+                </div>
+
                 <div className="relative flex h-[42px] flex-col items-center justify-center rounded-[6px] border border-[#7fb4d6] bg-gradient-to-b from-[#bfe0f6] to-[#8ec5e8] text-[#0a2233] shadow-sm">
                   <span className="text-[0.95rem] font-extrabold leading-none">
                     {fmtOdds(p?.price)}
