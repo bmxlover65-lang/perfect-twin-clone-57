@@ -25,7 +25,7 @@ function Code({ code }: { code: string }) {
   );
 }
 
-function Block({ title, note, code }: { title: string; note?: string; code: string }) {
+function Block({ title, note, code }: { title: string; note?: string | undefined; code: string }) {
   return (
     <div className="space-y-1.5">
       <p className="text-[0.75rem] font-extrabold uppercase tracking-wide text-foreground">{title}</p>
