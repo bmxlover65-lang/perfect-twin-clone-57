@@ -115,6 +115,7 @@ function ConsolePage() {
   const [sum, setSum] = useState<Awaited<ReturnType<typeof operatorSummary>> | null>(null);
   const [cred, setCred] = useState<Awaited<ReturnType<typeof provisionOperator>> | null>(null);
   const [pwd, setPwd] = useState<string>("");
+  const [userSel, setUserSel] = useState<string>("");
 
 
   const run = async (fn: () => Promise<void>) => {
