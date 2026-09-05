@@ -1074,7 +1074,22 @@ export function Aviator() {
     let mounted = true;
 
     // shared helpers
-    const stageBets = () =>
+    const stageBets = () => {
+      // real bets only: rows appear when THIS player actually places a bet
+      const newly = slotsRef.current.filter((p) => p.staged);
+      if (newly.length) {
+        const user = playerSession()?.userId ?? "you";
+        setBets((cur) => [
+          ...newly.map((p, i) => ({
+            id: Date.now() + i,
+            user,
+            amount: p.amount,
+            bal: 0,
+            target: p.auto && p.autoCashout > 1 ? p.autoCashout : 0,
+          })),
+          ...cur,
+        ]);
+      }
       setSlots((list) =>
         list.map((p) =>
           p.staged
@@ -1082,6 +1097,7 @@ export function Aviator() {
             : { ...p, active: false, cashedAt: null },
         ),
       );
+    };
 
     const botCashouts = (m: number) =>
       setBets((list) =>
@@ -1166,7 +1182,7 @@ export function Aviator() {
             shown = 1;
             setMultiplier(1);
 
-            setBets(makeBets(Math.floor(Math.random() * 999) + 1));
+            setBets([]);
             setPhase("betting");
           }
           setCountdown(Math.max(0, BET_MS - (now - waitStart)));
