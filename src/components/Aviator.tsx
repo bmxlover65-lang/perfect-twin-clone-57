@@ -20,6 +20,7 @@ import beepSound from "@/assets/aviator/beep.mp3.asset.json";
 import winSound from "@/assets/aviator/win.mp3.asset.json";
 
 import { type AviatorControl, useAdminConfig } from "@/lib/admin";
+import { playerSession } from "@/lib/player";
 import { logBet, setBalance as saveBalance } from "@/lib/telemetry";
 
 const PLANE_FRAMES = [plane0, plane1, plane2, plane3];
@@ -938,6 +939,22 @@ export function Aviator() {
 
 
   const [slots, setSlots] = useState<PanelState[]>(() => [100, 100, 100, 100].map(initialPanel));
+  const slotsRef = useRef(slots);
+  slotsRef.current = slots;
+
+  // when the player cashes out, mark their matching row in the live list
+  useEffect(() => {
+    const cashed = slots.filter((s) => s.active && s.cashedAt !== null);
+    if (!cashed.length) return;
+    setBets((list) => {
+      const next = [...list];
+      for (const s of cashed) {
+        const idx = next.findIndex((b) => b.cashedAt === undefined && b.amount === s.amount);
+        if (idx >= 0) next[idx] = { ...next[idx]!, cashedAt: s.cashedAt! };
+      }
+      return next;
+    });
+  }, [slots]);
   const setSlot = useCallback(
     (i: number, fn: (p: PanelState) => PanelState) =>
       setSlots((s) => s.map((p, j) => (j === i ? fn(p) : p))),
