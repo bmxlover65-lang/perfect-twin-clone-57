@@ -441,7 +441,7 @@ function MobileBetSlot({
   );
 }
 
-/** Center column actions for the mobile betting controls. */
+/** Center column actions for the mobile betting controls — just Min / Max like the original. */
 function MobileCenterActions({
   setSlot,
 }: {
@@ -451,34 +451,17 @@ function MobileCenterActions({
     setSlot(0, fn);
     setSlot(1, fn);
   };
-  const btn = "h-[26px] w-[58px] rounded-[6px] text-[0.75rem] font-semibold leading-none";
+  const btn =
+    "h-[30px] w-[64px] rounded-full border border-[#4A4E55] bg-[#17191C] text-[0.78rem] font-semibold leading-none text-[#C6C9CE]";
   return (
-    <div className="flex flex-col items-center gap-[6px] pt-[22px]">
-      <button
-        type="button"
-        onClick={() => both((p) => ({ ...p, mode: p.mode === "bet" ? "auto" : "bet" }))}
-        className={`${btn} bg-[#F0821E] text-white`}
-      >
-        Edit
-      </button>
-      <button
-        type="button"
-        onClick={() => both((p) => ({ ...p, amount: 10, staged: false }))}
-        className={`${btn} bg-[#E01B1B] text-white`}
-      >
-        Clear
-      </button>
-      <button
-        type="button"
-        onClick={() => both((p) => ({ ...p, amount: 10 }))}
-        className={`${btn} border border-[#4A4E55] bg-[#17191C] text-[#9AA0A8]`}
-      >
+    <div className="flex flex-col items-center justify-center gap-[10px] self-stretch">
+      <button type="button" onClick={() => both((p) => ({ ...p, amount: 10 }))} className={btn}>
         Min
       </button>
       <button
         type="button"
         onClick={() => both((p) => ({ ...p, amount: 10000 }))}
-        className={`${btn} border border-[#4A4E55] bg-[#17191C] text-[#9AA0A8]`}
+        className={btn}
       >
         Max
       </button>
