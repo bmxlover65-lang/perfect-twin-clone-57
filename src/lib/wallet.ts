@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { logBet, setBalance as logBalance } from "@/lib/telemetry";
-import { playerSession, remoteBet, remoteCashout } from "@/lib/player";
+import { playerSession, remoteBet, remoteCashout, remoteSettle } from "@/lib/player";
 
 /** Shared client wallet + bet book used by every casino game. */
 
@@ -160,22 +160,34 @@ function isWin(label: string, winner: string) {
 }
 
 
+
+/** Push table-game settlements to the operator wallet in integrated mode. */
+function pushSettle(rows: { ref: string; outcome: "won" | "lost" | "void"; multiplier?: number }[]) {
+  const session = playerSession();
+  if (!session || !rows.length) return;
+  for (const r of rows) void remoteSettle(session, r.ref, r.outcome, r.multiplier);
+}
+
 /** Settle every open bet of a game for a finished round against the winner. */
 export function settleRound(gameId: string, round: string, winner: string) {
   if (!round || !winner) return;
   const w = readWallet();
   let credited = 0;
   let touched = false;
+  const settled: { ref: string; outcome: "won" | "lost" | "void"; multiplier?: number }[] = [];
   const bets = w.bets.map((b) => {
     if (b.status !== "open" || b.gameId !== gameId || b.round !== round) return b;
     touched = true;
     const won = isWin(b.label, winner);
     const payout = won ? Math.round(b.stake * b.odds) : 0;
     credited += payout;
+    settled.push({ ref: b.id, outcome: won ? "won" : "lost", multiplier: b.odds });
     return { ...b, status: won ? ("won" as const) : ("lost" as const), payout };
   });
   if (!touched) return;
-  write({ balance: w.balance + credited, bets });
+  const session = playerSession();
+  write({ balance: session ? w.balance : w.balance + credited, bets });
+  pushSettle(settled);
 }
 
 export function creditWin(amount: number) {
@@ -214,16 +226,20 @@ export function settleLatest(gameId: string, key: string, winner: string) {
   const w = readWallet();
   let credited = 0;
   let touched = false;
+  const settled: { ref: string; outcome: "won" | "lost" | "void"; multiplier?: number }[] = [];
   const bets = w.bets.map((b) => {
     if (b.status !== "open" || b.gameId !== gameId) return b;
     touched = true;
     const won = isWin(b.label, winner);
     const payout = won ? Math.round(b.stake * b.odds) : 0;
     credited += payout;
+    settled.push({ ref: b.id, outcome: won ? "won" : "lost", multiplier: b.odds });
     return { ...b, status: won ? ("won" as const) : ("lost" as const), payout };
   });
   if (!touched) return;
-  write({ balance: w.balance + credited, bets });
+  const session = playerSession();
+  write({ balance: session ? w.balance : w.balance + credited, bets });
+  pushSettle(settled);
 }
 
 /**
@@ -238,6 +254,7 @@ export function settleFromRunners(
   const w = readWallet();
   let credited = 0;
   let touched = false;
+  const settled: { ref: string; outcome: "won" | "lost" | "void"; multiplier?: number }[] = [];
   const bets = w.bets.map((b) => {
     if (b.status !== "open" || b.gameId !== gameId) return b;
     const hit = results.find((r) => isWin(b.label, r.label));
@@ -245,10 +262,13 @@ export function settleFromRunners(
     touched = true;
     const payout = hit.won ? Math.round(b.stake * b.odds) : 0;
     credited += payout;
+    settled.push({ ref: b.id, outcome: hit.won ? "won" : "lost", multiplier: b.odds });
     return { ...b, status: hit.won ? ("won" as const) : ("lost" as const), payout };
   });
   if (!touched) return;
-  write({ balance: w.balance + credited, bets });
+  const session = playerSession();
+  write({ balance: session ? w.balance : w.balance + credited, bets });
+  pushSettle(settled);
 }
 
 
@@ -262,13 +282,17 @@ export function voidOpen(gameId: string, olderThanMs = 0) {
   const now = Date.now();
   let refund = 0;
   let touched = false;
+  const settled: { ref: string; outcome: "won" | "lost" | "void"; multiplier?: number }[] = [];
   const bets = w.bets.map((b) => {
     if (b.status !== "open" || b.gameId !== gameId) return b;
     if (now - b.ts < olderThanMs) return b;
     touched = true;
     refund += b.stake;
+    settled.push({ ref: b.id, outcome: "void" });
     return { ...b, status: "void" as const, payout: b.stake };
   });
   if (!touched) return;
-  write({ balance: w.balance + refund, bets });
+  const session = playerSession();
+  write({ balance: session ? w.balance : w.balance + refund, bets });
+  pushSettle(settled);
 }

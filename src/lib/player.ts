@@ -71,3 +71,23 @@ export async function remoteCashout(
     return { ok: false, message: "Wallet unreachable." };
   }
 }
+
+/** Settle a table bet on the operator wallet (win credits, void refunds). */
+export async function remoteSettle(
+  session: PlayerSession,
+  reference: string,
+  outcome: "won" | "lost" | "void",
+  multiplier?: number,
+): Promise<{ ok: boolean; message?: string }> {
+  try {
+    const { ok, json } = await post<Record<string, unknown>>("settle", session, {
+      reference,
+      outcome,
+      ...(multiplier ? { multiplier } : {}),
+    });
+    return ok ? { ok: true } : { ok: false, message: json.message ?? "Settlement failed." };
+  } catch {
+    return { ok: false, message: "Wallet unreachable." };
+  }
+}
+
