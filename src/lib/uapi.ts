@@ -146,8 +146,12 @@ export function fmtOdds(price: number | undefined | null): string {
 
 export function fmtSize(size: number | undefined | null): string {
   if (!size) return "";
-  return String(Math.round(size));
+  const n = Math.round(size);
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return String(n);
 }
+
 
 
 export function fmtInt(n: number | undefined | null): string {
