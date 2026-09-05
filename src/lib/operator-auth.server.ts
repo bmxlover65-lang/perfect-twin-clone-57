@@ -102,7 +102,7 @@ export async function authenticateOperator(request: Request): Promise<AuthResult
     .select("domain")
     .eq("operator_id", operator.id)
     .or(`api_key_id.eq.${keyRow.id},api_key_id.is.null`);
-  if (domains && domains.length > 0) {
+  if (domains && domains.length > 0 && !playerCall) {
     const origin = hostOf(request.headers.get("origin") ?? request.headers.get("referer"));
     const allowed = domains.map((d) => d.domain.toLowerCase().replace(/^www\./, ""));
     if (!origin || !allowed.some((d) => origin === d || origin.endsWith(`.${d}`))) {
