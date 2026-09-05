@@ -276,7 +276,7 @@ export function DreamWheel({
             transition: spin ? "transform 6s cubic-bezier(0.12,0.7,0.12,1)" : "none",
           }}
         >
-          <svg viewBox="0 0 400 400" className="h-[360px] w-[360px] max-w-full drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)] sm:h-[540px] sm:w-[540px]">
+          <svg viewBox="0 0 400 400" className="h-[400px] w-[400px] max-w-full drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)] sm:h-[600px] sm:w-[600px]">
             <circle cx={cx} cy={cy} r={r + 6} fill="#111" />
             {DREAM_SEGMENTS.map((v, i) => {
               const a0 = i * step;
@@ -313,11 +313,8 @@ export function DreamWheel({
         <img
           src={dreamHub.url}
           alt=""
-          className="pointer-events-none absolute left-1/2 top-1/2 h-[110px] w-[110px] -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-[164px] sm:w-[164px]"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[120px] w-[120px] -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-[180px] sm:w-[180px]"
         />
-        <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[2.4rem] font-black leading-none text-[#F2C500] drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] sm:text-[3.4rem]">
-          U
-        </span>
 
         <span className="pointer-events-none absolute left-1/2 top-[-14px] -translate-x-1/2 text-[1.7rem] leading-none text-[#F2C500] drop-shadow">
           ▼
