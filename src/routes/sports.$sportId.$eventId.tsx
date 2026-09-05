@@ -54,21 +54,36 @@ function Cell({
   dim?: boolean;
 }) {
   const has = Boolean(price);
+  const prev = useRef<number | undefined>(price);
+  const [flash, setFlash] = useState<"rate-up" | "rate-down" | "">("");
+
+  useEffect(() => {
+    const before = prev.current;
+    prev.current = price;
+    if (before === undefined || price === undefined || before === price) return;
+    setFlash(price > before ? "rate-up" : "rate-down");
+    const t = setTimeout(() => setFlash(""), 550);
+    return () => clearTimeout(t);
+  }, [price]);
+
   const tone =
     side === "back" ? (has ? "bg-ex-back" : "bg-ex-back-dim") : has ? "bg-ex-lay" : "bg-ex-lay-dim";
   return (
     <div
-      className={`flex h-[52px] flex-col items-center justify-center rounded-sm ${tone} ${
+      className={`relative flex h-[52px] flex-col items-center justify-center overflow-hidden rounded-sm ${tone} ${
         dim ? "opacity-40" : ""
-      } text-ex-cell-foreground`}
+      } ${flash} text-ex-cell-foreground`}
     >
-      <span className="text-[0.88rem] font-bold leading-none">{fmtOdds(price)}</span>
+      <span className="relative z-10 text-[0.88rem] font-bold leading-none">{fmtOdds(price)}</span>
       {has && size ? (
-        <span className="mt-1 text-[0.65rem] leading-none opacity-80">{fmtSize(size)}</span>
+        <span className="relative z-10 mt-1 text-[0.65rem] leading-none opacity-80">
+          {fmtSize(size)}
+        </span>
       ) : null}
     </div>
   );
 }
+
 
 function BoardHeader({
   name,
