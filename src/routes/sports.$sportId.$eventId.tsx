@@ -70,6 +70,35 @@ function Cell({
   );
 }
 
+function BoardHeader({
+  name,
+  matched,
+  status,
+  dim,
+}: {
+  name: string;
+  matched?: number | undefined;
+  status: string;
+  dim: boolean;
+}) {
+  return (
+    <header className="flex items-center justify-between gap-3 border-b border-ex-line/60 bg-ex-row px-3 py-2.5">
+      <span className={`text-[0.95rem] font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}>
+        {name}
+      </span>
+      <span
+        className={`flex shrink-0 items-center gap-3 text-[0.75rem] ${dim ? "text-ex-muted/70" : "text-ex-muted"}`}
+      >
+        <span>Matched {fmtInt(matched)}</span>
+        <span className="rounded-sm bg-ex-cell/20 px-2 py-1 font-bold uppercase tracking-wide text-ex-text">
+          {status}
+        </span>
+      </span>
+    </header>
+  );
+}
+
+
 function Suspended({ label }: { label: string }) {
   return (
     <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
