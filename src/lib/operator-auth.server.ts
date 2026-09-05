@@ -77,14 +77,25 @@ export async function authenticateOperator(request: Request): Promise<AuthResult
   }
 
   const ip = clientIp(request);
-  const { data: ips } = await supabaseAdmin
-    .from("ip_whitelist")
-    .select("ip")
-    .eq("operator_id", operator.id)
-    .or(`api_key_id.eq.${keyRow.id},api_key_id.is.null`);
-  if (ips && ips.length > 0 && !ips.some((r) => r.ip === ip)) {
-    return { ok: false, status: 403, code: "ip_not_allowed", error: `IP ${ip} not whitelisted` };
+
+  // Player-browser calls (game launched in an iframe/webview on our own
+  // domain) come from the player's home IP, which an operator can never
+  // whitelist. IP rules only apply to server-to-server calls.
+  const selfHost = hostOf(request.url);
+  const callerHost = hostOf(request.headers.get("origin") ?? request.headers.get("referer"));
+  const playerCall = !!callerHost && !!selfHost && callerHost === selfHost;
+
+  if (!playerCall) {
+    const { data: ips } = await supabaseAdmin
+      .from("ip_whitelist")
+      .select("ip")
+      .eq("operator_id", operator.id)
+      .or(`api_key_id.eq.${keyRow.id},api_key_id.is.null`);
+    if (ips && ips.length > 0 && !ips.some((r) => r.ip === ip)) {
+      return { ok: false, status: 403, code: "ip_not_allowed", error: `IP ${ip} not whitelisted` };
+    }
   }
+
 
   const { data: domains } = await supabaseAdmin
     .from("domain_whitelist")
