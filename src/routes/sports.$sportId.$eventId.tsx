@@ -132,7 +132,6 @@ function Board({ market }: { market: Market }) {
         status={status}
         dim={dim}
       />
-      <BackLayHead />
       <div className="relative">
         {runners.map((r) => {
           const back = [...(r.price?.back ?? [])].slice(0, 3).reverse();
@@ -140,23 +139,25 @@ function Board({ market }: { market: Market }) {
           return (
             <div
               key={String(r.selectionId)}
-              className={`${GRID} border-b border-ex-line/30 px-4 py-2 last:border-b-0`}
+              className="border-b border-ex-line/30 px-3 py-2 last:border-b-0"
             >
               <span
-                className={`truncate pr-2 text-[0.95rem] font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}
+                className={`block truncate pb-1.5 text-[0.95rem] font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}
               >
-
                 {runnerName(market, r.selectionId)}
               </span>
-              {[0, 1, 2].map((i) => (
-                <Cell key={`b${i}`} price={back[i]?.price} size={back[i]?.size} side="back" dim={dim} />
-              ))}
-              {[0, 1, 2].map((i) => (
-                <Cell key={`l${i}`} price={lay[i]?.price} size={lay[i]?.size} side="lay" dim={dim} />
-              ))}
+              <div className="grid grid-cols-6 gap-1">
+                {[0, 1, 2].map((i) => (
+                  <Cell key={`b${i}`} price={back[i]?.price} size={back[i]?.size} side="back" dim={dim} />
+                ))}
+                {[0, 1, 2].map((i) => (
+                  <Cell key={`l${i}`} price={lay[i]?.price} size={lay[i]?.size} side="lay" dim={dim} />
+                ))}
+              </div>
             </div>
           );
         })}
+
         {dim ? <Suspended label={status === "CLOSED" ? "Closed" : "Suspended"} /> : null}
       </div>
     </div>
