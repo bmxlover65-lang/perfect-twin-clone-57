@@ -1005,13 +1005,13 @@ function CardRacePanel({
         const names = m.runnersName ?? {};
         const runners = m.runners ?? [];
         return (
-          <div key={`${m.marketId}-${mi}`} className="border border-[#d9d9d9]">
-            <div className="flex items-center justify-between bg-black px-2 py-[5px]">
+          <div key={`${m.marketId}-${mi}`} className="overflow-hidden rounded-[3px] border border-[#d9d9d9]">
+            <div className="flex items-center justify-between bg-[#1C2B3A] px-2 py-[6px]">
               <span className="text-[0.85rem] font-extrabold uppercase tracking-wide text-white">
                 {m.marketName}
               </span>
-              <span className="text-[0.72rem] font-bold text-white">
-                Min/Max: {m.min ?? 100} - {m.max ?? 100000}
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white text-[0.65rem] font-extrabold text-[#1C2B3A]">
+                i
               </span>
             </div>
             <div className="relative">
@@ -1026,32 +1026,26 @@ function CardRacePanel({
                     <div className="flex min-h-[42px] flex-1 items-center px-2 py-1">
                       <Label text={label} />
                     </div>
-                    <div className="flex w-[134px] items-center justify-center border-l border-[#e6e6e6] p-1">
-                      {open ? (
-                        <div className="flex h-[38px] w-full flex-col items-center justify-center bg-[#72BBEF] leading-none">
-                          <span className="text-[0.95rem] font-bold text-[#111]">
-                            {fmtOdds(r.price?.back?.[0]?.price)}
-                          </span>
-                          <span className="text-[0.68rem] text-[#111]">
-                            {r.price?.back?.[0]?.size ?? ""}
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="flex h-[38px] w-full items-center justify-center border-2 border-[#E01B24] bg-white">
-                          <span className="text-[0.78rem] font-bold uppercase text-[#E01B24]">
-                            Suspended
-                          </span>
-                        </div>
-                      )}
+                    <div className="flex w-[134px] items-center justify-center p-1">
+                      <div
+                        className="flex h-[38px] w-full flex-col items-center justify-center rounded-[2px] leading-none"
+                        style={{ background: open ? "#72BBEF" : "#A8C6E0" }}
+                      >
+                        <span className="text-[0.95rem] font-bold text-[#12314e]">
+                          {fmtOdds(r.price?.back?.[0]?.price)}
+                        </span>
+                        <span className="text-[0.68rem] text-[#4a6c8c]">
+                          {r.price?.back?.[0]?.size ?? ""}
+                        </span>
+                      </div>
                     </div>
-                    <div className="w-[134px] border-l border-[#e6e6e6]" />
                   </div>
                 );
               })}
               {runners.length > 0 &&
               runners.every((r) => suspended || !isOpenStatus(r.status)) ? (
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                  <span className="text-[1.45rem] font-extrabold uppercase tracking-[0.04em] text-[#8b98a3]">
+                  <span className="text-[1.5rem] font-extrabold uppercase tracking-[0.04em] text-[#DE7A7A]">
                     SUSPENDED
                   </span>
                 </div>
