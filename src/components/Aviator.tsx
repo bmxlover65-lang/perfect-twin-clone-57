@@ -20,7 +20,7 @@ import beepSound from "@/assets/aviator/beep.mp3.asset.json";
 import winSound from "@/assets/aviator/win.mp3.asset.json";
 
 import { type AviatorControl, useAdminConfig } from "@/lib/admin";
-import { playerSession } from "@/lib/player";
+import { playerSession, remoteBet, remoteCashout, remoteSettle } from "@/lib/player";
 import { logBet, setBalance as saveBalance } from "@/lib/telemetry";
 
 const PLANE_FRAMES = [plane0, plane1, plane2, plane3];
@@ -235,6 +235,8 @@ function BetPanel({
       setState((p) => ({ ...p, staged: false, active: false }));
       return;
     }
+    // One bet per round: the round must finish before betting again.
+    if (state.active && phase !== "betting") return;
     if (state.amount > balance) return;
     setState((p) => ({ ...p, staged: true, cashedAt: null }));
   };
@@ -347,6 +349,8 @@ function MobileBetSlot({
       setState((p) => ({ ...p, staged: false, active: false }));
       return;
     }
+    // One bet per round: the round must finish before betting again.
+    if (state.active && phase !== "betting") return;
     if (state.amount > balance) return;
     setState((p) => ({ ...p, staged: true, cashedAt: null }));
   };
@@ -474,6 +478,8 @@ function DesktopBetBoard({
       setSlot(i, (p) => ({ ...p, staged: false, active: false }));
       return;
     }
+    // One bet per round: the round must finish before betting again.
+    if (s.active && phase !== "betting") return;
     if (s.amount > balance) return;
     setSlot(i, (p) => ({ ...p, staged: true, cashedAt: null }));
   };
@@ -939,11 +945,23 @@ export function Aviator() {
 
 
   const [slots, setSlots] = useState<PanelState[]>(() => [100, 100, 100, 100].map(initialPanel));
+  // Bet references sent to the operator wallet, per slot (integrated launch).
+  const betRefs = useRef<Record<number, string>>({});
   const slotsRef = useRef(slots);
   slotsRef.current = slots;
 
   // when the player cashes out, mark their matching row in the live list
   useEffect(() => {
+    const session = playerSession();
+    if (session) {
+      slots.forEach((s, i) => {
+        const ref = betRefs.current[i];
+        if (s.active && s.cashedAt !== null && ref) {
+          delete betRefs.current[i];
+          void remoteCashout(session, ref, s.cashedAt);
+        }
+      });
+    }
     const cashed = slots.filter((s) => s.active && s.cashedAt !== null);
     if (!cashed.length) return;
     setBets((list) => {
@@ -1183,6 +1201,7 @@ export function Aviator() {
             setMultiplier(1);
 
             setBets([]);
+            setSlots((list) => list.map((p) => ({ ...p, active: false, cashedAt: null })));
             setPhase("betting");
           }
           setCountdown(Math.max(0, BET_MS - (now - waitStart)));
@@ -1213,9 +1232,25 @@ export function Aviator() {
   // deduct stake when flight starts
   useEffect(() => {
     if (phase !== "flying") return;
+    const session = playerSession();
     let stake = 0;
-    for (const p of slots) if (p.active && p.cashedAt === null) stake += p.amount;
-    if (stake) setBalance((b) => Math.round((b - stake) * 100) / 100);
+    slots.forEach((p, i) => {
+      if (!p.active || p.cashedAt !== null) return;
+      stake += p.amount;
+      if (session) {
+        const ref = `av-${Date.now()}-${i}`;
+        betRefs.current[i] = ref;
+        void remoteBet(session, {
+          gameId: "88.0030",
+          roundId: String(round),
+          selection: "VIMAAN",
+          odds: 1.01,
+          stake: p.amount,
+          reference: ref,
+        });
+      }
+    });
+    if (stake && !session) setBalance((b) => Math.round((b - stake) * 100) / 100);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
@@ -1233,6 +1268,16 @@ export function Aviator() {
   // record my bets when the round settles
   useEffect(() => {
     if (phase !== "crashed") return;
+    const session = playerSession();
+    if (session) {
+      slots.forEach((p, i) => {
+        const ref = betRefs.current[i];
+        if (p.active && p.cashedAt === null && ref) {
+          delete betRefs.current[i];
+          void remoteSettle(session, ref, "lost");
+        }
+      });
+    }
     const rows: MyBet[] = [];
     for (const p of slots) {
       if (p.active) rows.push({ round, amount: p.amount, cashedAt: p.cashedAt, crash: multiplier });
