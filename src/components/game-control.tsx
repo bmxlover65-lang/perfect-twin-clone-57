@@ -206,7 +206,7 @@ export function GameControl() {
         <div className="rounded-lg border border-border bg-card p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[0.95rem] font-bold text-foreground">Viman</p>
+              <p className="text-[0.95rem] font-bold text-foreground">VIMAAN</p>
               <p className="text-[0.72rem] text-muted-foreground">88.0030 · crash control</p>
             </div>
             <div className="flex rounded-full bg-muted p-[3px] text-[0.72rem] font-bold">

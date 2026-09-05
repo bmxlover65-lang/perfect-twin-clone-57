@@ -1269,7 +1269,7 @@ export function Aviator() {
         logBet({
           ts: Date.now(),
           gameId: "88.0030",
-          gameName: "Viman",
+          gameName: "VIMAAN",
           round: String(r.round),
           stake: r.amount,
           multiplier: r.cashedAt,
