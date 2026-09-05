@@ -2593,14 +2593,16 @@ function RecentStrip({
                   ? "♣"
                   : null;
           if (suit) {
+            const col = suit === "♥" || suit === "♦" ? "#E01B24" : "#111";
             return (
               <span
                 key={`${r.roundId ?? ""}-${idx}`}
                 title={`Round ${r.roundId}`}
-                className="flex h-9 min-w-9 shrink-0 items-center justify-center rounded-full bg-white px-2 text-base font-bold"
-                style={{ color: suit === "♥" || suit === "♦" ? "#E01B24" : "#111" }}
+                className="flex h-10 w-[30px] shrink-0 flex-col items-center justify-center rounded-[4px] border border-[#d9d9d9] bg-white leading-none shadow-sm"
+                style={{ color: col }}
               >
-                {suit}
+                <span className="text-[0.9rem] font-extrabold">K</span>
+                <span className="text-[0.85rem] font-bold">{suit}</span>
               </span>
             );
           }
