@@ -20,6 +20,7 @@ import beepSound from "@/assets/aviator/beep.mp3.asset.json";
 import winSound from "@/assets/aviator/win.mp3.asset.json";
 
 import { type AviatorControl, useAdminConfig } from "@/lib/admin";
+import { playerSession } from "@/lib/player";
 import { logBet, setBalance as saveBalance } from "@/lib/telemetry";
 
 const PLANE_FRAMES = [plane0, plane1, plane2, plane3];
@@ -71,15 +72,7 @@ function HistToggle({ open, onClick }: { open: boolean; onClick: () => void }) {
 
 
 
-/* ---------------- fake live bets ---------------- */
-
-const NAMES = [
-  "dhruv5", "Rohan22", "kabir9", "Simran", "monty", "Arjunv", "poojal", "Nikkii",
-  "bunny7", "Vikky", "jassn", "Tanuu", "zoya3", "Harryk", "yashs", "Luckyoo",
-  "shiva88", "prem01", "kajalr", "imrank", "deepu", "sanjayy", "meena4", "rockz",
-  "gagan2", "heena7", "tushar", "vandna", "amit91", "rani12", "sonuk", "priya5",
-  "mannu3", "jyoti8", "farhan", "neha01", "gulshan", "riya09", "sameer", "kiranp",
-];
+/* ---------------- live bets (real players only) ---------------- */
 
 type LiveBet = {
   id: number;
@@ -97,36 +90,6 @@ function maskName(n: string) {
   return `${s[0]}${"*".repeat(Math.max(3, Math.min(7, s.length - 2)))}${s[s.length - 1]}`;
 }
 
-// realistic cash-out target: most players bail early, a few chase big multipliers,
-// and a chunk never cash out at all (target far above any realistic crash).
-function makeTarget(r: number) {
-  if (r < 0.28) return 0; // greedy players who never cash out -> they bust
-  if (r < 0.72) return Math.round((1.15 + (r - 0.28) * 3.2) * 100) / 100;
-  if (r < 0.93) return Math.round((2.6 + (r - 0.72) * 22) * 100) / 100;
-  return Math.round((7 + (r - 0.93) * 260) * 100) / 100;
-}
-
-function makeBets(seed: number): LiveBet[] {
-  const out: LiveBet[] = [];
-  const n = 46 + (seed % 24);
-  const base = [50, 100, 200, 310, 500, 881, 1000, 2500, 5000];
-  for (let i = 0; i < n; i += 1) {
-    const pick = base[(seed * 7 + i * 11) % base.length]!;
-    // slight organic jitter so amounts don't look generated
-    const amt = pick + ((seed * 13 + i * 17) % 5) * (pick >= 500 ? 10 : 1);
-    const r = ((seed * 37 + i * 61) % 1000) / 1000;
-    out.push({
-      id: seed * 100 + i + Math.floor(Math.random() * 7),
-      user: NAMES[(seed * 3 + i * 5) % NAMES.length]!,
-      amount: amt,
-      bal: 500 + ((seed * 91 + i * 137) % 96000),
-      target: makeTarget(r),
-    });
-  }
-  // biggest bets on top like the real lobby
-  out.sort((a, b) => b.amount - a.amount);
-  return out;
-}
 
 
 /* ---------------- bet panel ---------------- */
@@ -957,10 +920,7 @@ export function Aviator() {
   const [round, setRound] = useState(1);
   const [balance, setBalance] = useState(5000);
   const embedded = useEmbed();
-  const [bets, setBets] = useState<LiveBet[]>(() => makeBets(1));
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [feed, setFeed] = useState<{ id: number; text: string; kind: "join" | "leave" | "win" }[]>([]);
-  const [online, setOnline] = useState(1842);
+  const [bets, setBets] = useState<LiveBet[]>([]);
   const [muted, setMuted] = useState(true);
   const bgRef = useRef<HTMLAudioElement | null>(null);
   const sfx = useCallback(
@@ -979,6 +939,22 @@ export function Aviator() {
 
 
   const [slots, setSlots] = useState<PanelState[]>(() => [100, 100, 100, 100].map(initialPanel));
+  const slotsRef = useRef(slots);
+  slotsRef.current = slots;
+
+  // when the player cashes out, mark their matching row in the live list
+  useEffect(() => {
+    const cashed = slots.filter((s) => s.active && s.cashedAt !== null);
+    if (!cashed.length) return;
+    setBets((list) => {
+      const next = [...list];
+      for (const s of cashed) {
+        const idx = next.findIndex((b) => b.cashedAt === undefined && b.amount === s.amount);
+        if (idx >= 0) next[idx] = { ...next[idx]!, cashedAt: s.cashedAt! };
+      }
+      return next;
+    });
+  }, [slots]);
   const setSlot = useCallback(
     (i: number, fn: (p: PanelState) => PanelState) =>
       setSlots((s) => s.map((p, j) => (j === i ? fn(p) : p))),
@@ -1098,7 +1074,22 @@ export function Aviator() {
     let mounted = true;
 
     // shared helpers
-    const stageBets = () =>
+    const stageBets = () => {
+      // real bets only: rows appear when THIS player actually places a bet
+      const newly = slotsRef.current.filter((p) => p.staged);
+      if (newly.length) {
+        const user = playerSession()?.userId ?? "you";
+        setBets((cur) => [
+          ...newly.map((p, i) => ({
+            id: Date.now() + i,
+            user,
+            amount: p.amount,
+            bal: 0,
+            target: p.auto && p.autoCashout > 1 ? p.autoCashout : 0,
+          })),
+          ...cur,
+        ]);
+      }
       setSlots((list) =>
         list.map((p) =>
           p.staged
@@ -1106,6 +1097,7 @@ export function Aviator() {
             : { ...p, active: false, cashedAt: null },
         ),
       );
+    };
 
     const botCashouts = (m: number) =>
       setBets((list) =>
@@ -1190,7 +1182,7 @@ export function Aviator() {
             shown = 1;
             setMultiplier(1);
 
-            setBets(makeBets(Math.floor(Math.random() * 999) + 1));
+            setBets([]);
             setPhase("betting");
           }
           setCountdown(Math.max(0, BET_MS - (now - waitStart)));
@@ -1307,64 +1299,6 @@ export function Aviator() {
     }
   }, [countdown, phase, sfx]);
 
-  // players keep joining (betting + flying) — new rows animate in at the top
-  const [freshIds, setFreshIds] = useState<number[]>([]);
-  useEffect(() => {
-    if (phase === "crashed") return;
-    const id = window.setInterval(() => {
-      const seed = Math.floor(Math.random() * 9999);
-      const extra = makeBets(seed).slice(0, 1 + (seed % 2));
-      if (!extra.length) return;
-      setBets((list) => (list.length > 140 ? [...extra, ...list.slice(0, 140)] : [...extra, ...list]));
-      const ids = extra.map((b) => b.id);
-      setFreshIds((f) => [...ids, ...f].slice(0, 24));
-      window.setTimeout(() => setFreshIds((f) => f.filter((x) => !ids.includes(x))), 600);
-    }, phase === "betting" ? 480 : 800);
-    return () => window.clearInterval(id);
-  }, [phase]);
-
-
-  // live join / leave ticker + online counter
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      const name = maskName(NAMES[Math.floor(Math.random() * NAMES.length)]!);
-      const kind = Math.random() < 0.62 ? "join" : "leave";
-      const delta = kind === "join" ? 1 + Math.floor(Math.random() * 6) : -(1 + Math.floor(Math.random() * 5));
-      setOnline((o) => Math.max(900, Math.min(4800, o + delta)));
-      setFeed((f) =>
-        [
-          {
-            id: Date.now() + Math.random(),
-            kind: kind as "join" | "leave",
-            text: kind === "join" ? `${name} joined the table` : `${name} left the table`,
-          },
-          ...f,
-        ].slice(0, 20),
-      );
-    }, 1600);
-    return () => window.clearInterval(id);
-  }, []);
-
-  // announce real cash-outs in the feed
-  useEffect(() => {
-    if (phase !== "flying") return;
-    const id = window.setInterval(() => {
-      const done = bets.filter((b) => b.cashedAt !== undefined);
-      if (!done.length) return;
-      const b = done[Math.floor(Math.random() * done.length)]!;
-      setFeed((f) =>
-        [
-          {
-            id: Date.now() + Math.random(),
-            kind: "win" as const,
-            text: `${maskName(b.user)} cashed out ${fmt(b.cashedAt!)}x · ${fmt(b.amount * b.cashedAt!)}`,
-          },
-          ...f,
-        ].slice(0, 20),
-      );
-    }, 1400);
-    return () => window.clearInterval(id);
-  }, [phase, bets]);
 
 
 
@@ -1397,7 +1331,7 @@ export function Aviator() {
               </span>
               <span className="flex flex-col items-end leading-tight">
                 <span>Users</span>
-                <span className="text-[0.78rem] font-semibold text-white/60">{online.toLocaleString()}</span>
+                <span className="text-[0.78rem] font-semibold text-white/60">{bets.length.toLocaleString()}</span>
               </span>
             </div>
           ) : null}
@@ -1500,8 +1434,6 @@ export function Aviator() {
                     <div
                       key={`${b.id}-${i}`}
                       className={`grid shrink-0 grid-cols-[1fr_38px_44px_54px] items-center gap-x-2 px-2 py-[8px] text-[0.76rem] sm:text-[0.8rem] ${
-                        freshIds.includes(b.id) ? "av-row-in" : ""
-                      } ${
                         done
                           ? "rounded-[7px] border border-[#3B8F20] bg-[#0D4206] text-white"
                           : "border-b border-white/[0.05] bg-[#131416] text-white/70"
@@ -1538,6 +1470,9 @@ export function Aviator() {
 
 
 
+            {tab === "all" && bets.length === 0 ? (
+              <p className="py-6 text-center text-[0.72rem] text-white/40">No bets yet</p>
+            ) : null}
             {tab === "my" && myBets.length === 0 ? (
               <p className="py-6 text-center text-[0.72rem] text-white/40">No bets yet</p>
             ) : null}
