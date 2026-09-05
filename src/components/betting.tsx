@@ -257,7 +257,14 @@ export function BetLayer({
     const pos = cellPos.current;
     close();
     if (pos) {
-      setChips((cur) => [...cur, { id: Date.now(), x: pos.x, y: pos.y, amount: stake }]);
+      // Same selection bet again in the same round → one chip with the total.
+      setChips((cur) => {
+        const i = cur.findIndex((c) => Math.abs(c.x - pos.x) < 14 && Math.abs(c.y - pos.y) < 14);
+        if (i < 0) return [...cur, { id: Date.now(), x: pos.x, y: pos.y, amount: stake }];
+        const next = [...cur];
+        next[i] = { ...next[i]!, amount: next[i]!.amount + stake };
+        return next;
+      });
     }
     setSuccess("Casino BetPlace Successful.");
 
