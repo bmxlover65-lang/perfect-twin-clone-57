@@ -821,29 +821,27 @@ res.json({ status: "ok", balance, reference: body.reference });`}
             twice. Retries are normal (network timeouts) and must return the stored result, not a
             second debit or credit.
           </Note>
-          <List
-            items={[
-              <>
-                Verify <Code>x-universal-signature</Code> before changing any balance.
-              </>,
-              <>
-                Reply within <strong>5 seconds</strong>; a timeout is treated as{" "}
-                <Code>callback_failed</Code> and the bet is rejected.
-              </>,
-              <>
-                Always return the <em>post-transaction</em> balance in the same currency you
-                registered.
-              </>,
-              <>
-                Reject with <Code>{'{ "status": "failed", "error": "insufficient_funds" }'}</Code>{" "}
-                instead of returning a negative balance.
-              </>,
-              <>
-                Reconcile daily with <Code>GET /api/public/v1/bets</Code> — stake and payout per{" "}
-                <Code>reference</Code> should match your ledger row for row.
-              </>,
-            ]}
-          />
+          <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-muted-foreground">
+            <li>
+              Verify <Code>x-universal-signature</Code> before changing any balance.
+            </li>
+            <li>
+              Reply within <strong>5 seconds</strong>; a timeout is treated as{" "}
+              <Code>callback_failed</Code> and the bet is rejected.
+            </li>
+            <li>
+              Always return the <em>post-transaction</em> balance in the same currency you
+              registered.
+            </li>
+            <li>
+              Reject with <Code>{'{ "status": "failed", "error": "insufficient_funds" }'}</Code>{" "}
+              instead of returning a negative balance.
+            </li>
+            <li>
+              Reconcile daily with <Code>GET /api/public/v1/bets</Code> — stake and payout per{" "}
+              <Code>reference</Code> should match your ledger row for row.
+            </li>
+          </ul>
           <Block
             label="Daily reconciliation"
             code={`GET /api/public/v1/bets?limit=500
