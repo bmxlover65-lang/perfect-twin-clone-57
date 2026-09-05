@@ -775,6 +775,83 @@ if (expected !== req.headers["x-universal-signature"]) return res.status(401).en
             <Code>rollback</Code>.
           </Note>
 
+          {/* Balance maintain */}
+
+          <H2 id="balance-maintain">Balance maintain</H2>
+          <P>
+            Player funds always live in <strong>your</strong> wallet. We never hold or display a
+            balance of our own — every stake, payout and refund is a call to your callback URL, so
+            your ledger stays the single source of truth.
+          </P>
+
+          <H3>Money flow of one round</H3>
+          <Step n={1} title="Bet placed">
+            We POST <Code>{"<callback>/debit"}</Code> with the stake and a unique{" "}
+            <Code>reference</Code>. Deduct it and reply with the new balance.
+          </Step>
+          <Step n={2} title="Round result">
+            On a win we POST <Code>{"<callback>/credit"}</Code> with the payout and the same{" "}
+            <Code>reference</Code> plus <Code>settlementRef</Code>. On a loss no call is made — the
+            stake already left the wallet.
+          </Step>
+          <Step n={3} title="Anything fails">
+            If the bet cannot be stored or the round is voided we POST{" "}
+            <Code>{"<callback>/rollback"}</Code> with the original <Code>reference</Code>. Return
+            the stake exactly once.
+          </Step>
+          <Step n={4} title="Sync check">
+            Our seat API reports the balance you last returned. Poll{" "}
+            <Code>POST /api/public/v1/balance</Code> or read your own ledger to confirm both sides
+            agree.
+          </Step>
+
+          <H3>Rules to keep balances correct</H3>
+          <Block
+            label="Idempotency (Node.js)"
+            code={`// store every reference you have already processed
+const seen = await db.tx.findOne({ reference: body.reference, action: body.action });
+if (seen) return res.json({ status: "ok", balance: seen.balanceAfter, reference: body.reference });
+
+const balance = await wallet.apply(body.userId, body.action === "debit" ? -body.amount : body.amount);
+await db.tx.insert({ reference: body.reference, action: body.action, balanceAfter: balance });
+res.json({ status: "ok", balance, reference: body.reference });`}
+          />
+          <Note>
+            <strong>Never</strong> apply the same <Code>reference</Code> + <Code>action</Code>{" "}
+            twice. Retries are normal (network timeouts) and must return the stored result, not a
+            second debit or credit.
+          </Note>
+          <List
+            items={[
+              <>
+                Verify <Code>x-universal-signature</Code> before changing any balance.
+              </>,
+              <>
+                Reply within <strong>5 seconds</strong>; a timeout is treated as{" "}
+                <Code>callback_failed</Code> and the bet is rejected.
+              </>,
+              <>
+                Always return the <em>post-transaction</em> balance in the same currency you
+                registered.
+              </>,
+              <>
+                Reject with <Code>{'{ "status": "failed", "error": "insufficient_funds" }'}</Code>{" "}
+                instead of returning a negative balance.
+              </>,
+              <>
+                Reconcile daily with <Code>GET /api/public/v1/bets</Code> — stake and payout per{" "}
+                <Code>reference</Code> should match your ledger row for row.
+              </>,
+            ]}
+          />
+          <Block
+            label="Daily reconciliation"
+            code={`GET /api/public/v1/bets?limit=500
+// for each bet: ledger.debit(reference) === bet.stake
+//               bet.status === "won" ? ledger.credit(reference) === bet.payout : no credit row`}
+          />
+
+
           {/* Errors */}
 
           <H2 id="errors">Errors</H2>
