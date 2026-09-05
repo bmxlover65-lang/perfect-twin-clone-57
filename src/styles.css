@@ -343,3 +343,23 @@
 .marquee-track {
   animation: marquee-x 18s linear infinite;
 }
+
+/* Exchange rate change flash — original site jaisa */
+@keyframes rate-flash-up {
+  0% { background-color: #b7e4a0; }
+  100% { background-color: transparent; }
+}
+@keyframes rate-flash-down {
+  0% { background-color: #f3a3a3; }
+  100% { background-color: transparent; }
+}
+.rate-up::after,
+.rate-down::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.rate-up::after { animation: rate-flash-up 0.55s ease-out 1; }
+.rate-down::after { animation: rate-flash-down 0.55s ease-out 1; }
