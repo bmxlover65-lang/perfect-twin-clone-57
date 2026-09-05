@@ -35,7 +35,9 @@ const TOC = [
   ["tv-video", "TV & video"],
   ["iframe-embed", "Iframe embed"],
   ["betting-wallet", "Betting & wallet"],
+  ["balance-maintain", "Balance maintain"],
   ["response-fields", "Response fields"],
+
 
   ["errors", "Errors"],
   ["integration-guide", "Integration guide"],
