@@ -70,9 +70,6 @@ function Cell({
   );
 }
 
-const GRID = "grid grid-cols-[1fr_repeat(6,minmax(72px,96px))] items-center gap-1.5";
-
-
 function BoardHeader({
   name,
   matched,
@@ -85,28 +82,22 @@ function BoardHeader({
   dim: boolean;
 }) {
   return (
-    <header className="flex items-center justify-between border-b border-ex-line/60 bg-ex-row px-4 py-3">
-      <span className={`text-[0.95rem] font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}>{name}</span>
-      <span className={`flex items-center gap-4 text-[0.78rem] ${dim ? "text-ex-muted/70" : "text-ex-muted"}`}>
+    <header className="flex items-center justify-between gap-3 border-b border-ex-line/60 bg-ex-row px-3 py-2.5">
+      <span className={`text-[0.95rem] font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}>
+        {name}
+      </span>
+      <span
+        className={`flex shrink-0 items-center gap-3 text-[0.75rem] ${dim ? "text-ex-muted/70" : "text-ex-muted"}`}
+      >
         <span>Matched {fmtInt(matched)}</span>
-        <span className="font-bold uppercase tracking-wide text-ex-text">{status}</span>
+        <span className="rounded-sm bg-ex-cell/20 px-2 py-1 font-bold uppercase tracking-wide text-ex-text">
+          {status}
+        </span>
       </span>
     </header>
   );
 }
 
-function BackLayHead() {
-  return (
-    <div
-      className={`${GRID} border-b border-ex-line/40 px-4 py-1.5 text-[0.66rem] font-bold uppercase tracking-[0.12em] text-ex-muted`}
-    >
-
-      <span />
-      <span className="col-span-3 text-center">Back</span>
-      <span className="col-span-3 text-center">Lay</span>
-    </div>
-  );
-}
 
 function Suspended({ label }: { label: string }) {
   return (
@@ -132,7 +123,6 @@ function Board({ market }: { market: Market }) {
         status={status}
         dim={dim}
       />
-      <BackLayHead />
       <div className="relative">
         {runners.map((r) => {
           const back = [...(r.price?.back ?? [])].slice(0, 3).reverse();
@@ -140,23 +130,25 @@ function Board({ market }: { market: Market }) {
           return (
             <div
               key={String(r.selectionId)}
-              className={`${GRID} border-b border-ex-line/30 px-4 py-2 last:border-b-0`}
+              className="border-b border-ex-line/30 px-3 py-2 last:border-b-0"
             >
               <span
-                className={`truncate pr-2 text-[0.95rem] font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}
+                className={`block truncate pb-1.5 text-[0.95rem] font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}
               >
-
                 {runnerName(market, r.selectionId)}
               </span>
-              {[0, 1, 2].map((i) => (
-                <Cell key={`b${i}`} price={back[i]?.price} size={back[i]?.size} side="back" dim={dim} />
-              ))}
-              {[0, 1, 2].map((i) => (
-                <Cell key={`l${i}`} price={lay[i]?.price} size={lay[i]?.size} side="lay" dim={dim} />
-              ))}
+              <div className="grid grid-cols-6 gap-1">
+                {[0, 1, 2].map((i) => (
+                  <Cell key={`b${i}`} price={back[i]?.price} size={back[i]?.size} side="back" dim={dim} />
+                ))}
+                {[0, 1, 2].map((i) => (
+                  <Cell key={`l${i}`} price={lay[i]?.price} size={lay[i]?.size} side="lay" dim={dim} />
+                ))}
+              </div>
             </div>
           );
         })}
+
         {dim ? <Suspended label={status === "CLOSED" ? "Closed" : "Suspended"} /> : null}
       </div>
     </div>
