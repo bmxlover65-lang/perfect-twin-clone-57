@@ -65,7 +65,7 @@ const UI_GAMES = [
 
 function CasinoDocs() {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10">
+    <div className="mx-auto w-full max-w-[1800px] px-4 py-10 lg:px-8">
       <div className="grid gap-10 lg:grid-cols-[260px_1fr]">
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <nav className="rounded-xl border border-border bg-card p-4">
@@ -105,7 +105,7 @@ function CasinoDocs() {
           <h1 className="mt-2 text-4xl font-bold tracking-tight text-foreground">
             Universal API — Casino Integration Guide
           </h1>
-          <p className="mt-3 max-w-2xl text-[1.05rem] leading-relaxed text-muted-foreground">
+          <p className="mt-3 max-w-4xl text-[1.05rem] leading-relaxed text-muted-foreground">
             Integration guide — server-side API for live data, TV overlays, and iframe video embeds
             on your partner platform.
           </p>
