@@ -71,15 +71,7 @@ function HistToggle({ open, onClick }: { open: boolean; onClick: () => void }) {
 
 
 
-/* ---------------- fake live bets ---------------- */
-
-const NAMES = [
-  "dhruv5", "Rohan22", "kabir9", "Simran", "monty", "Arjunv", "poojal", "Nikkii",
-  "bunny7", "Vikky", "jassn", "Tanuu", "zoya3", "Harryk", "yashs", "Luckyoo",
-  "shiva88", "prem01", "kajalr", "imrank", "deepu", "sanjayy", "meena4", "rockz",
-  "gagan2", "heena7", "tushar", "vandna", "amit91", "rani12", "sonuk", "priya5",
-  "mannu3", "jyoti8", "farhan", "neha01", "gulshan", "riya09", "sameer", "kiranp",
-];
+/* ---------------- live bets (real players only) ---------------- */
 
 type LiveBet = {
   id: number;
