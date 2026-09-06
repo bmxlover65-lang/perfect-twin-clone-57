@@ -59,6 +59,7 @@ function SportsPage() {
   const [errorLog, setErrorLog] = useState<{ at: string; message: string }[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [health, setHealth] = useState<ProxyHealth | null>(null);
+  const requestId = useRef(0);
 
   useEffect(() => {
     const q = new URLSearchParams(window.location.search).get("admin");
@@ -95,10 +96,12 @@ function SportsPage() {
 
   const load = useCallback(
     async (id: string, silent = false) => {
+      const currentRequest = ++requestId.current;
       if (!silent) setLoading(true);
       const started = Date.now();
       try {
         const data = await fetchEvents(id);
+        if (currentRequest !== requestId.current) return;
         setEvents(data.events ?? []);
         setError(null);
         setRefreshedAt(new Date(data.refreshedAt ?? Date.now()).toLocaleTimeString());
@@ -106,6 +109,7 @@ function SportsPage() {
         setLastPoll(new Date());
         setPollCount((n) => n + 1);
       } catch (e) {
+        if (currentRequest !== requestId.current) return;
         const message = e instanceof Error ? e.message : "Failed to load events";
         setError(message);
         setLatency(Date.now() - started);
@@ -115,7 +119,7 @@ function SportsPage() {
           [{ at: new Date().toLocaleTimeString(), message }, ...log].slice(0, 8),
         );
       } finally {
-        setLoading(false);
+        if (currentRequest === requestId.current) setLoading(false);
       }
     },
     [],

@@ -235,16 +235,20 @@ function EventPage() {
   const [data, setData] = useState<OddsResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const closedSince = useRef<number>(0);
+  const requestId = useRef(0);
   const [age, setAge] = useState(0);
 
 
   const load = useCallback(async () => {
+    const currentRequest = ++requestId.current;
     try {
       const odds = await fetchOdds(sportId, eventId);
+      if (currentRequest !== requestId.current) return;
       setData(odds);
       setAge(0);
       setError(null);
     } catch (e) {
+      if (currentRequest !== requestId.current) return;
       setError(e instanceof Error ? e.message : "Failed to load odds");
     }
   }, [sportId, eventId]);

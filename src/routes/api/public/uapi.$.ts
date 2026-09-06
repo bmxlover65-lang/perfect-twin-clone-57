@@ -37,6 +37,7 @@ async function getToken(force = false): Promise<string> {
 async function upstream(path: string, search: string, token: string, body?: string) {
   return fetch(`${UPSTREAM}/${path}${search}`, {
     method: body === undefined ? "GET" : "POST",
+    cache: "no-store",
     headers: {
       "x-session-token": token,
       accept: "application/json",
