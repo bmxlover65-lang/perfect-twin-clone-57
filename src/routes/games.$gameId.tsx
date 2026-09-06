@@ -1810,14 +1810,30 @@ function GamePage() {
   const [error, setError] = useState<string | null>(null);
   const [age, setAge] = useState(0);
 
+  // Some games (e.g. VIMAAN) have no upstream live event. Polling them only
+  // produces 404 "Unknown game" / 400 "Valid eventId required" noise.
+  const NO_FEED = new Set(["88.0030"]);
+  const feedDead = useRef(NO_FEED.has(gameId));
+
+  useEffect(() => {
+    feedDead.current = NO_FEED.has(gameId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameId]);
+
   const load = useCallback(async () => {
+    if (feedDead.current) return;
     try {
       const s = await fetchCasinoState(gameId);
       setState(s);
       setAge(0);
       setError(null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load live state");
+      const msg = e instanceof Error ? e.message : "Failed to load live state";
+      if (/unknown game|valid eventid required|\(40\d\)/i.test(msg)) {
+        feedDead.current = true;
+        return;
+      }
+      setError(msg);
     }
   }, [gameId]);
 
@@ -1830,6 +1846,7 @@ function GamePage() {
       clearInterval(a);
     };
   }, [load]);
+
 
   const roundKey = state?.data?.roundId ? String(state.data.roundId) : "";
 
