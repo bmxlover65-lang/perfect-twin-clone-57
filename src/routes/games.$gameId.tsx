@@ -225,45 +225,34 @@ function PokerPanel({
   markets: CasinoMarket[];
   suspended: boolean;
 }) {
-  const Plate = ({
-    price,
-    size,
-    locked,
-  }: {
+  const Plate = ({ price, size, locked }: {
     price?: number | null | undefined;
     size?: number | null | undefined;
     locked: boolean;
   }) => (
-    <div
-      className={`flex h-[52px] w-full min-w-0 flex-1 -skew-x-[18deg] items-center justify-center rounded-[2px] bg-gradient-to-br from-[#1f8f63] to-[#0a5b3b] shadow-[0_2px_5px_rgba(0,0,0,0.25)] ${
-        locked ? "opacity-55" : ""
-      }`}
-    >
-      <div className="skew-x-[18deg] text-center leading-tight">
-        <p className="text-[1.05rem] font-extrabold text-white">{locked ? "" : fmtOdds(price)}</p>
-        <p className="text-[0.62rem] font-semibold text-white/60">
-          {locked ? "" : fmtSize(size)}
-        </p>
-      </div>
+    <div className="relative mx-auto flex h-[56px] w-[148px] max-w-[88%] flex-col items-center justify-center rounded-[5px] bg-casino-market-rate text-casino-market-text shadow-[0_4px_10px_color-mix(in_oklab,var(--casino-market-header)_28%,transparent)]">
+      <span className="text-[0.95rem] font-medium leading-none">{fmtOdds(price)}</span>
+      <span className="mt-1 text-[0.72rem] font-normal leading-none">{fmtSize(size)}</span>
+      {locked ? (
+        <span className="absolute inset-0 flex items-center justify-center rounded-[5px] bg-casino-market-rate/70 text-[0.72rem] font-bold uppercase text-casino-market-text">
+          Suspended
+        </span>
+      ) : null}
     </div>
   );
 
+  const marketTitle = (name?: string | null) => {
+    const title = (name ?? "").toUpperCase();
+    if (/^PAIR$/.test(title)) return "PAIR ( DUBBLE ) 1:4";
+    if (/^FLUSH$/.test(title)) return "FLUSH ( COLOR ) 1:8";
+    if (/^STRAIGHT$/.test(title)) return "STRAIGHT ( ROWN ) 1:14";
+    if (/STRAIGHT FLUSH/.test(title)) return "STRAIGHT FLUSH ( PAKKI ROWN ) 1:40";
+    return title;
+  };
 
   return (
-    <div className="mt-3 bg-[#ececec] pb-3">
-      <div className="flex items-center justify-between gap-3 px-3 py-4">
-        {["PLAYER A", "PLAYER B"].map((n) => (
-          <div
-            key={n}
-            className="flex h-[60px] min-w-0 flex-1 items-center justify-center rounded-[4px] bg-gradient-to-br from-[#1f8f63] to-[#0a5b3b] text-[0.95rem] font-extrabold tracking-wide text-white shadow-[0_2px_5px_rgba(0,0,0,0.25)]"
-          >
-            {n}
-          </div>
-        ))}
-      </div>
-
-      <div className="flex flex-col gap-3">
-        {markets.map((m) => {
+    <div className="bg-casino-market-body">
+      {markets.map((m) => {
           const names = m.runnersName ?? {};
           const runners = m.runners ?? [];
           const a = runners.find((r) => (names[String(r.selectionId)] ?? "").toUpperCase().includes("A"));
@@ -272,36 +261,32 @@ function PokerPanel({
             suspended ||
             runners.every((r) => !isOpenStatus(r.status));
           return (
-            <div
-              key={m.marketId}
-              className="relative border-t border-[#c9c9c9] px-3 pb-4 pt-0"
-            >
-              <div className="flex justify-center">
-                <div className="flex h-[38px] w-full max-w-[305px] items-center justify-center gap-1.5 rounded-b-[22px] bg-white px-3 text-center text-[0.78rem] font-extrabold uppercase leading-tight tracking-wide text-[#333] shadow-[0_3px_5px_rgba(0,0,0,0.18)]">
-                  {m.marketName}
-                  <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-[#5b8dab] text-[0.6rem] font-bold text-white">
-                    i
-                  </span>
-                </div>
+            <section key={m.marketId} className="border-b border-casino-market-divider">
+              <header className="flex h-[34px] items-center justify-between bg-casino-market-header px-2">
+                <h3 className="truncate text-[0.86rem] font-extrabold uppercase text-board-header-foreground">
+                  {marketTitle(m.marketName)}
+                </h3>
+                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-board-header-foreground text-[0.65rem] font-black text-casino-market-header">
+                  i
+                </span>
+              </header>
+              <div className="relative grid grid-cols-2 divide-x divide-casino-market-divider py-1.5">
+                {[a, b].map((r, index) => (
+                  <div key={r ? String(r.selectionId) : index} className="min-w-0 px-1.5 pb-1.5">
+                    <p className="mb-1 truncate text-center text-[0.82rem] font-medium uppercase text-casino-market-text">
+                      {r ? names[String(r.selectionId)] : index === 0 ? "PLAYER A" : "PLAYER B"}
+                    </p>
+                    <Plate
+                      price={r?.price?.back?.[0]?.price}
+                      size={r?.price?.back?.[0]?.size}
+                      locked={isSusp || !r}
+                    />
+                  </div>
+                ))}
               </div>
-              <div className="relative mt-2 flex items-center gap-3">
-                <Plate
-                  price={a?.price?.back?.[0]?.price}
-                  size={a?.price?.back?.[0]?.size}
-                  locked={isSusp}
-                />
-                <Plate
-                  price={b?.price?.back?.[0]?.price}
-                  size={b?.price?.back?.[0]?.size}
-                  locked={isSusp}
-                />
-              </div>
-
-            </div>
+            </section>
           );
         })}
-      </div>
-
     </div>
   );
 }

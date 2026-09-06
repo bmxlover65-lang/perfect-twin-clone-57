@@ -95,6 +95,11 @@
   --color-ex-lay: var(--ex-lay);
   --color-ex-lay-dim: var(--ex-lay-dim);
   --color-ex-cell-foreground: var(--ex-cell-foreground);
+  --color-casino-market-header: var(--casino-market-header);
+  --color-casino-market-body: var(--casino-market-body);
+  --color-casino-market-rate: var(--casino-market-rate);
+  --color-casino-market-text: var(--casino-market-text);
+  --color-casino-market-divider: var(--casino-market-divider);
 
 }
 
@@ -169,6 +174,11 @@
   --ex-lay: oklch(0.79 0.095 4);
   --ex-lay-dim: oklch(0.52 0.05 4);
   --ex-cell-foreground: oklch(0.17 0.025 250);
+  --casino-market-header: oklch(0.37 0.055 235);
+  --casino-market-body: oklch(0.91 0.045 235);
+  --casino-market-rate: oklch(0.75 0.105 235);
+  --casino-market-text: oklch(0.27 0.035 245);
+  --casino-market-divider: oklch(0.79 0.055 235);
 }
 
 
@@ -248,6 +258,11 @@
   --ex-lay: oklch(0.79 0.095 4);
   --ex-lay-dim: oklch(0.52 0.05 4);
   --ex-cell-foreground: oklch(0.17 0.025 250);
+  --casino-market-header: oklch(0.37 0.055 235);
+  --casino-market-body: oklch(0.91 0.045 235);
+  --casino-market-rate: oklch(0.75 0.105 235);
+  --casino-market-text: oklch(0.27 0.035 245);
+  --casino-market-divider: oklch(0.79 0.055 235);
 }
 
 /* Sports exchange page theme override (reference screenshots) */
