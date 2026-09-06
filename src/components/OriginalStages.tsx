@@ -831,8 +831,8 @@ export function BalloonStage({
 
 
   return (
-    <div className="w-full rounded-[16px] bg-[linear-gradient(160deg,#2B2B2E_0%,#0A0A0B_55%,#1A1A1D_100%)] p-1.5 shadow-[0_18px_44px_-18px_rgba(0,0,0,0.9)] ring-1 ring-inset ring-white/10">
-      <div className="relative aspect-[9/16] w-full max-h-[calc(100vh-132px)] overflow-hidden rounded-[12px] sm:aspect-[16/10] sm:max-h-none bg-[linear-gradient(180deg,#4FB6CE_0%,#7ACBD6_38%,#BFE0CC_66%,#F3E4B4_88%,#F7EFD2_100%)]">
+    <div className={`w-full bg-[linear-gradient(160deg,#2B2B2E_0%,#0A0A0B_55%,#1A1A1D_100%)] p-1.5 shadow-[0_18px_44px_-18px_rgba(0,0,0,0.9)] ring-1 ring-inset ring-white/10 ${embedded ? "min-h-dvh rounded-none" : "rounded-[16px]"}`}>
+      <div className={`relative w-full overflow-hidden bg-[linear-gradient(180deg,#4FB6CE_0%,#7ACBD6_38%,#BFE0CC_66%,#F3E4B4_88%,#F7EFD2_100%)] ${embedded ? "h-[calc(100dvh-0.75rem)] rounded-[10px]" : "aspect-[9/16] max-h-[calc(100vh-132px)] rounded-[12px] sm:aspect-[16/10] sm:max-h-none"}`}>
         {/* premium cinematic vignette + top sheen */}
         <div
           className="pointer-events-none absolute inset-0 z-[5]"

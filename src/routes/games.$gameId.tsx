@@ -1799,7 +1799,9 @@ function DragonTigerPanel({
 function GamePage() {
   const embed = useEmbed();
   const shell = (w: string) =>
-    embed ? "mx-auto w-full max-w-full px-0 py-0" : `mx-auto ${w} px-2 py-4 sm:px-4 sm:py-5`;
+    embed
+      ? "mx-auto min-h-dvh w-full max-w-full bg-table-felt px-0 py-0"
+      : `mx-auto ${w} px-2 py-4 sm:px-4 sm:py-5`;
   const { gameId } = Route.useParams();
   const isMobileView = useIsMobile();
   const { admin, cfg } = useAdminConfig();
