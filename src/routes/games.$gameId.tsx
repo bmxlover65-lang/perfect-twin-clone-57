@@ -1801,7 +1801,7 @@ function GamePage() {
   const shell = (w: string) =>
     embed
       ? "mx-auto min-h-dvh w-full max-w-full bg-table-felt px-0 py-0"
-      : `mx-auto ${w} px-2 py-4 sm:px-4 sm:py-5`;
+      : `mx-auto ${w} px-4 py-3 sm:py-5`;
   const { gameId } = Route.useParams();
   const isMobileView = useIsMobile();
   const { admin, cfg } = useAdminConfig();
@@ -2129,7 +2129,7 @@ function GamePage() {
               {cleanGameName(d?.eventName) ?? "Loading game…"}
             </h1>
             <p className="mt-1 flex flex-wrap items-center gap-2 text-[0.8rem] font-bold text-foreground/80">
-              <span>RID: {d?.roundId ?? "—"}</span> <BalanceChip />
+              <span>RID: {d?.roundId ?? "—"}</span>
             </p>
           </div>
         )}
@@ -2265,12 +2265,11 @@ function GamePage() {
             <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
               Live · Universe Live
             </p>
-            <h1 className="mt-1 text-lg font-bold text-foreground sm:text-2xl">
+            <h1 className="mt-1 text-[1.35rem] font-extrabold leading-tight text-foreground sm:text-2xl">
               {cleanGameName(d?.eventName) ?? "Loading game…"}
             </h1>
           </div>
           <span className="flex shrink-0 flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-2">
-            <BalanceChip />
             <span className="flex items-center gap-2 rounded-full bg-live-pill px-3 py-1 text-sm font-semibold text-live-pill-foreground">
               <span className="h-2 w-2 rounded-full bg-current" /> Live
             </span>
@@ -2283,7 +2282,7 @@ function GamePage() {
 
       <div
         ref={stageRef}
-        className={`relative overflow-hidden bg-black ${embed ? "" : "mt-4 rounded-md"}`}
+        className={`relative overflow-hidden bg-black ${embed ? "" : "mt-4 rounded-none sm:rounded-md"}`}
       >
 
         {stream ? (
@@ -2328,7 +2327,7 @@ function GamePage() {
         round={String(d?.roundId ?? "")}
         disabled={suspended}
       >
-        <Fit designWidth={isMobileView ? 430 : 860}>
+        <Fit designWidth={860}>
         {gameId === "99.0014" && markets.length ? (
           <MuflisPanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0018" && markets.length ? (
