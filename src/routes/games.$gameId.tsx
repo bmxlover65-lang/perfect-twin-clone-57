@@ -1877,11 +1877,18 @@ function GamePage() {
   // (OPEN -> SUSPENDED/CLOSED) — instantly refreshes the result plates,
   // plus a short burst so the declared winner lands without a manual reload.
   useEffect(() => {
+    if (NO_FEED.has(gameId)) return;
     let alive = true;
-    const run = () =>
-      fetchCasinoResults(gameId)
+    let dead = false;
+    const run = () => {
+      if (dead) return;
+      return fetchCasinoResults(gameId)
         .then((r) => alive && setResults(r.data ?? []))
-        .catch(() => undefined);
+        .catch((e: unknown) => {
+          const msg = e instanceof Error ? e.message : "";
+          if (/unknown game|valid eventid required|\(40\d\)/i.test(msg)) dead = true;
+        });
+    };
     void run();
     const burst = [200, 500, 900, 1400, 2000, 2800].map((ms) => setTimeout(run, ms));
     const t = setInterval(run, 600);
@@ -1891,7 +1898,9 @@ function GamePage() {
       burst.forEach(clearTimeout);
       clearInterval(t);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameId, roundKey, feedStatus]);
+
 
   // auto settlement — every finished round settles my open bets
   useEffect(() => {
