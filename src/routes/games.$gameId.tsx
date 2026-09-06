@@ -1803,7 +1803,6 @@ function GamePage() {
       ? "mx-auto min-h-dvh w-full max-w-full bg-table-felt px-0 py-0"
       : `mx-auto ${w} px-4 py-3 sm:py-5`;
   const { gameId } = Route.useParams();
-  const isMobileView = useIsMobile();
   const { admin, cfg } = useAdminConfig();
   const [state, setState] = useState<CasinoState | null>(null);
   const [results, setResults] = useState<CasinoResult[]>([]);
