@@ -87,8 +87,8 @@ function Lobby() {
   const fromApi = games.length ? games.map(toDef) : GAMES;
   const extras = GAMES.filter((g) => !fromApi.some((x) => x.id === g.id));
   const raw = [...fromApi, ...extras];
-  // VIMAAN always first, Ball by Ball always last.
-  const rank = (id: string) => (id === VIMAAN ? -1 : id === BBB ? 1 : 0);
+  // Keep the two instant games together at the top of the lobby.
+  const rank = (id: string) => (id === VIMAAN ? -2 : id === BBB ? -1 : 0);
   const list = [...raw].sort((a, b) => rank(a.id) - rank(b.id));
 
 
