@@ -2133,15 +2133,19 @@ function GamePage() {
           </Link>
 
         )}
-        <p className="mt-2 text-[0.7rem] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-          Live · Universe Original
-        </p>
-        <h1 className="text-[1.35rem] font-extrabold uppercase text-foreground">
-          {cleanGameName(d?.eventName) ?? "Loading game…"}
-        </h1>
-        <p className="mt-1 flex flex-wrap items-center gap-2 text-[0.8rem] font-bold text-foreground/80">
-          <span>RID: {d?.roundId ?? "—"}</span> <BalanceChip />
-        </p>
+        {embed ? null : (
+          <div className="mt-2">
+            <p className="text-[0.7rem] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+              Live · Universe Original
+            </p>
+            <h1 className="text-[1.35rem] font-extrabold uppercase text-foreground">
+              {cleanGameName(d?.eventName) ?? "Loading game…"}
+            </h1>
+            <p className="mt-1 flex flex-wrap items-center gap-2 text-[0.8rem] font-bold text-foreground/80">
+              <span>RID: {d?.roundId ?? "—"}</span> <BalanceChip />
+            </p>
+          </div>
+        )}
 
 
         {error ? <p className="mt-3 text-sm text-live-lose">{error}</p> : null}
@@ -2220,7 +2224,7 @@ function GamePage() {
         >
           <Fit mobileNative designWidth={900}>
           {gameId === "88.0021" ? (
-            <div className="mt-2">
+            <div>
               <HeadsTailsPanel
                 runners={(markets[0]?.runners ?? []).map((r) => ({
                   id: String(r.selectionId),
