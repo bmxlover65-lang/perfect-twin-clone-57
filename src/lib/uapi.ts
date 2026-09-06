@@ -84,8 +84,16 @@ export type Sport = { sportId: string; sportName: string };
 
 const BASE = "/api/public/uapi";
 
-async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE}/${path}`, { headers: { accept: "application/json" } });
+async function get<T>(path: string, live = false): Promise<T> {
+  const separator = path.includes("?") ? "&" : "?";
+  const url = live ? `${BASE}/${path}${separator}_=${Date.now()}` : `${BASE}/${path}`;
+  const res = await fetch(url, {
+    cache: live ? "no-store" : "default",
+    headers: {
+      accept: "application/json",
+      ...(live ? { "cache-control": "no-cache" } : {}),
+    },
+  });
   const json = (await res.json().catch(() => ({}))) as T & { error?: string };
   if (!res.ok) throw new Error(json.error ?? `Request failed (${res.status})`);
   return json;
@@ -97,12 +105,13 @@ export function fetchSports() {
 
 export function fetchEvents(sportId: string, inPlay?: boolean) {
   const q = inPlay === true ? "?inPlay=1" : inPlay === false ? "?inPlay=0" : "";
-  return get<EventsResponse>(`sports/${encodeURIComponent(sportId)}/events${q}`);
+  return get<EventsResponse>(`sports/${encodeURIComponent(sportId)}/events${q}`, true);
 }
 
 export function fetchOdds(sportId: string, exEventId: string) {
   return get<OddsResponse>(
     `sports/${encodeURIComponent(sportId)}/${encodeURIComponent(exEventId)}/odds`,
+    true,
   );
 }
 

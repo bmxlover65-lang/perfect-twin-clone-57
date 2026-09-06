@@ -10,6 +10,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Error toasts: "You have Insufficient Balance.", "Do Not Place Bet At The Same Time."
 - [x] All casino market boards wrapped in `BetLayer` (games.$gameId)
 - [x] Sports event markets (match odds, bookmaker, fancy, sportsbook) betting
+- [x] Sports live-rate refresh uses uncached requests and ignores late stale responses
 - [ ] Self-generated games (Balloon, Dream, Lucky 0-9, Coin, Aviator) — verify stake debit + payout credit against the real result
 
 ## Phase 2 — Cloud backend (done)
