@@ -232,7 +232,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-background">
+      <div className={embed ? "min-h-dvh bg-table-felt" : "min-h-screen bg-background"}>
         {embed ? null : <SiteHeader />}
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
