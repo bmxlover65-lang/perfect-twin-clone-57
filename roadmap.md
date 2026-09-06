@@ -59,3 +59,9 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [ ] Amar Akbar Anthony: rate box (Odd/Even, Colour, Under/Over) + cards
 - [~] VIMAAN: spelling + lobby order done; flying/result pending
 - [ ] Balloon: visuals, recent result, flying like original
+
+## Phase 7 — Royal444 full casino structure parity (pending reference access)
+- [ ] Audit the reference casino lobby and every casino game page at mobile width
+- [ ] Match shared casino navigation, header, game shell, market boxes, colors and spacing
+- [ ] Apply the same structure across all casino pages on universeapi.store
+- [ ] Verify every casino page at mobile and desktop widths
