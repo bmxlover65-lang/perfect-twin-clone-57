@@ -165,7 +165,7 @@ function ThemeToggle() {
   const label = dark ? "Light mode" : "Dark mode";
 
   return (
-    <div className="group relative">
+    <div className="group relative hidden sm:block">
       <button
         type="button"
         aria-label={label}
@@ -189,7 +189,7 @@ function ThemeToggle() {
 function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-nav-foreground/10 bg-nav">
-      <div className="mx-auto flex min-h-[60px] max-w-[1600px] items-center justify-between gap-3 px-4 py-2">
+      <div className="mx-auto grid min-h-[76px] max-w-[1600px] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 py-2 sm:flex sm:min-h-[60px] sm:justify-between sm:gap-3">
         <Link to="/" className="flex shrink-0 items-center gap-2 sm:gap-3">
           <img
             src="/favicon.svg"
@@ -200,7 +200,7 @@ function SiteHeader() {
             Universal API
           </span>
         </Link>
-        <nav className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1 sm:gap-5">
+        <nav className="flex min-w-0 items-center justify-end gap-x-3 sm:flex-wrap sm:gap-x-5 sm:gap-y-1">
           {NAV.map((item) => (
             <Link
               key={item.to}
