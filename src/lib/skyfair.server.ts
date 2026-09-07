@@ -229,22 +229,37 @@ export async function backupOdds(sportId: string, exEventId: string, eventName?:
       { price: num(r.lay11), size: num(r.lay2size) },
       { price: num(r.lay22), size: num(r.lay3size) },
     ];
+    const raw = (r.status ?? "ACTIVE").toUpperCase();
+    // Once the exchange settles the market it flags the winning runner; map
+    // that onto the WINNER / LOSER statuses the app settles bets from.
+    const status = /WIN/.test(raw)
+      ? "WINNER"
+      : /LOSE|LOSS/.test(raw)
+        ? "LOSER"
+        : settled
+          ? "LOSER"
+          : raw;
     return {
       selectionId: id,
-      status: (r.status ?? "ACTIVE").toUpperCase(),
+      status,
       handicap: 0,
       price: { back, lay },
     };
   });
 
+  const winner = runners.find((r) => r.status === "WINNER");
+
   return {
     exEventId,
     eventName: name || rows[0]?.Runnername || "",
     sportId,
-    inPlay: true,
+    inPlay: !settled,
     source: "backup",
     updatedAt: new Date().toISOString(),
     totalMatched: num(rows[0]?.totalMatched),
+    ...(winner
+      ? { result: runnersData[winner.selectionId] ?? "", resultAt: new Date().toISOString() }
+      : {}),
     matchOdds: [
       {
         marketId: `sf-${betfairId}`,
@@ -252,8 +267,8 @@ export async function backupOdds(sportId: string, exEventId: string, eventName?:
         marketType: "MATCH_ODDS",
         runnersData,
         oddsData: {
-          status: (rows[0]?.match_status ?? "OPEN").toUpperCase(),
-          inPlay: true,
+          status: settled ? "CLOSED" : marketStatus,
+          inPlay: !settled,
           betDelay: 0,
           totalMatched: num(rows[0]?.totalMatched),
           runners,
