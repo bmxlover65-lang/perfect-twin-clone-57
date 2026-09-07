@@ -428,7 +428,10 @@ function freshestMarkets(splat: string, text: string): string {
     list.forEach((market, i) => {
       const id = market?.marketId ?? market?.marketName;
       if (!id) return;
+      // Line markets (Over/Under, totals) always take the newest payload.
+      if (/over|under|goals|total/i.test(market?.marketName ?? "")) return;
       const key = `${splat}|${id}`;
+
       const matched = Number(market?.oddsData?.totalMatched ?? 0);
       const prev = marketGenerations.get(key);
       // Older generation than one we already served: replay the newer state, but
