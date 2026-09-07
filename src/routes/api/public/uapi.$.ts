@@ -444,6 +444,8 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
 
   } catch (error) {
     if (isSportsPath(splat)) {
+      const alt = await backupSports(splat).catch(() => null);
+      if (alt) return alt;
       const snap = snapshotResponse(snapshotKey, 0);
       if (snap) return snap;
     }
