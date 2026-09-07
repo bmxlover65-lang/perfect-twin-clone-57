@@ -338,13 +338,13 @@ export function BetLayer({
               : undefined;
             if (runnerRow) {
               const rowBox = runnerRow.getBoundingClientRect();
-              exposureX = rowBox.left - rootBox.left + 10;
-              exposureY = rowBox.top - rootBox.top + 35;
+              exposureX = u(rowBox.left - rootBox.left) + 10;
+              exposureY = u(rowBox.top - rootBox.top) + 35;
             }
             if (opponent) {
               const opponentBox = opponent.getBoundingClientRect();
-              oppositeX = opponentBox.left - rootBox.left + 10;
-              oppositeY = opponentBox.top - rootBox.top + 35;
+              oppositeX = u(opponentBox.left - rootBox.left) + 10;
+              oppositeY = u(opponentBox.top - rootBox.top) + 35;
             }
           }
 
