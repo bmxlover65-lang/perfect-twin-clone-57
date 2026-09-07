@@ -425,13 +425,17 @@ function freshestMarkets(splat: string, text: string): string {
       const key = `${splat}|${id}`;
       const matched = Number(market?.oddsData?.totalMatched ?? 0);
       const prev = marketGenerations.get(key);
-      // Older generation than one we already served: replay the newer state.
-      if (prev && prev.matched > matched && now - prev.at < 60_000) {
+      // Older generation than one we already served: replay the newer state, but
+      // only for a moment. Thinly traded markets (Over/Under, lines) report a
+      // flat or wobbling totalMatched, so a long replay window froze their
+      // prices for seconds behind the reference board.
+      if (prev && prev.matched > matched && now - prev.at < 1200) {
         list[i] = prev.market;
         changed = true;
         return;
       }
       marketGenerations.set(key, { at: now, matched, market });
+
     });
   }
   if (marketGenerations.size > 4000) {
