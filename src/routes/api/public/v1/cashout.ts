@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { authenticateOperator, jsonError } from "@/lib/operator-auth.server";
+import { authenticateOperator, isPassthrough, jsonError } from "@/lib/operator-auth.server";
 import { walletCall } from "@/lib/callback-wallet.server";
 
 const schema = z.object({
@@ -24,6 +24,10 @@ export const Route = createFileRoute("/api/public/v1/cashout")({
           );
         }
         const { userId, reference, multiplier } = parsed.data;
+
+        if (isPassthrough(auth)) {
+          return Response.json({ status: "ok", mode: "passthrough", payout: 0 });
+        }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data: bet } = await supabaseAdmin
