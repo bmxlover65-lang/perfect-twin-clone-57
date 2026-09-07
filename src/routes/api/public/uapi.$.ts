@@ -553,7 +553,8 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
       token = await getToken(true);
       res = await upstream(splat, search, token, body);
     }
-    const text = await res.text();
+    const text = freshestMarkets(splat, await res.text());
+
     const resultsMatch = /^games\/([^/]+)\/results$/.exec(splat);
     // Upstream currently 502s on some casino endpoints (e.g. /results).
     // Degrade gracefully instead of surfacing a 502 to the app.
