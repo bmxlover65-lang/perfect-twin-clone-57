@@ -309,6 +309,7 @@ export function BetLayer({
 
   return (
     <div
+      data-bet-root=""
       className="relative"
       onClickCapture={(e) => {
         if (disabled) return;
