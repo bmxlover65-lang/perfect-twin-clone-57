@@ -310,11 +310,19 @@ function EventPage() {
       if (Date.now() - lastSocketMessage.current > 900) void load();
     }, 300);
 
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void load();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+
     const a = setInterval(() => setAge((v) => v + 1), 1000);
     return () => {
       active = false;
       clearInterval(t);
       clearInterval(a);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
       if (reconnect) clearTimeout(reconnect);
       if (socket) {
         socket.onclose = null;
@@ -323,6 +331,7 @@ function EventPage() {
       }
     };
   }, [load, sportId, eventId]);
+
 
 
   const matchOdds = data?.matchOdds ?? [];
