@@ -303,7 +303,7 @@ export function BetLayer({
         return next;
       });
     }
-    setSuccess("Casino BetPlace Successful.");
+    setSuccess(`Bet Placed · ${pickLabel} @ ${odds} · ${Math.round(stake)}`);
 
   };
 
