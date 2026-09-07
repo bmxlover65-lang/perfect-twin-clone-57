@@ -229,8 +229,10 @@ async function mirrorResults(eventId: string): Promise<unknown[]> {
 // good frame keeps the board rendered instead of blanking the whole page.
 const sportsSnapshot = new Map<string, { at: number; text: string }>();
 
+// Snapshot every live feed path (sports odds/events and casino state), so an
+// outage on any provider still renders the last known prices and results.
 function isSportsPath(splat: string) {
-  return /^sports\//.test(splat);
+  return /^sports\//.test(splat) || /^games(\/|$)/.test(splat);
 }
 
 function sportsSnapshotKey(splat: string, search: string) {
