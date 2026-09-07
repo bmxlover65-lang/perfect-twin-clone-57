@@ -369,7 +369,22 @@ export function BetLayer({
               if (opposite) oppositeEl = opposite;
               break;
             }
+            if (!oppositeEl) {
+              // Some boards nest the two plates deeper: look for a block holding
+              // exactly two price cells and take the other one.
+              let block: HTMLElement | null = p.element.parentElement;
+              for (let i = 0; i < 6 && block && block !== root; i++, block = block.parentElement) {
+                const cells = Array.from(block.querySelectorAll<HTMLElement>("*")).filter(
+                  (el) => isPriceCell(el, root) && oddsOf(el) != null,
+                );
+                if (cells.length === 2) {
+                  oppositeEl = cells.find((el) => el !== p.element && !el.contains(p.element) && !p.element.contains(el));
+                  if (oppositeEl) break;
+                }
+              }
+            }
           }
+
           cellPos.current = { cell: cellEl, opposite: oppositeEl };
 
           // Anchor the slip right below the row that was clicked.
