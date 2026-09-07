@@ -389,10 +389,23 @@ export function BetLayer({
       {children}
 
       {chips.flatMap((c) => {
+        const root = rootRef.current;
+        if (!root || !c.cell.isConnected) return [];
+        const rootBox = root.getBoundingClientRect();
+        const scale = rootBox.width / (root.offsetWidth || rootBox.width) || 1;
+        const at = (el: HTMLElement) => {
+          const b = el.getBoundingClientRect();
+          if (exposureLayout === "sports") {
+            return { x: (b.left - rootBox.left) / scale + 10, y: (b.top - rootBox.top) / scale + 35 };
+          }
+          return {
+            x: (b.left + b.width / 2 - rootBox.left) / scale,
+            y: (b.bottom - rootBox.top) / scale - 4,
+          };
+        };
         const exposure = (
           key: string,
-          x: number,
-          y: number,
+          pos: { x: number; y: number },
           label: "L" | "P",
           value: number,
           tone: string,
@@ -402,7 +415,7 @@ export function BetLayer({
             className={`pointer-events-none absolute z-[60] whitespace-nowrap text-[0.72rem] font-semibold leading-none text-casino-market-text ${
               exposureLayout === "market" ? "-translate-x-1/2" : ""
             }`}
-            style={{ left: `${x}px`, top: `${y}px` }}
+            style={{ left: `${pos.x}px`, top: `${pos.y}px` }}
           >
             {exposureLayout === "sports" ? null : `${label} : `}
             <strong className={tone}>
@@ -411,15 +424,15 @@ export function BetLayer({
             </strong>
           </span>
         );
+        const own = at(c.cell);
         const figures = exposureLayout === "sports"
-          ? [exposure(`${c.id}-profit`, c.x, c.y, "P", c.profit, "text-live-win")]
-          : [exposure(`${c.id}-loss`, c.x, c.y, "L", -Math.round(c.amount), "text-live-lose")];
-        if (c.oppositeX != null) {
+          ? [exposure(`${c.id}-profit`, own, "P", c.profit, "text-live-win")]
+          : [exposure(`${c.id}-loss`, own, "L", -Math.round(c.amount), "text-live-lose")];
+        if (c.opposite && c.opposite.isConnected) {
           figures.push(
             exposure(
               `${c.id}-${exposureLayout === "sports" ? "loss" : "profit"}`,
-              c.oppositeX,
-              c.oppositeY ?? c.y,
+              at(c.opposite),
               exposureLayout === "sports" ? "L" : "P",
               exposureLayout === "sports" ? -c.amount : Math.round(c.profit),
               exposureLayout === "sports" ? "text-live-lose" : "text-live-win",
@@ -428,6 +441,7 @@ export function BetLayer({
         }
         return figures;
       })}
+
 
       {err ? <ErrorToast message={err} onDone={() => setErr(null)} /> : null}
       {success ? <SuccessToast message={success} onDone={() => setSuccess(null)} /> : null}
