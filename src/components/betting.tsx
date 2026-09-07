@@ -329,7 +329,7 @@ export function BetLayer({
           cellPos.current = {
             x: cellBox.left + cellBox.width / 2 - rootBox.left,
             oppositeX,
-            y: cellBox.bottom - rootBox.top + 10,
+            y: cellBox.bottom - rootBox.top - 2,
           };
           // Anchor the slip right below the row that was clicked.
           let row: HTMLElement = target;
@@ -358,7 +358,7 @@ export function BetLayer({
         ) => (
           <span
             key={key}
-            className="pointer-events-none absolute z-[60] -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[0.82rem] font-medium leading-none text-casino-market-text"
+            className="pointer-events-none absolute z-[60] -translate-x-1/2 -translate-y-full whitespace-nowrap text-[0.72rem] font-semibold leading-none text-casino-market-text"
             style={{ left: `${x}px`, top: `${c.y}px` }}
           >
             {label} : <strong className={tone}>{value.toLocaleString("en-IN")}</strong>
