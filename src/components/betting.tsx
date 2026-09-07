@@ -200,20 +200,36 @@ export function BetLayer({
   // Reference-style liability/profit figures shown directly below the market plates.
   const [chips, setChips] = useState<{
     id: number;
-    x: number;
-    oppositeX?: number | undefined;
-    oppositeY?: number | undefined;
-    y: number;
+    cell: HTMLElement;
+    opposite?: HTMLElement | undefined;
     amount: number;
     profit: number;
   }[]>([]);
+  const rootRef = useRef<HTMLDivElement | null>(null);
   const cellPos = useRef<{
-    x: number;
-    oppositeX?: number | undefined;
-    oppositeY?: number | undefined;
-    y: number;
+    cell: HTMLElement;
+    opposite?: HTMLElement | undefined;
   } | null>(null);
+  // Positions are re-measured from the live DOM so the figures stay glued to
+  // their plates when the board reflows after a bet.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (!chips.length) return;
+    const bump = () => setTick((t) => t + 1);
+    const ro = new ResizeObserver(bump);
+    if (rootRef.current) ro.observe(rootRef.current);
+    window.addEventListener("resize", bump);
+    window.addEventListener("scroll", bump, true);
+    const id = window.setInterval(bump, 400);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", bump);
+      window.removeEventListener("scroll", bump, true);
+      window.clearInterval(id);
+    };
+  }, [chips.length]);
   const busy = useRef(false);
+
   const wallet = useWallet();
   const embed = useEmbed();
 
