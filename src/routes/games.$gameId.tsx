@@ -425,12 +425,12 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
 
   return (
     <div className="mt-0">
-      <header className="flex h-[34px] items-center justify-between gap-2 bg-casino-market-header px-2">
-        <h3 className="truncate whitespace-nowrap text-[0.78rem] font-extrabold uppercase tracking-[0.02em] text-board-header-foreground">
+      <header className="flex h-[26px] items-center justify-between gap-2 bg-casino-market-header px-2">
+        <h3 className="truncate whitespace-nowrap text-[0.8rem] font-extrabold uppercase tracking-[0.02em] text-board-header-foreground">
           {market.marketName}
         </h3>
-        <span className="shrink-0 whitespace-nowrap text-[0.66rem] font-semibold text-board-header-foreground/85">
-          Min/Max: {market.min ?? 0} - {market.max ?? 0}
+        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-board-header-foreground text-[0.65rem] font-black text-casino-market-header">
+          i
         </span>
 
       </header>
@@ -445,7 +445,7 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                 key={String(r.selectionId)}
                 className={`min-w-0 ${last ? "col-span-2 mx-auto w-[calc(50%-0.5rem)]" : ""}`}
               >
-                <div className="px-1 pb-1 text-center text-[0.72rem] font-bold uppercase text-casino-market-text">
+                <div className="px-1 pb-1 text-center text-[0.8rem] font-semibold uppercase text-casino-market-text">
                   {(() => {
                     const label = String(names[String(r.selectionId)] ?? r.selectionId).trim();
                     return /CARD/i.test(market.marketName ?? "") && RANKS.includes(label.toUpperCase())
@@ -454,17 +454,17 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                   })()}
                 </div>
 
-                <div className="relative flex h-[42px] flex-col items-center justify-center rounded-[5px] border border-casino-market-divider bg-casino-market-rate text-casino-market-text shadow-sm">
+                <div className="relative mx-auto flex h-[48px] w-[110px] max-w-full flex-col items-center justify-center rounded-[6px] bg-casino-market-rate text-casino-market-text shadow-[0_4px_10px_color-mix(in_oklab,var(--casino-market-header)_28%,transparent)] sm:h-[56px] sm:w-[150px]">
                   {locked ? (
                     <span className="absolute inset-0 flex items-center justify-center rounded-[6px] bg-black/35 text-sm">
                       🔒
                     </span>
                   ) : (
                     <>
-                      <span className="text-[0.95rem] font-extrabold leading-none">
+                      <span className="text-[1.1rem] font-bold leading-none">
                         {fmtOdds(p?.price)}
                       </span>
-                      <span className="mt-0.5 text-[0.66rem] font-semibold text-casino-market-text/75">
+                      <span className="mt-1 text-[0.7rem] font-normal leading-none text-casino-market-text/90">
                         {fmtSize(p?.size)}
                       </span>
                     </>
