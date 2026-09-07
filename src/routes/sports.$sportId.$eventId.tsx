@@ -153,7 +153,10 @@ function Board({ market }: { market: Market }) {
 
 
   return (
-    <div className="overflow-hidden rounded-md bg-ex-row">
+    <div
+      className={`overflow-hidden rounded-md bg-ex-row ${dim ? "ring-1 ring-ex-suspend/70" : ""}`}
+    >
+
       <BoardHeader
         name={market.marketName.trim()}
         matched={odds?.totalMatched}
