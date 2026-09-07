@@ -340,11 +340,8 @@ export function BetLayer({
           // pixels, but absolutely-positioned chips use unscaled layout units.
           const scale = rootBox.width / (root.offsetWidth || rootBox.width) || 1;
           const u = (v: number) => v / scale;
-          const cellBox = p.element.getBoundingClientRect();
-          let oppositeX: number | undefined;
-          let oppositeY: number | undefined;
-          let exposureX = u(cellBox.left + cellBox.width / 2 - rootBox.left);
-          let exposureY = u(cellBox.bottom - rootBox.top) - 6;
+          let cellEl: HTMLElement = p.element;
+          let oppositeEl: HTMLElement | undefined;
 
           if (exposureLayout === "sports") {
             const runnerRow = p.element.closest<HTMLElement>("[data-runner-row]");
@@ -354,16 +351,8 @@ export function BetLayer({
                   (candidate) => candidate !== runnerRow,
                 )
               : undefined;
-            if (runnerRow) {
-              const rowBox = runnerRow.getBoundingClientRect();
-              exposureX = u(rowBox.left - rootBox.left) + 10;
-              exposureY = u(rowBox.top - rootBox.top) + 35;
-            }
-            if (opponent) {
-              const opponentBox = opponent.getBoundingClientRect();
-              oppositeX = u(opponentBox.left - rootBox.left) + 10;
-              oppositeY = u(opponentBox.top - rootBox.top) + 35;
-            }
+            if (runnerRow) cellEl = runnerRow;
+            if (opponent) oppositeEl = opponent;
           }
 
           if (exposureLayout === "market") {
@@ -376,19 +365,12 @@ export function BetLayer({
               if (priceCells.length !== 2) continue;
               const currentIndex = priceCells.indexOf(pairNode);
               const opposite = currentIndex === 0 ? priceCells[1] : currentIndex === 1 ? priceCells[0] : undefined;
-              if (opposite) {
-                const oppositeBox = opposite.getBoundingClientRect();
-                oppositeX = u(oppositeBox.left + oppositeBox.width / 2 - rootBox.left);
-              }
+              if (opposite) oppositeEl = opposite;
               break;
             }
           }
-          cellPos.current = {
-            x: exposureX,
-            oppositeX,
-            oppositeY,
-            y: exposureY,
-          };
+          cellPos.current = { cell: cellEl, opposite: oppositeEl };
+
           // Anchor the slip right below the row that was clicked.
           let row: HTMLElement = target;
           const rootW = rootBox.width;
