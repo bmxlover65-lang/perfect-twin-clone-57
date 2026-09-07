@@ -4,6 +4,7 @@ import { playerSession } from "@/lib/player";
 import { useEmbed } from "@/lib/embed";
 
 export type Pick = { label: string; odds: number };
+type ExtractedPick = Pick & { element: HTMLElement };
 
 const CHIPS = [100, 200, 500, 1000, 2000, 5000, 10000, 25000, 50000, 100000];
 
@@ -57,7 +58,7 @@ function isPriceCell(el: HTMLElement, root: HTMLElement): boolean {
 }
 
 /** Reads an odds cell out of any market board without touching every panel. */
-function extractPick(target: HTMLElement, root: HTMLElement): Pick | null {
+function extractPick(target: HTMLElement, root: HTMLElement): ExtractedPick | null {
   // Never treat media / inputs / explicitly opted-out areas as a bet click.
   if (target.closest("iframe,video,img,input,textarea,select,a,[data-nobet]")) return null;
 
@@ -97,10 +98,10 @@ function extractPick(target: HTMLElement, root: HTMLElement): Pick | null {
     const lab = txt.match(/[A-Za-z]{3,}(?:[ '&+-][A-Za-z]{2,})*/);
     if (lab) {
       const base = lab[0].trim();
-      return { label: side ? `${base} ${side}` : base, odds };
+      return { label: side ? `${base} ${side}` : base, odds, element: node };
     }
   }
-  return { label: side ? `Player ${side}` : "Selection", odds };
+  return { label: side ? `Player ${side}` : "Selection", odds, element: node };
 }
 
 
@@ -194,9 +195,16 @@ export function BetLayer({
   const [stake, setStake] = useState(DEFAULT_STAKE);
   const [err, setErr] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  // Chips shown under the market cell the user bet on (cleared each round).
-  const [chips, setChips] = useState<{ id: number; x: number; y: number; amount: number }[]>([]);
-  const cellPos = useRef<{ x: number; y: number } | null>(null);
+  // Reference-style liability/profit figures shown directly below the market plates.
+  const [chips, setChips] = useState<{
+    id: number;
+    x: number;
+    oppositeX?: number;
+    y: number;
+    amount: number;
+    profit: number;
+  }[]>([]);
+  const cellPos = useRef<{ x: number; oppositeX?: number; y: number } | null>(null);
   const busy = useRef(false);
   const wallet = useWallet();
   const embed = useEmbed();
@@ -260,9 +268,27 @@ export function BetLayer({
       // Same selection bet again in the same round → one chip with the total.
       setChips((cur) => {
         const i = cur.findIndex((c) => Math.abs(c.x - pos.x) < 14 && Math.abs(c.y - pos.y) < 14);
-        if (i < 0) return [...cur, { id: Date.now(), x: pos.x, y: pos.y, amount: stake }];
+        if (i < 0) {
+          return [
+            ...cur,
+            {
+              id: Date.now(),
+              x: pos.x,
+              oppositeX: pos.oppositeX,
+              y: pos.y,
+              amount: stake,
+              profit: stake * Math.max(0, odds - 1),
+            },
+          ];
+        }
         const next = [...cur];
-        next[i] = { ...next[i]!, amount: next[i]!.amount + stake };
+        const current = next[i];
+        if (!current) return cur;
+        next[i] = {
+          ...current,
+          amount: current.amount + stake,
+          profit: current.profit + stake * Math.max(0, odds - 1),
+        };
         return next;
       });
     }
@@ -283,10 +309,27 @@ export function BetLayer({
         const p = extractPick(target, root);
         if (p) {
           const rootBox = root.getBoundingClientRect();
-          const cellBox = target.getBoundingClientRect();
+          const cellBox = p.element.getBoundingClientRect();
+          let oppositeX: number | undefined;
+          let pairNode: HTMLElement = p.element;
+          for (let i = 0; i < 4 && pairNode.parentElement; i++, pairNode = pairNode.parentElement) {
+            const priceCells = Array.from(pairNode.parentElement.children).filter(
+              (child): child is HTMLElement =>
+                child instanceof HTMLElement && isPriceCell(child, root) && oddsOf(child) != null,
+            );
+            if (priceCells.length !== 2) continue;
+            const currentIndex = priceCells.indexOf(pairNode);
+            const opposite = currentIndex === 0 ? priceCells[1] : currentIndex === 1 ? priceCells[0] : undefined;
+            if (opposite) {
+              const oppositeBox = opposite.getBoundingClientRect();
+              oppositeX = oppositeBox.left + oppositeBox.width / 2 - rootBox.left;
+            }
+            break;
+          }
           cellPos.current = {
             x: cellBox.left + cellBox.width / 2 - rootBox.left,
-            y: cellBox.bottom - rootBox.top - 8,
+            oppositeX,
+            y: cellBox.bottom - rootBox.top + 10,
           };
           // Anchor the slip right below the row that was clicked.
           let row: HTMLElement = target;
@@ -297,7 +340,7 @@ export function BetLayer({
           }
           const top = row.getBoundingClientRect().bottom - rootBox.top;
           setAnchor(Math.max(0, top));
-          setPick(p);
+          setPick({ label: p.label, odds: p.odds });
           setOdds(p.odds);
           setErr(null);
         }
@@ -305,15 +348,32 @@ export function BetLayer({
     >
       {children}
 
-      {chips.map((c) => (
-        <span
-          key={c.id}
-          className="pointer-events-none absolute z-[60] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#f2c14e] bg-[#1d4f8b] px-2 py-[3px] text-[0.6rem] font-extrabold text-white shadow-[0_2px_6px_rgba(0,0,0,0.45)]"
-          style={{ left: `${c.x}px`, top: `${c.y}px` }}
-        >
-          {Math.round(c.amount).toLocaleString("en-IN")}
-        </span>
-      ))}
+      {chips.flatMap((c) => {
+        const exposure = (
+          key: string,
+          x: number,
+          label: "L" | "P",
+          value: number,
+          tone: string,
+        ) => (
+          <span
+            key={key}
+            className="pointer-events-none absolute z-[60] -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[0.82rem] font-medium leading-none text-casino-market-text"
+            style={{ left: `${x}px`, top: `${c.y}px` }}
+          >
+            {label} : <strong className={tone}>{value.toLocaleString("en-IN")}</strong>
+          </span>
+        );
+        const figures = [
+          exposure(`${c.id}-loss`, c.x, "L", -Math.round(c.amount), "text-live-lose"),
+        ];
+        if (c.oppositeX != null) {
+          figures.push(
+            exposure(`${c.id}-profit`, c.oppositeX, "P", Math.round(c.profit), "text-live-win"),
+          );
+        }
+        return figures;
+      })}
 
       {err ? <ErrorToast message={err} onDone={() => setErr(null)} /> : null}
       {success ? <SuccessToast message={success} onDone={() => setSuccess(null)} /> : null}
