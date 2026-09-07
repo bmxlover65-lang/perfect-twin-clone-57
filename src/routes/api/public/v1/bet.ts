@@ -1,6 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { authenticateOperator, jsonError, productDenied, productOf } from "@/lib/operator-auth.server";
+import {
+  authenticateOperator,
+  isPassthrough,
+  jsonError,
+  productDenied,
+  productOf,
+} from "@/lib/operator-auth.server";
 import { walletCall } from "@/lib/callback-wallet.server";
 
 const schema = z.object({
