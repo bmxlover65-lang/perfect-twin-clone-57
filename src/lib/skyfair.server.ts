@@ -212,6 +212,9 @@ export async function backupOdds(sportId: string, exEventId: string, eventName?:
   const rows = parse<SfOddsRow>(text);
   if (!rows.length) return null;
 
+  const marketStatus = (rows[0]?.match_status ?? "OPEN").toUpperCase();
+  const settled = /CLOSED|SETTLED|RESULT/.test(marketStatus);
+
   const runnersData: Record<string, string> = {};
   const runners = rows.map((r, i) => {
     const id = `${eventCode}-${i}`;
