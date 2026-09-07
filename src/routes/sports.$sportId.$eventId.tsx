@@ -237,10 +237,13 @@ function EventPage() {
   const [error, setError] = useState<string | null>(null);
   const closedSince = useRef<number>(0);
   const requestId = useRef(0);
+  const inFlight = useRef(false);
   const [age, setAge] = useState(0);
 
 
   const load = useCallback(async () => {
+    if (inFlight.current) return;
+    inFlight.current = true;
     const currentRequest = ++requestId.current;
     try {
       const odds = await fetchOdds(sportId, eventId);
@@ -251,19 +254,24 @@ function EventPage() {
     } catch (e) {
       if (currentRequest !== requestId.current) return;
       setError(e instanceof Error ? e.message : "Failed to load odds");
+    } finally {
+      inFlight.current = false;
     }
   }, [sportId, eventId]);
 
   useEffect(() => {
     void load();
+    // Upstream refreshes prices every ~1s; poll faster so the board moves the
+    // same way the source board does.
     const t = setInterval(() => {
       if (typeof document !== "undefined" && document.hidden) return;
       void load();
-    }, 1000);
+    }, 400);
     const a = setInterval(() => setAge((v) => v + 1), 1000);
     return () => {
       clearInterval(t);
       clearInterval(a);
+
     };
   }, [load]);
 
