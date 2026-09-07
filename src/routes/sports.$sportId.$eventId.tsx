@@ -300,8 +300,9 @@ function EventPage() {
     // the provider itself is unavailable.
     const t = setInterval(() => {
       if (typeof document !== "undefined" && document.hidden) return;
-      if (Date.now() - lastSocketMessage.current > 2500) void load();
-    }, 800);
+      if (Date.now() - lastSocketMessage.current > 900) void load();
+    }, 300);
+
     const a = setInterval(() => setAge((v) => v + 1), 1000);
     return () => {
       active = false;
