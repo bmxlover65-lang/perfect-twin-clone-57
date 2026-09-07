@@ -8,12 +8,6 @@ export type Operator = {
   callback_secret: string | null;
   status: string;
   plan_expires_at: string | null;
-  /**
-   * true  → bets stay entirely on the operator's own platform: we never debit,
-   *         credit or store the bet, so their turnover/GGR never touches us.
-   * false → legacy mode where this platform runs the wallet and bet ledger.
-   */
-  bet_passthrough: boolean;
 };
 
 export type AuthFailure = { ok: false; status: number; error: string; code: string };
@@ -70,9 +64,7 @@ export async function authenticateOperator(request: Request): Promise<AuthResult
 
   const { data: operator } = await supabaseAdmin
     .from("operators")
-    .select(
-      "id, name, currency, callback_url, callback_secret, status, plan_expires_at, products, bet_passthrough",
-    )
+    .select("id, name, currency, callback_url, callback_secret, status, plan_expires_at, products")
     .eq("id", keyRow.operator_id)
     .maybeSingle();
 
@@ -132,17 +124,7 @@ export async function authenticateOperator(request: Request): Promise<AuthResult
   const keyProducts = ((keyRow as { products?: string[] }).products ?? ["casino", "sports"]) as Product[];
   const products = keyProducts.filter((p) => opProducts.includes(p));
 
-  const op = {
-    ...(operator as Operator),
-    bet_passthrough: (operator as { bet_passthrough?: boolean }).bet_passthrough !== false,
-  } as Operator;
-
-  return { ok: true, operator: op, apiKeyId: keyRow.id, ip, products };
-}
-
-/** Operator keeps its own bet ledger — nothing about the bet is stored here. */
-export function isPassthrough(auth: AuthSuccess): boolean {
-  return auth.operator.bet_passthrough !== false;
+  return { ok: true, operator: operator as Operator, apiKeyId: keyRow.id, ip, products };
 }
 
 /**

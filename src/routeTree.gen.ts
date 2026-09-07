@@ -29,7 +29,6 @@ import { Route as ApiPublicV1BetsRouteImport } from './routes/api/public/v1/bets
 import { Route as ApiPublicV1CashoutRouteImport } from './routes/api/public/v1/cashout'
 import { Route as ApiPublicV1GamesRouteImport } from './routes/api/public/v1/games'
 import { Route as ApiPublicV1MeRouteImport } from './routes/api/public/v1/me'
-import { Route as ApiPublicV1ResultsRouteImport } from './routes/api/public/v1/results'
 import { Route as ApiPublicV1SettleRouteImport } from './routes/api/public/v1/settle'
 
 const IndexRoute = IndexRouteImport.update({
@@ -131,11 +130,6 @@ const ApiPublicV1MeRoute = ApiPublicV1MeRouteImport.update({
   path: '/api/public/v1/me',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicV1ResultsRoute = ApiPublicV1ResultsRouteImport.update({
-  id: '/api/public/v1/results',
-  path: '/api/public/v1/results',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicV1SettleRoute = ApiPublicV1SettleRouteImport.update({
   id: '/api/public/v1/settle',
   path: '/api/public/v1/settle',
@@ -162,7 +156,6 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/cashout': typeof ApiPublicV1CashoutRoute
   '/api/public/v1/games': typeof ApiPublicV1GamesRoute
   '/api/public/v1/me': typeof ApiPublicV1MeRoute
-  '/api/public/v1/results': typeof ApiPublicV1ResultsRoute
   '/api/public/v1/settle': typeof ApiPublicV1SettleRoute
 }
 export interface FileRoutesByTo {
@@ -185,7 +178,6 @@ export interface FileRoutesByTo {
   '/api/public/v1/cashout': typeof ApiPublicV1CashoutRoute
   '/api/public/v1/games': typeof ApiPublicV1GamesRoute
   '/api/public/v1/me': typeof ApiPublicV1MeRoute
-  '/api/public/v1/results': typeof ApiPublicV1ResultsRoute
   '/api/public/v1/settle': typeof ApiPublicV1SettleRoute
 }
 export interface FileRoutesById {
@@ -210,7 +202,6 @@ export interface FileRoutesById {
   '/api/public/v1/cashout': typeof ApiPublicV1CashoutRoute
   '/api/public/v1/games': typeof ApiPublicV1GamesRoute
   '/api/public/v1/me': typeof ApiPublicV1MeRoute
-  '/api/public/v1/results': typeof ApiPublicV1ResultsRoute
   '/api/public/v1/settle': typeof ApiPublicV1SettleRoute
 }
 export interface FileRouteTypes {
@@ -235,7 +226,6 @@ export interface FileRouteTypes {
     | '/api/public/v1/cashout'
     | '/api/public/v1/games'
     | '/api/public/v1/me'
-    | '/api/public/v1/results'
     | '/api/public/v1/settle'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -258,7 +248,6 @@ export interface FileRouteTypes {
     | '/api/public/v1/cashout'
     | '/api/public/v1/games'
     | '/api/public/v1/me'
-    | '/api/public/v1/results'
     | '/api/public/v1/settle'
   id:
     | '__root__'
@@ -282,7 +271,6 @@ export interface FileRouteTypes {
     | '/api/public/v1/cashout'
     | '/api/public/v1/games'
     | '/api/public/v1/me'
-    | '/api/public/v1/results'
     | '/api/public/v1/settle'
   fileRoutesById: FileRoutesById
 }
@@ -305,7 +293,6 @@ export interface RootRouteChildren {
   ApiPublicV1CashoutRoute: typeof ApiPublicV1CashoutRoute
   ApiPublicV1GamesRoute: typeof ApiPublicV1GamesRoute
   ApiPublicV1MeRoute: typeof ApiPublicV1MeRoute
-  ApiPublicV1ResultsRoute: typeof ApiPublicV1ResultsRoute
   ApiPublicV1SettleRoute: typeof ApiPublicV1SettleRoute
 }
 
@@ -451,13 +438,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1MeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/v1/results': {
-      id: '/api/public/v1/results'
-      path: '/api/public/v1/results'
-      fullPath: '/api/public/v1/results'
-      preLoaderRoute: typeof ApiPublicV1ResultsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/v1/settle': {
       id: '/api/public/v1/settle'
       path: '/api/public/v1/settle'
@@ -500,7 +480,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1CashoutRoute: ApiPublicV1CashoutRoute,
   ApiPublicV1GamesRoute: ApiPublicV1GamesRoute,
   ApiPublicV1MeRoute: ApiPublicV1MeRoute,
-  ApiPublicV1ResultsRoute: ApiPublicV1ResultsRoute,
   ApiPublicV1SettleRoute: ApiPublicV1SettleRoute,
 }
 export const routeTree = rootRouteImport

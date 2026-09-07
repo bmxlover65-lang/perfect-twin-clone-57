@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { authenticateOperator, isPassthrough, jsonError } from "@/lib/operator-auth.server";
+import { authenticateOperator, jsonError } from "@/lib/operator-auth.server";
 import { walletCall } from "@/lib/callback-wallet.server";
 
 const schema = z.object({
@@ -29,12 +29,6 @@ export const Route = createFileRoute("/api/public/v1/settle")({
           );
         }
         const { userId, reference, outcome } = parsed.data;
-
-        // Pass-through operator: they settle from their own bet ledger using
-        // our result feed, so we neither credit a wallet nor store anything.
-        if (isPassthrough(auth)) {
-          return Response.json({ status: "ok", mode: "passthrough", payout: 0 });
-        }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data: bet } = await supabaseAdmin
