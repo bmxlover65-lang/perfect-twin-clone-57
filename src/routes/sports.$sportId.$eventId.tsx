@@ -256,13 +256,17 @@ function EventPage() {
 
   useEffect(() => {
     void load();
-    const t = setInterval(() => void load(), 400);
+    const t = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      void load();
+    }, 1000);
     const a = setInterval(() => setAge((v) => v + 1), 1000);
     return () => {
       clearInterval(t);
       clearInterval(a);
     };
   }, [load]);
+
 
   const matchOdds = data?.matchOdds ?? [];
   const bookmakers = data?.bookmakers ?? [];
