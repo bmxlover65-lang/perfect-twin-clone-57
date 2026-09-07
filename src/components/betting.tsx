@@ -364,10 +364,12 @@ export function BetLayer({
                   child instanceof HTMLElement && isPriceCell(child, root) && oddsOf(child) != null,
               );
               if (priceCells.length !== 2) continue;
-              const currentIndex = priceCells.indexOf(pairNode);
+              const currentIndex = priceCells.findIndex((c) => c === pairNode || c.contains(p.element));
               const opposite = currentIndex === 0 ? priceCells[1] : currentIndex === 1 ? priceCells[0] : undefined;
-              if (opposite) oppositeEl = opposite;
+              if (!opposite) continue;
+              oppositeEl = opposite;
               break;
+
             }
             if (!oppositeEl) {
               // Some boards nest the two plates deeper: look for a block holding
