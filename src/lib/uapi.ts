@@ -115,6 +115,12 @@ export function fetchOdds(sportId: string, exEventId: string) {
   );
 }
 
+export async function sportsSocketUrl(sportId: string, exEventId: string) {
+  const { sessionToken } = await fetchSessionToken();
+  const params = new URLSearchParams({ sportId, exEventId, sessionToken });
+  return `wss://universeapi.shop/public/ws/sports?${params.toString()}`;
+}
+
 export function fetchSessionToken() {
   return get<{ sessionToken: string }>("session");
 }

@@ -7,6 +7,7 @@ import {
   fmtOdds,
   fmtSize,
   runnerName,
+  sportsSocketUrl,
   type Market,
   type OddsResponse,
 } from "@/lib/uapi";
@@ -238,6 +239,7 @@ function EventPage() {
   const closedSince = useRef<number>(0);
   const requestId = useRef(0);
   const inFlight = useRef(false);
+  const lastSocketMessage = useRef(0);
   const [age, setAge] = useState(0);
 
 
@@ -260,20 +262,59 @@ function EventPage() {
   }, [sportId, eventId]);
 
   useEffect(() => {
+    let active = true;
+    let socket: WebSocket | null = null;
+    let reconnect: ReturnType<typeof setTimeout> | null = null;
+
+    const connect = async () => {
+      try {
+        const url = await sportsSocketUrl(sportId, eventId);
+        if (!active) return;
+        socket = new WebSocket(url);
+        socket.onmessage = (event) => {
+          try {
+            const message = JSON.parse(String(event.data)) as { type?: string; data?: OddsResponse };
+            if (message.type !== "odds" || !message.data) return;
+            lastSocketMessage.current = Date.now();
+            setData(message.data);
+            setAge(0);
+            setError(null);
+          } catch {
+            // Ignore malformed provider frames and keep the HTTP fallback alive.
+          }
+        };
+        socket.onclose = () => {
+          if (active) reconnect = setTimeout(() => void connect(), 2000);
+        };
+        socket.onerror = () => socket?.close();
+      } catch {
+        if (active) reconnect = setTimeout(() => void connect(), 2000);
+      }
+    };
+
+    lastSocketMessage.current = 0;
+    void connect();
     void load();
-    // Upstream refreshes prices every ~1s; poll faster so the board moves the
-    // same way the source board does.
+    // WebSocket is the fastest source. HTTP automatically takes over whenever
+    // socket updates stop, and the server then serves its last-good snapshot if
+    // the provider itself is unavailable.
     const t = setInterval(() => {
       if (typeof document !== "undefined" && document.hidden) return;
-      void load();
-    }, 400);
+      if (Date.now() - lastSocketMessage.current > 2500) void load();
+    }, 800);
     const a = setInterval(() => setAge((v) => v + 1), 1000);
     return () => {
+      active = false;
       clearInterval(t);
       clearInterval(a);
-
+      if (reconnect) clearTimeout(reconnect);
+      if (socket) {
+        socket.onclose = null;
+        socket.onerror = null;
+        socket.close();
+      }
     };
-  }, [load]);
+  }, [load, sportId, eventId]);
 
 
   const matchOdds = data?.matchOdds ?? [];
