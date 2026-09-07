@@ -453,6 +453,55 @@ function freshestMarkets(splat: string, text: string): string {
   return changed ? JSON.stringify(payload) : text;
 }
 
+/**
+ * Normalise market status for API consumers (operators). The upstream feed can
+ * report a market as OPEN while every runner price is zero/removed, which made
+ * integrators show a bettable market that the reference board shows as
+ * SUSPENDED. Emit an explicit status plus a `suspended` boolean.
+ */
+function normalizeStatuses(splat: string, text: string): string {
+  if (!/^sports\/[^/]+\/[^/]+\/odds$/.test(splat)) return text;
+  let payload: Record<string, unknown>;
+  try {
+    payload = JSON.parse(text) as Record<string, unknown>;
+  } catch {
+    return text;
+  }
+  type R = { status?: string; price?: { back?: { price?: number }[]; lay?: { price?: number }[] } };
+  type M = {
+    oddsData?: { status?: string; suspended?: boolean; runners?: R[] };
+  };
+  let changed = false;
+  for (const group of ["matchOdds", "bookmakers", "fancy", "sportsbook"] as const) {
+    const list = payload[group];
+    if (!Array.isArray(list)) continue;
+    for (const market of list as M[]) {
+      const od = market?.oddsData;
+      if (!od) continue;
+      const raw = String(od.status ?? "OPEN").toUpperCase();
+      const runners = od.runners ?? [];
+      const hasPrice = runners.some((r) => {
+        const rs = String(r.status ?? "").toUpperCase();
+        if (/SUSPEND|CLOSE|INACTIVE|REMOVED/.test(rs)) return false;
+        return [...(r.price?.back ?? []), ...(r.price?.lay ?? [])].some(
+          (p) => Number(p?.price) > 0,
+        );
+      });
+      const closed = /CLOSE|SETTLE|RESULT/.test(raw);
+      const suspended =
+        /SUSPEND|INACTIVE/.test(raw) || (!closed && runners.length > 0 && !hasPrice);
+      const next = closed ? "CLOSED" : suspended ? "SUSPENDED" : raw;
+      if (od.status !== next || od.suspended !== (closed || suspended)) {
+        od.status = next;
+        od.suspended = closed || suspended;
+        changed = true;
+      }
+    }
+  }
+  return changed ? JSON.stringify(payload) : text;
+}
+
+
 
 /**
  * Keep the displayed exchange prices synchronized with the live backup feed.
