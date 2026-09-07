@@ -318,11 +318,15 @@ export function BetLayer({
         const p = extractPick(target, root);
         if (p) {
           const rootBox = root.getBoundingClientRect();
+          // Mobile boards are scaled down with a transform: rect coords are visual
+          // pixels, but absolutely-positioned chips use unscaled layout units.
+          const scale = rootBox.width / (root.offsetWidth || rootBox.width) || 1;
+          const u = (v: number) => v / scale;
           const cellBox = p.element.getBoundingClientRect();
           let oppositeX: number | undefined;
           let oppositeY: number | undefined;
-          let exposureX = cellBox.left + cellBox.width / 2 - rootBox.left;
-          let exposureY = cellBox.bottom - rootBox.top - 6;
+          let exposureX = u(cellBox.left + cellBox.width / 2 - rootBox.left);
+          let exposureY = u(cellBox.bottom - rootBox.top) - 6;
 
           if (exposureLayout === "sports") {
             const runnerRow = p.element.closest<HTMLElement>("[data-runner-row]");
@@ -334,13 +338,13 @@ export function BetLayer({
               : undefined;
             if (runnerRow) {
               const rowBox = runnerRow.getBoundingClientRect();
-              exposureX = rowBox.left - rootBox.left + 10;
-              exposureY = rowBox.top - rootBox.top + 35;
+              exposureX = u(rowBox.left - rootBox.left) + 10;
+              exposureY = u(rowBox.top - rootBox.top) + 35;
             }
             if (opponent) {
               const opponentBox = opponent.getBoundingClientRect();
-              oppositeX = opponentBox.left - rootBox.left + 10;
-              oppositeY = opponentBox.top - rootBox.top + 35;
+              oppositeX = u(opponentBox.left - rootBox.left) + 10;
+              oppositeY = u(opponentBox.top - rootBox.top) + 35;
             }
           }
 
@@ -356,7 +360,7 @@ export function BetLayer({
               const opposite = currentIndex === 0 ? priceCells[1] : currentIndex === 1 ? priceCells[0] : undefined;
               if (opposite) {
                 const oppositeBox = opposite.getBoundingClientRect();
-                oppositeX = oppositeBox.left + oppositeBox.width / 2 - rootBox.left;
+                oppositeX = u(oppositeBox.left + oppositeBox.width / 2 - rootBox.left);
               }
               break;
             }
@@ -374,7 +378,7 @@ export function BetLayer({
             if (row.getBoundingClientRect().width >= rootW * 0.8) break;
             row = row.parentElement;
           }
-          const top = row.getBoundingClientRect().bottom - rootBox.top;
+          const top = u(row.getBoundingClientRect().bottom - rootBox.top);
           setAnchor(Math.max(0, top));
           setPick({ label: p.label, odds: p.odds });
           setOdds(p.odds);
