@@ -256,13 +256,17 @@ function EventPage() {
 
   useEffect(() => {
     void load();
-    const t = setInterval(() => void load(), 400);
+    const t = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      void load();
+    }, 1000);
     const a = setInterval(() => setAge((v) => v + 1), 1000);
     return () => {
       clearInterval(t);
       clearInterval(a);
     };
   }, [load]);
+
 
   const matchOdds = data?.matchOdds ?? [];
   const bookmakers = data?.bookmakers ?? [];
@@ -316,7 +320,14 @@ function EventPage() {
       </p>
 
 
-      {error ? <p className="mt-3 text-sm text-live-lose">{error}</p> : null}
+      {error ? (
+        <p className="mt-3 text-sm text-live-lose">
+          {data ? "Feed reconnecting… showing last prices" : error}
+        </p>
+      ) : data?.stale ? (
+        <p className="mt-3 text-sm text-ex-muted">Feed reconnecting… showing last prices</p>
+      ) : null}
+
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         <LiveTv

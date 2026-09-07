@@ -175,6 +175,32 @@ async function mirrorResults(eventId: string): Promise<unknown[]> {
   }
 }
 
+// Last-good sports snapshots. The upstream sports ingest worker goes down from
+// time to time and answers 503 ("Sports odds unavailable"); serving the last
+// good frame keeps the board rendered instead of blanking the whole page.
+const sportsSnapshot = new Map<string, { at: number; text: string }>();
+
+function isSportsPath(splat: string) {
+  return /^sports\//.test(splat);
+}
+
+function snapshotResponse(key: string, upstreamStatus: number) {
+  const hit = sportsSnapshot.get(key);
+  if (!hit) return null;
+  let payload: Record<string, unknown>;
+  try {
+    payload = JSON.parse(hit.text) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+  payload["stale"] = true;
+  payload["upstreamStatus"] = upstreamStatus;
+  payload["snapshotAgeMs"] = Date.now() - hit.at;
+  return Response.json(payload, {
+    status: 200,
+    headers: { "cache-control": "no-store" },
+  });
+}
 
 
 async function proxy(splat: string, search: string, body?: string, origin = "") {
@@ -245,11 +271,19 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
           { status: 200, headers: { "cache-control": "no-store" } },
         );
       }
+      if (isSportsPath(splat)) {
+        const snap = snapshotResponse(splat + search, res.status);
+        if (snap) return snap;
+      }
       return Response.json(
         { error: `Upstream unavailable (${res.status})`, upstreamStatus: res.status },
         { status: 200, headers: { "cache-control": "no-store" } },
       );
     }
+    if (isSportsPath(splat) && res.ok && text.startsWith("{")) {
+      sportsSnapshot.set(splat + search, { at: Date.now(), text });
+    }
+
     if (resultsMatch) {
       let empty = false;
       try {
