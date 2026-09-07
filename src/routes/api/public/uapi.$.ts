@@ -2,6 +2,22 @@ import { createFileRoute } from "@tanstack/react-router";
 
 const UPSTREAM = "https://universeapi.shop/public";
 
+// Failover chain: if the primary provider is down we walk these mirrors in
+// order so odds/results keep flowing. Extra mirrors can be added at runtime
+// through the UAPI_MIRRORS env var (comma separated base URLs).
+function upstreamBases(): string[] {
+  const extra = (process.env["UAPI_MIRRORS"] ?? "")
+    .split(",")
+    .map((s) => s.trim().replace(/\/$/, ""))
+    .filter(Boolean);
+  return [
+    UPSTREAM,
+    "https://www.universeapi.shop/public",
+    "https://api.universeapi.shop/public",
+    ...extra,
+  ];
+}
+
 let cachedToken: string | null = null;
 let cachedAt = 0;
 
