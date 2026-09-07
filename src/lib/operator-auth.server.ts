@@ -132,7 +132,17 @@ export async function authenticateOperator(request: Request): Promise<AuthResult
   const keyProducts = ((keyRow as { products?: string[] }).products ?? ["casino", "sports"]) as Product[];
   const products = keyProducts.filter((p) => opProducts.includes(p));
 
-  return { ok: true, operator: operator as Operator, apiKeyId: keyRow.id, ip, products };
+  const op = {
+    ...(operator as Operator),
+    bet_passthrough: (operator as { bet_passthrough?: boolean }).bet_passthrough !== false,
+  } as Operator;
+
+  return { ok: true, operator: op, apiKeyId: keyRow.id, ip, products };
+}
+
+/** Operator keeps its own bet ledger — nothing about the bet is stored here. */
+export function isPassthrough(auth: AuthSuccess): boolean {
+  return auth.operator.bet_passthrough !== false;
 }
 
 /**
