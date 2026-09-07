@@ -181,12 +181,14 @@ export function BetLayer({
   gameName,
   round,
   disabled,
+  exposureLayout = "market",
   children,
 }: {
   gameId: string;
   gameName: string;
   round: string;
   disabled?: boolean;
+  exposureLayout?: "market" | "sports";
   children: ReactNode;
 }) {
   const [pick, setPick] = useState<Pick | null>(null);
@@ -200,11 +202,17 @@ export function BetLayer({
     id: number;
     x: number;
     oppositeX?: number | undefined;
+    oppositeY?: number | undefined;
     y: number;
     amount: number;
     profit: number;
   }[]>([]);
-  const cellPos = useRef<{ x: number; oppositeX?: number | undefined; y: number } | null>(null);
+  const cellPos = useRef<{
+    x: number;
+    oppositeX?: number | undefined;
+    oppositeY?: number | undefined;
+    y: number;
+  } | null>(null);
   const busy = useRef(false);
   const wallet = useWallet();
   const embed = useEmbed();
@@ -275,6 +283,7 @@ export function BetLayer({
               id: Date.now(),
               x: pos.x,
               oppositeX: pos.oppositeX,
+              oppositeY: pos.oppositeY,
               y: pos.y,
               amount: stake,
               profit: stake * Math.max(0, odds - 1),
@@ -311,25 +320,52 @@ export function BetLayer({
           const rootBox = root.getBoundingClientRect();
           const cellBox = p.element.getBoundingClientRect();
           let oppositeX: number | undefined;
-          let pairNode: HTMLElement = p.element;
-          for (let i = 0; i < 4 && pairNode.parentElement; i++, pairNode = pairNode.parentElement) {
-            const priceCells = Array.from(pairNode.parentElement.children).filter(
-              (child): child is HTMLElement =>
-                child instanceof HTMLElement && isPriceCell(child, root) && oddsOf(child) != null,
-            );
-            if (priceCells.length !== 2) continue;
-            const currentIndex = priceCells.indexOf(pairNode);
-            const opposite = currentIndex === 0 ? priceCells[1] : currentIndex === 1 ? priceCells[0] : undefined;
-            if (opposite) {
-              const oppositeBox = opposite.getBoundingClientRect();
-              oppositeX = oppositeBox.left + oppositeBox.width / 2 - rootBox.left;
+          let oppositeY: number | undefined;
+          let exposureX = cellBox.left + cellBox.width / 2 - rootBox.left;
+          let exposureY = cellBox.bottom - rootBox.top - 6;
+
+          if (exposureLayout === "sports") {
+            const runnerRow = p.element.closest<HTMLElement>("[data-runner-row]");
+            const board = runnerRow?.parentElement;
+            const opponent = board
+              ? Array.from(board.querySelectorAll<HTMLElement>("[data-runner-row]")).find(
+                  (candidate) => candidate !== runnerRow,
+                )
+              : undefined;
+            if (runnerRow) {
+              const rowBox = runnerRow.getBoundingClientRect();
+              exposureX = rowBox.left - rootBox.left + 10;
+              exposureY = rowBox.top - rootBox.top + 35;
             }
-            break;
+            if (opponent) {
+              const opponentBox = opponent.getBoundingClientRect();
+              oppositeX = opponentBox.left - rootBox.left + 10;
+              oppositeY = opponentBox.top - rootBox.top + 35;
+            }
+          }
+
+          if (exposureLayout === "market") {
+            let pairNode: HTMLElement = p.element;
+            for (let i = 0; i < 4 && pairNode.parentElement; i++, pairNode = pairNode.parentElement) {
+              const priceCells = Array.from(pairNode.parentElement.children).filter(
+                (child): child is HTMLElement =>
+                  child instanceof HTMLElement && isPriceCell(child, root) && oddsOf(child) != null,
+              );
+              if (priceCells.length !== 2) continue;
+              const currentIndex = priceCells.indexOf(pairNode);
+              const opposite = currentIndex === 0 ? priceCells[1] : currentIndex === 1 ? priceCells[0] : undefined;
+              if (opposite) {
+                const oppositeBox = opposite.getBoundingClientRect();
+                oppositeX = oppositeBox.left + oppositeBox.width / 2 - rootBox.left;
+              }
+              break;
+            }
           }
           cellPos.current = {
-            x: cellBox.left + cellBox.width / 2 - rootBox.left,
+            x: exposureX,
             oppositeX,
-            y: cellBox.bottom - rootBox.top - 6,
+            oppositeY,
+            y: exposureY,
           };
           // Anchor the slip right below the row that was clicked.
           let row: HTMLElement = target;
@@ -352,24 +388,38 @@ export function BetLayer({
         const exposure = (
           key: string,
           x: number,
+          y: number,
           label: "L" | "P",
           value: number,
           tone: string,
         ) => (
           <span
             key={key}
-            className="pointer-events-none absolute z-[60] -translate-x-1/2 whitespace-nowrap text-[0.72rem] font-semibold leading-none text-casino-market-text"
-            style={{ left: `${x}px`, top: `${c.y}px` }}
+            className={`pointer-events-none absolute z-[60] whitespace-nowrap text-[0.72rem] font-semibold leading-none text-casino-market-text ${
+              exposureLayout === "market" ? "-translate-x-1/2" : ""
+            }`}
+            style={{ left: `${x}px`, top: `${y}px` }}
           >
-            {label} : <strong className={tone}>{value.toLocaleString("en-IN")}</strong>
+            {exposureLayout === "sports" ? null : `${label} : `}
+            <strong className={tone}>
+              {exposureLayout === "sports" ? (value < 0 ? "➜ " : "➜ ") : null}
+              {value.toLocaleString("en-IN", { minimumFractionDigits: exposureLayout === "sports" ? 2 : 0 })}
+            </strong>
           </span>
         );
-        const figures = [
-          exposure(`${c.id}-loss`, c.x, "L", -Math.round(c.amount), "text-live-lose"),
-        ];
+        const figures = exposureLayout === "sports"
+          ? [exposure(`${c.id}-profit`, c.x, c.y, "P", c.profit, "text-live-win")]
+          : [exposure(`${c.id}-loss`, c.x, c.y, "L", -Math.round(c.amount), "text-live-lose")];
         if (c.oppositeX != null) {
           figures.push(
-            exposure(`${c.id}-profit`, c.oppositeX, "P", Math.round(c.profit), "text-live-win"),
+            exposure(
+              `${c.id}-${exposureLayout === "sports" ? "loss" : "profit"}`,
+              c.oppositeX,
+              c.oppositeY ?? c.y,
+              exposureLayout === "sports" ? "L" : "P",
+              exposureLayout === "sports" ? -c.amount : Math.round(c.profit),
+              exposureLayout === "sports" ? "text-live-lose" : "text-live-win",
+            ),
           );
         }
         return figures;

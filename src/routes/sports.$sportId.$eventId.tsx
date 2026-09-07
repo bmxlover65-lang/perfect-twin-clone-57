@@ -145,7 +145,8 @@ function Board({ market }: { market: Market }) {
           return (
             <div
               key={String(r.selectionId)}
-              className="border-b border-ex-line/30 px-3 py-2 last:border-b-0"
+              data-runner-row
+              className="relative border-b border-ex-line/30 px-3 py-2 pb-5 last:border-b-0"
             >
               <span
                 className={`block truncate pb-1.5 text-[0.95rem] font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}
@@ -347,6 +348,7 @@ function EventPage() {
         gameId={`sports-${eventId}`}
         gameName={data?.eventName ?? `Event ${eventId}`}
         round={eventId}
+        exposureLayout="sports"
       >
         <div className="mt-3 space-y-4">
           {matchOdds.length ? (
