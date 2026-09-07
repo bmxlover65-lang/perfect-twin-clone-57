@@ -324,6 +324,7 @@ export function BetLayer({
 
   return (
     <div
+      ref={rootRef}
       data-bet-root=""
       className="relative"
       onClickCapture={(e) => {
