@@ -186,7 +186,7 @@ function Board({ market }: { market: Market }) {
           );
         })}
 
-        {dim ? <Suspended label={status === "CLOSED" ? "Closed" : "Suspended"} /> : null}
+        {dim ? <Suspended label={label} /> : null}
       </div>
     </div>
   );
@@ -194,8 +194,7 @@ function Board({ market }: { market: Market }) {
 
 function FancyRow({ market }: { market: Market }) {
   const odds = market.oddsData;
-  const status = (odds?.status ?? "OPEN").toUpperCase();
-  const dim = status === "SUSPENDED" || status === "CLOSED";
+  const { dim, label } = marketState(market);
   const r = odds?.runners?.[0];
   const no = r?.price?.lay?.[0];
   const yes = r?.price?.back?.[0];
@@ -222,7 +221,7 @@ function FancyRow({ market }: { market: Market }) {
       {dim ? (
         <div className="pointer-events-none absolute inset-y-0 left-1/2 flex -translate-x-1/2 items-center">
           <span className="text-base font-extrabold uppercase tracking-[0.18em] text-ex-text">
-            Suspended
+            {label}
           </span>
         </div>
       ) : null}
