@@ -204,7 +204,9 @@ function FancyRow({ market }: { market: Market }) {
   const yes = r?.price?.back?.[0];
 
   return (
-    <div className="relative flex items-center justify-between gap-3 rounded-md bg-ex-row px-3 py-3">
+    <div
+      className={`relative flex items-center justify-between gap-3 rounded-md bg-ex-row px-3 py-3 ${dim ? "ring-1 ring-ex-suspend/70" : ""}`}
+    >
       <span className={`truncate text-sm font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}>
         {market.marketName.trim()}
       </span>
@@ -223,8 +225,8 @@ function FancyRow({ market }: { market: Market }) {
         </div>
       </div>
       {dim ? (
-        <div className="pointer-events-none absolute inset-y-0 left-1/2 flex -translate-x-1/2 items-center">
-          <span className="text-base font-extrabold uppercase tracking-[0.18em] text-ex-text">
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-ex-row/55">
+          <span className="text-[1.5rem] font-extrabold uppercase tracking-[0.04em] text-ex-suspend">
             {label}
           </span>
         </div>
