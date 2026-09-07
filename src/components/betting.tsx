@@ -200,20 +200,36 @@ export function BetLayer({
   // Reference-style liability/profit figures shown directly below the market plates.
   const [chips, setChips] = useState<{
     id: number;
-    x: number;
-    oppositeX?: number | undefined;
-    oppositeY?: number | undefined;
-    y: number;
+    cell: HTMLElement;
+    opposite?: HTMLElement | undefined;
     amount: number;
     profit: number;
   }[]>([]);
+  const rootRef = useRef<HTMLDivElement | null>(null);
   const cellPos = useRef<{
-    x: number;
-    oppositeX?: number | undefined;
-    oppositeY?: number | undefined;
-    y: number;
+    cell: HTMLElement;
+    opposite?: HTMLElement | undefined;
   } | null>(null);
+  // Positions are re-measured from the live DOM so the figures stay glued to
+  // their plates when the board reflows after a bet.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (!chips.length) return;
+    const bump = () => setTick((t) => t + 1);
+    const ro = new ResizeObserver(bump);
+    if (rootRef.current) ro.observe(rootRef.current);
+    window.addEventListener("resize", bump);
+    window.addEventListener("scroll", bump, true);
+    const id = window.setInterval(bump, 400);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", bump);
+      window.removeEventListener("scroll", bump, true);
+      window.clearInterval(id);
+    };
+  }, [chips.length]);
   const busy = useRef(false);
+
   const wallet = useWallet();
   const embed = useEmbed();
 
@@ -277,16 +293,14 @@ export function BetLayer({
     if (pos) {
       // Same selection bet again in the same round → one chip with the total.
       setChips((cur) => {
-        const i = cur.findIndex((c) => Math.abs(c.x - pos.x) < 14 && Math.abs(c.y - pos.y) < 14);
+        const i = cur.findIndex((c) => c.cell === pos.cell);
         if (i < 0) {
           return [
             ...cur,
             {
               id: Date.now(),
-              x: pos.x,
-              oppositeX: pos.oppositeX,
-              oppositeY: pos.oppositeY,
-              y: pos.y,
+              cell: pos.cell,
+              opposite: pos.opposite,
               amount: stake,
               profit: stake * Math.max(0, odds - 1),
             },
@@ -303,12 +317,15 @@ export function BetLayer({
         return next;
       });
     }
+
     setSuccess(`Bet Placed · ${pickLabel} @ ${odds} · ${Math.round(stake)}`);
 
   };
 
   return (
     <div
+      ref={rootRef}
+      data-bet-root=""
       className="relative"
       onClickCapture={(e) => {
         if (disabled) return;
@@ -324,11 +341,8 @@ export function BetLayer({
           // pixels, but absolutely-positioned chips use unscaled layout units.
           const scale = rootBox.width / (root.offsetWidth || rootBox.width) || 1;
           const u = (v: number) => v / scale;
-          const cellBox = p.element.getBoundingClientRect();
-          let oppositeX: number | undefined;
-          let oppositeY: number | undefined;
-          let exposureX = u(cellBox.left + cellBox.width / 2 - rootBox.left);
-          let exposureY = u(cellBox.bottom - rootBox.top) - 6;
+          let cellEl: HTMLElement = p.element;
+          let oppositeEl: HTMLElement | undefined;
 
           if (exposureLayout === "sports") {
             const runnerRow = p.element.closest<HTMLElement>("[data-runner-row]");
@@ -338,16 +352,8 @@ export function BetLayer({
                   (candidate) => candidate !== runnerRow,
                 )
               : undefined;
-            if (runnerRow) {
-              const rowBox = runnerRow.getBoundingClientRect();
-              exposureX = u(rowBox.left - rootBox.left) + 10;
-              exposureY = u(rowBox.top - rootBox.top) + 35;
-            }
-            if (opponent) {
-              const opponentBox = opponent.getBoundingClientRect();
-              oppositeX = u(opponentBox.left - rootBox.left) + 10;
-              oppositeY = u(opponentBox.top - rootBox.top) + 35;
-            }
+            if (runnerRow) cellEl = runnerRow;
+            if (opponent) oppositeEl = opponent;
           }
 
           if (exposureLayout === "market") {
@@ -358,21 +364,34 @@ export function BetLayer({
                   child instanceof HTMLElement && isPriceCell(child, root) && oddsOf(child) != null,
               );
               if (priceCells.length !== 2) continue;
-              const currentIndex = priceCells.indexOf(pairNode);
+              const currentIndex = priceCells.findIndex((c) => c === pairNode || c.contains(p.element));
               const opposite = currentIndex === 0 ? priceCells[1] : currentIndex === 1 ? priceCells[0] : undefined;
-              if (opposite) {
-                const oppositeBox = opposite.getBoundingClientRect();
-                oppositeX = u(oppositeBox.left + oppositeBox.width / 2 - rootBox.left);
-              }
+              if (!opposite) continue;
+              oppositeEl = opposite;
               break;
+
             }
+            if (!oppositeEl) {
+              // Some boards nest the two plates deeper: look for a block holding
+              // exactly two price plates and take the other one.
+              let block: HTMLElement | null = p.element.parentElement;
+              for (let i = 0; i < 6 && block && block !== root; i++, block = block.parentElement) {
+                const all = Array.from(block.querySelectorAll<HTMLElement>("*")).filter(
+                  (el) => isPriceCell(el, root) && oddsOf(el) != null,
+                );
+                // Keep only the outermost plate of each nested group.
+                const cells = all.filter((el) => !all.some((other) => other !== el && other.contains(el)));
+                if (cells.length === 2) {
+                  oppositeEl = cells.find((el) => !el.contains(p.element) && !p.element.contains(el));
+                  if (oppositeEl) break;
+                }
+              }
+            }
+
           }
-          cellPos.current = {
-            x: exposureX,
-            oppositeX,
-            oppositeY,
-            y: exposureY,
-          };
+
+          cellPos.current = { cell: cellEl, opposite: oppositeEl };
+
           // Anchor the slip right below the row that was clicked.
           let row: HTMLElement = target;
           const rootW = rootBox.width;
@@ -391,10 +410,29 @@ export function BetLayer({
       {children}
 
       {chips.flatMap((c) => {
+        const root = rootRef.current;
+        if (!root || !c.cell.isConnected) return [];
+        const rootBox = root.getBoundingClientRect();
+        const scale = rootBox.width / (root.offsetWidth || rootBox.width) || 1;
+        const at = (el: HTMLElement) => {
+          if (exposureLayout === "sports") {
+            const b = el.getBoundingClientRect();
+            return { x: (b.left - rootBox.left) / scale + 10, y: (b.top - rootBox.top) / scale + 35 };
+          }
+          // Anchor to the visible rate plate, not the inner odds text.
+          const plate = el.querySelector<HTMLElement>('[class*="casino-market-rate"]')
+            ?? el.closest<HTMLElement>('[class*="casino-market-rate"]')
+            ?? el;
+          const b = plate.getBoundingClientRect();
+          return {
+            x: (b.left + b.width / 2 - rootBox.left) / scale,
+            y: (b.bottom - rootBox.top) / scale + 2,
+          };
+        };
+
         const exposure = (
           key: string,
-          x: number,
-          y: number,
+          pos: { x: number; y: number },
           label: "L" | "P",
           value: number,
           tone: string,
@@ -404,7 +442,7 @@ export function BetLayer({
             className={`pointer-events-none absolute z-[60] whitespace-nowrap text-[0.72rem] font-semibold leading-none text-casino-market-text ${
               exposureLayout === "market" ? "-translate-x-1/2" : ""
             }`}
-            style={{ left: `${x}px`, top: `${y}px` }}
+            style={{ left: `${pos.x}px`, top: `${pos.y}px` }}
           >
             {exposureLayout === "sports" ? null : `${label} : `}
             <strong className={tone}>
@@ -413,15 +451,15 @@ export function BetLayer({
             </strong>
           </span>
         );
+        const own = at(c.cell);
         const figures = exposureLayout === "sports"
-          ? [exposure(`${c.id}-profit`, c.x, c.y, "P", c.profit, "text-live-win")]
-          : [exposure(`${c.id}-loss`, c.x, c.y, "L", -Math.round(c.amount), "text-live-lose")];
-        if (c.oppositeX != null) {
+          ? [exposure(`${c.id}-profit`, own, "P", c.profit, "text-live-win")]
+          : [exposure(`${c.id}-loss`, own, "L", -Math.round(c.amount), "text-live-lose")];
+        if (c.opposite && c.opposite.isConnected) {
           figures.push(
             exposure(
               `${c.id}-${exposureLayout === "sports" ? "loss" : "profit"}`,
-              c.oppositeX,
-              c.oppositeY ?? c.y,
+              at(c.opposite),
               exposureLayout === "sports" ? "L" : "P",
               exposureLayout === "sports" ? -c.amount : Math.round(c.profit),
               exposureLayout === "sports" ? "text-live-lose" : "text-live-win",
@@ -430,6 +468,7 @@ export function BetLayer({
         }
         return figures;
       })}
+
 
       {err ? <ErrorToast message={err} onDone={() => setErr(null)} /> : null}
       {success ? <SuccessToast message={success} onDone={() => setSuccess(null)} /> : null}
