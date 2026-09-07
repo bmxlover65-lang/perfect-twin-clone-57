@@ -311,6 +311,63 @@ async function backupSports(splat: string) {
   }
 }
 
+type OddsPayload = {
+  matchOdds?: {
+    marketType?: string;
+    runnersData?: Record<string, string>;
+    oddsData?: { status?: string; runners?: { selectionId: string | number; status?: string }[] };
+  }[];
+  result?: string;
+  inPlay?: boolean;
+};
+
+/**
+ * The primary provider sometimes stops short of publishing the winner when a
+ * match ends. Fill that in from the backup exchange so results settle live.
+ */
+async function mergeBackupResult(splat: string, text: string) {
+  const m = /^sports\/([^/]+)\/([^/]+)\/odds$/.exec(splat);
+  if (!m) return null;
+  let payload: OddsPayload;
+  try {
+    payload = JSON.parse(text) as OddsPayload;
+  } catch {
+    return null;
+  }
+  const market = payload.matchOdds?.find((x) => (x.marketType ?? "MATCH_ODDS") === "MATCH_ODDS");
+  const runners = market?.oddsData?.runners ?? [];
+  const hasWinner = runners.some((r) => (r.status ?? "").toUpperCase() === "WINNER");
+  const status = (market?.oddsData?.status ?? "").toUpperCase();
+  const closed = /CLOSED|SETTLED|INACTIVE/.test(status) || payload.inPlay === false;
+  if (hasWinner || !closed || !runners.length) return null;
+
+  try {
+    const sportId = decodeURIComponent(m[1]!);
+    const exEventId = decodeURIComponent(m[2]!);
+    const backup = await import("@/lib/skyfair.server");
+    const alt = (await backup.backupOdds(sportId, exEventId, eventNames.get(exEventId))) as
+      | (OddsPayload & { result?: string })
+      | null;
+    const winnerName = alt?.result;
+    if (!winnerName) return null;
+    const target = backup.normalizeName(winnerName);
+    let matched = false;
+    for (const r of runners) {
+      const name = market?.runnersData?.[String(r.selectionId)] ?? "";
+      const win = backup.normalizeName(name) === target;
+      if (win) matched = true;
+      r.status = win ? "WINNER" : "LOSER";
+    }
+    if (!matched) return null;
+    if (market?.oddsData) market.oddsData.status = "CLOSED";
+    payload.result = winnerName;
+    payload.inPlay = false;
+    return Response.json(payload, { status: 200, headers: { "cache-control": "no-store" } });
+  } catch {
+    return null;
+  }
+}
+
 async function proxy(splat: string, search: string, body?: string, origin = "") {
   const snapshotKey = sportsSnapshotKey(splat, search);
   try {
