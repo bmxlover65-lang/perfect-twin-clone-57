@@ -117,13 +117,14 @@ function BoardHeader({
 
 function Suspended({ label }: { label: string }) {
   return (
-    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-      <span className="text-base font-extrabold uppercase tracking-[0.18em] text-ex-text">
+    <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-ex-row/55">
+      <span className="text-[1.75rem] font-extrabold uppercase tracking-[0.04em] text-ex-suspend">
         {label}
       </span>
     </div>
   );
 }
+
 
 // The upstream feed sometimes keeps a market "OPEN" while every price is
 // zeroed out, or reports SUSPEND / INACTIVE variants. The reference board
