@@ -230,9 +230,9 @@ function PokerPanel({
     size?: number | null | undefined;
     locked: boolean;
   }) => (
-    <div className="relative mx-auto flex h-[54px] w-[160px] max-w-[92%] flex-col items-center justify-center rounded-[6px] bg-casino-market-rate text-casino-market-text shadow-[0_4px_10px_color-mix(in_oklab,var(--casino-market-header)_28%,transparent)]">
-      <span className="text-[1.08rem] font-bold leading-none">{fmtOdds(price)}</span>
-      <span className="mt-1 text-[0.72rem] font-normal leading-none">{fmtSize(size)}</span>
+    <div className="relative mx-auto flex h-[48px] w-[108px] max-w-[92%] flex-col items-center justify-center rounded-[5px] bg-casino-market-rate text-casino-market-text shadow-[0_4px_10px_color-mix(in_oklab,var(--casino-market-header)_28%,transparent)] sm:h-[56px] sm:w-[160px]">
+      <span className="text-[1.15rem] font-bold leading-none">{fmtOdds(price)}</span>
+      <span className="mt-1 text-[0.7rem] font-normal leading-none">{fmtSize(size)}</span>
       {locked ? (
         <span className="absolute inset-0 flex items-center justify-center rounded-[5px] bg-casino-market-rate/70 text-[0.72rem] font-bold uppercase text-casino-market-text">
           Suspended
@@ -262,15 +262,15 @@ function PokerPanel({
             runners.every((r) => !isOpenStatus(r.status));
           return (
             <section key={m.marketId} className="border-b border-casino-market-divider">
-              <header className="flex h-[34px] items-center justify-between bg-casino-market-header px-2">
-                <h3 className="truncate text-[0.86rem] font-extrabold uppercase text-board-header-foreground">
+              <header className="flex h-[26px] items-center justify-between bg-casino-market-header px-2">
+                <h3 className="truncate text-[0.8rem] font-extrabold uppercase text-board-header-foreground">
                   {marketTitle(m.marketName)}
                 </h3>
                 <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-board-header-foreground text-[0.65rem] font-black text-casino-market-header">
                   i
                 </span>
               </header>
-              <div className="relative grid grid-cols-2 divide-x divide-casino-market-divider pb-5 pt-1.5">
+              <div className="relative grid grid-cols-2 pb-5 pt-1.5">
                 {[a, b].map((r, index) => (
                   <div key={r ? String(r.selectionId) : index} className="min-w-0 px-1.5 pb-1.5">
                     <p className="mb-1 truncate text-center text-[0.82rem] font-medium uppercase text-casino-market-text">
