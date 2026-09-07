@@ -1,5 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { authenticateOperator, jsonError, productDenied, productOf } from "@/lib/operator-auth.server";
+import {
+  authenticateOperator,
+  isPassthrough,
+  jsonError,
+  productDenied,
+  productOf,
+} from "@/lib/operator-auth.server";
 
 export const Route = createFileRoute("/api/public/v1/bets")({
   server: {
@@ -7,6 +13,11 @@ export const Route = createFileRoute("/api/public/v1/bets")({
       GET: async ({ request }) => {
         const auth = await authenticateOperator(request);
         if (!auth.ok) return jsonError(auth);
+
+        // Pass-through operators keep their bet history on their own side.
+        if (isPassthrough(auth)) {
+          return Response.json({ status: "ok", mode: "passthrough", count: 0, bets: [] });
+        }
 
         const url = new URL(request.url);
         const userId = url.searchParams.get("userId");

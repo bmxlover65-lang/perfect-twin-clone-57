@@ -1,6 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { authenticateOperator, jsonError, productDenied, productOf } from "@/lib/operator-auth.server";
+import {
+  authenticateOperator,
+  isPassthrough,
+  jsonError,
+  productDenied,
+  productOf,
+} from "@/lib/operator-auth.server";
 import { walletCall } from "@/lib/callback-wallet.server";
 
 const schema = z.object({
@@ -61,6 +67,19 @@ export const Route = createFileRoute("/api/public/v1/bet")({
             ip: auth.ip,
           });
           return jsonError(denied);
+        }
+
+        // Pass-through operators keep the whole bet on their own platform:
+        // no wallet call, no bet row, no transaction — their turnover/GGR
+        // never reaches this system. We only accept and acknowledge it.
+        if (isPassthrough(auth)) {
+          return Response.json({
+            status: "ok",
+            mode: "passthrough",
+            reference: b.reference ?? crypto.randomUUID(),
+            currency: auth.operator.currency,
+            message: "Bet accepted; wallet and bet history are handled by your platform",
+          });
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

@@ -324,6 +324,7 @@ export type Database = {
       }
       operators: {
         Row: {
+          bet_passthrough: boolean
           callback_secret: string | null
           callback_url: string | null
           contact_email: string | null
@@ -338,6 +339,7 @@ export type Database = {
           status: string
         }
         Insert: {
+          bet_passthrough?: boolean
           callback_secret?: string | null
           callback_url?: string | null
           contact_email?: string | null
@@ -352,6 +354,7 @@ export type Database = {
           status?: string
         }
         Update: {
+          bet_passthrough?: boolean
           callback_secret?: string | null
           callback_url?: string | null
           contact_email?: string | null
