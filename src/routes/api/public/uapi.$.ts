@@ -184,6 +184,16 @@ function isSportsPath(splat: string) {
   return /^sports\//.test(splat);
 }
 
+function sportsSnapshotKey(splat: string, search: string) {
+  const params = new URLSearchParams(search);
+  // The browser adds this cache-buster on every live request. Keeping it in
+  // the key made every snapshot unique, so an outage could never find the
+  // previous successful response.
+  params.delete("_");
+  const query = params.toString();
+  return query ? `${splat}?${query}` : splat;
+}
+
 function snapshotResponse(key: string, upstreamStatus: number) {
   const hit = sportsSnapshot.get(key);
   if (!hit) return null;
@@ -204,6 +214,7 @@ function snapshotResponse(key: string, upstreamStatus: number) {
 
 
 async function proxy(splat: string, search: string, body?: string, origin = "") {
+  const snapshotKey = sportsSnapshotKey(splat, search);
   try {
     if (splat === "stream") {
       const u = new URLSearchParams(search).get("u") ?? "";
@@ -272,7 +283,7 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
         );
       }
       if (isSportsPath(splat)) {
-        const snap = snapshotResponse(splat + search, res.status);
+        const snap = snapshotResponse(snapshotKey, res.status);
         if (snap) return snap;
       }
       return Response.json(
@@ -281,7 +292,7 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
       );
     }
     if (isSportsPath(splat) && res.ok && text.startsWith("{")) {
-      sportsSnapshot.set(splat + search, { at: Date.now(), text });
+      sportsSnapshot.set(snapshotKey, { at: Date.now(), text });
     }
 
     if (resultsMatch) {
@@ -314,6 +325,10 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
     });
 
   } catch (error) {
+    if (isSportsPath(splat)) {
+      const snap = snapshotResponse(snapshotKey, 0);
+      if (snap) return snap;
+    }
     return Response.json(
       { error: error instanceof Error ? error.message : "Upstream request failed", data: [] },
       { status: 200 },
