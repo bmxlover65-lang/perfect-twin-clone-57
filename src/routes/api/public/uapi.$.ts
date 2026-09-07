@@ -554,6 +554,8 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
       } else if (/^sports\/[^/]+\/[^/]+\/odds$/.test(splat)) {
         const merged = await mergeBackupResult(splat, text);
         if (merged) return merged;
+        const priced = await mergeBackupPrices(splat, text);
+        if (priced) return priced;
       }
     }
 
