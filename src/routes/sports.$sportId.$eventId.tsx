@@ -125,11 +125,31 @@ function Suspended({ label }: { label: string }) {
   );
 }
 
+// The upstream feed sometimes keeps a market "OPEN" while every price is
+// zeroed out, or reports SUSPEND / INACTIVE variants. The reference board
+// shows those as suspended/closed, so derive the state instead of trusting
+// the raw string.
+function marketState(market: Market): { status: string; dim: boolean; label: string } {
+  const raw = String(market.oddsData?.status ?? "OPEN").toUpperCase();
+  const runners = market.oddsData?.runners ?? [];
+  const hasPrice = runners.some((r) => {
+    const rs = String(r.status ?? "").toUpperCase();
+    if (/SUSPEND|CLOSE|INACTIVE|REMOVED/.test(rs)) return false;
+    const all = [...(r.price?.back ?? []), ...(r.price?.lay ?? [])];
+    return all.some((p) => Number(p?.price) > 0);
+  });
+  const closed = /CLOSE|SETTLE|RESULT/.test(raw);
+  const suspended = /SUSPEND|INACTIVE/.test(raw) || (!closed && runners.length > 0 && !hasPrice);
+  const dim = closed || suspended;
+  const status = closed ? "CLOSED" : suspended ? "SUSPENDED" : raw;
+  return { status, dim, label: closed ? "Closed" : "Suspended" };
+}
+
 function Board({ market }: { market: Market }) {
   const odds = market.oddsData;
-  const status = (odds?.status ?? "OPEN").toUpperCase();
-  const dim = status === "SUSPENDED" || status === "CLOSED";
+  const { status, dim, label } = marketState(market);
   const runners = odds?.runners ?? [];
+
 
   return (
     <div className="overflow-hidden rounded-md bg-ex-row">
@@ -166,7 +186,7 @@ function Board({ market }: { market: Market }) {
           );
         })}
 
-        {dim ? <Suspended label={status === "CLOSED" ? "Closed" : "Suspended"} /> : null}
+        {dim ? <Suspended label={label} /> : null}
       </div>
     </div>
   );
@@ -174,8 +194,7 @@ function Board({ market }: { market: Market }) {
 
 function FancyRow({ market }: { market: Market }) {
   const odds = market.oddsData;
-  const status = (odds?.status ?? "OPEN").toUpperCase();
-  const dim = status === "SUSPENDED" || status === "CLOSED";
+  const { dim, label } = marketState(market);
   const r = odds?.runners?.[0];
   const no = r?.price?.lay?.[0];
   const yes = r?.price?.back?.[0];
@@ -202,7 +221,7 @@ function FancyRow({ market }: { market: Market }) {
       {dim ? (
         <div className="pointer-events-none absolute inset-y-0 left-1/2 flex -translate-x-1/2 items-center">
           <span className="text-base font-extrabold uppercase tracking-[0.18em] text-ex-text">
-            Suspended
+            {label}
           </span>
         </div>
       ) : null}
