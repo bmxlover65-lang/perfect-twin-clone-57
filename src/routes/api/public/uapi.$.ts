@@ -431,10 +431,11 @@ async function mergeBackupPrices(splat: string, text: string) {
           backup.normalizeName(altMarket?.runnersData?.[String(a.selectionId)] ?? "") === name,
       );
       if (!hit) continue;
-      if (liveDepth(hit.price?.back) || liveDepth(hit.price?.lay)) {
+      if (hit.price && (liveDepth(hit.price.back) || liveDepth(hit.price.lay))) {
         r.price = hit.price;
         filled = true;
       }
+
     }
     if (!filled) return null;
     return Response.json(payload, { status: 200, headers: { "cache-control": "no-store" } });
