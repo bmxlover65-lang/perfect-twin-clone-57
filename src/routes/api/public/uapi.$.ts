@@ -393,7 +393,7 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
     }
     if (isSportsPath(splat) && res.ok && text.startsWith("{")) {
       sportsSnapshot.set(snapshotKey, { at: Date.now(), text });
-      if (/^sports\/[^/]+\/events$/.test(splat)) rememberEventNames(text);
+      if (/^sports\/[^/]+\/events$/.test(splat)) void rememberEventNames(text);
     }
     // Upstream answered 200 but with an empty/errored sports payload: fail over.
     if (isSportsPath(splat) && res.ok) {
