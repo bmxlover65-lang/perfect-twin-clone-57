@@ -267,12 +267,18 @@ function snapshotResponse(key: string, upstreamStatus: number) {
 // exEventId -> event name, learned from successful events responses. The
 // backup exchange keys matches by name, so this lets odds fail over too.
 const eventNames = new Map<string, string>();
+// normalized event name -> primary provider exEventId, so backup events keep
+// the primary ids that live TV and the scoreboard are addressed by.
+const primaryIdByName = new Map<string, string>();
 
-function rememberEventNames(text: string) {
+async function rememberEventNames(text: string) {
   try {
+    const { normalizeName } = await import("@/lib/skyfair.server");
     const parsed = JSON.parse(text) as { events?: { exEventId?: string; eventName?: string }[] };
     for (const e of parsed.events ?? []) {
-      if (e.exEventId && e.eventName) eventNames.set(String(e.exEventId), e.eventName);
+      if (!e.exEventId || !e.eventName) continue;
+      eventNames.set(String(e.exEventId), e.eventName);
+      primaryIdByName.set(normalizeName(e.eventName), String(e.exEventId));
     }
   } catch {
     /* ignore */
@@ -286,7 +292,9 @@ async function backupSports(splat: string) {
   try {
     const backup = await import("@/lib/skyfair.server");
     if (eventsMatch) {
-      const events = await backup.backupEvents(decodeURIComponent(eventsMatch[1]!));
+      const events = await backup.backupEvents(decodeURIComponent(eventsMatch[1]!), (n) =>
+        primaryIdByName.get(n),
+      );
       if (!events.length) return null;
       return Response.json(
         { events, source: "backup", refreshedAt: new Date().toISOString() },
