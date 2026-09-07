@@ -239,13 +239,20 @@ function EventPage() {
   const closedSince = useRef<number>(0);
   const requestId = useRef(0);
   const inFlight = useRef(false);
+  const inFlightSince = useRef(0);
   const lastSocketMessage = useRef(0);
   const [age, setAge] = useState(0);
 
 
   const load = useCallback(async () => {
-    if (inFlight.current) return;
+    // Safety: if a previous request got stuck (network hang), force-release the
+    // lock after 5s so the per-second updates never stop permanently.
+    if (inFlight.current) {
+      if (Date.now() - inFlightSince.current < 5000) return;
+      inFlight.current = false;
+    }
     inFlight.current = true;
+    inFlightSince.current = Date.now();
     const currentRequest = ++requestId.current;
     try {
       const odds = await fetchOdds(sportId, eventId);
