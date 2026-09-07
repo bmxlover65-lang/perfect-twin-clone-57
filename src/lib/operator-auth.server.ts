@@ -8,6 +8,12 @@ export type Operator = {
   callback_secret: string | null;
   status: string;
   plan_expires_at: string | null;
+  /**
+   * true  → bets stay entirely on the operator's own platform: we never debit,
+   *         credit or store the bet, so their turnover/GGR never touches us.
+   * false → legacy mode where this platform runs the wallet and bet ledger.
+   */
+  bet_passthrough: boolean;
 };
 
 export type AuthFailure = { ok: false; status: number; error: string; code: string };
