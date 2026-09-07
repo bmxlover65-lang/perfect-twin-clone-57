@@ -375,6 +375,7 @@ type PricedRunner = {
   price?: { back?: PriceRow[]; lay?: PriceRow[] };
 };
 type PricedPayload = {
+  eventName?: string;
   matchOdds?: {
     marketType?: string;
     runnersData?: Record<string, string>;
@@ -411,7 +412,7 @@ async function mergeBackupPrices(splat: string, text: string) {
     const alt = (await backup.backupOdds(
       sportId,
       exEventId,
-      eventNames.get(exEventId),
+      payload.eventName ?? eventNames.get(exEventId),
     )) as PricedPayload | null;
     const altMarket = alt?.matchOdds?.[0];
     const altRunners = altMarket?.oddsData?.runners ?? [];
