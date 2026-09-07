@@ -386,6 +386,62 @@ type PricedPayload = {
 const liveDepth = (rows?: PriceRow[]) => (rows ?? []).some((r) => Number(r?.price) > 0);
 
 /**
+ * The upstream sports API is served by several cache generations, so polls
+ * alternate between a fresh payload and an older one. That makes the board
+ * flip back and forth instead of moving forward. `totalMatched` only ever
+ * grows, so per market we keep the highest generation seen and reuse it
+ * whenever a poll hands back an older one.
+ */
+type GenMarket = {
+  marketId?: string;
+  marketName?: string;
+  oddsData?: { totalMatched?: number };
+};
+type GenPayload = Record<string, unknown> & {
+  matchOdds?: GenMarket[];
+  bookmakers?: GenMarket[];
+  fancy?: GenMarket[];
+  sportsbook?: GenMarket[];
+};
+
+const marketGenerations = new Map<string, { at: number; matched: number; market: GenMarket }>();
+
+function freshestMarkets(splat: string, text: string): string {
+  if (!/^sports\/[^/]+\/[^/]+\/odds$/.test(splat)) return text;
+  let payload: GenPayload;
+  try {
+    payload = JSON.parse(text) as GenPayload;
+  } catch {
+    return text;
+  }
+  let changed = false;
+  const now = Date.now();
+  for (const group of ["matchOdds", "bookmakers", "fancy", "sportsbook"] as const) {
+    const list = payload[group];
+    if (!Array.isArray(list)) continue;
+    list.forEach((market, i) => {
+      const id = market?.marketId ?? market?.marketName;
+      if (!id) return;
+      const key = `${splat}|${id}`;
+      const matched = Number(market?.oddsData?.totalMatched ?? 0);
+      const prev = marketGenerations.get(key);
+      // Older generation than one we already served: replay the newer state.
+      if (prev && prev.matched > matched && now - prev.at < 60_000) {
+        list[i] = prev.market;
+        changed = true;
+        return;
+      }
+      marketGenerations.set(key, { at: now, matched, market });
+    });
+  }
+  if (marketGenerations.size > 4000) {
+    for (const [k, v] of marketGenerations) if (now - v.at > 120_000) marketGenerations.delete(k);
+  }
+  return changed ? JSON.stringify(payload) : text;
+}
+
+
+/**
  * Keep the displayed exchange prices synchronized with the live backup feed.
  * The primary endpoint can return a valid-looking but delayed snapshot, so
  * waiting for zero prices leaves the board visibly behind the reference site.
@@ -497,7 +553,8 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
       token = await getToken(true);
       res = await upstream(splat, search, token, body);
     }
-    const text = await res.text();
+    const text = freshestMarkets(splat, await res.text());
+
     const resultsMatch = /^games\/([^/]+)\/results$/.exec(splat);
     // Upstream currently 502s on some casino endpoints (e.g. /results).
     // Degrade gracefully instead of surfacing a 502 to the app.
