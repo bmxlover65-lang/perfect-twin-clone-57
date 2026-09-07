@@ -199,12 +199,12 @@ export function BetLayer({
   const [chips, setChips] = useState<{
     id: number;
     x: number;
-    oppositeX?: number;
+    oppositeX?: number | undefined;
     y: number;
     amount: number;
     profit: number;
   }[]>([]);
-  const cellPos = useRef<{ x: number; oppositeX?: number; y: number } | null>(null);
+  const cellPos = useRef<{ x: number; oppositeX?: number | undefined; y: number } | null>(null);
   const busy = useRef(false);
   const wallet = useWallet();
   const embed = useEmbed();
