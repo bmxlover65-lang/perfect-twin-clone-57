@@ -419,6 +419,12 @@ function freshestMarkets(splat: string, text: string): string {
   for (const group of ["matchOdds", "bookmakers", "fancy", "sportsbook"] as const) {
     const list = payload[group];
     if (!Array.isArray(list)) continue;
+    // Generation replay only helps the heavily traded main board. Side markets
+    // such as Over/Under move on a flat totalMatched, so replaying them just
+    // held their prices a few seconds behind the live feed.
+    const sideMarkets = group === "sportsbook" || group === "fancy";
+    if (sideMarkets) continue;
+
     list.forEach((market, i) => {
       const id = market?.marketId ?? market?.marketName;
       if (!id) return;
