@@ -360,7 +360,7 @@ export function BetLayer({
               const opposite = currentIndex === 0 ? priceCells[1] : currentIndex === 1 ? priceCells[0] : undefined;
               if (opposite) {
                 const oppositeBox = opposite.getBoundingClientRect();
-                oppositeX = oppositeBox.left + oppositeBox.width / 2 - rootBox.left;
+                oppositeX = u(oppositeBox.left + oppositeBox.width / 2 - rootBox.left);
               }
               break;
             }
@@ -378,7 +378,7 @@ export function BetLayer({
             if (row.getBoundingClientRect().width >= rootW * 0.8) break;
             row = row.parentElement;
           }
-          const top = row.getBoundingClientRect().bottom - rootBox.top;
+          const top = u(row.getBoundingClientRect().bottom - rootBox.top);
           setAnchor(Math.max(0, top));
           setPick({ label: p.label, odds: p.odds });
           setOdds(p.odds);
