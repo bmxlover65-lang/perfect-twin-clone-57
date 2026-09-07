@@ -293,16 +293,14 @@ export function BetLayer({
     if (pos) {
       // Same selection bet again in the same round → one chip with the total.
       setChips((cur) => {
-        const i = cur.findIndex((c) => Math.abs(c.x - pos.x) < 14 && Math.abs(c.y - pos.y) < 14);
+        const i = cur.findIndex((c) => c.cell === pos.cell);
         if (i < 0) {
           return [
             ...cur,
             {
               id: Date.now(),
-              x: pos.x,
-              oppositeX: pos.oppositeX,
-              oppositeY: pos.oppositeY,
-              y: pos.y,
+              cell: pos.cell,
+              opposite: pos.opposite,
               amount: stake,
               profit: stake * Math.max(0, odds - 1),
             },
@@ -319,6 +317,7 @@ export function BetLayer({
         return next;
       });
     }
+
     setSuccess(`Bet Placed · ${pickLabel} @ ${odds} · ${Math.round(stake)}`);
 
   };
