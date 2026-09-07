@@ -65,6 +65,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 
 ## Phase 7 — Royal444 full casino structure parity (pending reference access)
 - [ ] Audit the reference casino lobby and every casino game page at mobile width
-- [ ] Match shared casino navigation, header, game shell, market boxes, colors and spacing
+- [x] Match shared casino market headers, blue bodies, rate boxes and divider colors to the supplied mobile reference
+- [ ] Match shared casino navigation, game shell and spacing
 - [ ] Apply the same structure across all casino pages on universeapi.store
 - [ ] Verify every casino page at mobile and desktop widths

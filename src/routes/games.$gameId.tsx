@@ -182,8 +182,8 @@ function BaccaratPanel({
   const pairSusp = groupSuspended(pair);
 
   return (
-    <div className="mt-2 space-y-2 bg-[#f2f2f2] px-2 pb-2 pt-1">
-      <p className="text-right text-[0.72rem] font-semibold text-[#6b7280]">
+    <div className="mt-0 space-y-2 bg-casino-market-body px-2 pb-2 pt-1">
+      <p className="text-right text-[0.72rem] font-semibold text-casino-market-text/70">
         Min/Max: {mm?.min ?? 0} - {mm?.max ?? 0}
       </p>
       <div className="relative flex items-stretch overflow-hidden">
@@ -320,8 +320,8 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
     const locked = !runnerOpen || !p?.price;
     return (
       <div
-        className={`relative m-[3px] flex h-[40px] flex-col items-center justify-center ${
-          side === "back" ? "bg-[#72BBEF]" : "bg-[#F9C9D4]"
+        className={`relative m-[3px] flex h-[40px] flex-col items-center justify-center rounded-[5px] ${
+          side === "back" ? "bg-casino-market-rate" : "bg-ex-lay"
         }`}
       >
         {locked ? (
@@ -343,23 +343,23 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
   };
 
   return (
-    <div className="mt-3 overflow-hidden border border-[#d9d9d9] bg-white">
-      <header className="bg-black px-2 py-1">
-        <h3 className="text-[0.78rem] font-extrabold uppercase tracking-[0.04em] text-white">
+    <div className="mt-0 overflow-hidden border-b border-casino-market-divider bg-casino-market-body">
+      <header className="flex h-[34px] items-center bg-casino-market-header px-2">
+        <h3 className="text-[0.78rem] font-extrabold uppercase tracking-[0.04em] text-board-header-foreground">
           {market.marketName}
         </h3>
       </header>
       <div className="relative">
-        <div className={`grid ${cols} items-center bg-white`}>
-          <span className="px-2 py-1 text-[0.75rem] font-bold text-[#1f4b66]">
+        <div className={`grid ${cols} items-center bg-casino-market-body`}>
+          <span className="px-2 py-1 text-[0.75rem] font-bold text-casino-market-text">
             Min/Max{" "}
-            <span className="font-semibold text-[#8a9199]">
+            <span className="font-semibold text-casino-market-text/65">
               {market.min ?? 0} - {market.max ?? 0}
             </span>
           </span>
-          <span className="py-1 text-center text-[0.75rem] font-bold text-[#1f4b66]">Back</span>
+          <span className="py-1 text-center text-[0.75rem] font-bold text-casino-market-text">Back</span>
           {hasLay ? (
-            <span className="py-1 text-center text-[0.75rem] font-bold text-[#1f4b66]">Lay</span>
+            <span className="py-1 text-center text-[0.75rem] font-bold text-casino-market-text">Lay</span>
           ) : null}
         </div>
         {runners.map((r) => {
@@ -367,9 +367,9 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
           return (
             <div
               key={String(r.selectionId)}
-              className={`grid items-center border-t border-[#e6e6e6] ${cols}`}
+              className={`grid items-center border-t border-casino-market-divider ${cols}`}
             >
-              <span className="px-2 py-2 text-[0.82rem] font-bold text-[#1f4b66]">
+              <span className="px-2 py-2 text-[0.82rem] font-bold text-casino-market-text">
                 {runnerLabel(names[String(r.selectionId)] ?? String(r.selectionId))}
               </span>
 
@@ -425,16 +425,16 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
 
   return (
     <div className="mt-0">
-      <header className="flex items-center justify-between gap-2 bg-black px-2 py-[5px]">
-        <h3 className="truncate whitespace-nowrap text-[0.78rem] font-extrabold uppercase tracking-[0.02em] text-white">
+      <header className="flex h-[34px] items-center justify-between gap-2 bg-casino-market-header px-2">
+        <h3 className="truncate whitespace-nowrap text-[0.78rem] font-extrabold uppercase tracking-[0.02em] text-board-header-foreground">
           {market.marketName}
         </h3>
-        <span className="shrink-0 whitespace-nowrap text-[0.66rem] font-semibold text-white/85">
+        <span className="shrink-0 whitespace-nowrap text-[0.66rem] font-semibold text-board-header-foreground/85">
           Min/Max: {market.min ?? 0} - {market.max ?? 0}
         </span>
 
       </header>
-      <div className="relative bg-gradient-to-b from-[#dff0fb] to-[#a9d4ef] px-3 py-3">
+      <div className="relative bg-casino-market-body px-3 py-3">
         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
           {runners.map((r, i) => {
             const p = r.price?.back?.[0];
@@ -445,7 +445,7 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                 key={String(r.selectionId)}
                 className={`min-w-0 ${last ? "col-span-2 mx-auto w-[calc(50%-0.5rem)]" : ""}`}
               >
-                <div className="px-1 pb-1 text-center text-[0.72rem] font-bold uppercase text-[#0d2a3c]">
+                <div className="px-1 pb-1 text-center text-[0.72rem] font-bold uppercase text-casino-market-text">
                   {(() => {
                     const label = String(names[String(r.selectionId)] ?? r.selectionId).trim();
                     return /CARD/i.test(market.marketName ?? "") && RANKS.includes(label.toUpperCase())
@@ -454,7 +454,7 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                   })()}
                 </div>
 
-                <div className="relative flex h-[42px] flex-col items-center justify-center rounded-[6px] border border-[#7fb4d6] bg-gradient-to-b from-[#bfe0f6] to-[#8ec5e8] text-[#0a2233] shadow-sm">
+                <div className="relative flex h-[42px] flex-col items-center justify-center rounded-[5px] border border-casino-market-divider bg-casino-market-rate text-casino-market-text shadow-sm">
                   {locked ? (
                     <span className="absolute inset-0 flex items-center justify-center rounded-[6px] bg-black/35 text-sm">
                       🔒
@@ -464,7 +464,7 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                       <span className="text-[0.95rem] font-extrabold leading-none">
                         {fmtOdds(p?.price)}
                       </span>
-                      <span className="mt-0.5 text-[0.66rem] font-semibold text-[#0a2233]/75">
+                      <span className="mt-0.5 text-[0.66rem] font-semibold text-casino-market-text/75">
                         {fmtSize(p?.size)}
                       </span>
                     </>
@@ -501,8 +501,8 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
     locked: boolean,
   ) => (
     <div
-      className={`relative m-[2px] flex h-[44px] flex-col items-center justify-center border border-[#7fb4d6] ${
-        side === "back" ? "bg-[#72BBEF]" : "bg-[#F9C9D4]"
+      className={`relative m-[2px] flex h-[44px] flex-col items-center justify-center rounded-[5px] border border-casino-market-divider ${
+        side === "back" ? "bg-casino-market-rate" : "bg-ex-lay"
       }`}
     >
       {locked ? (
@@ -521,17 +521,17 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
   );
 
   return (
-    <div className="mt-0 overflow-hidden border border-[#d9e2ea] bg-gradient-to-b from-[#eaf5fd] to-[#cfe7f7]">
-      <div className={`grid ${cols} items-center px-2`}>
-        <span className="py-1.5 text-[0.8rem] font-extrabold uppercase text-[#12303f]">
+    <div className="mt-0 overflow-hidden border-b border-casino-market-divider bg-casino-market-body">
+      <div className={`grid min-h-[34px] ${cols} items-center bg-casino-market-header px-2`}>
+        <span className="py-1.5 text-[0.8rem] font-extrabold uppercase text-board-header-foreground">
           {market.marketName}{" "}
-          <span className="ml-1 text-[0.68rem] font-semibold normal-case text-[#5b6b76]">
+          <span className="ml-1 text-[0.68rem] font-semibold normal-case text-board-header-foreground/75">
             Min: {market.min ?? 0} Max: {market.max ?? 0}
           </span>
         </span>
-        <span className="py-1.5 text-center text-[0.72rem] font-bold text-[#12303f]">Back</span>
+        <span className="py-1.5 text-center text-[0.72rem] font-bold text-board-header-foreground">Back</span>
         {hasLay ? (
-          <span className="py-1.5 text-center text-[0.72rem] font-bold text-[#12303f]">Lay</span>
+          <span className="py-1.5 text-center text-[0.72rem] font-bold text-board-header-foreground">Lay</span>
         ) : null}
       </div>
       <div className="relative">
@@ -540,9 +540,9 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
           return (
             <div
               key={String(r.selectionId)}
-              className={`grid items-center border-t border-white/70 ${cols} px-2`}
+              className={`grid items-center border-t border-casino-market-divider ${cols} px-2`}
             >
-              <span className="truncate py-1 text-[0.85rem] font-bold uppercase text-[#12303f]">
+              <span className="truncate py-1 text-[0.85rem] font-bold uppercase text-casino-market-text">
                 {names[String(r.selectionId)] ?? String(r.selectionId)}
               </span>
               {plate(r.price?.back?.[0], "back", !open || !r.price?.back?.[0]?.price)}
@@ -885,19 +885,19 @@ function DT20Panel({
   };
 
   return (
-    <div className="mt-3 space-y-2 bg-white p-1">
+    <div className="mt-0 space-y-2 bg-casino-market-body p-1">
       {markets.map((m, mi) => {
         const names = m.runnersName ?? {};
         const runners = m.runners ?? [];
         const allClosed =
           runners.length > 0 && runners.every((r) => suspended || !isOpenStatus(r.status));
         return (
-          <div key={`${m.marketId}-${mi}`} className="border border-[#d9d9d9]">
-            <div className="flex items-center justify-between bg-black px-2 py-[4px]">
-              <span className="text-[0.8rem] font-extrabold uppercase tracking-wide text-white">
+          <div key={`${m.marketId}-${mi}`} className="border-b border-casino-market-divider">
+            <div className="flex h-[34px] items-center justify-between bg-casino-market-header px-2">
+              <span className="text-[0.8rem] font-extrabold uppercase tracking-wide text-board-header-foreground">
                 {m.marketName}
               </span>
-              <span className="text-[0.78rem] font-bold text-white">
+              <span className="text-[0.72rem] font-bold text-board-header-foreground/85">
                 Min/Max: {m.min ?? 100} - {m.max ?? 100000}
               </span>
             </div>
@@ -905,12 +905,12 @@ function DT20Panel({
               {runners.map((r, i) => (
                 <div
                   key={`${r.selectionId}-${i}`}
-                  className={`flex items-stretch ${i ? "border-t border-[#ededed]" : ""}`}
+                  className={`flex items-stretch ${i ? "border-t border-casino-market-divider" : ""}`}
                 >
                   <div className="flex min-h-[44px] flex-1 items-center px-2 py-1">
                     <Label text={names[String(r.selectionId)] ?? String(r.selectionId)} />
                   </div>
-                  <div className="flex w-[105px] flex-col items-center justify-center bg-[#B7DBF5] leading-tight">
+                  <div className="m-1 flex w-[105px] flex-col items-center justify-center rounded-[5px] bg-casino-market-rate leading-tight">
                     <span className="text-[0.85rem] text-[#111]">
                       {fmtOdds(r.price?.back?.[0]?.price)}
                     </span>
@@ -918,7 +918,7 @@ function DT20Panel({
                       {fmtSize(r.price?.back?.[0]?.size)}
                     </span>
                   </div>
-                  <div className="w-[105px] border-l border-[#ededed] bg-white" />
+                  <div className="w-[105px] border-l border-casino-market-divider bg-casino-market-body" />
                 </div>
               ))}
               {allClosed ? (
@@ -985,17 +985,17 @@ function CardRacePanel({
   };
 
   return (
-    <div className="mt-3 space-y-2 rounded-[4px] bg-white p-2">
+    <div className="mt-0 space-y-2 bg-casino-market-body p-1">
       {markets.map((m, mi) => {
         const names = m.runnersName ?? {};
         const runners = m.runners ?? [];
         return (
-          <div key={`${m.marketId}-${mi}`} className="overflow-hidden rounded-[3px] border border-[#d9d9d9]">
-            <div className="flex items-center justify-between bg-[#1C2B3A] px-2 py-[6px]">
-              <span className="text-[0.85rem] font-extrabold uppercase tracking-wide text-white">
+          <div key={`${m.marketId}-${mi}`} className="overflow-hidden border-b border-casino-market-divider">
+            <div className="flex h-[34px] items-center justify-between bg-casino-market-header px-2">
+              <span className="text-[0.85rem] font-extrabold uppercase tracking-wide text-board-header-foreground">
                 {m.marketName}
               </span>
-              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white text-[0.65rem] font-extrabold text-[#1C2B3A]">
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-board-header-foreground text-[0.65rem] font-extrabold text-casino-market-header">
                 i
               </span>
             </div>
@@ -1006,16 +1006,13 @@ function CardRacePanel({
                 return (
                   <div
                     key={`${r.selectionId}-${i}`}
-                    className={`flex items-stretch ${i ? "border-t border-[#e6e6e6]" : ""}`}
+                    className={`flex items-stretch ${i ? "border-t border-casino-market-divider" : ""}`}
                   >
                     <div className="flex min-h-[42px] flex-1 items-center px-2 py-1">
                       <Label text={label} />
                     </div>
                     <div className="flex w-[134px] items-center justify-center p-1">
-                      <div
-                        className="flex h-[38px] w-full flex-col items-center justify-center rounded-[2px] leading-none"
-                        style={{ background: open ? "#72BBEF" : "#A8C6E0" }}
-                      >
+                      <div className={`flex h-[38px] w-full flex-col items-center justify-center rounded-[5px] leading-none ${open ? "bg-casino-market-rate" : "bg-casino-market-rate/55"}`}>
                         <span className="text-[0.95rem] font-bold text-[#12314e]">
                           {fmtOdds(r.price?.back?.[0]?.price)}
                         </span>
@@ -1074,7 +1071,7 @@ function AAAPanel({
   );
 
   const Header = ({ name }: { name: string }) => (
-    <div className="bg-black px-2 py-[5px] text-[0.85rem] font-extrabold uppercase tracking-wide text-white">
+    <div className="flex h-[34px] items-center bg-casino-market-header px-2 text-[0.85rem] font-extrabold uppercase tracking-wide text-board-header-foreground">
       {name}
     </div>
   );
@@ -1104,9 +1101,9 @@ function AAAPanel({
   );
 
   return (
-    <div className="mt-3 space-y-2 rounded-[4px] bg-white p-2">
+    <div className="mt-0 space-y-2 bg-casino-market-body p-1">
       {winner ? (
-        <div className="border border-[#d9d9d9]">
+        <div className="border-b border-casino-market-divider">
           <Header name="WINNER" />
           <div className="flex items-stretch bg-white">
             <div className="flex-1 p-1">
@@ -1114,7 +1111,7 @@ function AAAPanel({
                 Min/Max: {winner.min ?? 100} - {winner.max ?? 100000}
               </div>
             </div>
-            <div className="flex w-[124px] items-center justify-center bg-[#72BBEF] text-[0.85rem] font-semibold text-white/80">
+            <div className="flex w-[124px] items-center justify-center bg-casino-market-rate text-[0.85rem] font-semibold text-casino-market-text/70">
               Back
             </div>
             <div className="flex w-[124px] items-center justify-center bg-[#F9C9D4] text-[0.85rem] font-semibold text-white">
@@ -1164,7 +1161,7 @@ function AAAPanel({
           const runners = m.runners ?? [];
           const closed = runners.every((r) => suspended || !isOpenStatus(r.status));
           return (
-            <div key={`${m.marketId}-${mi}`} className="border border-[#d9d9d9]">
+            <div key={`${m.marketId}-${mi}`} className="border-b border-casino-market-divider">
               <Header name={m.marketName ?? ""} />
               <div className="p-1">
                 <MinMax m={m} />
@@ -1206,13 +1203,13 @@ function AAAPanel({
       </div>
 
       {card ? (
-        <div className="border border-[#d9d9d9]">
+        <div className="border-b border-casino-market-divider">
           <Header name="CARD" />
           <div className="flex items-stretch">
             <div className="flex-1 p-1">
               <MinMax m={card} />
             </div>
-            <div className="flex w-[248px] items-center justify-center bg-[#9ED2F0] text-[0.85rem] font-semibold text-white/85">
+            <div className="flex w-[248px] items-center justify-center bg-casino-market-rate text-[0.85rem] font-semibold text-casino-market-text/70">
               Back
             </div>
           </div>
@@ -2352,7 +2349,7 @@ function GamePage() {
         round={String(d?.roundId ?? "")}
         disabled={suspended}
       >
-        <Fit designWidth={860}>
+        <Fit designWidth={860} mobileNative>
         {gameId === "99.0014" && markets.length ? (
           <MuflisPanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0018" && markets.length ? (
