@@ -264,6 +264,45 @@ function snapshotResponse(key: string, upstreamStatus: number) {
 }
 
 
+// exEventId -> event name, learned from successful events responses. The
+// backup exchange keys matches by name, so this lets odds fail over too.
+const eventNames = new Map<string, string>();
+
+function rememberEventNames(text: string) {
+  try {
+    const parsed = JSON.parse(text) as { events?: { exEventId?: string; eventName?: string }[] };
+    for (const e of parsed.events ?? []) {
+      if (e.exEventId && e.eventName) eventNames.set(String(e.exEventId), e.eventName);
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
+async function backupSports(splat: string) {
+  const eventsMatch = /^sports\/([^/]+)\/events$/.exec(splat);
+  const oddsMatch = /^sports\/([^/]+)\/([^/]+)\/odds$/.exec(splat);
+  if (!eventsMatch && !oddsMatch) return null;
+  try {
+    const backup = await import("@/lib/skyfair.server");
+    if (eventsMatch) {
+      const events = await backup.backupEvents(decodeURIComponent(eventsMatch[1]!));
+      if (!events.length) return null;
+      return Response.json(
+        { events, source: "backup", refreshedAt: new Date().toISOString() },
+        { status: 200, headers: { "cache-control": "no-store" } },
+      );
+    }
+    const sportId = decodeURIComponent(oddsMatch![1]!);
+    const exEventId = decodeURIComponent(oddsMatch![2]!);
+    const odds = await backup.backupOdds(sportId, exEventId, eventNames.get(exEventId));
+    if (!odds) return null;
+    return Response.json(odds, { status: 200, headers: { "cache-control": "no-store" } });
+  } catch {
+    return null;
+  }
+}
+
 async function proxy(splat: string, search: string, body?: string, origin = "") {
   const snapshotKey = sportsSnapshotKey(splat, search);
   try {
