@@ -94,15 +94,28 @@ function SportsPage() {
       .catch(() => undefined);
   }, []);
 
+  const inFlight = useRef(false);
+  const emptyStreak = useRef(0);
+
   const load = useCallback(
     async (id: string, silent = false) => {
+      if (silent && inFlight.current) return;
+      inFlight.current = true;
       const currentRequest = ++requestId.current;
       if (!silent) setLoading(true);
       const started = Date.now();
       try {
         const data = await fetchEvents(id);
         if (currentRequest !== requestId.current) return;
-        setEvents(data.events ?? []);
+        const next = data.events ?? [];
+        if (next.length === 0) {
+          emptyStreak.current += 1;
+          // keep the last good list unless the feed is consistently empty
+          if (emptyStreak.current >= 3) setEvents(next);
+        } else {
+          emptyStreak.current = 0;
+          setEvents(next);
+        }
         setError(null);
         setRefreshedAt(new Date(data.refreshedAt ?? Date.now()).toLocaleTimeString());
         setLatency(Date.now() - started);
@@ -119,6 +132,7 @@ function SportsPage() {
           [{ at: new Date().toLocaleTimeString(), message }, ...log].slice(0, 8),
         );
       } finally {
+        inFlight.current = false;
         if (currentRequest === requestId.current) setLoading(false);
       }
     },
@@ -126,10 +140,15 @@ function SportsPage() {
   );
 
   useEffect(() => {
+    emptyStreak.current = 0;
     void load(sportId);
-    const t = setInterval(() => void load(sportId, true), 400);
+    const t = setInterval(() => {
+      if (document.visibilityState === "hidden") return;
+      void load(sportId, true);
+    }, 3000);
     return () => clearInterval(t);
   }, [sportId, load]);
+
 
   const inplay = useMemo(() => events.filter((e) => e.inPlay), [events]);
   const pre = useMemo(() => events.filter((e) => !e.inPlay), [events]);
