@@ -270,7 +270,7 @@ function PokerPanel({
                   i
                 </span>
               </header>
-              <div className="relative grid grid-cols-2 divide-x divide-casino-market-divider py-1.5">
+              <div className="relative grid grid-cols-2 divide-x divide-casino-market-divider pb-5 pt-1.5">
                 {[a, b].map((r, index) => (
                   <div key={r ? String(r.selectionId) : index} className="min-w-0 px-1.5 pb-1.5">
                     <p className="mb-1 truncate text-center text-[0.82rem] font-medium uppercase text-casino-market-text">
