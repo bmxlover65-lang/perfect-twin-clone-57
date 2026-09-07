@@ -78,9 +78,22 @@ function Lobby() {
 
   useEffect(() => {
     void load();
-    const t = setInterval(() => void load(), 5000);
-    return () => clearInterval(t);
+    const t = setInterval(() => {
+      if (document.visibilityState === "hidden") return;
+      void load();
+    }, 2000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void load();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+    return () => {
+      clearInterval(t);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+    };
   }, [load]);
+
 
   const BBB = "4.3544687543453";
   const VIMAAN = "88.0030";
