@@ -232,13 +232,7 @@ export async function backupOdds(sportId: string, exEventId: string, eventName?:
     const raw = (r.status ?? "ACTIVE").toUpperCase();
     // Once the exchange settles the market it flags the winning runner; map
     // that onto the WINNER / LOSER statuses the app settles bets from.
-    const status = /WIN/.test(raw)
-      ? "WINNER"
-      : /LOSE|LOSS/.test(raw)
-        ? "LOSER"
-        : settled
-          ? "LOSER"
-          : raw;
+    const status = /WIN/.test(raw) ? "WINNER" : /LOSE|LOSS/.test(raw) ? "LOSER" : raw;
     return {
       selectionId: id,
       status,
@@ -248,6 +242,11 @@ export async function backupOdds(sportId: string, exEventId: string, eventName?:
   });
 
   const winner = runners.find((r) => r.status === "WINNER");
+  // Only declare losers once a winner is actually published, never on a bare
+  // CLOSED/SUSPENDED market — otherwise open bets would settle wrongly.
+  if (winner) {
+    for (const r of runners) if (r.status !== "WINNER") r.status = "LOSER";
+  }
 
   return {
     exEventId,
