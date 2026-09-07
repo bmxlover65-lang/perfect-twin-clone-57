@@ -230,8 +230,8 @@ function PokerPanel({
     size?: number | null | undefined;
     locked: boolean;
   }) => (
-    <div className="relative mx-auto flex h-[56px] w-[148px] max-w-[88%] flex-col items-center justify-center rounded-[5px] bg-casino-market-rate text-casino-market-text shadow-[0_4px_10px_color-mix(in_oklab,var(--casino-market-header)_28%,transparent)]">
-      <span className="text-[0.95rem] font-medium leading-none">{fmtOdds(price)}</span>
+    <div className="relative mx-auto flex h-[54px] w-[160px] max-w-[92%] flex-col items-center justify-center rounded-[6px] bg-casino-market-rate text-casino-market-text shadow-[0_4px_10px_color-mix(in_oklab,var(--casino-market-header)_28%,transparent)]">
+      <span className="text-[1.08rem] font-bold leading-none">{fmtOdds(price)}</span>
       <span className="mt-1 text-[0.72rem] font-normal leading-none">{fmtSize(size)}</span>
       {locked ? (
         <span className="absolute inset-0 flex items-center justify-center rounded-[5px] bg-casino-market-rate/70 text-[0.72rem] font-bold uppercase text-casino-market-text">
