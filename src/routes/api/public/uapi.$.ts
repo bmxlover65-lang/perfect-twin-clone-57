@@ -2,6 +2,22 @@ import { createFileRoute } from "@tanstack/react-router";
 
 const UPSTREAM = "https://universeapi.shop/public";
 
+// Failover chain: if the primary provider is down we walk these mirrors in
+// order so odds/results keep flowing. Extra mirrors can be added at runtime
+// through the UAPI_MIRRORS env var (comma separated base URLs).
+function upstreamBases(): string[] {
+  const extra = (process.env["UAPI_MIRRORS"] ?? "")
+    .split(",")
+    .map((s) => s.trim().replace(/\/$/, ""))
+    .filter(Boolean);
+  return [
+    UPSTREAM,
+    "https://www.universeapi.shop/public",
+    "https://api.universeapi.shop/public",
+    ...extra,
+  ];
+}
+
 let cachedToken: string | null = null;
 let cachedAt = 0;
 
@@ -14,19 +30,35 @@ function authHeaders(): Record<string, string> {
   return key ? { "X-API-Key": key, "x-api-key": key } : {};
 }
 
+// Which base answered last — reused first so we stick to a healthy mirror.
+let activeBase = UPSTREAM;
+
 async function mintToken(): Promise<string> {
-  const res = await fetch(`${UPSTREAM}/session`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
-    body: "{}",
-  });
-  const json = (await res.json().catch(() => ({}))) as { sessionToken?: string; error?: string };
-  if (!res.ok || !json.sessionToken) {
-    throw new Error(json.error ?? `Failed to create session (${res.status})`);
+  let lastError = "Failed to create session";
+  const bases = [activeBase, ...upstreamBases().filter((b) => b !== activeBase)];
+  for (const base of bases) {
+    try {
+      const res = await fetch(`${base}/session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: "{}",
+      });
+      const json = (await res.json().catch(() => ({}))) as {
+        sessionToken?: string;
+        error?: string;
+      };
+      if (res.ok && json.sessionToken) {
+        activeBase = base;
+        cachedToken = json.sessionToken;
+        cachedAt = Date.now();
+        return json.sessionToken;
+      }
+      lastError = json.error ?? `Failed to create session (${res.status})`;
+    } catch (e) {
+      lastError = e instanceof Error ? e.message : lastError;
+    }
   }
-  cachedToken = json.sessionToken;
-  cachedAt = Date.now();
-  return json.sessionToken;
+  throw new Error(lastError);
 }
 
 async function getToken(force = false): Promise<string> {
@@ -35,16 +67,33 @@ async function getToken(force = false): Promise<string> {
 }
 
 async function upstream(path: string, search: string, token: string, body?: string) {
-  return fetch(`${UPSTREAM}/${path}${search}`, {
-    method: body === undefined ? "GET" : "POST",
-    cache: "no-store",
-    headers: {
-      "x-session-token": token,
-      accept: "application/json",
-      ...authHeaders(),
-      ...(body === undefined ? {} : { "content-type": "application/json" }),
-    },
-    ...(body === undefined ? {} : { body }),
+  const bases = [activeBase, ...upstreamBases().filter((b) => b !== activeBase)];
+  let last: Response | null = null;
+  for (const base of bases) {
+    try {
+      const res = await fetch(`${base}/${path}${search}`, {
+        method: body === undefined ? "GET" : "POST",
+        cache: "no-store",
+        headers: {
+          "x-session-token": token,
+          accept: "application/json",
+          ...authHeaders(),
+          ...(body === undefined ? {} : { "content-type": "application/json" }),
+        },
+        ...(body === undefined ? {} : { body }),
+      });
+      if (res.status < 500) {
+        activeBase = base;
+        return res;
+      }
+      last = res;
+    } catch {
+      last = null;
+    }
+  }
+  return last ?? new Response(JSON.stringify({ error: "All upstreams unavailable" }), {
+    status: 503,
+    headers: { "content-type": "application/json" },
   });
 }
 
@@ -180,8 +229,10 @@ async function mirrorResults(eventId: string): Promise<unknown[]> {
 // good frame keeps the board rendered instead of blanking the whole page.
 const sportsSnapshot = new Map<string, { at: number; text: string }>();
 
+// Snapshot every live feed path (sports odds/events and casino state), so an
+// outage on any provider still renders the last known prices and results.
 function isSportsPath(splat: string) {
-  return /^sports\//.test(splat);
+  return /^sports\//.test(splat) || /^games(\/|$)/.test(splat);
 }
 
 function sportsSnapshotKey(splat: string, search: string) {
