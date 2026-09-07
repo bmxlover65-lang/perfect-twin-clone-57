@@ -174,11 +174,11 @@
   --ex-lay: oklch(0.79 0.095 4);
   --ex-lay-dim: oklch(0.52 0.05 4);
   --ex-cell-foreground: oklch(0.17 0.025 250);
-  --casino-market-header: oklch(0.32 0.052 235);
-  --casino-market-body: oklch(0.86 0.065 235);
-  --casino-market-rate: oklch(0.72 0.12 235);
-  --casino-market-text: oklch(0.25 0.04 240);
-  --casino-market-divider: oklch(0.72 0.075 235);
+  --casino-market-header: oklch(0.3974 0.0451 235.26);
+  --casino-market-body: oklch(0.8855 0.033 229.29);
+  --casino-market-rate: oklch(0.7644 0.1048 241);
+  --casino-market-text: oklch(0.2657 0.0237 241.16);
+  --casino-market-divider: oklch(0.7453 0.0743 237.23);
 }
 
 
@@ -258,11 +258,11 @@
   --ex-lay: oklch(0.79 0.095 4);
   --ex-lay-dim: oklch(0.52 0.05 4);
   --ex-cell-foreground: oklch(0.17 0.025 250);
-  --casino-market-header: oklch(0.32 0.052 235);
-  --casino-market-body: oklch(0.86 0.065 235);
-  --casino-market-rate: oklch(0.72 0.12 235);
-  --casino-market-text: oklch(0.25 0.04 240);
-  --casino-market-divider: oklch(0.72 0.075 235);
+  --casino-market-header: oklch(0.3974 0.0451 235.26);
+  --casino-market-body: oklch(0.8855 0.033 229.29);
+  --casino-market-rate: oklch(0.7644 0.1048 241);
+  --casino-market-text: oklch(0.2657 0.0237 241.16);
+  --casino-market-divider: oklch(0.7453 0.0743 237.23);
 }
 
 /* Sports exchange page theme override (reference screenshots) */
