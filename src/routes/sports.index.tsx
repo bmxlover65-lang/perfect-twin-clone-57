@@ -145,9 +145,19 @@ function SportsPage() {
     const t = setInterval(() => {
       if (document.visibilityState === "hidden") return;
       void load(sportId, true);
-    }, 3000);
-    return () => clearInterval(t);
+    }, 1000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void load(sportId, true);
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+    return () => {
+      clearInterval(t);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+    };
   }, [sportId, load]);
+
 
 
   const inplay = useMemo(() => events.filter((e) => e.inPlay), [events]);
