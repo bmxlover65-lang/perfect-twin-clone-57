@@ -245,6 +245,8 @@ export function BetLayer({
       return;
     }
     if (!pick) return;
+    const pickLabel = pick.label;
+
     if (stake <= 0) {
       setErr("Please enter a valid stake.");
       return;
