@@ -329,7 +329,7 @@ export function BetLayer({
           cellPos.current = {
             x: cellBox.left + cellBox.width / 2 - rootBox.left,
             oppositeX,
-            y: cellBox.bottom - rootBox.top + 2,
+            y: cellBox.bottom - rootBox.top - 6,
           };
           // Anchor the slip right below the row that was clicked.
           let row: HTMLElement = target;
