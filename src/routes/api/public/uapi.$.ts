@@ -271,11 +271,19 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
           { status: 200, headers: { "cache-control": "no-store" } },
         );
       }
+      if (isSportsPath(splat)) {
+        const snap = snapshotResponse(splat + search, res.status);
+        if (snap) return snap;
+      }
       return Response.json(
         { error: `Upstream unavailable (${res.status})`, upstreamStatus: res.status },
         { status: 200, headers: { "cache-control": "no-store" } },
       );
     }
+    if (isSportsPath(splat) && res.ok && text.startsWith("{")) {
+      sportsSnapshot.set(splat + search, { at: Date.now(), text });
+    }
+
     if (resultsMatch) {
       let empty = false;
       try {
