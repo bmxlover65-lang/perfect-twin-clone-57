@@ -318,11 +318,15 @@ export function BetLayer({
         const p = extractPick(target, root);
         if (p) {
           const rootBox = root.getBoundingClientRect();
+          // Mobile boards are scaled down with a transform: rect coords are visual
+          // pixels, but absolutely-positioned chips use unscaled layout units.
+          const scale = rootBox.width / (root.offsetWidth || rootBox.width) || 1;
+          const u = (v: number) => v / scale;
           const cellBox = p.element.getBoundingClientRect();
           let oppositeX: number | undefined;
           let oppositeY: number | undefined;
-          let exposureX = cellBox.left + cellBox.width / 2 - rootBox.left;
-          let exposureY = cellBox.bottom - rootBox.top - 6;
+          let exposureX = u(cellBox.left + cellBox.width / 2 - rootBox.left);
+          let exposureY = u(cellBox.bottom - rootBox.top) - 6;
 
           if (exposureLayout === "sports") {
             const runnerRow = p.element.closest<HTMLElement>("[data-runner-row]");
