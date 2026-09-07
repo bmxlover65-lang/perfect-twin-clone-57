@@ -70,7 +70,9 @@ export async function authenticateOperator(request: Request): Promise<AuthResult
 
   const { data: operator } = await supabaseAdmin
     .from("operators")
-    .select("id, name, currency, callback_url, callback_secret, status, plan_expires_at, products")
+    .select(
+      "id, name, currency, callback_url, callback_secret, status, plan_expires_at, products, bet_passthrough",
+    )
     .eq("id", keyRow.operator_id)
     .maybeSingle();
 
