@@ -320,7 +320,14 @@ function EventPage() {
       </p>
 
 
-      {error ? <p className="mt-3 text-sm text-live-lose">{error}</p> : null}
+      {error ? (
+        <p className="mt-3 text-sm text-live-lose">
+          {data ? "Feed reconnecting… showing last prices" : error}
+        </p>
+      ) : data?.stale ? (
+        <p className="mt-3 text-sm text-ex-muted">Feed reconnecting… showing last prices</p>
+      ) : null}
+
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         <LiveTv
