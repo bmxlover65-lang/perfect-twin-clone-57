@@ -373,18 +373,21 @@ export function BetLayer({
             }
             if (!oppositeEl) {
               // Some boards nest the two plates deeper: look for a block holding
-              // exactly two price cells and take the other one.
+              // exactly two price plates and take the other one.
               let block: HTMLElement | null = p.element.parentElement;
               for (let i = 0; i < 6 && block && block !== root; i++, block = block.parentElement) {
-                const cells = Array.from(block.querySelectorAll<HTMLElement>("*")).filter(
+                const all = Array.from(block.querySelectorAll<HTMLElement>("*")).filter(
                   (el) => isPriceCell(el, root) && oddsOf(el) != null,
                 );
+                // Keep only the outermost plate of each nested group.
+                const cells = all.filter((el) => !all.some((other) => other !== el && other.contains(el)));
                 if (cells.length === 2) {
-                  oppositeEl = cells.find((el) => el !== p.element && !el.contains(p.element) && !p.element.contains(el));
+                  oppositeEl = cells.find((el) => !el.contains(p.element) && !p.element.contains(el));
                   if (oppositeEl) break;
                 }
               }
             }
+
           }
 
           cellPos.current = { cell: cellEl, opposite: oppositeEl };
