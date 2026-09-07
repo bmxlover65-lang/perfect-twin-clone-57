@@ -604,6 +604,106 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
 
 }
 
+// ---------------------------------------------------------------------------
+// Hot live cache for sports odds/events.
+//
+// Integrators poll these paths many times per second. Hitting the provider on
+// every single call cost ~180ms per request and rate-limited us, so prices
+// looked "stuck". Instead we keep one background refresher per requested path
+// that pulls the provider every 300ms while anyone is watching, and answer
+// every caller instantly from that always-fresh frame.
+// ---------------------------------------------------------------------------
+type HotEntry = {
+  at: number;
+  text: string;
+  contentType: string;
+  lastAccess: number;
+  timer: ReturnType<typeof setInterval> | null;
+  inFlight: Promise<void> | null;
+};
+
+const hot = new Map<string, HotEntry>();
+const HOT_REFRESH_MS = 300;
+const HOT_IDLE_MS = 20_000;
+
+function isHotPath(splat: string) {
+  return /^sports\/[^/]+\/[^/]+\/odds$/.test(splat) || /^sports\/[^/]+\/events$/.test(splat);
+}
+
+async function refreshHot(key: string, splat: string, search: string) {
+  const entry = hot.get(key);
+  if (entry?.inFlight) return entry.inFlight;
+  const run = (async () => {
+    try {
+      const res = await proxy(splat, search, undefined, "");
+      const text = await res.text();
+      if (!text) return;
+      const prev = hot.get(key);
+      hot.set(key, {
+        at: Date.now(),
+        text,
+        contentType: res.headers.get("content-type") ?? "application/json",
+        lastAccess: prev?.lastAccess ?? Date.now(),
+        timer: prev?.timer ?? null,
+        inFlight: null,
+      });
+    } catch {
+      // keep the previous frame; the next tick retries
+    } finally {
+      const cur = hot.get(key);
+      if (cur) cur.inFlight = null;
+    }
+  })();
+  if (entry) entry.inFlight = run;
+  await run;
+}
+
+function startHot(key: string, splat: string, search: string) {
+  const entry = hot.get(key);
+  if (entry?.timer) return;
+  const timer = setInterval(() => {
+    const cur = hot.get(key);
+    if (!cur || Date.now() - cur.lastAccess > HOT_IDLE_MS) {
+      if (cur?.timer) clearInterval(cur.timer);
+      hot.delete(key);
+      return;
+    }
+    void refreshHot(key, splat, search);
+  }, HOT_REFRESH_MS);
+  const cur = hot.get(key);
+  if (cur) cur.timer = timer;
+  else
+    hot.set(key, {
+      at: 0,
+      text: "",
+      contentType: "application/json",
+      lastAccess: Date.now(),
+      timer,
+      inFlight: null,
+    });
+}
+
+async function hotProxy(splat: string, search: string) {
+  const key = sportsSnapshotKey(splat, search);
+  const entry = hot.get(key);
+  if (entry) entry.lastAccess = Date.now();
+  if (!entry || !entry.text || Date.now() - entry.at > HOT_REFRESH_MS * 3) {
+    await refreshHot(key, splat, search);
+  }
+  startHot(key, splat, search);
+  const fresh = hot.get(key);
+  if (!fresh?.text) return proxy(splat, search, undefined, "");
+  fresh.lastAccess = Date.now();
+  return new Response(fresh.text, {
+    status: 200,
+    headers: {
+      "content-type": fresh.contentType,
+      "cache-control": "no-store",
+      "x-feed-age-ms": String(Date.now() - fresh.at),
+    },
+  });
+}
+
 export const Route = createFileRoute("/api/public/uapi/$")({
   server: {
     handlers: {
@@ -612,8 +712,10 @@ export const Route = createFileRoute("/api/public/uapi/$")({
         const url = new URL(request.url);
         // Same-origin relative URLs: the worker's internal request origin can be
         // localhost, which the browser cannot load from inside the iframe.
+        if (isHotPath(splat)) return hotProxy(splat, url.search);
         return proxy(splat, url.search, undefined, "");
       },
+
       POST: async ({ request, params }) => {
         const splat = (params as { _splat?: string })._splat ?? "";
         const url = new URL(request.url);
