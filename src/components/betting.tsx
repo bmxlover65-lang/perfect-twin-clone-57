@@ -395,15 +395,21 @@ export function BetLayer({
         const rootBox = root.getBoundingClientRect();
         const scale = rootBox.width / (root.offsetWidth || rootBox.width) || 1;
         const at = (el: HTMLElement) => {
-          const b = el.getBoundingClientRect();
           if (exposureLayout === "sports") {
+            const b = el.getBoundingClientRect();
             return { x: (b.left - rootBox.left) / scale + 10, y: (b.top - rootBox.top) / scale + 35 };
           }
+          // Anchor to the visible rate plate, not the inner odds text.
+          const plate = el.querySelector<HTMLElement>('[class*="casino-market-rate"]')
+            ?? el.closest<HTMLElement>('[class*="casino-market-rate"]')
+            ?? el;
+          const b = plate.getBoundingClientRect();
           return {
             x: (b.left + b.width / 2 - rootBox.left) / scale,
-            y: (b.bottom - rootBox.top) / scale - 4,
+            y: (b.bottom - rootBox.top) / scale + 2,
           };
         };
+
         const exposure = (
           key: string,
           pos: { x: number; y: number },
