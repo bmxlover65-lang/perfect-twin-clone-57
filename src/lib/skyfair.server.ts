@@ -152,12 +152,20 @@ const num = (v: string | undefined) => {
   return Number.isFinite(n) ? n : 0;
 };
 
-/** Events list in the shape the app already renders. */
-export async function backupEvents(sportId: string) {
+/**
+ * Events list in the shape the app already renders.
+ * `resolveId` maps an event name back to the primary provider's id so TV and
+ * scoreboard (served by the primary provider) keep working during an outage.
+ */
+export async function backupEvents(
+  sportId: string,
+  resolveId?: (normalizedName: string) => string | undefined,
+) {
   const list = await events(sportId);
   return list.map((e) => ({
     sportId,
-    exEventId: `sf:${e.EventCode}:${e.BetfairId}`,
+    exEventId:
+      resolveId?.(normalizeName(e.Runnername)) ?? `sf:${e.EventCode}:${e.BetfairId}`,
     eventName: e.Runnername,
     marketName: "Match Odds",
     inPlay: e.is_live === "on",
@@ -204,6 +212,9 @@ export async function backupOdds(sportId: string, exEventId: string, eventName?:
   const rows = parse<SfOddsRow>(text);
   if (!rows.length) return null;
 
+  const marketStatus = (rows[0]?.match_status ?? "OPEN").toUpperCase();
+  const settled = /CLOSED|SETTLED|RESULT/.test(marketStatus);
+
   const runnersData: Record<string, string> = {};
   const runners = rows.map((r, i) => {
     const id = `${eventCode}-${i}`;
@@ -218,22 +229,36 @@ export async function backupOdds(sportId: string, exEventId: string, eventName?:
       { price: num(r.lay11), size: num(r.lay2size) },
       { price: num(r.lay22), size: num(r.lay3size) },
     ];
+    const raw = (r.status ?? "ACTIVE").toUpperCase();
+    // Once the exchange settles the market it flags the winning runner; map
+    // that onto the WINNER / LOSER statuses the app settles bets from.
+    const status = /WIN/.test(raw) ? "WINNER" : /LOSE|LOSS/.test(raw) ? "LOSER" : raw;
     return {
       selectionId: id,
-      status: (r.status ?? "ACTIVE").toUpperCase(),
+      status,
       handicap: 0,
       price: { back, lay },
     };
   });
 
+  const winner = runners.find((r) => r.status === "WINNER");
+  // Only declare losers once a winner is actually published, never on a bare
+  // CLOSED/SUSPENDED market — otherwise open bets would settle wrongly.
+  if (winner) {
+    for (const r of runners) if (r.status !== "WINNER") r.status = "LOSER";
+  }
+
   return {
     exEventId,
     eventName: name || rows[0]?.Runnername || "",
     sportId,
-    inPlay: true,
+    inPlay: !settled,
     source: "backup",
     updatedAt: new Date().toISOString(),
     totalMatched: num(rows[0]?.totalMatched),
+    ...(winner
+      ? { result: runnersData[winner.selectionId] ?? "", resultAt: new Date().toISOString() }
+      : {}),
     matchOdds: [
       {
         marketId: `sf-${betfairId}`,
@@ -241,8 +266,8 @@ export async function backupOdds(sportId: string, exEventId: string, eventName?:
         marketType: "MATCH_ODDS",
         runnersData,
         oddsData: {
-          status: (rows[0]?.match_status ?? "OPEN").toUpperCase(),
-          inPlay: true,
+          status: settled ? "CLOSED" : marketStatus,
+          inPlay: !settled,
           betDelay: 0,
           totalMatched: num(rows[0]?.totalMatched),
           runners,
