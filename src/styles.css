@@ -95,6 +95,7 @@
   --color-ex-lay: var(--ex-lay);
   --color-ex-lay-dim: var(--ex-lay-dim);
   --color-ex-cell-foreground: var(--ex-cell-foreground);
+  --color-ex-suspend: var(--ex-suspend);
   --color-casino-market-header: var(--casino-market-header);
   --color-casino-market-body: var(--casino-market-body);
   --color-casino-market-rate: var(--casino-market-rate);
@@ -174,6 +175,7 @@
   --ex-lay: oklch(0.79 0.095 4);
   --ex-lay-dim: oklch(0.52 0.05 4);
   --ex-cell-foreground: oklch(0.17 0.025 250);
+  --ex-suspend: oklch(0.58 0.22 27);
   --casino-market-header: oklch(0.3526 0.0289 232.97);
   --casino-market-body: oklch(0.8838 0.034 225.49);
   --casino-market-rate: oklch(0.7373 0.1042 241.82);
@@ -258,6 +260,7 @@
   --ex-lay: oklch(0.79 0.095 4);
   --ex-lay-dim: oklch(0.52 0.05 4);
   --ex-cell-foreground: oklch(0.17 0.025 250);
+  --ex-suspend: oklch(0.58 0.22 27);
   --casino-market-header: oklch(0.3526 0.0289 232.97);
   --casino-market-body: oklch(0.8838 0.034 225.49);
   --casino-market-rate: oklch(0.7373 0.1042 241.82);
