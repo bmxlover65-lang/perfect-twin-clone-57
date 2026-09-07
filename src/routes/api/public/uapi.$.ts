@@ -368,6 +368,82 @@ async function mergeBackupResult(splat: string, text: string) {
   }
 }
 
+type PriceRow = { price?: number; size?: number };
+type PricedRunner = {
+  selectionId: string | number;
+  status?: string;
+  price?: { back?: PriceRow[]; lay?: PriceRow[] };
+};
+type PricedPayload = {
+  matchOdds?: {
+    marketType?: string;
+    runnersData?: Record<string, string>;
+    oddsData?: { status?: string; runners?: PricedRunner[] };
+  }[];
+};
+
+const liveDepth = (rows?: PriceRow[]) => (rows ?? []).some((r) => Number(r?.price) > 0);
+
+/**
+ * The primary feed sometimes publishes only the best price (or nothing) while
+ * the market is trading. Top the depth up from the backup exchange so all three
+ * back and lay columns keep ticking.
+ */
+async function mergeBackupPrices(splat: string, text: string) {
+  const m = /^sports\/([^/]+)\/([^/]+)\/odds$/.exec(splat);
+  if (!m) return null;
+  let payload: PricedPayload;
+  try {
+    payload = JSON.parse(text) as PricedPayload;
+  } catch {
+    return null;
+  }
+  const market = payload.matchOdds?.find((x) => (x.marketType ?? "MATCH_ODDS") === "MATCH_ODDS");
+  const runners = market?.oddsData?.runners ?? [];
+  if (!runners.length) return null;
+  const status = (market?.oddsData?.status ?? "OPEN").toUpperCase();
+  if (/CLOSED|SETTLED|INACTIVE/.test(status)) return null;
+
+  const thin = runners.some(
+    (r) => !liveDepth(r.price?.back) && !liveDepth(r.price?.lay),
+  );
+  if (!thin) return null;
+
+  try {
+    const sportId = decodeURIComponent(m[1]!);
+    const exEventId = decodeURIComponent(m[2]!);
+    const backup = await import("@/lib/skyfair.server");
+    const alt = (await backup.backupOdds(
+      sportId,
+      exEventId,
+      eventNames.get(exEventId),
+    )) as PricedPayload | null;
+    const altMarket = alt?.matchOdds?.[0];
+    const altRunners = altMarket?.oddsData?.runners ?? [];
+    if (!altRunners.length) return null;
+
+    let filled = false;
+    for (const r of runners) {
+      if (liveDepth(r.price?.back) || liveDepth(r.price?.lay)) continue;
+      const name = backup.normalizeName(market?.runnersData?.[String(r.selectionId)] ?? "");
+      const hit = altRunners.find(
+        (a) =>
+          backup.normalizeName(altMarket?.runnersData?.[String(a.selectionId)] ?? "") === name,
+      );
+      if (!hit) continue;
+      if (liveDepth(hit.price?.back) || liveDepth(hit.price?.lay)) {
+        r.price = hit.price;
+        filled = true;
+      }
+    }
+    if (!filled) return null;
+    return Response.json(payload, { status: 200, headers: { "cache-control": "no-store" } });
+  } catch {
+    return null;
+  }
+}
+
+
 async function proxy(splat: string, search: string, body?: string, origin = "") {
   const snapshotKey = sportsSnapshotKey(splat, search);
   try {
