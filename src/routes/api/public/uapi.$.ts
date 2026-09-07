@@ -385,9 +385,9 @@ type PricedPayload = {
 const liveDepth = (rows?: PriceRow[]) => (rows ?? []).some((r) => Number(r?.price) > 0);
 
 /**
- * The primary feed sometimes publishes only the best price (or nothing) while
- * the market is trading. Top the depth up from the backup exchange so all three
- * back and lay columns keep ticking.
+ * Keep the displayed exchange prices synchronized with the live backup feed.
+ * The primary endpoint can return a valid-looking but delayed snapshot, so
+ * waiting for zero prices leaves the board visibly behind the reference site.
  */
 async function mergeBackupPrices(splat: string, text: string) {
   const m = /^sports\/([^/]+)\/([^/]+)\/odds$/.exec(splat);
@@ -404,11 +404,6 @@ async function mergeBackupPrices(splat: string, text: string) {
   const status = (market?.oddsData?.status ?? "OPEN").toUpperCase();
   if (/CLOSED|SETTLED|INACTIVE/.test(status)) return null;
 
-  const thin = runners.some(
-    (r) => !liveDepth(r.price?.back) && !liveDepth(r.price?.lay),
-  );
-  if (!thin) return null;
-
   try {
     const sportId = decodeURIComponent(m[1]!);
     const exEventId = decodeURIComponent(m[2]!);
@@ -424,7 +419,6 @@ async function mergeBackupPrices(splat: string, text: string) {
 
     let filled = false;
     for (const r of runners) {
-      if (liveDepth(r.price?.back) || liveDepth(r.price?.lay)) continue;
       const name = backup.normalizeName(market?.runnersData?.[String(r.selectionId)] ?? "");
       const hit = altRunners.find(
         (a) =>
