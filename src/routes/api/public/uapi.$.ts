@@ -373,6 +373,8 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
         );
       }
       if (isSportsPath(splat)) {
+        const alt = await backupSports(splat);
+        if (alt) return alt;
         const snap = snapshotResponse(snapshotKey, res.status);
         if (snap) return snap;
       }
@@ -383,6 +385,32 @@ async function proxy(splat: string, search: string, body?: string, origin = "") 
     }
     if (isSportsPath(splat) && res.ok && text.startsWith("{")) {
       sportsSnapshot.set(snapshotKey, { at: Date.now(), text });
+      if (/^sports\/[^/]+\/events$/.test(splat)) rememberEventNames(text);
+    }
+    // Upstream answered 200 but with an empty/errored sports payload: fail over.
+    if (isSportsPath(splat) && res.ok) {
+      let emptySports = false;
+      try {
+        const parsed = JSON.parse(text) as {
+          error?: string;
+          events?: unknown[];
+          matchOdds?: unknown[];
+          bookmakers?: unknown[];
+          fancy?: unknown[];
+        };
+        if (parsed.error) emptySports = true;
+        else if (/^sports\/[^/]+\/events$/.test(splat))
+          emptySports = Array.isArray(parsed.events) && parsed.events.length === 0;
+        else if (/^sports\/[^/]+\/[^/]+\/odds$/.test(splat))
+          emptySports =
+            !parsed.matchOdds?.length && !parsed.bookmakers?.length && !parsed.fancy?.length;
+      } catch {
+        emptySports = true;
+      }
+      if (emptySports) {
+        const alt = await backupSports(splat);
+        if (alt) return alt;
+      }
     }
 
     if (resultsMatch) {
