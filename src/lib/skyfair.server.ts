@@ -152,12 +152,20 @@ const num = (v: string | undefined) => {
   return Number.isFinite(n) ? n : 0;
 };
 
-/** Events list in the shape the app already renders. */
-export async function backupEvents(sportId: string) {
+/**
+ * Events list in the shape the app already renders.
+ * `resolveId` maps an event name back to the primary provider's id so TV and
+ * scoreboard (served by the primary provider) keep working during an outage.
+ */
+export async function backupEvents(
+  sportId: string,
+  resolveId?: (normalizedName: string) => string | undefined,
+) {
   const list = await events(sportId);
   return list.map((e) => ({
     sportId,
-    exEventId: `sf:${e.EventCode}:${e.BetfairId}`,
+    exEventId:
+      resolveId?.(normalizeName(e.Runnername)) ?? `sf:${e.EventCode}:${e.BetfairId}`,
     eventName: e.Runnername,
     marketName: "Match Odds",
     inPlay: e.is_live === "on",
