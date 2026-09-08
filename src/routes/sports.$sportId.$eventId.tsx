@@ -162,6 +162,7 @@ function Board({ market }: { market: Market }) {
               key={String(r.selectionId)}
               data-runner-row
               className="relative grid min-h-[68px] grid-cols-[minmax(0,1fr)_90px_90px] items-stretch border-b border-ex-market-rule bg-ex-market-row last:border-b-0 sm:grid-cols-[minmax(0,1fr)_110px_110px]"
+            >
               <span
                 className={`flex min-w-0 items-center truncate px-2 text-[0.83rem] font-medium ${dim ? "text-ex-muted" : "text-ex-cell-foreground"}`}
               >
