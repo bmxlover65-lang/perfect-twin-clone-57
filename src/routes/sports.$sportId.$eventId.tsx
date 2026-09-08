@@ -71,13 +71,13 @@ function Cell({
     side === "back" ? (has ? "bg-ex-back" : "bg-ex-back-dim") : has ? "bg-ex-lay" : "bg-ex-lay-dim";
   return (
     <div
-      className={`relative flex h-[55px] flex-col items-center justify-center overflow-hidden rounded-[5px] border border-ex-market-surface/80 ${tone} ${
+      className={`relative flex h-[66px] flex-col items-center justify-center overflow-hidden rounded-[5px] border border-ex-market-surface/80 ${tone} ${
         dim ? "opacity-40" : ""
       } ${flash} text-ex-cell-foreground`}
     >
-      <span className="relative z-10 text-[0.94rem] font-bold leading-none">{fmtOdds(price)}</span>
+      <span className="relative z-10 text-[1.1rem] font-bold leading-none">{fmtOdds(price)}</span>
       {has && size ? (
-        <span className="relative z-10 mt-1 text-[0.72rem] leading-none opacity-80">
+        <span className="relative z-10 mt-1 text-[0.78rem] leading-none opacity-80">
           {fmtSize(size)}
         </span>
       ) : null}
@@ -132,12 +132,12 @@ function Board({ market }: { market: Market }) {
 
   return (
     <article className="overflow-hidden border-b-[5px] border-ex-market-rule bg-ex-market-surface">
-      <header className="grid h-8 grid-cols-[minmax(0,1fr)_88px_104px] items-center bg-ex-market-surface text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_110px_130px]">
+      <header className="grid h-8 grid-cols-[minmax(0,1fr)_100px_100px] items-center bg-ex-market-surface text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_120px_120px]">
         <span className="flex h-full min-w-0 items-center gap-1.5 bg-ex-header px-2 text-ex-text">
           <span className="truncate text-[0.78rem] font-semibold">{market.marketName.trim()}</span>
           <InfoIcon />
         </span>
-        <span className="flex h-full items-center gap-1.5 px-2 text-[0.68rem]">
+        <span className="flex h-full items-center justify-center gap-1.5 px-2 text-[0.68rem]">
           <span className="h-4 w-4 rounded-[2px] bg-live-badge" />
           Cash Out
         </span>
@@ -145,7 +145,7 @@ function Board({ market }: { market: Market }) {
           Matched {fmtInt(odds?.totalMatched)}
         </span>
       </header>
-      <div className="grid h-7 grid-cols-[minmax(0,1fr)_68px_68px] border-b border-ex-market-rule text-[0.7rem] text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_96px_96px]">
+      <div className="grid h-7 grid-cols-[minmax(0,1fr)_100px_100px] border-b border-ex-market-rule text-[0.7rem] text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_120px_120px]">
         <div className="m-1 flex items-center justify-center rounded-[3px] bg-ex-minmax text-[0.64rem] text-ex-muted">
           Min/Max&nbsp;&nbsp; {market.min && market.min > 0 ? market.min : 1}-
           {market.max && market.max > 0 ? market.max : 50000}
@@ -161,7 +161,7 @@ function Board({ market }: { market: Market }) {
             <div
               key={String(r.selectionId)}
               data-runner-row
-              className="relative grid min-h-[62px] grid-cols-[minmax(0,1fr)_68px_68px] items-stretch border-b border-ex-market-rule bg-ex-market-row last:border-b-0 sm:grid-cols-[minmax(0,1fr)_96px_96px]"
+              className="relative grid min-h-[74px] grid-cols-[minmax(0,1fr)_100px_100px] items-stretch border-b border-ex-market-rule bg-ex-market-row last:border-b-0 sm:grid-cols-[minmax(0,1fr)_120px_120px]"
             >
               <span
                 className={`flex min-w-0 items-center truncate px-2 text-[0.83rem] font-medium ${dim ? "text-ex-muted" : "text-ex-cell-foreground"}`}
@@ -189,12 +189,12 @@ function FancyRow({ market }: { market: Market }) {
 
   return (
     <article className="relative overflow-hidden border-b-[5px] border-ex-market-rule bg-ex-market-surface">
-      <header className="grid h-8 grid-cols-[minmax(0,1fr)_88px_104px] items-center bg-ex-market-surface text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_110px_130px]">
+      <header className="grid h-8 grid-cols-[minmax(0,1fr)_100px_100px] items-center bg-ex-market-surface text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_120px_120px]">
         <span className="flex h-full min-w-0 items-center gap-1.5 bg-ex-header px-2 text-ex-text">
           <span className="truncate text-[0.78rem] font-semibold">{market.marketName.trim()}</span>
           <InfoIcon />
         </span>
-        <span className="flex h-full items-center gap-1.5 px-2 text-[0.68rem]">
+        <span className="flex h-full items-center justify-center gap-1.5 px-2 text-[0.68rem]">
           <span className="h-4 w-4 rounded-[2px] bg-live-badge" />
           Cash Out
         </span>
@@ -202,7 +202,7 @@ function FancyRow({ market }: { market: Market }) {
           Matched {fmtInt(odds?.totalMatched)}
         </span>
       </header>
-      <div className="grid h-7 grid-cols-[minmax(0,1fr)_68px_68px] border-b border-ex-market-rule text-[0.7rem] text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_96px_96px]">
+      <div className="grid h-7 grid-cols-[minmax(0,1fr)_100px_100px] border-b border-ex-market-rule text-[0.7rem] text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_120px_120px]">
         <div className="m-1 flex items-center justify-center rounded-[3px] bg-ex-minmax text-[0.64rem] text-ex-muted">
           Min/Max&nbsp;&nbsp; {market.min && market.min > 0 ? market.min : 100}-
           {market.max && market.max > 0 ? market.max : 25000}
@@ -210,7 +210,7 @@ function FancyRow({ market }: { market: Market }) {
         <div className="flex items-center justify-center bg-ex-lay/55 font-medium">No</div>
         <div className="flex items-center justify-center bg-ex-back/55 font-medium">Yes</div>
       </div>
-      <div className="grid min-h-[62px] grid-cols-[minmax(0,1fr)_68px_68px] items-center bg-ex-market-row px-2 sm:grid-cols-[minmax(0,1fr)_96px_96px]">
+      <div className="grid min-h-[74px] grid-cols-[minmax(0,1fr)_100px_100px] items-center bg-ex-market-row px-2 sm:grid-cols-[minmax(0,1fr)_120px_120px]">
         <span className={`truncate text-[0.82rem] font-medium ${dim ? "text-ex-muted" : "text-ex-cell-foreground"}`}>
           {market.marketName.trim()}
         </span>
