@@ -161,7 +161,7 @@ function Board({ market }: { market: Market }) {
             <div
               key={String(r.selectionId)}
               data-runner-row
-              className="relative grid min-h-[70px] grid-cols-[minmax(0,1fr)_100px_100px] items-stretch border-b border-ex-market-rule bg-ex-market-row last:border-b-0 sm:grid-cols-[minmax(0,1fr)_120px_120px]"
+              className="relative grid min-h-[74px] grid-cols-[minmax(0,1fr)_100px_100px] items-stretch border-b border-ex-market-rule bg-ex-market-row last:border-b-0 sm:grid-cols-[minmax(0,1fr)_120px_120px]"
             >
               <span
                 className={`flex min-w-0 items-center truncate px-2 text-[0.83rem] font-medium ${dim ? "text-ex-muted" : "text-ex-cell-foreground"}`}
