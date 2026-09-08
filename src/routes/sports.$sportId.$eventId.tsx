@@ -260,6 +260,7 @@ function EventPage() {
   const inFlight = useRef(false);
   const inFlightSince = useRef(0);
   const lastSocketMessage = useRef(0);
+  const feed = useRef(createFeedState());
   const [age, setAge] = useState(0);
 
 
