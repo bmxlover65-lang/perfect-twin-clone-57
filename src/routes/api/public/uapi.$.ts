@@ -737,7 +737,7 @@ type HotEntry = {
 };
 
 const hot = new Map<string, HotEntry>();
-const HOT_REFRESH_MS = 300;
+const HOT_REFRESH_MS = 250;
 const HOT_IDLE_MS = 20_000;
 
 function isHotPath(splat: string) {
@@ -749,7 +749,13 @@ async function refreshHot(key: string, splat: string, search: string) {
   if (entry?.inFlight) return entry.inFlight;
   const run = (async () => {
     try {
-      const res = await proxy(splat, search, undefined, "");
+      // Never reuse the browser's original cache-buster. A hot entry lives for
+      // many refreshes, and replaying that same URL lets provider/CDN caches
+      // return one frozen odds frame even though this loop is still running.
+      const params = new URLSearchParams(search);
+      params.set("_", String(Date.now()));
+      const liveSearch = params.size ? `?${params.toString()}` : "";
+      const res = await proxy(splat, liveSearch, undefined, "");
       const text = await res.text();
       if (!text) return;
       const prev = hot.get(key);
