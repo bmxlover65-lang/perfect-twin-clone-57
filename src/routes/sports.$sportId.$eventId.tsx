@@ -71,13 +71,13 @@ function Cell({
     side === "back" ? (has ? "bg-ex-back" : "bg-ex-back-dim") : has ? "bg-ex-lay" : "bg-ex-lay-dim";
   return (
     <div
-      className={`relative flex h-[52px] flex-col items-center justify-center overflow-hidden rounded-sm ${tone} ${
+      className={`relative flex h-[55px] flex-col items-center justify-center overflow-hidden rounded-[5px] border border-ex-market-surface/80 ${tone} ${
         dim ? "opacity-40" : ""
       } ${flash} text-ex-cell-foreground`}
     >
-      <span className="relative z-10 text-[0.88rem] font-bold leading-none">{fmtOdds(price)}</span>
+      <span className="relative z-10 text-[0.94rem] font-bold leading-none">{fmtOdds(price)}</span>
       {has && size ? (
-        <span className="relative z-10 mt-1 text-[0.65rem] leading-none opacity-80">
+        <span className="relative z-10 mt-1 text-[0.72rem] leading-none opacity-80">
           {fmtSize(size)}
         </span>
       ) : null}
@@ -86,39 +86,18 @@ function Cell({
 }
 
 
-function BoardHeader({
-  name,
-  matched,
-  status,
-  dim,
-}: {
-  name: string;
-  matched?: number | undefined;
-  status: string;
-  dim: boolean;
-}) {
+function InfoIcon() {
   return (
-    <header className="flex items-center justify-between gap-3 border-b border-ex-line/60 bg-ex-row px-3 py-2.5">
-      <span className={`text-[0.95rem] font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}>
-        {name}
-      </span>
-      <span
-        className={`flex shrink-0 items-center gap-3 text-[0.75rem] ${dim ? "text-ex-muted/70" : "text-ex-muted"}`}
-      >
-        <span>Matched {fmtInt(matched)}</span>
-        <span className="rounded-sm bg-ex-cell/20 px-2 py-1 font-bold uppercase tracking-wide text-ex-text">
-          {status}
-        </span>
-      </span>
-    </header>
+    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-ex-text text-[0.72rem] font-extrabold leading-none text-ex-text">
+      i
+    </span>
   );
 }
 
-
 function Suspended({ label }: { label: string }) {
   return (
-    <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-ex-row/55">
-      <span className="text-[1.75rem] font-extrabold uppercase tracking-[0.04em] text-ex-suspend">
+    <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center border-2 border-ex-suspend bg-ex-market-surface/80">
+      <span className="text-[1.9rem] font-medium uppercase tracking-normal text-ex-suspend sm:text-[2.2rem]">
         {label}
       </span>
     </div>
@@ -148,51 +127,52 @@ function marketState(market: Market): { status: string; dim: boolean; label: str
 
 function Board({ market }: { market: Market }) {
   const odds = market.oddsData;
-  const { status, dim, label } = marketState(market);
+  const { dim, label } = marketState(market);
   const runners = odds?.runners ?? [];
 
-
   return (
-    <div
-      className={`overflow-hidden rounded-md bg-ex-row ${dim ? "ring-1 ring-ex-suspend/70" : ""}`}
-    >
-
-      <BoardHeader
-        name={market.marketName.trim()}
-        matched={odds?.totalMatched}
-        status={status}
-        dim={dim}
-      />
+    <article className="overflow-hidden border-b-[5px] border-ex-market-rule bg-ex-market-surface">
+      <header className="flex h-8 items-center justify-between bg-ex-header pl-2 text-ex-text">
+        <span className="flex min-w-0 items-center gap-1.5">
+          <span className="truncate text-[0.78rem] font-semibold">{market.marketName.trim()}</span>
+          <InfoIcon />
+        </span>
+        <span className="flex h-full shrink-0 items-center gap-2 bg-ex-market-surface px-2 text-[0.72rem] text-ex-cell-foreground">
+          <span className="h-4 w-4 rounded-[2px] bg-live-badge" />
+          Cash Out
+        </span>
+      </header>
+      <div className="grid h-7 grid-cols-[minmax(0,1fr)_96px_96px] border-b border-ex-market-rule text-[0.7rem] text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_120px_120px]">
+        <div className="m-1 flex items-center justify-center rounded-[3px] bg-ex-minmax text-[0.64rem] text-ex-muted">
+          Min/Max&nbsp;&nbsp; {market.min ?? 1}-{market.max ?? 50000}
+        </div>
+        <div className="flex items-center justify-center bg-ex-back/55 font-medium">Back</div>
+        <div className="flex items-center justify-center bg-ex-lay/55 font-medium">Lay</div>
+      </div>
       <div className="relative">
         {runners.map((r) => {
-          const back = [...(r.price?.back ?? [])].slice(0, 3).reverse();
-          const lay = (r.price?.lay ?? []).slice(0, 3);
+          const back = r.price?.back?.[0];
+          const lay = r.price?.lay?.[0];
           return (
             <div
               key={String(r.selectionId)}
               data-runner-row
-              className="relative border-b border-ex-line/30 px-3 py-2 pb-5 last:border-b-0"
+              className="relative grid min-h-[62px] grid-cols-[minmax(0,1fr)_96px_96px] items-stretch border-b border-ex-market-rule bg-ex-market-row last:border-b-0 sm:grid-cols-[minmax(0,1fr)_120px_120px]"
             >
               <span
-                className={`block truncate pb-1.5 text-[0.95rem] font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}
+                className={`flex min-w-0 items-center truncate px-2 text-[0.83rem] font-medium ${dim ? "text-ex-muted" : "text-ex-cell-foreground"}`}
               >
                 {runnerName(market, r.selectionId)}
               </span>
-              <div className="grid grid-cols-6 gap-1">
-                {[0, 1, 2].map((i) => (
-                  <Cell key={`b${i}`} price={back[i]?.price} size={back[i]?.size} side="back" dim={dim} />
-                ))}
-                {[0, 1, 2].map((i) => (
-                  <Cell key={`l${i}`} price={lay[i]?.price} size={lay[i]?.size} side="lay" dim={dim} />
-                ))}
-              </div>
+              <div className="p-[3px]"><Cell price={back?.price} size={back?.size} side="back" dim={dim} /></div>
+              <div className="p-[3px]"><Cell price={lay?.price} size={lay?.size} side="lay" dim={dim} /></div>
             </div>
           );
         })}
 
         {dim ? <Suspended label={label} /> : null}
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -204,34 +184,30 @@ function FancyRow({ market }: { market: Market }) {
   const yes = r?.price?.back?.[0];
 
   return (
-    <div
-      className={`relative flex items-center justify-between gap-3 rounded-md bg-ex-row px-3 py-3 ${dim ? "ring-1 ring-ex-suspend/70" : ""}`}
-    >
-      <span className={`truncate text-sm font-bold ${dim ? "text-ex-muted" : "text-ex-text"}`}>
+    <article className="relative grid min-h-[70px] grid-cols-[minmax(0,1fr)_96px_96px] items-center border-b-[5px] border-ex-market-rule bg-ex-market-row px-2 sm:grid-cols-[minmax(0,1fr)_120px_120px]">
+      <span className={`truncate text-[0.82rem] font-medium ${dim ? "text-ex-muted" : "text-ex-cell-foreground"}`}>
         {market.marketName.trim()}
       </span>
-      <div className="flex shrink-0 gap-1">
-        <div className="w-[96px]">
+      <div className="px-[3px]">
           <div className="pb-1 text-center text-[0.62rem] font-bold uppercase tracking-[0.12em] text-ex-muted">
             No
           </div>
           <Cell price={no?.price} size={no?.size} side="lay" dim={dim} />
-        </div>
-        <div className="w-[96px]">
+      </div>
+      <div className="px-[3px]">
           <div className="pb-1 text-center text-[0.62rem] font-bold uppercase tracking-[0.12em] text-ex-muted">
             Yes
           </div>
           <Cell price={yes?.price} size={yes?.size} side="back" dim={dim} />
-        </div>
       </div>
       {dim ? (
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-ex-row/55">
-          <span className="text-[1.5rem] font-extrabold uppercase tracking-[0.04em] text-ex-suspend">
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center border-2 border-ex-suspend bg-ex-market-surface/80">
+          <span className="text-[1.7rem] font-medium uppercase tracking-normal text-ex-suspend">
             {label}
           </span>
         </div>
       ) : null}
-    </div>
+    </article>
   );
 }
 
@@ -245,14 +221,14 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-lg bg-ex-panel">
-      <header className="flex items-center justify-between bg-ex-header px-4 py-2.5">
+    <section className="overflow-hidden bg-ex-market-surface">
+      <header className="flex h-9 items-center justify-between bg-ex-header px-2">
         <h2 className="text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-ex-text">
           {title}
         </h2>
         <span className="text-xs text-ex-muted">{count}</span>
       </header>
-      <div className="space-y-3 p-3">{children}</div>
+      <div>{children}</div>
     </section>
   );
 }
@@ -393,18 +369,18 @@ function EventPage() {
 
 
   return (
-    <div className="sports-theme mx-auto max-w-[1200px] px-4 py-6">
+    <div className="sports-theme mx-auto max-w-[1200px] px-0 py-0 sm:px-4 sm:py-6">
       <Link to="/sports" className="text-sm text-muted-foreground hover:text-foreground">
-        ← Sports list
+        <span className="hidden sm:inline">← Sports list</span>
       </Link>
 
-      <p className="mt-4 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
+      <p className="bg-ex-header py-2 text-center text-base font-bold uppercase text-ex-text sm:mt-4 sm:bg-transparent sm:py-0 sm:text-left sm:text-xs sm:tracking-[0.12em] sm:text-muted-foreground">
         {SPORT_NAMES[sportId] ?? `Sport ${sportId}`}
       </p>
-      <h1 className="mt-1 text-2xl font-bold text-foreground">
+      <h1 className="px-2 pt-2 text-base font-bold text-foreground sm:mt-1 sm:px-0 sm:pt-0 sm:text-2xl">
         {data?.eventName ?? "Loading event…"}
       </h1>
-      <p className="mt-2 text-sm text-muted-foreground">
+      <p className="px-2 pb-2 text-[0.7rem] text-muted-foreground sm:mt-2 sm:px-0 sm:pb-0 sm:text-sm">
         {sportId}/{eventId} · {data?.inPlay ? "in-play" : "pre-match"} · matched{" "}
         {fmtInt(data?.totalMatched)} · age {age}s · betDelay {data?.betDelay ?? 0}s
         {data?.stale ? " · stale" : ""}
@@ -420,16 +396,16 @@ function EventPage() {
       ) : null}
 
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-0 sm:mt-5 sm:gap-4 lg:grid-cols-2">
         <LiveTv
           sportId={sportId}
           eventId={eventId}
-          className="overflow-hidden rounded-lg bg-ex-panel"
+          className="overflow-hidden bg-ex-panel sm:rounded-lg"
         />
 
 
-        <div className="overflow-hidden rounded-lg border border-white/10 bg-black">
-          <header className="bg-[#24485D] px-4 py-2.5 text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-white">
+        <div className="overflow-hidden bg-ex-panel sm:rounded-lg sm:border sm:border-ex-line">
+          <header className="bg-ex-header px-4 py-2.5 text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-ex-text">
             Scoreboard
           </header>
           <Scoreboard sportId={sportId} eventId={eventId} />
@@ -438,7 +414,7 @@ function EventPage() {
       </div>
 
 
-      <p className="mt-6 flex items-center justify-between text-base font-bold text-foreground">
+      <p className="flex items-center justify-between bg-ex-market-surface px-2 py-2 text-sm font-bold text-ex-cell-foreground sm:mt-6">
         <span>
           Live odds{" "}
           <span className="text-sm font-normal text-muted-foreground">· live via WebSocket</span>
@@ -452,7 +428,7 @@ function EventPage() {
         round={eventId}
         exposureLayout="sports"
       >
-        <div className="mt-3 space-y-4">
+        <div className="space-y-0 sm:mt-3 sm:space-y-4">
           {matchOdds.length ? (
             <Section title="Match odds" count={matchOdds.length}>
               {matchOdds.map((m) => (
