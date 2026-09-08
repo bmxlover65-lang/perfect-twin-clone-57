@@ -277,7 +277,7 @@ function EventPage() {
     try {
       const odds = await fetchOdds(sportId, eventId);
       if (currentRequest !== requestId.current) return;
-      setData(odds);
+      setData(mergeFeed(feed.current, odds));
       setAge(0);
       setError(null);
     } catch (e) {
@@ -303,7 +303,7 @@ function EventPage() {
             const message = JSON.parse(String(event.data)) as { type?: string; data?: OddsResponse };
             if (message.type !== "odds" || !message.data) return;
             lastSocketMessage.current = Date.now();
-            setData(message.data);
+            setData(mergeFeed(feed.current, message.data));
             setAge(0);
             setError(null);
           } catch {
