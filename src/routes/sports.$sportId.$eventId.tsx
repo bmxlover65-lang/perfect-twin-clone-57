@@ -144,7 +144,8 @@ function Board({ market }: { market: Market }) {
       </header>
       <div className="grid h-7 grid-cols-[minmax(0,1fr)_96px_96px] border-b border-ex-market-rule text-[0.7rem] text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_120px_120px]">
         <div className="m-1 flex items-center justify-center rounded-[3px] bg-ex-minmax text-[0.64rem] text-ex-muted">
-          Min/Max&nbsp;&nbsp; {market.min ?? 1}-{market.max ?? 50000}
+          Min/Max&nbsp;&nbsp; {market.min && market.min > 0 ? market.min : 1}-
+          {market.max && market.max > 0 ? market.max : 50000}
         </div>
         <div className="flex items-center justify-center bg-ex-back/55 font-medium">Back</div>
         <div className="flex items-center justify-center bg-ex-lay/55 font-medium">Lay</div>
@@ -184,21 +185,41 @@ function FancyRow({ market }: { market: Market }) {
   const yes = r?.price?.back?.[0];
 
   return (
-    <article className="relative grid min-h-[70px] grid-cols-[minmax(0,1fr)_96px_96px] items-center border-b-[5px] border-ex-market-rule bg-ex-market-row px-2 sm:grid-cols-[minmax(0,1fr)_120px_120px]">
-      <span className={`truncate text-[0.82rem] font-medium ${dim ? "text-ex-muted" : "text-ex-cell-foreground"}`}>
-        {market.marketName.trim()}
-      </span>
-      <div className="px-[3px]">
+    <article className="relative overflow-hidden border-b-[5px] border-ex-market-rule bg-ex-market-surface">
+      <header className="flex h-8 items-center justify-between bg-ex-header pl-2 text-ex-text">
+        <span className="flex min-w-0 items-center gap-1.5">
+          <span className="truncate text-[0.78rem] font-semibold">{market.marketName.trim()}</span>
+          <InfoIcon />
+        </span>
+        <span className="flex h-full shrink-0 items-center gap-2 bg-ex-market-surface px-2 text-[0.72rem] text-ex-cell-foreground">
+          <span className="h-4 w-4 rounded-[2px] bg-live-badge" />
+          Cash Out
+        </span>
+      </header>
+      <div className="grid h-7 grid-cols-[minmax(0,1fr)_96px_96px] border-b border-ex-market-rule text-[0.7rem] text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_120px_120px]">
+        <div className="m-1 flex items-center justify-center rounded-[3px] bg-ex-minmax text-[0.64rem] text-ex-muted">
+          Min/Max&nbsp;&nbsp; {market.min && market.min > 0 ? market.min : 100}-
+          {market.max && market.max > 0 ? market.max : 25000}
+        </div>
+        <div className="flex items-center justify-center bg-ex-lay/55 font-medium">No</div>
+        <div className="flex items-center justify-center bg-ex-back/55 font-medium">Yes</div>
+      </div>
+      <div className="grid min-h-[62px] grid-cols-[minmax(0,1fr)_96px_96px] items-center bg-ex-market-row px-2 sm:grid-cols-[minmax(0,1fr)_120px_120px]">
+        <span className={`truncate text-[0.82rem] font-medium ${dim ? "text-ex-muted" : "text-ex-cell-foreground"}`}>
+          {market.marketName.trim()}
+        </span>
+        <div className="px-[3px]">
           <div className="pb-1 text-center text-[0.62rem] font-bold uppercase tracking-[0.12em] text-ex-muted">
             No
           </div>
           <Cell price={no?.price} size={no?.size} side="lay" dim={dim} />
-      </div>
-      <div className="px-[3px]">
+        </div>
+        <div className="px-[3px]">
           <div className="pb-1 text-center text-[0.62rem] font-bold uppercase tracking-[0.12em] text-ex-muted">
             Yes
           </div>
           <Cell price={yes?.price} size={yes?.size} side="back" dim={dim} />
+        </div>
       </div>
       {dim ? (
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center border-2 border-ex-suspend bg-ex-market-surface/80">
@@ -212,22 +233,12 @@ function FancyRow({ market }: { market: Market }) {
 }
 
 function Section({
-  title,
-  count,
   children,
 }: {
-  title: string;
-  count: number;
   children: React.ReactNode;
 }) {
   return (
     <section className="overflow-hidden bg-ex-market-surface">
-      <header className="flex h-9 items-center justify-between bg-ex-header px-2">
-        <h2 className="text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-ex-text">
-          {title}
-        </h2>
-        <span className="text-xs text-ex-muted">{count}</span>
-      </header>
       <div>{children}</div>
     </section>
   );
@@ -430,7 +441,7 @@ function EventPage() {
       >
         <div className="space-y-0 sm:mt-3 sm:space-y-4">
           {matchOdds.length ? (
-            <Section title="Match odds" count={matchOdds.length}>
+            <Section>
               {matchOdds.map((m) => (
                 <Board key={m.marketId} market={m} />
               ))}
@@ -438,7 +449,7 @@ function EventPage() {
           ) : null}
 
           {bookmakers.length ? (
-            <Section title="Bookmaker" count={bookmakers.length}>
+            <Section>
               {bookmakers.map((m) => (
                 <Board key={m.marketId} market={m} />
               ))}
@@ -446,7 +457,7 @@ function EventPage() {
           ) : null}
 
           {fancy.length ? (
-            <Section title="Fancy" count={fancy.length}>
+            <Section>
               {fancy.map((m) => (
                 <FancyRow key={m.marketId} market={m} />
               ))}
@@ -454,7 +465,7 @@ function EventPage() {
           ) : null}
 
           {sportsbook.length ? (
-            <Section title="Sportsbook" count={sportsbook.length}>
+            <Section>
               {sportsbook.map((m) => (
                 <Board key={m.marketId} market={m} />
               ))}
