@@ -132,7 +132,7 @@ function Board({ market }: { market: Market }) {
 
   return (
     <article className="overflow-hidden border-b-[5px] border-ex-market-rule bg-ex-market-surface">
-      <header className="grid h-8 grid-cols-[minmax(0,1fr)_90px_90px] items-center bg-ex-market-surface text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_110px_110px]">
+      <header className="grid h-8 grid-cols-[minmax(0,1fr)_100px_100px] items-center bg-ex-market-surface text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_120px_120px]">
         <span className="flex h-full min-w-0 items-center gap-1.5 bg-ex-header px-2 text-ex-text">
           <span className="truncate text-[0.78rem] font-semibold">{market.marketName.trim()}</span>
           <InfoIcon />
@@ -145,7 +145,7 @@ function Board({ market }: { market: Market }) {
           Matched {fmtInt(odds?.totalMatched)}
         </span>
       </header>
-      <div className="grid h-7 grid-cols-[minmax(0,1fr)_90px_90px] border-b border-ex-market-rule text-[0.7rem] text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_110px_110px]">
+      <div className="grid h-7 grid-cols-[minmax(0,1fr)_100px_100px] border-b border-ex-market-rule text-[0.7rem] text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_120px_120px]">
         <div className="m-1 flex items-center justify-center rounded-[3px] bg-ex-minmax text-[0.64rem] text-ex-muted">
           Min/Max&nbsp;&nbsp; {market.min && market.min > 0 ? market.min : 1}-
           {market.max && market.max > 0 ? market.max : 50000}
@@ -161,7 +161,7 @@ function Board({ market }: { market: Market }) {
             <div
               key={String(r.selectionId)}
               data-runner-row
-              className="relative grid min-h-[68px] grid-cols-[minmax(0,1fr)_90px_90px] items-stretch border-b border-ex-market-rule bg-ex-market-row last:border-b-0 sm:grid-cols-[minmax(0,1fr)_110px_110px]"
+              className="relative grid min-h-[70px] grid-cols-[minmax(0,1fr)_100px_100px] items-stretch border-b border-ex-market-rule bg-ex-market-row last:border-b-0 sm:grid-cols-[minmax(0,1fr)_120px_120px]"
             >
               <span
                 className={`flex min-w-0 items-center truncate px-2 text-[0.83rem] font-medium ${dim ? "text-ex-muted" : "text-ex-cell-foreground"}`}
