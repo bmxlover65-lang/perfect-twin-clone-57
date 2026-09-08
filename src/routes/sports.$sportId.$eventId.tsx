@@ -210,7 +210,7 @@ function FancyRow({ market }: { market: Market }) {
         <div className="flex items-center justify-center bg-ex-lay/55 font-medium">No</div>
         <div className="flex items-center justify-center bg-ex-back/55 font-medium">Yes</div>
       </div>
-      <div className="grid min-h-[70px] grid-cols-[minmax(0,1fr)_100px_100px] items-center bg-ex-market-row px-2 sm:grid-cols-[minmax(0,1fr)_120px_120px]">
+      <div className="grid min-h-[74px] grid-cols-[minmax(0,1fr)_100px_100px] items-center bg-ex-market-row px-2 sm:grid-cols-[minmax(0,1fr)_120px_120px]">
         <span className={`truncate text-[0.82rem] font-medium ${dim ? "text-ex-muted" : "text-ex-cell-foreground"}`}>
           {market.marketName.trim()}
         </span>
