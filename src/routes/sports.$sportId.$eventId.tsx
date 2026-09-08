@@ -132,17 +132,20 @@ function Board({ market }: { market: Market }) {
 
   return (
     <article className="overflow-hidden border-b-[5px] border-ex-market-rule bg-ex-market-surface">
-      <header className="flex h-8 items-center justify-between bg-ex-header pl-2 text-ex-text">
-        <span className="flex min-w-0 items-center gap-1.5">
+      <header className="grid h-8 grid-cols-[minmax(0,1fr)_88px_104px] items-center bg-ex-market-surface text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_110px_130px]">
+        <span className="flex h-full min-w-0 items-center gap-1.5 bg-ex-header px-2 text-ex-text">
           <span className="truncate text-[0.78rem] font-semibold">{market.marketName.trim()}</span>
           <InfoIcon />
         </span>
-        <span className="flex h-full shrink-0 items-center gap-2 bg-ex-market-surface px-2 text-[0.72rem] text-ex-cell-foreground">
+        <span className="flex h-full items-center gap-1.5 px-2 text-[0.68rem]">
           <span className="h-4 w-4 rounded-[2px] bg-live-badge" />
           Cash Out
         </span>
+        <span className="truncate pr-2 text-right text-[0.68rem]">
+          Matched {fmtInt(odds?.totalMatched)}
+        </span>
       </header>
-      <div className="grid h-7 grid-cols-[minmax(0,1fr)_96px_96px] border-b border-ex-market-rule text-[0.7rem] text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_120px_120px]">
+      <div className="grid h-7 grid-cols-[minmax(0,1fr)_68px_68px] border-b border-ex-market-rule text-[0.7rem] text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_96px_96px]">
         <div className="m-1 flex items-center justify-center rounded-[3px] bg-ex-minmax text-[0.64rem] text-ex-muted">
           Min/Max&nbsp;&nbsp; {market.min && market.min > 0 ? market.min : 1}-
           {market.max && market.max > 0 ? market.max : 50000}
@@ -158,7 +161,7 @@ function Board({ market }: { market: Market }) {
             <div
               key={String(r.selectionId)}
               data-runner-row
-              className="relative grid min-h-[62px] grid-cols-[minmax(0,1fr)_96px_96px] items-stretch border-b border-ex-market-rule bg-ex-market-row last:border-b-0 sm:grid-cols-[minmax(0,1fr)_120px_120px]"
+              className="relative grid min-h-[62px] grid-cols-[minmax(0,1fr)_68px_68px] items-stretch border-b border-ex-market-rule bg-ex-market-row last:border-b-0 sm:grid-cols-[minmax(0,1fr)_96px_96px]"
             >
               <span
                 className={`flex min-w-0 items-center truncate px-2 text-[0.83rem] font-medium ${dim ? "text-ex-muted" : "text-ex-cell-foreground"}`}
@@ -186,17 +189,20 @@ function FancyRow({ market }: { market: Market }) {
 
   return (
     <article className="relative overflow-hidden border-b-[5px] border-ex-market-rule bg-ex-market-surface">
-      <header className="flex h-8 items-center justify-between bg-ex-header pl-2 text-ex-text">
-        <span className="flex min-w-0 items-center gap-1.5">
+      <header className="grid h-8 grid-cols-[minmax(0,1fr)_88px_104px] items-center bg-ex-market-surface text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_110px_130px]">
+        <span className="flex h-full min-w-0 items-center gap-1.5 bg-ex-header px-2 text-ex-text">
           <span className="truncate text-[0.78rem] font-semibold">{market.marketName.trim()}</span>
           <InfoIcon />
         </span>
-        <span className="flex h-full shrink-0 items-center gap-2 bg-ex-market-surface px-2 text-[0.72rem] text-ex-cell-foreground">
+        <span className="flex h-full items-center gap-1.5 px-2 text-[0.68rem]">
           <span className="h-4 w-4 rounded-[2px] bg-live-badge" />
           Cash Out
         </span>
+        <span className="truncate pr-2 text-right text-[0.68rem]">
+          Matched {fmtInt(odds?.totalMatched)}
+        </span>
       </header>
-      <div className="grid h-7 grid-cols-[minmax(0,1fr)_96px_96px] border-b border-ex-market-rule text-[0.7rem] text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_120px_120px]">
+      <div className="grid h-7 grid-cols-[minmax(0,1fr)_68px_68px] border-b border-ex-market-rule text-[0.7rem] text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_96px_96px]">
         <div className="m-1 flex items-center justify-center rounded-[3px] bg-ex-minmax text-[0.64rem] text-ex-muted">
           Min/Max&nbsp;&nbsp; {market.min && market.min > 0 ? market.min : 100}-
           {market.max && market.max > 0 ? market.max : 25000}
@@ -204,7 +210,7 @@ function FancyRow({ market }: { market: Market }) {
         <div className="flex items-center justify-center bg-ex-lay/55 font-medium">No</div>
         <div className="flex items-center justify-center bg-ex-back/55 font-medium">Yes</div>
       </div>
-      <div className="grid min-h-[62px] grid-cols-[minmax(0,1fr)_96px_96px] items-center bg-ex-market-row px-2 sm:grid-cols-[minmax(0,1fr)_120px_120px]">
+      <div className="grid min-h-[62px] grid-cols-[minmax(0,1fr)_68px_68px] items-center bg-ex-market-row px-2 sm:grid-cols-[minmax(0,1fr)_96px_96px]">
         <span className={`truncate text-[0.82rem] font-medium ${dim ? "text-ex-muted" : "text-ex-cell-foreground"}`}>
           {market.marketName.trim()}
         </span>
