@@ -416,35 +416,38 @@ function freshestMarkets(splat: string, text: string): string {
   }
   let changed = false;
   const now = Date.now();
-  for (const group of ["matchOdds", "bookmakers", "fancy", "sportsbook"] as const) {
+
+  // Total traded volume across the whole payload identifies the cache
+  // generation: it only grows, so a lower total means the provider handed
+  // back an older frame. Bookmaker / fancy / sportsbook prices froze because
+  // those older frames kept overwriting the newest ones.
+  const groups = ["matchOdds", "bookmakers", "fancy", "sportsbook"] as const;
+  let score = 0;
+  for (const group of groups) {
+    for (const market of payload[group] ?? []) score += Number(market?.oddsData?.totalMatched ?? 0);
+  }
+  const genKey = `${splat}|__gen`;
+  const bestGen = marketGenerations.get(genKey);
+  const olderGeneration = Boolean(bestGen && score < bestGen.matched && now - bestGen.at < 15_000);
+  if (!olderGeneration) marketGenerations.set(genKey, { at: now, matched: score, market: {} });
+
+  for (const group of groups) {
     const list = payload[group];
     if (!Array.isArray(list)) continue;
-    // Generation replay only helps the heavily traded main board. Side markets
-    // such as Over/Under move on a flat totalMatched, so replaying them just
-    // held their prices a few seconds behind the live feed.
-    const sideMarkets = group === "sportsbook" || group === "fancy";
-    if (sideMarkets) continue;
 
     list.forEach((market, i) => {
       const id = market?.marketId ?? market?.marketName;
       if (!id) return;
-      // Line markets (Over/Under, totals) always take the newest payload.
-      if (/over|under|goals|total/i.test(market?.marketName ?? "")) return;
       const key = `${splat}|${id}`;
-
       const matched = Number(market?.oddsData?.totalMatched ?? 0);
       const prev = marketGenerations.get(key);
-      // Older generation than one we already served: replay the newer state, but
-      // only for a moment. Thinly traded markets (Over/Under, lines) report a
-      // flat or wobbling totalMatched, so a long replay window froze their
-      // prices for seconds behind the reference board.
-      if (prev && prev.matched > matched && now - prev.at < 1200) {
+      const older = prev && (olderGeneration ? matched <= prev.matched : matched < prev.matched);
+      if (older && now - prev.at < 25_000) {
         list[i] = prev.market;
         changed = true;
         return;
       }
       marketGenerations.set(key, { at: now, matched, market });
-
     });
   }
   if (marketGenerations.size > 4000) {

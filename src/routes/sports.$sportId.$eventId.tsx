@@ -12,6 +12,7 @@ import {
   type OddsResponse,
 } from "@/lib/uapi";
 import { BalanceChip, BetLayer } from "@/components/betting";
+import { createFeedState, mergeFeed } from "@/lib/feed-merge";
 import { Scoreboard } from "@/components/Scoreboard";
 import { LiveTv } from "@/components/LiveTv";
 import { settleFromRunners, voidOpen } from "@/lib/wallet";
@@ -259,6 +260,7 @@ function EventPage() {
   const inFlight = useRef(false);
   const inFlightSince = useRef(0);
   const lastSocketMessage = useRef(0);
+  const feed = useRef(createFeedState());
   const [age, setAge] = useState(0);
 
 
@@ -275,7 +277,7 @@ function EventPage() {
     try {
       const odds = await fetchOdds(sportId, eventId);
       if (currentRequest !== requestId.current) return;
-      setData(odds);
+      setData(mergeFeed(feed.current, odds));
       setAge(0);
       setError(null);
     } catch (e) {
@@ -301,7 +303,7 @@ function EventPage() {
             const message = JSON.parse(String(event.data)) as { type?: string; data?: OddsResponse };
             if (message.type !== "odds" || !message.data) return;
             lastSocketMessage.current = Date.now();
-            setData(message.data);
+            setData(mergeFeed(feed.current, message.data));
             setAge(0);
             setError(null);
           } catch {
