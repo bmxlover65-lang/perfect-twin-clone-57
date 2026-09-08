@@ -71,13 +71,13 @@ function Cell({
     side === "back" ? (has ? "bg-ex-back" : "bg-ex-back-dim") : has ? "bg-ex-lay" : "bg-ex-lay-dim";
   return (
     <div
-      className={`relative flex h-[60px] flex-col items-center justify-center overflow-hidden rounded-[5px] border border-ex-market-surface/80 ${tone} ${
+      className={`relative flex h-[62px] flex-col items-center justify-center overflow-hidden rounded-[5px] border border-ex-market-surface/80 ${tone} ${
         dim ? "opacity-40" : ""
       } ${flash} text-ex-cell-foreground`}
     >
-      <span className="relative z-10 text-[1rem] font-bold leading-none">{fmtOdds(price)}</span>
+      <span className="relative z-10 text-[1.05rem] font-bold leading-none">{fmtOdds(price)}</span>
       {has && size ? (
-        <span className="relative z-10 mt-1 text-[0.75rem] leading-none opacity-80">
+        <span className="relative z-10 mt-1 text-[0.76rem] leading-none opacity-80">
           {fmtSize(size)}
         </span>
       ) : null}
