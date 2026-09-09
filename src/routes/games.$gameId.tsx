@@ -563,7 +563,7 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
       <span className="mt-[3px] text-[0.72rem] font-medium leading-none text-[#111]/70">
         {fmtSize(p?.size)}
       </span>
-      {locked ? <SuspendVeil rounded="rounded-[6px]" /> : null}
+      {locked ? <SuspendVeil className="rounded-[6px]" size="sm" /> : null}
     </div>
   );
 
