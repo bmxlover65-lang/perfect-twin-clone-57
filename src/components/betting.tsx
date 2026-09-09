@@ -78,6 +78,8 @@ function extractPick(target: HTMLElement, root: HTMLElement): ExtractedPick | nu
     }
   }
   if (odds == null || !node) return null;
+  if (isBlockedByOverlay(node, root)) return null;
+
 
 
   // Side (A/B) from the cell's position when a row holds exactly two odds cells.
