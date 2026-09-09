@@ -293,9 +293,32 @@ export function BetLayer({
 
   useEffect(() => {
     setChips([]);
+    suspendedRound.current = null; // new round → betting opens again
     rootRef.current
       ?.querySelectorAll<HTMLElement>('[data-has-exposure="true"]')
       .forEach((element) => element.removeAttribute("data-has-exposure"));
+  }, [round]);
+
+  // Watch the board: the moment a SUSPENDED / CLOSED / BALL RUNNING banner
+  // appears, latch the round as closed and kill any open slip.
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const root = rootRef.current;
+      if (!root || suspendedRound.current === round) return;
+      const flagged =
+        root.querySelector('[data-suspended="true"]') != null ||
+        Array.from(root.querySelectorAll<HTMLElement>("*")).some((el) => {
+          if (el.children.length > 0) return false;
+          const t = (el.textContent ?? "").replace(/\s+/g, " ").trim();
+          return /^(suspend(ed)?|locked|closed|ball\s*running)$/i.test(t);
+        });
+      if (flagged) {
+        suspendedRound.current = round;
+        setPick(null);
+        setErr("Bet Suspended.");
+      }
+    }, 300);
+    return () => window.clearInterval(id);
   }, [round]);
 
   // The operator wallet can refuse an integrated bet after it was sent.
