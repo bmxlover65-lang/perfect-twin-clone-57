@@ -597,11 +597,16 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
           return (
             <div
               key={String(r.selectionId)}
+              data-runner-row=""
               className={`grid min-h-[68px] items-center border-b border-casino-market-divider ${cols} px-2.5`}
             >
-              <span className="truncate py-1 text-[0.95rem] font-medium uppercase text-casino-market-text">
+              <span
+                data-runner-name=""
+                className="relative block truncate py-1 text-[0.95rem] font-medium uppercase text-casino-market-text"
+              >
                 {names[String(r.selectionId)] ?? String(r.selectionId)}
               </span>
+
               {plate(r.price?.back?.[0], "back", !open || !r.price?.back?.[0]?.price)}
               {hasLay ? plate(r.price?.lay?.[0], "lay", !open || !r.price?.lay?.[0]?.price) : null}
             </div>
