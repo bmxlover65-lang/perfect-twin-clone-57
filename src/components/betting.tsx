@@ -389,11 +389,12 @@ export function BetLayer({
       close();
       return;
     }
-    if (suspendedRound.current === round) {
+    if (cellPos.current?.cell && inLatchedMarket(cellPos.current.cell)) {
       setErr("Bet Suspended.");
       close();
       return;
     }
+
     const rootEl = rootRef.current;
     const cellEl = cellPos.current?.cell;
     if (rootEl && cellEl && isBlockedByOverlay(cellEl, rootEl)) {
