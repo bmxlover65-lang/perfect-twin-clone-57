@@ -107,6 +107,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+import WinCelebration from "@/components/WinCelebration";
+
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
@@ -236,6 +238,7 @@ function RootComponent() {
         {embed ? null : <SiteHeader />}
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
+        <WinCelebration />
       </div>
     </QueryClientProvider>
   );

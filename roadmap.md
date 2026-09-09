@@ -71,3 +71,5 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [ ] Match shared casino navigation, game shell and spacing
 - [ ] Apply the same structure across all casino pages on universeapi.store
 - [ ] Verify every casino page at mobile and desktop widths
+
+- [x] Win celebration confetti on all tables (loss = no celebration)

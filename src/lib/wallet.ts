@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { celebrateWin } from "@/components/WinCelebration";
 import { logBet, setBalance as logBalance } from "@/lib/telemetry";
 import { playerSession, remoteBet, remoteCashout, remoteSettle } from "@/lib/player";
 
@@ -125,6 +126,7 @@ export function cashOut(ref: string | undefined, stake: number, multiplier: numb
     b.id === ref ? { ...b, status: "won" as const, odds: multiplier, payout } : b,
   );
   write({ balance: session ? w.balance : w.balance + payout, bets });
+  if (payout > 0 && multiplier > 1) celebrateWin(payout);
   if (session && ref) void remoteCashout(session, ref, multiplier);
   return payout;
 }
@@ -161,6 +163,11 @@ function isWin(label: string, winner: string) {
 
 
 
+/** Fire the win celebration when a settlement actually pays out. */
+function celebrateIfWon(credited: number) {
+  if (credited > 0) celebrateWin(credited);
+}
+
 /** Push table-game settlements to the operator wallet in integrated mode. */
 function pushSettle(rows: { ref: string; outcome: "won" | "lost" | "void"; multiplier?: number }[]) {
   const session = playerSession();
@@ -187,6 +194,7 @@ export function settleRound(gameId: string, round: string, winner: string) {
   if (!touched) return;
   const session = playerSession();
   write({ balance: session ? w.balance : w.balance + credited, bets });
+  celebrateIfWon(credited);
   pushSettle(settled);
 }
 
@@ -239,6 +247,7 @@ export function settleLatest(gameId: string, key: string, winner: string) {
   if (!touched) return;
   const session = playerSession();
   write({ balance: session ? w.balance : w.balance + credited, bets });
+  celebrateIfWon(credited);
   pushSettle(settled);
 }
 
@@ -268,6 +277,7 @@ export function settleFromRunners(
   if (!touched) return;
   const session = playerSession();
   write({ balance: session ? w.balance : w.balance + credited, bets });
+  celebrateIfWon(credited);
   pushSettle(settled);
 }
 
