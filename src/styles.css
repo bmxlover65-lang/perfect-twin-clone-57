@@ -403,3 +403,24 @@
 }
 .rate-up::after { animation: rate-flash-up 0.55s ease-out 1; }
 .rate-down::after { animation: rate-flash-down 0.55s ease-out 1; }
+
+/* Win celebration confetti — original site jaisa */
+@keyframes confetti-fall {
+  0% {
+    transform: translate3d(0, -20vh, 0) rotate(var(--confetti-rotate, 0deg));
+    opacity: 0;
+  }
+  8% { opacity: 1; }
+  90% { opacity: 1; }
+  100% {
+    transform: translate3d(var(--confetti-drift, 0px), 115vh, 0)
+      rotate(calc(var(--confetti-rotate, 0deg) + 720deg));
+    opacity: 0;
+  }
+}
+.confetti-piece {
+  animation-name: confetti-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
