@@ -1084,10 +1084,13 @@ function AAAPanel({
   );
 
   const SuspCell = () => (
-    <div className="flex h-[38px] w-full items-center justify-center border-2 border-[#E01B24] bg-white">
-      <span className="text-[0.78rem] font-bold uppercase text-[#E01B24]">Suspended</span>
+    <div className="flex h-[38px] w-full items-center justify-center rounded-[5px] bg-casino-suspend-veil">
+      <span className="text-[0.78rem] font-extrabold uppercase tracking-[0.06em] text-casino-suspend-text">
+        Suspended
+      </span>
     </div>
   );
+
 
   const PriceCell = ({
     price,
