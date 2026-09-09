@@ -282,6 +282,7 @@ export function BetLayer({
   // Once any market shows SUSPENDED / CLOSED in a round, betting stays blocked
   // for the whole round — it only opens again when a new round starts.
   const suspendedRound = useRef<string | null>(null);
+  const roundChangedAt = useRef(0);
 
   const wallet = useWallet();
   const embed = useEmbed();
