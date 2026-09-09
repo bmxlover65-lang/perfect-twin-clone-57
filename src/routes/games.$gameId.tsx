@@ -426,18 +426,18 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
   const odd = runners.length % 2 === 1;
 
   return (
-    <div className="mt-0">
-      <header className="flex h-[26px] items-center justify-between gap-2 bg-casino-market-header px-2">
-        <h3 className="truncate whitespace-nowrap text-[0.8rem] font-extrabold uppercase tracking-[0.02em] text-board-header-foreground">
+    <div className="mt-0 border-b-2 border-board-header-foreground sm:border-b-0">
+      <header className="flex h-[22px] items-center justify-between gap-2 bg-casino-market-header px-1.5 sm:h-[26px] sm:px-2">
+        <h3 className="truncate whitespace-nowrap text-[0.72rem] font-extrabold uppercase tracking-[0.02em] text-board-header-foreground sm:text-[0.8rem]">
           {market.marketName}
         </h3>
-        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-board-header-foreground text-[0.65rem] font-black text-casino-market-header">
+        <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-board-header-foreground text-[0.58rem] font-black text-casino-market-header sm:h-4 sm:w-4 sm:text-[0.65rem]">
           i
         </span>
 
       </header>
-      <div className="relative bg-casino-market-body px-3 py-3">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+      <div className="relative bg-casino-market-body px-3 py-1.5 sm:py-3">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:gap-y-3">
           {runners.map((r, i) => {
             const p = r.price?.back?.[0];
             const locked = !suspended && (!isOpenStatus(r.status ?? "ONLINE") || !p?.price);
@@ -447,7 +447,7 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                 key={String(r.selectionId)}
                 className={`min-w-0 ${last ? "col-span-2 mx-auto w-[calc(50%-0.5rem)]" : ""}`}
               >
-                <div className="px-1 pb-1 text-center text-[0.8rem] font-semibold uppercase text-casino-market-text">
+                <div className="px-1 pb-1 text-center text-[0.72rem] font-medium uppercase text-casino-market-text sm:text-[0.8rem] sm:font-semibold">
                   {(() => {
                     const label = String(names[String(r.selectionId)] ?? r.selectionId).trim();
                     return /CARD/i.test(market.marketName ?? "") && RANKS.includes(label.toUpperCase())
@@ -456,18 +456,18 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                   })()}
                 </div>
 
-                <div className="relative mx-auto flex h-[48px] w-[110px] max-w-full flex-col items-center justify-center rounded-[6px] bg-casino-market-rate text-casino-market-text shadow-[0_4px_10px_color-mix(in_oklab,var(--casino-market-header)_28%,transparent)] sm:h-[56px] sm:w-[150px]">
+                <div className="relative mx-auto flex h-[41px] w-[103px] max-w-full flex-col items-center justify-center rounded-[5px] bg-casino-market-rate text-casino-market-text shadow-[0_4px_10px_color-mix(in_oklab,var(--casino-market-header)_28%,transparent)] sm:h-[56px] sm:w-[150px] sm:rounded-[6px]">
                   {locked ? (
                     <span className="absolute inset-0 flex items-center justify-center rounded-[6px] bg-black/35 text-sm">
                       🔒
                     </span>
                   ) : (
                     <>
-                      <span className="text-[1.1rem] font-bold leading-none">
+                      <span className="text-[0.98rem] font-medium leading-none sm:text-[1.1rem] sm:font-bold">
                         {fmtOdds(p?.price)}
                       </span>
-                      <span className="mt-1 text-[0.7rem] font-normal leading-none text-casino-market-text/90">
-                        {fmtSize(p?.size)}
+                      <span className="mt-1 text-[0.68rem] font-normal leading-none text-casino-market-text/90 sm:text-[0.7rem]">
+                        {p?.size == null ? "" : String(Math.round(p.size))}
                       </span>
                     </>
                   )}
