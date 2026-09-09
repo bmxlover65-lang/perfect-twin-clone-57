@@ -278,6 +278,7 @@ export function BetLayer({
     };
   }, [chips.length]);
   const busy = useRef(false);
+  const pickRound = useRef("");
 
   const wallet = useWallet();
   const embed = useEmbed();
@@ -305,6 +306,22 @@ export function BetLayer({
     setPick(null);
   };
 
+  // Watch the clicked cell while the slip is open: the moment it gets a
+  // SUSPENDED / locked overlay, the slip closes so no bet can be confirmed.
+  useEffect(() => {
+    if (!pick) return;
+    const id = window.setInterval(() => {
+      const rootEl = rootRef.current;
+      const cellEl = cellPos.current?.cell;
+      if (!rootEl || !cellEl) return;
+      if (!cellEl.isConnected || isBlockedByOverlay(cellEl, rootEl)) {
+        setErr("Bet Suspended.");
+        setPick(null);
+      }
+    }, 300);
+    return () => window.clearInterval(id);
+  }, [pick]);
+
 
 
   const submit = () => {
@@ -314,6 +331,21 @@ export function BetLayer({
     }
     if (!pick) return;
     const pickLabel = pick.label;
+
+    // The market can suspend (or the round can roll over) while the slip is
+    // open — a pre-filled stake must never sneak through after that.
+    if (pickRound.current !== round) {
+      setErr("Bet Closed. Round Changed.");
+      close();
+      return;
+    }
+    const rootEl = rootRef.current;
+    const cellEl = cellPos.current?.cell;
+    if (rootEl && cellEl && isBlockedByOverlay(cellEl, rootEl)) {
+      setErr("Bet Suspended.");
+      close();
+      return;
+    }
 
     if (stake < 100) {
       setErr("Minimum bet is 100.");
@@ -469,6 +501,7 @@ export function BetLayer({
           }
           const top = u(row.getBoundingClientRect().bottom - rootBox.top);
           setAnchor(Math.max(0, top));
+          pickRound.current = round;
           setPick({ label: p.label, odds: p.odds });
           setOdds(p.odds);
           setErr(null);
