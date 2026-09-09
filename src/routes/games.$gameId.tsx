@@ -460,18 +460,19 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                   })()}
                 </div>
 
-                <div className="relative mx-auto flex h-[46px] w-[110px] max-w-full flex-col items-center justify-center rounded-[5px] bg-casino-market-rate text-casino-market-text shadow-[0_4px_10px_color-mix(in_oklab,var(--casino-market-header)_28%,transparent)] sm:h-[56px] sm:w-[150px] sm:rounded-[6px]">
+                <div className="relative mx-auto flex h-[34px] w-[118px] max-w-full flex-col items-center justify-center rounded-[4px] bg-casino-market-rate text-casino-market-text shadow-[0_3px_8px_color-mix(in_oklab,var(--casino-market-header)_25%,transparent)] sm:h-[56px] sm:w-[150px] sm:rounded-[6px]">
                   {locked ? (
-                    <span className="absolute inset-0 flex items-center justify-center rounded-[6px] bg-black/35 text-sm">
+                    <span className="absolute inset-0 flex items-center justify-center rounded-[4px] bg-black/35 text-sm">
                       🔒
                     </span>
                   ) : (
                     <>
-                      <span className="text-[1.05rem] font-medium leading-none sm:text-[1.1rem] sm:font-bold">
+                      <span className="text-[0.95rem] font-bold leading-none sm:text-[1.1rem]">
                         {fmtOdds(p?.price)}
                       </span>
-                      <span className="mt-1 text-[0.68rem] font-normal leading-none text-casino-market-text/90 sm:text-[0.7rem]">
+                      <span className="mt-[2px] text-[0.6rem] font-normal leading-none text-casino-market-text/90 sm:text-[0.7rem]">
                         {p?.size == null ? "" : String(Math.round(p.size))}
+
                       </span>
                     </>
                   )}
