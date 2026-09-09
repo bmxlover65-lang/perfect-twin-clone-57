@@ -1041,11 +1041,8 @@ function CardRacePanel({
               })}
               {runners.length > 0 &&
               runners.every((r) => suspended || !isOpenStatus(r.status)) ? (
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                  <span className="text-[1.5rem] font-extrabold uppercase tracking-[0.04em] text-[#DE7A7A]">
-                    SUSPENDED
-                  </span>
-                </div>
+                <SuspendVeil size="sm" />
+
               ) : null}
             </div>
 
