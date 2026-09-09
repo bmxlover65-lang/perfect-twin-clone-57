@@ -307,6 +307,9 @@ export function BetLayer({
     const id = window.setInterval(() => {
       const root = rootRef.current;
       if (!root || suspendedRound.current === round) return;
+      // Grace window: a closing veil from the previous round may still be
+      // visible for a moment right after the new round starts.
+      if (Date.now() - roundChangedAt.current < 1200) return;
       const flagged =
         root.querySelector('[data-suspended="true"]') != null ||
         Array.from(root.querySelectorAll<HTMLElement>("*")).some((el) => {
