@@ -2561,6 +2561,7 @@ function ResultBanner({
   const winner =
     live || deriveWinner(top, !!gameId && LUCKY7_GAMES.includes(gameId));
   const seen = useRef<string>("");
+  const init = useRef(false);
   const [show, setShow] = useState(false);
 
   // A new round always clears the previous winner banner.
@@ -2570,7 +2571,9 @@ function ResultBanner({
 
   useEffect(() => {
     if (!key || !winner) return;
-    if (!seen.current) {
+    // a winner already on screen at load is stale — never flash it
+    if (!init.current) {
+      init.current = true;
       seen.current = key;
       return;
     }
