@@ -237,7 +237,7 @@ export function BetLayer({
   gameName: string;
   round: string;
   disabled?: boolean;
-  exposureLayout?: "market" | "sports";
+  exposureLayout?: "market" | "sports" | "row";
   children: ReactNode;
 }) {
   const [pick, setPick] = useState<Pick | null>(null);
@@ -404,7 +404,7 @@ export function BetLayer({
           let cellEl: HTMLElement = p.element;
           let oppositeEl: HTMLElement | undefined;
 
-          if (exposureLayout === "sports") {
+          if (exposureLayout === "sports" || exposureLayout === "row") {
             const runnerRow = p.element.closest<HTMLElement>("[data-runner-row]");
             const board = runnerRow?.parentElement;
             const opponent = board
@@ -412,9 +412,17 @@ export function BetLayer({
                   (candidate) => candidate !== runnerRow,
                 )
               : undefined;
-            if (runnerRow) cellEl = runnerRow;
-            if (opponent) oppositeEl = opponent;
+            if (exposureLayout === "row") {
+              const nameOf = (row?: HTMLElement | null) =>
+                row?.querySelector<HTMLElement>("[data-runner-name]") ?? row ?? undefined;
+              if (runnerRow) cellEl = nameOf(runnerRow) ?? runnerRow;
+              oppositeEl = nameOf(opponent);
+            } else {
+              if (runnerRow) cellEl = runnerRow;
+              if (opponent) oppositeEl = opponent;
+            }
           }
+
 
           if (exposureLayout === "market") {
             let pairNode: HTMLElement = p.element;
@@ -479,6 +487,10 @@ export function BetLayer({
             const b = el.getBoundingClientRect();
             return { x: (b.left - rootBox.left) / scale + 10, y: (b.top - rootBox.top) / scale + 35 };
           }
+          if (exposureLayout === "row") {
+            const b = el.getBoundingClientRect();
+            return { x: (b.left - rootBox.left) / scale, y: (b.bottom - rootBox.top) / scale + 3 };
+          }
           // Anchor to the visible rate plate, not the inner odds text.
           const plate = el.querySelector<HTMLElement>('[class*="casino-market-rate"]')
             ?? el.closest<HTMLElement>('[class*="casino-market-rate"]')
@@ -490,6 +502,8 @@ export function BetLayer({
           };
         };
 
+        const decimals = exposureLayout === "market" ? 0 : 2;
+
         const exposure = (
           key: string,
           pos: { x: number; y: number },
@@ -499,7 +513,7 @@ export function BetLayer({
         ) => (
           <span
             key={key}
-            className={`pointer-events-none absolute z-[60] whitespace-nowrap text-[0.72rem] font-semibold leading-none text-casino-market-text ${
+            className={`pointer-events-none absolute z-[60] whitespace-nowrap text-[0.78rem] font-semibold leading-none text-casino-market-text ${
               exposureLayout === "market" ? "-translate-x-1/2" : ""
             }`}
             style={{ left: `${pos.x}px`, top: `${pos.y}px` }}
@@ -507,7 +521,10 @@ export function BetLayer({
             {exposureLayout === "sports" ? null : `${label} : `}
             <strong className={tone}>
               {exposureLayout === "sports" ? (value < 0 ? "➜ " : "➜ ") : null}
-              {value.toLocaleString("en-IN", { minimumFractionDigits: exposureLayout === "sports" ? 2 : 0 })}
+              {value.toLocaleString("en-IN", {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals,
+              })}
             </strong>
           </span>
         );
@@ -517,17 +534,18 @@ export function BetLayer({
             `${c.id}-profit`,
             own,
             "P",
-            exposureLayout === "sports" ? c.profit : Math.round(c.profit),
+            exposureLayout === "market" ? Math.round(c.profit) : c.profit,
             "text-live-win",
           ),
         ];
+
         if (c.opposite && c.opposite.isConnected) {
           figures.push(
             exposure(
               `${c.id}-loss`,
               at(c.opposite),
               "L",
-              -Math.round(c.amount),
+              exposureLayout === "market" ? -Math.round(c.amount) : -c.amount,
               "text-live-lose",
             ),
           );
