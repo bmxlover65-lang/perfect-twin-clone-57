@@ -59,15 +59,23 @@ export default function WinCelebration() {
   const seed = useRef(0);
 
   useEffect(() => {
+    const stop = () => {
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = null;
+      setPieces([]);
+    };
     const onWin = () => {
       seed.current += 1;
       setPieces(build(seed.current));
       if (timer.current) clearTimeout(timer.current);
-      timer.current = setTimeout(() => setPieces([]), 5200);
+      // safety cap — celebration never hangs if no new round arrives
+      timer.current = setTimeout(stop, 60000);
     };
     window.addEventListener(WIN_EVT, onWin as EventListener);
+    window.addEventListener(WIN_END_EVT, stop as EventListener);
     return () => {
       window.removeEventListener(WIN_EVT, onWin as EventListener);
+      window.removeEventListener(WIN_END_EVT, stop as EventListener);
       if (timer.current) clearTimeout(timer.current);
     };
   }, []);
