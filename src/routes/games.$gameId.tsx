@@ -192,11 +192,8 @@ function BaccaratPanel({
   const tone = (l: string) => (l.includes("BANKER") ? "bg-[#C22539]" : "bg-[#1173CE]");
   const groupSuspended = (rs: R[]) => rs.length > 0 && rs.every((r) => !r.open);
 
-  const Overlay = () => (
-    <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-black/65">
-      <span className="text-lg font-extrabold uppercase tracking-wide text-white">Suspended</span>
-    </div>
-  );
+  const Overlay = () => <SuspendVeil />;
+
 
   const winnerSusp = groupSuspended([...winner, ...(tie ? [tie] : [])]);
   const pairSusp = groupSuspended(pair);
