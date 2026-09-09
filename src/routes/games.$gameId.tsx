@@ -563,19 +563,29 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
       <span className="mt-[3px] text-[0.72rem] font-medium leading-none text-[#111]/70">
         {fmtSize(p?.size)}
       </span>
-      {locked ? <SuspendVeil className="rounded-[6px]" size="sm" /> : null}
+      {locked ? (
+        <span
+          data-suspended="true"
+          className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-[6px] bg-casino-suspend-veil text-[0.68rem] font-extrabold uppercase tracking-[0.02em] text-casino-suspend-text"
+        >
+          Suspended
+        </span>
+      ) : null}
     </div>
   );
 
   return (
     <div className="mt-0 overflow-hidden bg-casino-market-body">
       <div className={`grid min-h-[34px] ${cols} items-center bg-casino-market-header px-2.5`}>
-        <span className="py-1.5 text-[0.9rem] font-extrabold uppercase text-board-header-foreground">
-          {market.marketName}{" "}
-          <span className="ml-1 text-[0.72rem] font-normal normal-case text-board-header-foreground/80">
+        <span className="flex min-w-0 items-baseline gap-1.5 py-1.5">
+          <span className="truncate text-[0.9rem] font-extrabold uppercase text-board-header-foreground">
+            {market.marketName}
+          </span>
+          <span className="shrink-0 whitespace-nowrap text-[0.68rem] font-normal text-board-header-foreground/80">
             Min: {market.min ?? 0} Max: {market.max ?? 0}
           </span>
         </span>
+
         <span className="py-1.5 text-center text-[0.8rem] font-semibold text-board-header-foreground">Back</span>
         {hasLay ? (
           <span className="py-1.5 text-center text-[0.8rem] font-semibold text-board-header-foreground">Lay</span>
