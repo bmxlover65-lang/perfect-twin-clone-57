@@ -487,6 +487,10 @@ export function BetLayer({
             const b = el.getBoundingClientRect();
             return { x: (b.left - rootBox.left) / scale + 10, y: (b.top - rootBox.top) / scale + 35 };
           }
+          if (exposureLayout === "row") {
+            const b = el.getBoundingClientRect();
+            return { x: (b.left - rootBox.left) / scale, y: (b.bottom - rootBox.top) / scale + 3 };
+          }
           // Anchor to the visible rate plate, not the inner odds text.
           const plate = el.querySelector<HTMLElement>('[class*="casino-market-rate"]')
             ?? el.closest<HTMLElement>('[class*="casino-market-rate"]')
@@ -498,6 +502,8 @@ export function BetLayer({
           };
         };
 
+        const decimals = exposureLayout === "market" ? 0 : 2;
+
         const exposure = (
           key: string,
           pos: { x: number; y: number },
@@ -507,7 +513,7 @@ export function BetLayer({
         ) => (
           <span
             key={key}
-            className={`pointer-events-none absolute z-[60] whitespace-nowrap text-[0.72rem] font-semibold leading-none text-casino-market-text ${
+            className={`pointer-events-none absolute z-[60] whitespace-nowrap text-[0.78rem] font-semibold leading-none text-casino-market-text ${
               exposureLayout === "market" ? "-translate-x-1/2" : ""
             }`}
             style={{ left: `${pos.x}px`, top: `${pos.y}px` }}
@@ -515,7 +521,10 @@ export function BetLayer({
             {exposureLayout === "sports" ? null : `${label} : `}
             <strong className={tone}>
               {exposureLayout === "sports" ? (value < 0 ? "➜ " : "➜ ") : null}
-              {value.toLocaleString("en-IN", { minimumFractionDigits: exposureLayout === "sports" ? 2 : 0 })}
+              {value.toLocaleString("en-IN", {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals,
+              })}
             </strong>
           </span>
         );
@@ -525,10 +534,11 @@ export function BetLayer({
             `${c.id}-profit`,
             own,
             "P",
-            exposureLayout === "sports" ? c.profit : Math.round(c.profit),
+            exposureLayout === "market" ? Math.round(c.profit) : c.profit,
             "text-live-win",
           ),
         ];
+
         if (c.opposite && c.opposite.isConnected) {
           figures.push(
             exposure(
