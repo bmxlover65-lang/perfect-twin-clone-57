@@ -545,7 +545,7 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
   const hasLay = runners.some((r) => Boolean(r.price?.lay?.[0]?.price));
-  const cols = hasLay ? "grid-cols-[1fr_92px_92px]" : "grid-cols-[1fr_110px]";
+  const cols = hasLay ? "grid-cols-[1fr_104px_104px]" : "grid-cols-[1fr_152px]";
 
   const plate = (
     p: { price?: number | null; size?: number | null } | undefined,
@@ -553,37 +553,42 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
     locked: boolean,
   ) => (
     <div
-      className={`relative m-[2px] flex h-[44px] flex-col items-center justify-center rounded-[5px] border border-casino-market-divider ${
+      className={`relative m-[3px] flex h-[58px] flex-col items-center justify-center rounded-[6px] ${
         side === "back" ? "bg-casino-market-rate" : "bg-ex-lay"
       }`}
     >
+      <span className="text-[1.15rem] font-bold leading-none text-[#111]">
+        {fmtOdds(p?.price)}
+      </span>
+      <span className="mt-[3px] text-[0.72rem] font-medium leading-none text-[#111]/70">
+        {fmtSize(p?.size)}
+      </span>
       {locked ? (
-        <span className="absolute inset-0 flex items-center justify-center text-sm">🔒</span>
-      ) : (
-        <>
-          <span className="text-[0.95rem] font-extrabold leading-none text-[#111]">
-            {fmtOdds(p?.price)}
-          </span>
-          <span className="mt-0.5 text-[0.64rem] font-semibold text-[#111]/70">
-            {fmtSize(p?.size)}
-          </span>
-        </>
-      )}
+        <span
+          data-suspended="true"
+          className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-[6px] bg-casino-suspend-veil text-[0.68rem] font-extrabold uppercase tracking-[0.02em] text-casino-suspend-text"
+        >
+          Suspended
+        </span>
+      ) : null}
     </div>
   );
 
   return (
-    <div className="mt-0 overflow-hidden border-b border-casino-market-divider bg-casino-market-body">
-      <div className={`grid min-h-[34px] ${cols} items-center bg-casino-market-header px-2`}>
-        <span className="py-1.5 text-[0.8rem] font-extrabold uppercase text-board-header-foreground">
-          {market.marketName}{" "}
-          <span className="ml-1 text-[0.68rem] font-semibold normal-case text-board-header-foreground/75">
+    <div className="mt-0 overflow-hidden bg-casino-market-body">
+      <div className={`grid min-h-[34px] ${cols} items-center bg-casino-market-header px-2.5`}>
+        <span className="flex min-w-0 items-baseline gap-1.5 py-1.5">
+          <span className="truncate text-[0.9rem] font-extrabold uppercase text-board-header-foreground">
+            {market.marketName}
+          </span>
+          <span className="shrink-0 whitespace-nowrap text-[0.68rem] font-normal text-board-header-foreground/80">
             Min: {market.min ?? 0} Max: {market.max ?? 0}
           </span>
         </span>
-        <span className="py-1.5 text-center text-[0.72rem] font-bold text-board-header-foreground">Back</span>
+
+        <span className="py-1.5 text-center text-[0.8rem] font-semibold text-board-header-foreground">Back</span>
         {hasLay ? (
-          <span className="py-1.5 text-center text-[0.72rem] font-bold text-board-header-foreground">Lay</span>
+          <span className="py-1.5 text-center text-[0.8rem] font-semibold text-board-header-foreground">Lay</span>
         ) : null}
       </div>
       <div className="relative">
@@ -592,9 +597,9 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
           return (
             <div
               key={String(r.selectionId)}
-              className={`grid items-center border-t border-casino-market-divider ${cols} px-2`}
+              className={`grid min-h-[68px] items-center border-b border-casino-market-divider ${cols} px-2.5`}
             >
-              <span className="truncate py-1 text-[0.85rem] font-bold uppercase text-casino-market-text">
+              <span className="truncate py-1 text-[0.95rem] font-medium uppercase text-casino-market-text">
                 {names[String(r.selectionId)] ?? String(r.selectionId)}
               </span>
               {plate(r.price?.back?.[0], "back", !open || !r.price?.back?.[0]?.price)}
@@ -603,6 +608,7 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
           );
         })}
       </div>
+
     </div>
   );
 }
