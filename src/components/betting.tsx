@@ -57,7 +57,34 @@ function isPriceCell(el: HTMLElement, root: HTMLElement): boolean {
   return true;
 }
 
+/**
+ * True when a SUSPENDED / LOCKED / CLOSED banner (or a `data-suspended` block)
+ * covers this price cell — those clicks must never open the bet slip.
+ */
+function isBlockedByOverlay(cell: HTMLElement, root: HTMLElement): boolean {
+  const r = cell.getBoundingClientRect();
+  const cx = r.left + r.width / 2;
+  const cy = r.top + r.height / 2;
+
+  let scope: HTMLElement | null = cell;
+  for (let i = 0; i < 8 && scope && scope !== root.parentElement; i++, scope = scope.parentElement) {
+    if (scope.getAttribute("data-suspended") === "true") return true;
+    if (scope.getAttribute("aria-disabled") === "true") return true;
+    if (scope instanceof HTMLButtonElement && scope.disabled) return true;
+    for (const cand of Array.from(scope.querySelectorAll<HTMLElement>("*"))) {
+      if (cand === cell || cand.contains(cell)) continue;
+      const txt = (cand.textContent ?? "").replace(/\s+/g, " ").trim();
+      if (!txt || txt.length > 24) continue;
+      if (!/^(suspend(ed)?|locked|closed|ball\s*running)$/i.test(txt)) continue;
+      const box = (cand.parentElement ?? cand).getBoundingClientRect();
+      if (cx >= box.left && cx <= box.right && cy >= box.top && cy <= box.bottom) return true;
+    }
+  }
+  return false;
+}
+
 /** Reads an odds cell out of any market board without touching every panel. */
+
 function extractPick(target: HTMLElement, root: HTMLElement): ExtractedPick | null {
   // Never treat media / inputs / explicitly opted-out areas as a bet click.
   if (target.closest("iframe,video,img,input,textarea,select,a,[data-nobet]")) return null;
