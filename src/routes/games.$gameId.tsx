@@ -2545,17 +2545,28 @@ function ResultBanner({
   results,
   gameId,
   gameName,
+  liveWinner,
+  round,
 }: {
   results: CasinoResult[];
   gameId?: string;
   gameName?: string | null;
+  liveWinner?: string;
+  round?: string;
 }) {
 
   const top = results[0] as AnyResult | undefined;
-  const key = String(top?.roundId ?? top?._id ?? "");
-  const winner = deriveWinner(top, !!gameId && LUCKY7_GAMES.includes(gameId));
+  const live = (liveWinner ?? "").trim();
+  const key = live ? `live|${round ?? ""}` : String(top?.roundId ?? top?._id ?? "");
+  const winner =
+    live || deriveWinner(top, !!gameId && LUCKY7_GAMES.includes(gameId));
   const seen = useRef<string>("");
   const [show, setShow] = useState(false);
+
+  // A new round always clears the previous winner banner.
+  useEffect(() => {
+    setShow(false);
+  }, [round]);
 
   useEffect(() => {
     if (!key || !winner) return;
@@ -2566,7 +2577,8 @@ function ResultBanner({
     if (seen.current === key) return;
     seen.current = key;
     setShow(true);
-    const t = setTimeout(() => setShow(false), 8000);
+    // safety cap so the banner never sticks if no new round arrives
+    const t = setTimeout(() => setShow(false), 30000);
     return () => clearTimeout(t);
   }, [key, winner]);
 
