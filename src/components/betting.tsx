@@ -279,13 +279,18 @@ export function BetLayer({
   }, [chips.length]);
   const busy = useRef(false);
   const pickRound = useRef("");
-  // Once any market shows SUSPENDED / CLOSED in a round, betting stays blocked
-  // for the whole round — it only opens again when a new round starts.
-  const suspendedRound = useRef<string | null>(null);
+  // Once a market shows SUSPENDED / CLOSED in a round, that market stays
+  // blocked for the rest of the round. Only the affected market is latched —
+  // other markets on the same table stay open (side markets suspend early).
+  const latched = useRef<HTMLElement[]>([]);
   const roundChangedAt = useRef(0);
 
   const wallet = useWallet();
   const embed = useEmbed();
+
+  /** True when the cell sits inside a market latched as suspended this round. */
+  const inLatchedMarket = (cell: HTMLElement) =>
+    latched.current.some((m) => m.isConnected && m.contains(cell));
 
   // Remember the last stake so the slip opens ready to bet in one tap.
   useEffect(() => {
@@ -294,7 +299,7 @@ export function BetLayer({
 
   useEffect(() => {
     setChips([]);
-    suspendedRound.current = null; // new round → betting opens again
+    latched.current = []; // new round → every market opens again
     roundChangedAt.current = Date.now();
     rootRef.current
       ?.querySelectorAll<HTMLElement>('[data-has-exposure="true"]')
@@ -302,29 +307,43 @@ export function BetLayer({
   }, [round]);
 
   // Watch the board: the moment a SUSPENDED / CLOSED / BALL RUNNING banner
-  // appears, latch the round as closed and kill any open slip.
+  // appears over a market, latch that market for the rest of the round.
   useEffect(() => {
     const id = window.setInterval(() => {
       const root = rootRef.current;
-      if (!root || suspendedRound.current === round) return;
+      if (!root) return;
       // Grace window: a closing veil from the previous round may still be
       // visible for a moment right after the new round starts.
       if (Date.now() - roundChangedAt.current < 1200) return;
-      const flagged =
-        root.querySelector('[data-suspended="true"]') != null ||
-        Array.from(root.querySelectorAll<HTMLElement>("*")).some((el) => {
+
+      const flags: HTMLElement[] = [
+        ...Array.from(root.querySelectorAll<HTMLElement>('[data-suspended="true"]')),
+        ...Array.from(root.querySelectorAll<HTMLElement>("*")).filter((el) => {
           if (el.children.length > 0) return false;
           const t = (el.textContent ?? "").replace(/\s+/g, " ").trim();
           return /^(suspend(ed)?|locked|closed|ball\s*running)$/i.test(t);
-        });
-      if (flagged) {
-        suspendedRound.current = round;
+        }),
+      ];
+
+      for (const flag of flags) {
+        // Latch the market block that the banner covers, not the whole table.
+        let market: HTMLElement = flag;
+        for (let i = 0; i < 4 && market.parentElement && market.parentElement !== root; i++) {
+          market = market.parentElement;
+          if (market.querySelector('[data-market-option],[data-runner-row]')) break;
+        }
+        if (!latched.current.includes(market)) latched.current.push(market);
+      }
+
+      const cellEl = cellPos.current?.cell;
+      if (cellEl && (inLatchedMarket(cellEl) || isBlockedByOverlay(cellEl, root))) {
         setPick(null);
         setErr("Bet Suspended.");
       }
     }, 120);
     return () => window.clearInterval(id);
   }, [round]);
+
 
   // The operator wallet can refuse an integrated bet after it was sent.
   useEffect(() => {
