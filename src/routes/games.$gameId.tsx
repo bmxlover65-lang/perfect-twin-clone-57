@@ -1900,6 +1900,17 @@ function GamePage() {
 
   const roundKey = state?.data?.roundId ? String(state.data.roundId) : "";
 
+  // Celebration runs till the next round begins: as soon as a new round opens
+  // for betting the confetti is switched off.
+  const celebRound = useRef("");
+  useEffect(() => {
+    const open = isOpenStatus(String(state?.data?.status ?? ""));
+    if (!roundKey || !open) return;
+    if (celebRound.current && celebRound.current !== roundKey) endWinCelebration();
+    celebRound.current = roundKey;
+  }, [roundKey, state?.data?.status]);
+
+
   useEffect(() => {
     if (!roundKey) return;
     const dd = state?.data as unknown as
