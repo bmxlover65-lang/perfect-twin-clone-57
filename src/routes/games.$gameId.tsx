@@ -2421,7 +2421,13 @@ function GamePage() {
           size="h-9 w-9 sm:h-14 sm:w-14"
         />
 
-        <ResultBanner results={results} gameId={gameId} gameName={d?.eventName ?? null} />
+        <ResultBanner
+          results={results}
+          gameId={gameId}
+          gameName={d?.eventName ?? null}
+          liveWinner={String((d as unknown as { gameResult?: string | null })?.gameResult ?? "")}
+          round={roundKey}
+        />
       </div>
 
 
