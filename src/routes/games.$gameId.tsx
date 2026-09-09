@@ -496,7 +496,8 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
             return (
               <div
                 key={String(r.selectionId)}
-                className={`min-w-0 ${last ? "col-span-2 mx-auto w-[calc(50%-0.5rem)]" : ""}`}
+                data-market-option=""
+                className={`min-w-0 pb-3 [&:has([data-has-exposure='true'])]:pb-8 ${last ? "col-span-2 mx-auto w-[calc(50%-0.5rem)]" : ""}`}
               >
                 <div className="px-1 pb-[3px] text-center text-[0.66rem] font-medium uppercase text-casino-market-text sm:text-[0.8rem] sm:font-semibold">
                   {(() => {
@@ -507,7 +508,7 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                   })()}
                 </div>
 
-                <div className="relative mx-auto flex h-[34px] w-[118px] max-w-full flex-col items-center justify-center rounded-[4px] bg-casino-market-rate text-casino-market-text shadow-[0_3px_8px_color-mix(in_oklab,var(--casino-market-header)_25%,transparent)] sm:h-[56px] sm:w-[150px] sm:rounded-[6px]">
+                <div data-market-plate="" className="relative mx-auto flex h-[40px] w-[108px] max-w-full flex-col items-center justify-center rounded-[4px] bg-casino-market-rate text-casino-market-text shadow-[0_3px_8px_color-mix(in_oklab,var(--casino-market-header)_25%,transparent)] sm:h-[56px] sm:w-[150px] sm:rounded-[6px]">
                   <PlateSuits suits={labelSuits(String(names[String(r.selectionId)] ?? ""))} />
                   {locked ? (
                     <span className="absolute inset-0 flex items-center justify-center rounded-[4px] bg-black/35 text-sm">

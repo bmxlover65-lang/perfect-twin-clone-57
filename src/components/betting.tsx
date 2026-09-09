@@ -289,6 +289,9 @@ export function BetLayer({
 
   useEffect(() => {
     setChips([]);
+    rootRef.current
+      ?.querySelectorAll<HTMLElement>('[data-has-exposure="true"]')
+      .forEach((element) => element.removeAttribute("data-has-exposure"));
   }, [round]);
 
   // The operator wallet can refuse an integrated bet after it was sent.
@@ -340,6 +343,14 @@ export function BetLayer({
     const pos = cellPos.current;
     close();
     if (pos) {
+      const markExposure = (element: HTMLElement) => {
+        const plate = element.closest<HTMLElement>("[data-market-plate]")
+          ?? element.querySelector<HTMLElement>("[data-market-plate]")
+          ?? element;
+        plate.setAttribute("data-has-exposure", "true");
+      };
+      markExposure(pos.cell);
+      if (pos.opposite) markExposure(pos.opposite);
       // Same selection bet again in the same round → one chip with the total.
       setChips((cur) => {
         const i = cur.findIndex((c) => c.cell === pos.cell);
