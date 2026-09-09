@@ -455,6 +455,11 @@ export function BetLayer({
         // Only a real pointer click on a price cell may open the slip.
         if (e.detail === 0) return;
         const root = e.currentTarget as HTMLElement;
+        // Round was suspended — no new bets until the next round starts.
+        if (suspendedRound.current === round) {
+          setErr("Bet Suspended.");
+          return;
+        }
 
         const target = e.target as HTMLElement;
         const p = extractPick(target, root);
