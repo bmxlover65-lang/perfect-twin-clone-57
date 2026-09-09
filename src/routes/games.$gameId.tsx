@@ -1888,16 +1888,25 @@ function GamePage() {
         return;
       }
       setError(msg);
+    } finally {
+      inFlight.current = false;
     }
   }, [gameId]);
 
   useEffect(() => {
     void load();
-    const t = setInterval(() => void load(), 350);
+    const t = setInterval(() => void load(), 200);
     const a = setInterval(() => setAge((v) => v + 1), 1000);
+    const wake = () => {
+      if (document.visibilityState === "visible") void load();
+    };
+    document.addEventListener("visibilitychange", wake);
+    window.addEventListener("focus", wake);
     return () => {
       clearInterval(t);
       clearInterval(a);
+      document.removeEventListener("visibilitychange", wake);
+      window.removeEventListener("focus", wake);
     };
   }, [load]);
 
