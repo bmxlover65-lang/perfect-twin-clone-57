@@ -2570,13 +2570,13 @@ function ResultBanner({
   }, [round]);
 
   useEffect(() => {
-    if (!key || !winner) return;
     // a winner already on screen at load is stale — never flash it
     if (!init.current) {
       init.current = true;
-      seen.current = key;
+      if (winner) seen.current = key;
       return;
     }
+    if (!key || !winner) return;
     if (seen.current === key) return;
     seen.current = key;
     setShow(true);
