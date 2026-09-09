@@ -2320,7 +2320,7 @@ function GamePage() {
         )}
         <div
           ref={overlayRef}
-          className="pointer-events-none absolute left-3 top-3 z-20 max-w-[calc(100%-1.5rem)] origin-top-left space-y-1 overflow-visible"
+          className="pointer-events-none absolute left-1 top-1 z-20 max-w-[calc(100%-0.5rem)] origin-top-left space-y-1 overflow-visible sm:left-3 sm:top-3 sm:max-w-[calc(100%-1.5rem)]"
           style={{ transform: `scale(${overlayScale})` }}
         >
           <p className="text-[0.6rem] font-bold uppercase tracking-wide text-white drop-shadow sm:text-[0.72rem]">
@@ -2335,8 +2335,8 @@ function GamePage() {
         <RoundTimer
           leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
           suspended={suspended}
-          className="absolute right-2 top-2 z-20"
-          size="h-12 w-12 sm:h-14 sm:w-14"
+          className="absolute right-1 top-1 z-20 sm:right-2 sm:top-2"
+          size="h-9 w-9 sm:h-14 sm:w-14"
         />
 
         <ResultBanner results={results} gameId={gameId} gameName={d?.eventName ?? null} />
