@@ -254,10 +254,11 @@ function PokerPanel({
       </span>
 
       {locked ? (
-        <span className="absolute inset-0 flex items-center justify-center rounded-[5px] bg-casino-market-rate/70 text-[0.72rem] font-bold uppercase text-casino-market-text">
+        <span className="absolute inset-0 flex items-center justify-center rounded-[5px] bg-casino-suspend-veil text-[0.72rem] font-extrabold uppercase text-casino-suspend-text">
           Suspended
         </span>
       ) : null}
+
     </div>
   );
 
