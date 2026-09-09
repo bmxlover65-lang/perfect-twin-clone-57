@@ -477,9 +477,9 @@ export function BetLayer({
     >
       {children}
 
-      {chips.flatMap((c) => {
+      {(() => {
         const root = rootRef.current;
-        if (!root || !c.cell.isConnected) return [];
+        if (!root || !chips.length) return null;
         const rootBox = root.getBoundingClientRect();
         const scale = rootBox.width / (root.offsetWidth || rootBox.width) || 1;
         const at = (el: HTMLElement) => {
@@ -504,54 +504,48 @@ export function BetLayer({
 
         const decimals = exposureLayout === "market" ? 0 : 2;
 
-        const exposure = (
-          key: string,
-          pos: { x: number; y: number },
-          label: "L" | "P",
-          value: number,
-          tone: string,
-        ) => (
-          <span
-            key={key}
-            className={`pointer-events-none absolute z-[60] whitespace-nowrap text-[0.78rem] font-semibold leading-none text-casino-market-text ${
-              exposureLayout === "market" ? "-translate-x-1/2" : ""
-            }`}
-            style={{ left: `${pos.x}px`, top: `${pos.y}px` }}
-          >
-            {exposureLayout === "sports" ? null : `${label} : `}
-            <strong className={tone}>
-              {exposureLayout === "sports" ? (value < 0 ? "➜ " : "➜ ") : null}
-              {value.toLocaleString("en-IN", {
-                minimumFractionDigits: decimals,
-                maximumFractionDigits: decimals,
-              })}
-            </strong>
-          </span>
-        );
-        const own = at(c.cell);
-        const figures = [
-          exposure(
-            `${c.id}-profit`,
-            own,
-            "P",
-            exposureLayout === "market" ? Math.round(c.profit) : c.profit,
-            "text-live-win",
-          ),
-        ];
+        // Bets on several selections of the same market net out: every
+        // selection shows one figure — its own profit minus the stakes
+        // riding on the other selections.
+        const cells: HTMLElement[] = [];
+        const push = (el?: HTMLElement) => {
+          if (el && el.isConnected && !cells.includes(el)) cells.push(el);
+        };
+        chips.forEach((c) => {
+          push(c.cell);
+          push(c.opposite);
+        });
+        const stakeOf = (el: HTMLElement) =>
+          chips.filter((c) => c.cell === el).reduce((s, c) => s + c.amount, 0);
+        const profitOf = (el: HTMLElement) =>
+          chips.filter((c) => c.cell === el).reduce((s, c) => s + c.profit, 0);
+        const totalStake = chips.reduce((s, c) => s + c.amount, 0);
 
-        if (c.opposite && c.opposite.isConnected) {
-          figures.push(
-            exposure(
-              `${c.id}-loss`,
-              at(c.opposite),
-              "L",
-              exposureLayout === "market" ? -Math.round(c.amount) : -c.amount,
-              "text-live-lose",
-            ),
+        return cells.map((el, i) => {
+          const net = profitOf(el) - (totalStake - stakeOf(el));
+          const value = exposureLayout === "market" ? Math.round(net) : net;
+          const pos = at(el);
+          return (
+            <span
+              key={`exp-${i}`}
+              className={`pointer-events-none absolute z-[60] whitespace-nowrap text-[0.78rem] font-semibold leading-none text-casino-market-text ${
+                exposureLayout === "market" ? "-translate-x-1/2" : ""
+              }`}
+              style={{ left: `${pos.x}px`, top: `${pos.y}px` }}
+            >
+              {exposureLayout === "sports" ? null : `${net >= 0 ? "P" : "L"} : `}
+              <strong className={net >= 0 ? "text-live-win" : "text-live-lose"}>
+                {exposureLayout === "sports" ? "➜ " : null}
+                {value.toLocaleString("en-IN", {
+                  minimumFractionDigits: decimals,
+                  maximumFractionDigits: decimals,
+                })}
+              </strong>
+            </span>
           );
-        }
-        return figures;
-      })}
+        });
+      })()}
+
 
 
       {err ? <ErrorToast message={err} onDone={() => setErr(null)} /> : null}
