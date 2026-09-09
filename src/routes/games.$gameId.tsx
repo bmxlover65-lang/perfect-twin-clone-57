@@ -138,6 +138,26 @@ function isOpenStatus(status?: string | null) {
   return OPEN_STATUSES.has((status ?? "").toUpperCase());
 }
 
+/** Original-style suspended veil: faded market background + bold red SUSPENDED text. */
+function SuspendVeil({ className = "", size = "md" }: { className?: string; size?: "sm" | "md" }) {
+  return (
+    <div
+      data-suspended="true"
+      className={`pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-casino-suspend-veil ${className}`}
+    >
+      <span
+        className={`font-extrabold uppercase tracking-[0.06em] text-casino-suspend-text ${
+          size === "sm" ? "text-[1.15rem]" : "text-[1.5rem] sm:text-[1.8rem]"
+        }`}
+      >
+        SUSPENDED
+      </span>
+    </div>
+  );
+}
+
+
+
 function BaccaratPanel({
   markets,
   suspended,
