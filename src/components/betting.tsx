@@ -404,7 +404,7 @@ export function BetLayer({
           let cellEl: HTMLElement = p.element;
           let oppositeEl: HTMLElement | undefined;
 
-          if (exposureLayout === "sports") {
+          if (exposureLayout === "sports" || exposureLayout === "row") {
             const runnerRow = p.element.closest<HTMLElement>("[data-runner-row]");
             const board = runnerRow?.parentElement;
             const opponent = board
@@ -412,9 +412,17 @@ export function BetLayer({
                   (candidate) => candidate !== runnerRow,
                 )
               : undefined;
-            if (runnerRow) cellEl = runnerRow;
-            if (opponent) oppositeEl = opponent;
+            if (exposureLayout === "row") {
+              const nameOf = (row?: HTMLElement | null) =>
+                row?.querySelector<HTMLElement>("[data-runner-name]") ?? row ?? undefined;
+              if (runnerRow) cellEl = nameOf(runnerRow) ?? runnerRow;
+              oppositeEl = nameOf(opponent);
+            } else {
+              if (runnerRow) cellEl = runnerRow;
+              if (opponent) oppositeEl = opponent;
+            }
           }
+
 
           if (exposureLayout === "market") {
             let pairNode: HTMLElement = p.element;
