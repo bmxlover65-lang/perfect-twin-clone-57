@@ -508,11 +508,13 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                 </div>
 
                 <div className="relative mx-auto flex h-[34px] w-[118px] max-w-full flex-col items-center justify-center rounded-[4px] bg-casino-market-rate text-casino-market-text shadow-[0_3px_8px_color-mix(in_oklab,var(--casino-market-header)_25%,transparent)] sm:h-[56px] sm:w-[150px] sm:rounded-[6px]">
+                  <PlateSuits suits={labelSuits(String(names[String(r.selectionId)] ?? ""))} />
                   {locked ? (
                     <span className="absolute inset-0 flex items-center justify-center rounded-[4px] bg-black/35 text-sm">
                       🔒
                     </span>
                   ) : (
+
                     <>
                       <span className="text-[0.95rem] font-bold leading-none sm:text-[1.1rem]">
                         {fmtOdds(p?.price)}
