@@ -941,13 +941,8 @@ function DT20Panel({
                   <div className="w-[105px] border-l border-casino-market-divider bg-casino-market-body" />
                 </div>
               ))}
-              {allClosed ? (
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center pr-[210px]">
-                  <span className="text-[1.7rem] font-bold uppercase tracking-wide text-[#9aa0a6]">
-                    Suspended
-                  </span>
-                </div>
-              ) : null}
+              {allClosed ? <SuspendVeil className="pr-[210px]" /> : null}
+
             </div>
           </div>
         );
