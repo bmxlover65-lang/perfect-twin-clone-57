@@ -322,7 +322,7 @@ export function BetLayer({
         setPick(null);
         setErr("Bet Suspended.");
       }
-    }, 300);
+    }, 120);
     return () => window.clearInterval(id);
   }, [round]);
 
