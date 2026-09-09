@@ -1935,6 +1935,23 @@ function GamePage() {
 
   const feedStatus = (state?.data?.status ?? "").toUpperCase();
 
+  // Instant settlement — the live feed declares the winner the moment the
+  // round closes, so bets settle (and the win celebration fires) right away
+  // instead of waiting for the slower result-history endpoint.
+  const liveSettled = useRef("");
+  useEffect(() => {
+    if (!roundKey) return;
+    const dd = state?.data as unknown as { gameResult?: string | null } | undefined;
+    const winner = String(dd?.gameResult ?? "").trim();
+    if (!winner) return;
+    const key = `${roundKey}|${winner}`;
+    if (liveSettled.current === key) return;
+    liveSettled.current = key;
+    settleRound(gameId, roundKey, winner);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roundKey, state?.data?.gameResult, gameId]);
+
+
   // Result polling. Any feed trigger — new roundId or a status change
   // (OPEN -> SUSPENDED/CLOSED) — instantly refreshes the result plates,
   // plus a short burst so the declared winner lands without a manual reload.
