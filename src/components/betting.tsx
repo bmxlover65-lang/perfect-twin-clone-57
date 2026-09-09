@@ -295,6 +295,7 @@ export function BetLayer({
   useEffect(() => {
     setChips([]);
     suspendedRound.current = null; // new round → betting opens again
+    roundChangedAt.current = Date.now();
     rootRef.current
       ?.querySelectorAll<HTMLElement>('[data-has-exposure="true"]')
       .forEach((element) => element.removeAttribute("data-has-exposure"));
