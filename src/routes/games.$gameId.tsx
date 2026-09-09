@@ -429,13 +429,14 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
 
   return (
     <div className="mt-0 border-b-2 border-board-header-foreground sm:border-b-0">
-      <header className="flex h-[22px] items-center justify-between gap-2 bg-casino-market-header px-1.5 sm:h-[26px] sm:px-2">
-        <h3 className="truncate whitespace-nowrap text-[0.72rem] font-extrabold uppercase tracking-[0.02em] text-board-header-foreground sm:text-[0.8rem]">
+      <header className="flex h-[20px] items-center justify-between gap-2 bg-casino-market-header px-1.5 sm:h-[26px] sm:px-2">
+        <h3 className="truncate whitespace-nowrap text-[0.68rem] font-extrabold uppercase tracking-[0.02em] text-board-header-foreground sm:text-[0.8rem]">
           {market.marketName}
         </h3>
-        <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-board-header-foreground text-[0.58rem] font-black text-casino-market-header sm:h-4 sm:w-4 sm:text-[0.65rem]">
+        <span className="flex h-3 w-3 shrink-0 items-center justify-center rounded-full bg-board-header-foreground text-[0.55rem] font-black text-casino-market-header sm:h-4 sm:w-4 sm:text-[0.65rem]">
           i
         </span>
+
 
       </header>
       <div className="relative bg-casino-market-body px-3 py-1.5 sm:py-3">
