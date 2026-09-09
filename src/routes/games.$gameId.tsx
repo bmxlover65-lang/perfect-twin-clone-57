@@ -1871,8 +1871,11 @@ function GamePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameId]);
 
+  const inFlight = useRef(false);
+
   const load = useCallback(async () => {
-    if (feedDead.current) return;
+    if (feedDead.current || inFlight.current) return;
+    inFlight.current = true;
     try {
       const s = await fetchCasinoState(gameId);
       setState(s);
