@@ -435,7 +435,7 @@ function labelSuits(label: string): string[] {
 function PlateSuits({ suits }: { suits: string[] }) {
   if (!suits.length) return null;
   return (
-    <span className="pointer-events-none absolute left-[5px] top-1/2 flex -translate-y-1/2 flex-col items-center justify-center leading-none">
+    <span className="pointer-events-none absolute left-[12px] top-1/2 flex -translate-y-1/2 flex-col items-center justify-center leading-none sm:left-[14px]">
       {suits.map((s) => (
         <span
           key={s}
