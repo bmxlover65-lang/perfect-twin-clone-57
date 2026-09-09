@@ -315,6 +315,21 @@ export function BetLayer({
     if (!pick) return;
     const pickLabel = pick.label;
 
+    // The market can suspend (or the round can roll over) while the slip is
+    // open — a pre-filled stake must never sneak through after that.
+    if (pickRound.current !== round) {
+      setErr("Bet Closed. Round Changed.");
+      close();
+      return;
+    }
+    const rootEl = rootRef.current;
+    const cellEl = cellPos.current?.cell;
+    if (rootEl && cellEl && isBlockedByOverlay(cellEl, rootEl)) {
+      setErr("Bet Suspended.");
+      close();
+      return;
+    }
+
     if (stake < 100) {
       setErr("Minimum bet is 100.");
       return;
