@@ -235,11 +235,13 @@ export function fetchCasinoGames() {
 }
 
 export function fetchCasinoState(eventId: string) {
-  return get<CasinoState>(`games/${encodeURIComponent(eventId)}/state`);
+  // live=true: cache-buster + no-store so suspension/result frames are never
+  // served from an intermediate cache (that showed up as a 1-2s lag).
+  return get<CasinoState>(`games/${encodeURIComponent(eventId)}/state`, true);
 }
 
 export function fetchCasinoResults(eventId: string) {
-  return get<{ data: CasinoResult[] }>(`games/${encodeURIComponent(eventId)}/results`);
+  return get<{ data: CasinoResult[] }>(`games/${encodeURIComponent(eventId)}/results`, true);
 }
 
 export async function fetchCasinoStream(eventId: string) {
