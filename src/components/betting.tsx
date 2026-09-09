@@ -279,6 +279,10 @@ export function BetLayer({
   }, [chips.length]);
   const busy = useRef(false);
   const pickRound = useRef("");
+  // Once any market shows SUSPENDED / CLOSED in a round, betting stays blocked
+  // for the whole round — it only opens again when a new round starts.
+  const suspendedRound = useRef<string | null>(null);
+  const roundChangedAt = useRef(0);
 
   const wallet = useWallet();
   const embed = useEmbed();
@@ -290,9 +294,36 @@ export function BetLayer({
 
   useEffect(() => {
     setChips([]);
+    suspendedRound.current = null; // new round → betting opens again
+    roundChangedAt.current = Date.now();
     rootRef.current
       ?.querySelectorAll<HTMLElement>('[data-has-exposure="true"]')
       .forEach((element) => element.removeAttribute("data-has-exposure"));
+  }, [round]);
+
+  // Watch the board: the moment a SUSPENDED / CLOSED / BALL RUNNING banner
+  // appears, latch the round as closed and kill any open slip.
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const root = rootRef.current;
+      if (!root || suspendedRound.current === round) return;
+      // Grace window: a closing veil from the previous round may still be
+      // visible for a moment right after the new round starts.
+      if (Date.now() - roundChangedAt.current < 1200) return;
+      const flagged =
+        root.querySelector('[data-suspended="true"]') != null ||
+        Array.from(root.querySelectorAll<HTMLElement>("*")).some((el) => {
+          if (el.children.length > 0) return false;
+          const t = (el.textContent ?? "").replace(/\s+/g, " ").trim();
+          return /^(suspend(ed)?|locked|closed|ball\s*running)$/i.test(t);
+        });
+      if (flagged) {
+        suspendedRound.current = round;
+        setPick(null);
+        setErr("Bet Suspended.");
+      }
+    }, 300);
+    return () => window.clearInterval(id);
   }, [round]);
 
   // The operator wallet can refuse an integrated bet after it was sent.
@@ -336,6 +367,11 @@ export function BetLayer({
     // open — a pre-filled stake must never sneak through after that.
     if (pickRound.current !== round) {
       setErr("Bet Closed. Round Changed.");
+      close();
+      return;
+    }
+    if (suspendedRound.current === round) {
+      setErr("Bet Suspended.");
       close();
       return;
     }
@@ -424,6 +460,11 @@ export function BetLayer({
         // Only a real pointer click on a price cell may open the slip.
         if (e.detail === 0) return;
         const root = e.currentTarget as HTMLElement;
+        // Round was suspended — no new bets until the next round starts.
+        if (suspendedRound.current === round) {
+          setErr("Bet Suspended.");
+          return;
+        }
 
         const target = e.target as HTMLElement;
         const p = extractPick(target, root);
