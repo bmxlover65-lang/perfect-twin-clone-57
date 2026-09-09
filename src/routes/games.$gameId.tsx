@@ -265,20 +265,21 @@ function PokerPanel({
             runners.every((r) => !isOpenStatus(r.status));
           return (
             <section key={m.marketId} className="border-b-2 border-board-header-foreground sm:border-b sm:border-casino-market-divider">
-              <header className="flex h-[22px] items-center justify-between bg-casino-market-header px-1.5 sm:h-[26px] sm:px-2">
-                <h3 className="truncate text-[0.72rem] font-extrabold uppercase text-board-header-foreground sm:text-[0.8rem]">
+              <header className="flex h-[20px] items-center justify-between bg-casino-market-header px-1.5 sm:h-[26px] sm:px-2">
+                <h3 className="truncate text-[0.68rem] font-extrabold uppercase text-board-header-foreground sm:text-[0.8rem]">
                   {marketTitle(m.marketName)}
                 </h3>
-                <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-board-header-foreground text-[0.58rem] font-black text-casino-market-header sm:h-4 sm:w-4 sm:text-[0.65rem]">
+                <span className="flex h-3 w-3 shrink-0 items-center justify-center rounded-full bg-board-header-foreground text-[0.55rem] font-black text-casino-market-header sm:h-4 sm:w-4 sm:text-[0.65rem]">
                   i
                 </span>
               </header>
-              <div className="relative grid min-h-[86px] grid-cols-2 pb-3 pt-1 sm:min-h-0 sm:pb-5 sm:pt-1.5">
+              <div className="relative grid min-h-[62px] grid-cols-2 pb-1.5 pt-1 sm:min-h-0 sm:pb-5 sm:pt-1.5">
                 {[a, b].map((r, index) => (
-                  <div key={r ? String(r.selectionId) : index} className="min-w-0 px-1.5 pb-1.5">
-                    <p className="mb-1 truncate text-center text-[0.72rem] font-medium uppercase text-casino-market-text sm:text-[0.82rem]">
+                  <div key={r ? String(r.selectionId) : index} className="min-w-0 px-1.5 pb-0.5">
+                    <p className="mb-[3px] truncate text-center text-[0.66rem] font-medium uppercase text-casino-market-text sm:text-[0.82rem]">
                       {r ? names[String(r.selectionId)] : index === 0 ? "PLAYER A" : "PLAYER B"}
                     </p>
+
                     <Plate
                       price={r?.price?.back?.[0]?.price}
                       size={r?.price?.back?.[0]?.size}
