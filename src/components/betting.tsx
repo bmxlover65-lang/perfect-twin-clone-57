@@ -370,6 +370,11 @@ export function BetLayer({
       close();
       return;
     }
+    if (suspendedRound.current === round) {
+      setErr("Bet Suspended.");
+      close();
+      return;
+    }
     const rootEl = rootRef.current;
     const cellEl = cellPos.current?.cell;
     if (rootEl && cellEl && isBlockedByOverlay(cellEl, rootEl)) {
