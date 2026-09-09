@@ -152,22 +152,42 @@ function Stepper({
   onChange,
   step,
   decimals,
+  editable = false,
+  min = 0,
 }: {
   value: number;
   onChange: (v: number) => void;
   step: number;
   decimals: number;
+  editable?: boolean;
+  min?: number;
 }) {
   const btn =
     "flex h-9 w-10 items-center justify-center rounded-[4px] text-[1.2rem] font-bold text-[#3B5A6B] disabled:opacity-40";
   return (
     <div className="flex items-center rounded-[4px] border border-[#c9d6de] bg-[#e6edf1]">
-      <button type="button" className={btn} onClick={() => onChange(Math.max(0, value - step))}>
+      <button type="button" className={btn} onClick={() => onChange(Math.max(min, value - step))}>
         −
       </button>
-      <span className="flex-1 text-center text-[0.95rem] font-extrabold text-[#20384a]">
-        {decimals ? value.toFixed(decimals) : String(Math.round(value)).padStart(2, "0")}
-      </span>
+      {editable ? (
+        <input
+          type="number"
+          inputMode="numeric"
+          min={min}
+          step="1"
+          value={value || ""}
+          aria-label="Bet amount"
+          onChange={(event) => onChange(Math.max(0, Math.floor(Number(event.target.value) || 0)))}
+          onBlur={() => {
+            if (value < min) onChange(min);
+          }}
+          className="h-9 min-w-0 flex-1 bg-transparent text-center text-[0.95rem] font-extrabold text-[#20384a] outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        />
+      ) : (
+        <span className="flex-1 text-center text-[0.95rem] font-extrabold text-[#20384a]">
+          {decimals ? value.toFixed(decimals) : String(Math.round(value)).padStart(2, "0")}
+        </span>
+      )}
       <button type="button" className={btn} onClick={() => onChange(value + step)}>
         +
       </button>
@@ -263,8 +283,8 @@ export function BetLayer({
     if (!pick) return;
     const pickLabel = pick.label;
 
-    if (stake <= 0) {
-      setErr("Please enter a valid stake.");
+    if (stake < 100) {
+      setErr("Minimum bet is 100.");
       return;
     }
     if (!playerSession() && stake > readWallet().balance) {
@@ -503,7 +523,7 @@ export function BetLayer({
 
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <Stepper value={odds} onChange={setOdds} step={0.01} decimals={2} />
-                <Stepper value={stake} onChange={(v) => setStake(v)} step={100} decimals={0} />
+                <Stepper value={stake} onChange={setStake} step={100} decimals={0} editable min={100} />
               </div>
 
               <div className="mt-2 grid grid-cols-5 gap-1.5">
@@ -544,7 +564,7 @@ export function BetLayer({
                 <button
                   type="button"
                   onClick={submit}
-                  disabled={stake <= 0}
+                  disabled={stake < 100}
                   className="h-11 rounded-[4px] bg-[#2f7fbe] text-[0.95rem] font-extrabold text-white disabled:bg-[#b9c6ce] disabled:text-white/80"
                 >
                   Place Bet
