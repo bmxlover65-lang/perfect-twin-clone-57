@@ -349,7 +349,7 @@ export function BetLayer({
         setErr("Bet Suspended.");
         setPick(null);
       }
-    }, 300);
+    }, 120);
     return () => window.clearInterval(id);
   }, [pick]);
 
