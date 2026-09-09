@@ -1,11 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 
 export const WIN_EVT = "uapi-win";
+export const WIN_END_EVT = "uapi-win-end";
 
 /** Fire a full-screen confetti celebration (win only). */
 export function celebrateWin(amount = 0) {
   if (typeof window === "undefined") return;
   window.dispatchEvent(new CustomEvent(WIN_EVT, { detail: { amount } }));
+}
+
+/** Stop the celebration — called when the next round starts. */
+export function endWinCelebration() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(WIN_END_EVT));
 }
 
 const COLORS = [

@@ -421,6 +421,6 @@
 .confetti-piece {
   animation-name: confetti-fall;
   animation-timing-function: linear;
-  animation-iteration-count: 1;
+  animation-iteration-count: infinite;
   animation-fill-mode: forwards;
 }
