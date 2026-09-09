@@ -138,6 +138,26 @@ function isOpenStatus(status?: string | null) {
   return OPEN_STATUSES.has((status ?? "").toUpperCase());
 }
 
+/** Original-style suspended veil: faded market background + bold red SUSPENDED text. */
+function SuspendVeil({ className = "", size = "md" }: { className?: string; size?: "sm" | "md" }) {
+  return (
+    <div
+      data-suspended="true"
+      className={`pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-casino-suspend-veil ${className}`}
+    >
+      <span
+        className={`font-extrabold uppercase tracking-[0.06em] text-casino-suspend-text ${
+          size === "sm" ? "text-[1.15rem]" : "text-[1.5rem] sm:text-[1.8rem]"
+        }`}
+      >
+        SUSPENDED
+      </span>
+    </div>
+  );
+}
+
+
+
 function BaccaratPanel({
   markets,
   suspended,
@@ -172,11 +192,8 @@ function BaccaratPanel({
   const tone = (l: string) => (l.includes("BANKER") ? "bg-[#C22539]" : "bg-[#1173CE]");
   const groupSuspended = (rs: R[]) => rs.length > 0 && rs.every((r) => !r.open);
 
-  const Overlay = () => (
-    <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-black/65">
-      <span className="text-lg font-extrabold uppercase tracking-wide text-white">Suspended</span>
-    </div>
-  );
+  const Overlay = () => <SuspendVeil />;
+
 
   const winnerSusp = groupSuspended([...winner, ...(tie ? [tie] : [])]);
   const pairSusp = groupSuspended(pair);
@@ -237,10 +254,11 @@ function PokerPanel({
       </span>
 
       {locked ? (
-        <span className="absolute inset-0 flex items-center justify-center rounded-[5px] bg-casino-market-rate/70 text-[0.72rem] font-bold uppercase text-casino-market-text">
+        <span className="absolute inset-0 flex items-center justify-center rounded-[5px] bg-casino-suspend-veil text-[0.72rem] font-extrabold uppercase text-casino-suspend-text">
           Suspended
         </span>
       ) : null}
+
     </div>
   );
 
@@ -481,13 +499,8 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
             );
           })}
         </div>
-        {suspended ? (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <span className="text-[1.6rem] font-extrabold uppercase tracking-[0.04em] text-[#C24A6A]/85">
-              SUSPENDED
-            </span>
-          </div>
-        ) : null}
+        {suspended ? <SuspendVeil /> : null}
+
 
       </div>
     </div>
@@ -928,13 +941,8 @@ function DT20Panel({
                   <div className="w-[105px] border-l border-casino-market-divider bg-casino-market-body" />
                 </div>
               ))}
-              {allClosed ? (
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center pr-[210px]">
-                  <span className="text-[1.7rem] font-bold uppercase tracking-wide text-[#9aa0a6]">
-                    Suspended
-                  </span>
-                </div>
-              ) : null}
+              {allClosed ? <SuspendVeil className="pr-[210px]" /> : null}
+
             </div>
           </div>
         );
@@ -1033,11 +1041,8 @@ function CardRacePanel({
               })}
               {runners.length > 0 &&
               runners.every((r) => suspended || !isOpenStatus(r.status)) ? (
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                  <span className="text-[1.5rem] font-extrabold uppercase tracking-[0.04em] text-[#DE7A7A]">
-                    SUSPENDED
-                  </span>
-                </div>
+                <SuspendVeil size="sm" />
+
               ) : null}
             </div>
 
@@ -1069,13 +1074,8 @@ function AAAPanel({
     </div>
   );
 
-  const Watermark = () => (
-    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-      <span className="text-[1.6rem] font-extrabold uppercase tracking-wide text-[#9aa0a6]/85">
-        Suspended
-      </span>
-    </div>
-  );
+  const Watermark = () => <SuspendVeil />;
+
 
   const Header = ({ name }: { name: string }) => (
     <div className="flex h-[34px] items-center bg-casino-market-header px-2 text-[0.85rem] font-extrabold uppercase tracking-wide text-board-header-foreground">
@@ -1084,10 +1084,13 @@ function AAAPanel({
   );
 
   const SuspCell = () => (
-    <div className="flex h-[38px] w-full items-center justify-center border-2 border-[#E01B24] bg-white">
-      <span className="text-[0.78rem] font-bold uppercase text-[#E01B24]">Suspended</span>
+    <div className="flex h-[38px] w-full items-center justify-center rounded-[5px] bg-casino-suspend-veil">
+      <span className="text-[0.78rem] font-extrabold uppercase tracking-[0.06em] text-casino-suspend-text">
+        Suspended
+      </span>
     </div>
   );
+
 
   const PriceCell = ({
     price,
