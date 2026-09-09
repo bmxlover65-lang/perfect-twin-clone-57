@@ -452,17 +452,23 @@ export function BetLayer({
           </span>
         );
         const own = at(c.cell);
-        const figures = exposureLayout === "sports"
-          ? [exposure(`${c.id}-profit`, own, "P", c.profit, "text-live-win")]
-          : [exposure(`${c.id}-loss`, own, "L", -Math.round(c.amount), "text-live-lose")];
+        const figures = [
+          exposure(
+            `${c.id}-profit`,
+            own,
+            "P",
+            exposureLayout === "sports" ? c.profit : Math.round(c.profit),
+            "text-live-win",
+          ),
+        ];
         if (c.opposite && c.opposite.isConnected) {
           figures.push(
             exposure(
-              `${c.id}-${exposureLayout === "sports" ? "loss" : "profit"}`,
+              `${c.id}-loss`,
               at(c.opposite),
-              exposureLayout === "sports" ? "L" : "P",
-              exposureLayout === "sports" ? -c.amount : Math.round(c.profit),
-              exposureLayout === "sports" ? "text-live-lose" : "text-live-win",
+              "L",
+              -Math.round(c.amount),
+              "text-live-lose",
             ),
           );
         }
