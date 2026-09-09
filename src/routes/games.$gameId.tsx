@@ -1981,8 +1981,8 @@ function GamePage() {
         });
     };
     void run();
-    const burst = [200, 500, 900, 1400, 2000, 2800].map((ms) => setTimeout(run, ms));
-    const t = setInterval(run, 600);
+    const burst = [100, 250, 450, 700, 1000, 1400, 2000, 2800].map((ms) => setTimeout(run, ms));
+    const t = setInterval(run, 400);
 
     return () => {
       alive = false;
