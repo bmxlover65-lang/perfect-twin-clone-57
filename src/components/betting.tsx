@@ -469,6 +469,7 @@ export function BetLayer({
           }
           const top = u(row.getBoundingClientRect().bottom - rootBox.top);
           setAnchor(Math.max(0, top));
+          pickRound.current = round;
           setPick({ label: p.label, odds: p.odds });
           setOdds(p.odds);
           setErr(null);
