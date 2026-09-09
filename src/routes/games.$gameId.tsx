@@ -10,6 +10,7 @@ import { applyOverride, useAdminConfig } from "@/lib/admin";
 import { logResult } from "@/lib/telemetry";
 import { BalanceChip, BetLayer } from "@/components/betting";
 import { settleLatest, settleRound } from "@/lib/wallet";
+import { endWinCelebration } from "@/components/WinCelebration";
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
 
 import { CardFace } from "@/components/CardFace";
