@@ -421,7 +421,36 @@ function RankCardLabel({ rank }: { rank: string }) {
   );
 }
 
+/** Suit glyphs printed inside the rate plate (Lucky Color / Lucky Card Suit — original style). */
+function labelSuits(label: string): string[] {
+  const up = label.trim().toUpperCase();
+  if (up === "RED") return ["♥", "♦"];
+  if (up === "BLACK") return ["♠", "♣"];
+  if (up.startsWith("HEART")) return ["♥"];
+  if (up.startsWith("DIAMOND")) return ["♦"];
+  if (up.startsWith("SPADE")) return ["♠"];
+  if (up.startsWith("CLUB")) return ["♣"];
+  return [];
+}
+function PlateSuits({ suits }: { suits: string[] }) {
+  if (!suits.length) return null;
+  return (
+    <span className="pointer-events-none absolute left-[5px] top-1/2 flex -translate-y-1/2 flex-col items-center justify-center leading-none">
+      {suits.map((s) => (
+        <span
+          key={s}
+          className="text-[0.62rem] leading-[1.05] sm:text-[0.8rem]"
+          style={{ color: s === "♥" || s === "♦" ? "#E01B24" : "#111" }}
+        >
+          {s}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 /** Light blue sectioned board with 2-column plates (Lucky 7, 20-20 TP, 20-20 DT) — original style. */
+
 
 function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
