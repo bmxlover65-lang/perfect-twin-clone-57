@@ -278,6 +278,7 @@ export function BetLayer({
     };
   }, [chips.length]);
   const busy = useRef(false);
+  const pickRound = useRef("");
 
   const wallet = useWallet();
   const embed = useEmbed();
