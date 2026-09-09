@@ -106,6 +106,8 @@
   --color-casino-market-rate: var(--casino-market-rate);
   --color-casino-market-text: var(--casino-market-text);
   --color-casino-market-divider: var(--casino-market-divider);
+  --color-casino-suspend-veil: var(--casino-suspend-veil);
+  --color-casino-suspend-text: var(--casino-suspend-text);
 
 }
 
