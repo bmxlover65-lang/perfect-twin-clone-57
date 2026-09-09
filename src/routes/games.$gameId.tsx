@@ -439,8 +439,9 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
 
 
       </header>
-      <div className="relative bg-casino-market-body px-3 py-1.5 sm:py-3">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:gap-y-3">
+      <div className="relative bg-casino-market-body px-2 py-1 sm:px-3 sm:py-3">
+        <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 sm:gap-x-4 sm:gap-y-3">
+
           {runners.map((r, i) => {
             const p = r.price?.back?.[0];
             const locked = !suspended && (!isOpenStatus(r.status ?? "ONLINE") || !p?.price);
