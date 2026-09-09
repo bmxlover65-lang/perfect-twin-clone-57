@@ -237,7 +237,7 @@ export function BetLayer({
   gameName: string;
   round: string;
   disabled?: boolean;
-  exposureLayout?: "market" | "sports";
+  exposureLayout?: "market" | "sports" | "row";
   children: ReactNode;
 }) {
   const [pick, setPick] = useState<Pick | null>(null);
@@ -545,7 +545,7 @@ export function BetLayer({
               `${c.id}-loss`,
               at(c.opposite),
               "L",
-              -Math.round(c.amount),
+              exposureLayout === "market" ? -Math.round(c.amount) : -c.amount,
               "text-live-lose",
             ),
           );

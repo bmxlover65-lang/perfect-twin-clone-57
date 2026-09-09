@@ -2401,6 +2401,7 @@ function GamePage() {
         gameName={d?.eventName ?? gameId}
         round={String(d?.roundId ?? "")}
         disabled={suspended}
+        exposureLayout={["99.0016", "99.0013"].includes(gameId) ? "row" : "market"}
       >
         <Fit designWidth={860} mobileNative>
         {gameId === "99.0014" && markets.length ? (
