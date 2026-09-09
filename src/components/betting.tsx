@@ -305,6 +305,22 @@ export function BetLayer({
     setPick(null);
   };
 
+  // Watch the clicked cell while the slip is open: the moment it gets a
+  // SUSPENDED / locked overlay, the slip closes so no bet can be confirmed.
+  useEffect(() => {
+    if (!pick) return;
+    const id = window.setInterval(() => {
+      const rootEl = rootRef.current;
+      const cellEl = cellPos.current?.cell;
+      if (!rootEl || !cellEl) return;
+      if (!cellEl.isConnected || isBlockedByOverlay(cellEl, rootEl)) {
+        setErr("Bet Suspended.");
+        setPick(null);
+      }
+    }, 300);
+    return () => window.clearInterval(id);
+  }, [pick]);
+
 
 
   const submit = () => {
