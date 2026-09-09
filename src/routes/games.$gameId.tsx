@@ -230,11 +230,12 @@ function PokerPanel({
     size?: number | null | undefined;
     locked: boolean;
   }) => (
-    <div className="relative mx-auto flex h-[46px] w-[110px] max-w-[92%] flex-col items-center justify-center rounded-[5px] bg-casino-market-rate text-casino-market-text shadow-[0_4px_10px_color-mix(in_oklab,var(--casino-market-header)_28%,transparent)] sm:h-[56px] sm:w-[160px]">
-      <span className="text-[1.05rem] font-medium leading-none sm:text-[1.15rem] sm:font-bold">{fmtOdds(price)}</span>
-      <span className="mt-1 text-[0.68rem] font-normal leading-none sm:text-[0.7rem]">
+    <div className="relative mx-auto flex h-[34px] w-[118px] max-w-[96%] flex-col items-center justify-center rounded-[4px] bg-casino-market-rate text-casino-market-text shadow-[0_3px_8px_color-mix(in_oklab,var(--casino-market-header)_25%,transparent)] sm:h-[56px] sm:w-[160px]">
+      <span className="text-[0.95rem] font-bold leading-none sm:text-[1.15rem]">{fmtOdds(price)}</span>
+      <span className="mt-[2px] text-[0.6rem] font-normal leading-none sm:text-[0.7rem]">
         {size == null ? "" : String(Math.round(size))}
       </span>
+
       {locked ? (
         <span className="absolute inset-0 flex items-center justify-center rounded-[5px] bg-casino-market-rate/70 text-[0.72rem] font-bold uppercase text-casino-market-text">
           Suspended
