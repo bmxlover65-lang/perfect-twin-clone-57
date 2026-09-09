@@ -1074,13 +1074,8 @@ function AAAPanel({
     </div>
   );
 
-  const Watermark = () => (
-    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-      <span className="text-[1.6rem] font-extrabold uppercase tracking-wide text-[#9aa0a6]/85">
-        Suspended
-      </span>
-    </div>
-  );
+  const Watermark = () => <SuspendVeil />;
+
 
   const Header = ({ name }: { name: string }) => (
     <div className="flex h-[34px] items-center bg-casino-market-header px-2 text-[0.85rem] font-extrabold uppercase tracking-wide text-board-header-foreground">
