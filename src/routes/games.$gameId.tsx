@@ -1871,8 +1871,11 @@ function GamePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameId]);
 
+  const inFlight = useRef(false);
+
   const load = useCallback(async () => {
-    if (feedDead.current) return;
+    if (feedDead.current || inFlight.current) return;
+    inFlight.current = true;
     try {
       const s = await fetchCasinoState(gameId);
       setState(s);
@@ -1885,16 +1888,25 @@ function GamePage() {
         return;
       }
       setError(msg);
+    } finally {
+      inFlight.current = false;
     }
   }, [gameId]);
 
   useEffect(() => {
     void load();
-    const t = setInterval(() => void load(), 350);
+    const t = setInterval(() => void load(), 200);
     const a = setInterval(() => setAge((v) => v + 1), 1000);
+    const wake = () => {
+      if (document.visibilityState === "visible") void load();
+    };
+    document.addEventListener("visibilitychange", wake);
+    window.addEventListener("focus", wake);
     return () => {
       clearInterval(t);
       clearInterval(a);
+      document.removeEventListener("visibilitychange", wake);
+      window.removeEventListener("focus", wake);
     };
   }, [load]);
 
@@ -1969,8 +1981,8 @@ function GamePage() {
         });
     };
     void run();
-    const burst = [200, 500, 900, 1400, 2000, 2800].map((ms) => setTimeout(run, ms));
-    const t = setInterval(run, 600);
+    const burst = [100, 250, 450, 700, 1000, 1400, 2000, 2800].map((ms) => setTimeout(run, ms));
+    const t = setInterval(run, 400);
 
     return () => {
       alive = false;
