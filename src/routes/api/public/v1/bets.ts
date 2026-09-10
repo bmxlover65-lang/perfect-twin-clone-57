@@ -4,7 +4,9 @@ import { authenticateOperator, jsonError, productDenied, productOf } from "@/lib
 export const Route = createFileRoute("/api/public/v1/bets")({
   server: {
     handlers: {
-      GET: async ({ request }) => {
+      GET: handler,
+      POST: handler,
+      __tmp: async ({ request }: { request: Request }) => {
         const auth = await authenticateOperator(request);
         if (!auth.ok) return jsonError(auth);
 

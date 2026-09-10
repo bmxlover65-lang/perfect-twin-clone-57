@@ -5,7 +5,9 @@ import { authenticateOperator, jsonError } from "@/lib/operator-auth.server";
 export const Route = createFileRoute("/api/public/v1/me")({
   server: {
     handlers: {
-      GET: async ({ request }) => {
+      GET: handler,
+      POST: handler,
+      __tmp: async ({ request }: { request: Request }) => {
         const auth = await authenticateOperator(request);
         if (!auth.ok) return jsonError(auth);
         return Response.json({

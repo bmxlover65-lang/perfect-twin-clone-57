@@ -6,7 +6,9 @@ import { GAMES } from "@/data/games";
 export const Route = createFileRoute("/api/public/v1/games")({
   server: {
     handlers: {
-      GET: async ({ request }) => {
+      GET: handler,
+      POST: handler,
+      __tmp: async ({ request }: { request: Request }) => {
         const auth = await authenticateOperator(request);
         if (!auth.ok) return jsonError(auth);
         const denied = productDenied(auth, "casino");
