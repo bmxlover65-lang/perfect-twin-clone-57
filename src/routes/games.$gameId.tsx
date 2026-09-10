@@ -1986,7 +1986,7 @@ function GamePage() {
   }, [gameId, roundKey, feedStatus]);
 
 
-  {/* settlement now lives in the shared result feed above */}
+  // Settlement is handled by the shared result feed above.
 
 
 
