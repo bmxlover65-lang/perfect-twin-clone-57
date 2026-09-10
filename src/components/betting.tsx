@@ -57,6 +57,22 @@ function isPriceCell(el: HTMLElement, root: HTMLElement): boolean {
   return true;
 }
 
+/** Every SUSPENDED / CLOSED / LOCKED veil currently painted inside the board. */
+function suspendVeils(root: HTMLElement): HTMLElement[] {
+  const out: HTMLElement[] = [];
+  for (const el of Array.from(root.querySelectorAll<HTMLElement>('[data-suspended="true"]'))) {
+    out.push(el);
+  }
+  for (const el of Array.from(root.querySelectorAll<HTMLElement>("*"))) {
+    if (el.children.length > 0) continue;
+    const txt = (el.textContent ?? "").replace(/\s+/g, " ").trim();
+    if (!txt || txt.length > 24) continue;
+    if (!/^(suspend(ed)?|locked|closed|ball\s*running)$/i.test(txt)) continue;
+    out.push(el.parentElement ?? el);
+  }
+  return out;
+}
+
 /**
  * True when a SUSPENDED / LOCKED / CLOSED banner (or a `data-suspended` block)
  * covers this price cell — those clicks must never open the bet slip.
@@ -67,21 +83,23 @@ function isBlockedByOverlay(cell: HTMLElement, root: HTMLElement): boolean {
   const cy = r.top + r.height / 2;
 
   let scope: HTMLElement | null = cell;
-  for (let i = 0; i < 8 && scope && scope !== root.parentElement; i++, scope = scope.parentElement) {
+  for (let i = 0; i < 10 && scope && scope !== root.parentElement; i++, scope = scope.parentElement) {
     if (scope.getAttribute("data-suspended") === "true") return true;
     if (scope.getAttribute("aria-disabled") === "true") return true;
     if (scope instanceof HTMLButtonElement && scope.disabled) return true;
-    for (const cand of Array.from(scope.querySelectorAll<HTMLElement>("*"))) {
-      if (cand === cell || cand.contains(cell)) continue;
-      const txt = (cand.textContent ?? "").replace(/\s+/g, " ").trim();
-      if (!txt || txt.length > 24) continue;
-      if (!/^(suspend(ed)?|locked|closed|ball\s*running)$/i.test(txt)) continue;
-      const box = (cand.parentElement ?? cand).getBoundingClientRect();
-      if (cx >= box.left && cx <= box.right && cy >= box.top && cy <= box.bottom) return true;
-    }
+  }
+
+  // Veils are often painted as absolute siblings far from the cell in the DOM,
+  // so fall back to geometry: any veil box that covers the cell blocks it.
+  for (const veil of suspendVeils(root)) {
+    if (veil.contains(cell)) return true;
+    const box = veil.getBoundingClientRect();
+    if (box.width <= 0 || box.height <= 0) continue;
+    if (cx >= box.left && cx <= box.right && cy >= box.top && cy <= box.bottom) return true;
   }
   return false;
 }
+
 
 /** Reads an odds cell out of any market board without touching every panel. */
 
