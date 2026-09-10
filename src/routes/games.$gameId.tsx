@@ -1918,15 +1918,18 @@ function GamePage() {
 
   const roundKey = state?.data?.roundId ? String(state.data.roundId) : "";
 
-  // Celebration runs till the next round begins: as soon as a new round opens
-  // for betting the confetti is switched off.
-  const celebRound = useRef("");
-  useEffect(() => {
-    const open = isOpenStatus(String(state?.data?.status ?? ""));
-    if (!roundKey || !open) return;
-    if (celebRound.current && celebRound.current !== roundKey) endWinCelebration();
-    celebRound.current = roundKey;
-  }, [roundKey, state?.data?.status]);
+  // Single real-time result stream: live frame + result history merged, and it
+  // owns settlement, the winner banner and the celebration lifecycle.
+  const { current: liveResult } = useResultFeed({
+    gameId,
+    round: roundKey,
+    open: isOpenStatus(String(state?.data?.status ?? "")),
+    liveWinner: String(
+      (state?.data as unknown as { gameResult?: string | null } | undefined)?.gameResult ?? "",
+    ),
+    results,
+  });
+
 
 
   useEffect(() => {
