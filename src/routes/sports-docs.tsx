@@ -81,7 +81,7 @@ function SportsDocs() {
           </p>
 
           <div className="mt-6 rounded-md border-l-4 border-live-win bg-muted px-4 py-3 text-sm text-foreground">
-            <strong>Base URL:</strong> <Code>https://universeapi.store</Code>
+            <strong>Base URL:</strong> <Code>https://universalapi.store</Code>
           </div>
 
           {/* Overview */}
@@ -172,7 +172,7 @@ function SportsDocs() {
             </>
             <Block
               label=".env (backend only)"
-              code={`UAPI_BASE_URL=https://universeapi.store/api
+              code={`UAPI_BASE_URL=https://universalapi.store/api
 UAPI_KEY=uapi_live_xxxxxxxxxxxxxxxx`}
             />
           </Step>
@@ -308,7 +308,7 @@ UAPI_KEY=uapi_live_xxxxxxxxxxxxxxxx`}
           {/* Endpoints */}
           <H2 id="endpoints">Endpoints</H2>
           <P>
-            All paths are relative to <Code>https://universeapi.store/api</Code>.
+            All paths are relative to <Code>https://universalapi.store/api</Code>.
           </P>
 
           <Endpoint method="GET" path="/sports" auth="X-API-Key + Sports product" />
@@ -409,7 +409,7 @@ UAPI_KEY=uapi_live_xxxxxxxxxxxxxxxx`}
           </P>
           <Block
             label="URL (path is on the site origin, not under /api)"
-            code={`wss://universeapi.store/ws/sports?sportId={sportId}&exEventId={exEventId}&apiKey=YOUR_KEY`}
+            code={`wss://universalapi.store/ws/sports?sportId={sportId}&exEventId={exEventId}&apiKey=YOUR_KEY`}
           />
           <ul className="mt-3 list-disc space-y-1.5 pl-6 text-[0.95rem] text-muted-foreground">
             <li>
@@ -438,7 +438,7 @@ const sportId = "4";
 const exEventId = "40020266291998437";
 const apiKey = process.env.UNIVERSAL_API_KEY;
 const ws = new WebSocket(
-  \`wss://universeapi.store/ws/sports?sportId=\${sportId}&exEventId=\${exEventId}&apiKey=\${apiKey}\`
+  \`wss://universalapi.store/ws/sports?sportId=\${sportId}&exEventId=\${exEventId}&apiKey=\${apiKey}\`
 );
 ws.on("message", (raw) => {
   const msg = JSON.parse(String(raw));
@@ -461,11 +461,11 @@ ws.on("message", (raw) => {
             We resolve the diamondtech event id (gmid) for the match and expose it as{" "}
             <Code>streamingId</Code>. Kingexch LTVE is secondary when no diamondtech channel is
             available. Always embed via <Code>iframePath</Code> on{" "}
-            <Code>https://universeapi.store</Code> — do not open diamondtech URLs yourself.
+            <Code>https://universalapi.store</Code> — do not open diamondtech URLs yourself.
           </Note>
           <P>
             <strong className="text-foreground">What partners embed:</strong> only{" "}
-            <Code>https://universeapi.store/api/tv/sports/player?...</Code> (from mint{" "}
+            <Code>https://universalapi.store/api/tv/sports/player?...</Code> (from mint{" "}
             <Code>iframePath</Code>). That page is our HTML wrapper; when diamond is primary it
             nests diamondtech <Code>/play/sportstv/{"{etid}"}/{"{gmid}"}</Code> with the viewer IP.
             Scoreboard uses <Code>/api/tv/sports/scoreboard?...</Code> the same way.
@@ -492,7 +492,7 @@ ws.on("message", (raw) => {
           <P>
             Live first-party demo (provider site only):{" "}
             <Link to="/sports" className="text-nav-active underline underline-offset-2">
-              universeapi.store/sports
+              universalapi.store/sports
             </Link>
             .
           </P>
@@ -503,7 +503,7 @@ ws.on("message", (raw) => {
             <li>
               At least one domain on your allowlist (Admin → client Domains) — this is your panel
               origin (e.g. <Code>mahabet.club</Code>), required for score JSON, TV mint, and score
-              mint. Do not put <Code>universeapi.store</Code> on the partner allowlist for B2B embeds
+              mint. Do not put <Code>universalapi.store</Code> on the partner allowlist for B2B embeds
             </li>
             <li>
               <Code>X-TV-Client: true</Code> on embed mint requests
@@ -535,7 +535,7 @@ ws.on("message", (raw) => {
             </li>
             <li>
               If your site uses CSP, allow <Code>frame-src</Code> / <Code>child-src</Code> for{" "}
-              <Code>https://universeapi.store</Code> (required when using <Code>iframePath</Code>)
+              <Code>https://universalapi.store</Code> (required when using <Code>iframePath</Code>)
             </li>
           </ul>
 
@@ -543,7 +543,7 @@ ws.on("message", (raw) => {
           <Block
             label="List events for a sport"
             code={`curl -sS -H "X-API-Key: YOUR_KEY" \\
-  "https://universeapi.store/api/sports/1/events?inPlay=true"
+  "https://universalapi.store/api/sports/1/events?inPlay=true"
 # use events[].exEventId from the response`}
           />
 
@@ -555,7 +555,7 @@ ws.on("message", (raw) => {
   -H "X-TV-Client: true" \\
   -H "Content-Type: application/json" \\
   -d '{"embedDomain":"your-partner-site.com"}' \\
-  "https://universeapi.store/api/sports/{sportId}/{exEventId}/tv/embed"`}
+  "https://universalapi.store/api/sports/{sportId}/{exEventId}/tv/embed"`}
           />
           <Block
             label="Example mint response (diamond / AllPanel primary)"
@@ -581,7 +581,7 @@ ws.on("message", (raw) => {
           <Block
             label="2. Embed in your page (use iframePath on our host)"
             code={`<iframe
-  src="https://universeapi.store/api/tv/sports/player?sportId={sportId}&exEventId={exEventId}&embedToken=TOKEN&tv=true"
+  src="https://universalapi.store/api/tv/sports/player?sportId={sportId}&exEventId={exEventId}&embedToken=TOKEN&tv=true"
   allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
   referrerpolicy="strict-origin-when-cross-origin"
   allowfullscreen
@@ -589,7 +589,7 @@ ws.on("message", (raw) => {
 ></iframe>`}
           />
           <Note>
-            Prefer <Code>iframePath</Code> on <Code>https://universeapi.store</Code> — that path
+            Prefer <Code>iframePath</Code> on <Code>https://universalapi.store</Code> — that path
             enforces your domain allowlist and token kind, then nests diamondtech (or LTVE) inside
             our player. Do not paste diamondtech <Code>/play/...</Code> URLs into your panel.
           </Note>
@@ -603,23 +603,23 @@ ws.on("message", (raw) => {
           <H3>Per-sport TV examples</H3>
           <Block
             label="Soccer (1)"
-            code={`POST https://universeapi.store/api/sports/1/{exEventId}/tv/embed`}
+            code={`POST https://universalapi.store/api/sports/1/{exEventId}/tv/embed`}
           />
           <Block
             label="Tennis (2)"
-            code={`POST https://universeapi.store/api/sports/2/{exEventId}/tv/embed`}
+            code={`POST https://universalapi.store/api/sports/2/{exEventId}/tv/embed`}
           />
           <Block
             label="Cricket (4)"
-            code={`POST https://universeapi.store/api/sports/4/{exEventId}/tv/embed`}
+            code={`POST https://universalapi.store/api/sports/4/{exEventId}/tv/embed`}
           />
           <Block
             label="Horse (7)"
-            code={`POST https://universeapi.store/api/sports/7/{exEventId}/tv/embed`}
+            code={`POST https://universalapi.store/api/sports/7/{exEventId}/tv/embed`}
           />
           <Block
             label="Greyhound (4339)"
-            code={`POST https://universeapi.store/api/sports/4339/{exEventId}/tv/embed`}
+            code={`POST https://universalapi.store/api/sports/4339/{exEventId}/tv/embed`}
           />
 
           <H3>Score JSON shape (soccer, tennis, cricket)</H3>
@@ -654,7 +654,7 @@ ws.on("message", (raw) => {
   -H "X-TV-Client: true" \\
   -H "Content-Type: application/json" \\
   -d '{"embedDomain":"your-partner-site.com"}' \\
-  "https://universeapi.store/api/sports/{sportId}/{exEventId}/score/embed"`}
+  "https://universalapi.store/api/sports/{sportId}/{exEventId}/score/embed"`}
           />
           <Block
             label="Example mint response"
@@ -671,7 +671,7 @@ ws.on("message", (raw) => {
           <Block
             label="Scoreboard iframe"
             code={`<iframe
-  src="https://universeapi.store/api/tv/sports/scoreboard?sportId={sportId}&exEventId={exEventId}&embedToken=TOKEN&tv=true"
+  src="https://universalapi.store/api/tv/sports/scoreboard?sportId={sportId}&exEventId={exEventId}&embedToken=TOKEN&tv=true"
   referrerpolicy="strict-origin-when-cross-origin"
   style="width:100%;min-height:220px;border:0;background:#000"
 ></iframe>`}
@@ -686,18 +686,18 @@ ws.on("message", (raw) => {
           <H3>Per-sport scoreboard examples</H3>
           <Block
             label="Soccer (1)"
-            code={`POST https://universeapi.store/api/sports/1/{exEventId}/score/embed
-GET  https://universeapi.store/api/sports/1/{exEventId}/score`}
+            code={`POST https://universalapi.store/api/sports/1/{exEventId}/score/embed
+GET  https://universalapi.store/api/sports/1/{exEventId}/score`}
           />
           <Block
             label="Tennis (2)"
-            code={`POST https://universeapi.store/api/sports/2/{exEventId}/score/embed
-GET  https://universeapi.store/api/sports/2/{exEventId}/score`}
+            code={`POST https://universalapi.store/api/sports/2/{exEventId}/score/embed
+GET  https://universalapi.store/api/sports/2/{exEventId}/score`}
           />
           <Block
             label="Cricket (4)"
-            code={`POST https://universeapi.store/api/sports/4/{exEventId}/score/embed
-GET  https://universeapi.store/api/sports/4/{exEventId}/score`}
+            code={`POST https://universalapi.store/api/sports/4/{exEventId}/score/embed
+GET  https://universalapi.store/api/sports/4/{exEventId}/score`}
           />
           <P>
             Horse (7) and greyhound (4339) do not have scoreboard endpoints — <Code>GET /score</Code>{" "}
@@ -842,49 +842,49 @@ GET  https://universeapi.store/api/sports/4/{exEventId}/score`}
             label="List cricket events"
             code={`curl -sS \\
   -H "X-API-Key: YOUR_KEY" \\
-  "https://universeapi.store/api/sports/4/events?inPlay=true"`}
+  "https://universalapi.store/api/sports/4/events?inPlay=true"`}
           />
           <Block
             label="Horse racing events"
             code={`curl -sS \\
   -H "X-API-Key: YOUR_KEY" \\
-  "https://universeapi.store/api/sports/7/events?inPlay=true"`}
+  "https://universalapi.store/api/sports/7/events?inPlay=true"`}
           />
           <Block
             label="Greyhound racing odds"
             code={`curl -sS \\
   -H "X-API-Key: YOUR_KEY" \\
-  "https://universeapi.store/api/sports/4339/43390020266291998437/odds"`}
+  "https://universalapi.store/api/sports/4339/43390020266291998437/odds"`}
           />
           <Block
             label="Live odds for one event"
             code={`curl -sS \\
   -H "X-API-Key: YOUR_KEY" \\
-  "https://universeapi.store/api/sports/1/100202662715511777/odds"`}
+  "https://universalapi.store/api/sports/1/100202662715511777/odds"`}
           />
           <Block
             label="Combined state"
             code={`curl -sS \\
   -H "X-API-Key: YOUR_KEY" \\
-  "https://universeapi.store/api/sports/2/200202662832959134/state"`}
+  "https://universalapi.store/api/sports/2/200202662832959134/state"`}
           />
           <Block
             label="Soccer score (JSON)"
             code={`curl -sS \\
   -H "X-API-Key: YOUR_KEY" \\
-  "https://universeapi.store/api/sports/1/{exEventId}/score"`}
+  "https://universalapi.store/api/sports/1/{exEventId}/score"`}
           />
           <Block
             label="Tennis score (JSON)"
             code={`curl -sS \\
   -H "X-API-Key: YOUR_KEY" \\
-  "https://universeapi.store/api/sports/2/{exEventId}/score"`}
+  "https://universalapi.store/api/sports/2/{exEventId}/score"`}
           />
           <Block
             label="Cricket score (JSON)"
             code={`curl -sS \\
   -H "X-API-Key: YOUR_KEY" \\
-  "https://universeapi.store/api/sports/4/{exEventId}/score"`}
+  "https://universalapi.store/api/sports/4/{exEventId}/score"`}
           />
           <Block
             label="Mint cricket TV embed"
@@ -893,7 +893,7 @@ GET  https://universeapi.store/api/sports/4/{exEventId}/score`}
   -H "X-TV-Client: true" \\
   -H "Content-Type: application/json" \\
   -d '{"embedDomain":"your-partner-site.com"}' \\
-  "https://universeapi.store/api/sports/4/{exEventId}/tv/embed"`}
+  "https://universalapi.store/api/sports/4/{exEventId}/tv/embed"`}
           />
           <Block
             label="Mint cricket scoreboard embed"
@@ -902,7 +902,7 @@ GET  https://universeapi.store/api/sports/4/{exEventId}/score`}
   -H "X-TV-Client: true" \\
   -H "Content-Type: application/json" \\
   -d '{"embedDomain":"your-partner-site.com"}' \\
-  "https://universeapi.store/api/sports/4/{exEventId}/score/embed"`}
+  "https://universalapi.store/api/sports/4/{exEventId}/score/embed"`}
           />
 
           {/* B2B integration */}

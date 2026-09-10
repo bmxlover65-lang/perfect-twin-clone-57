@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://universeapi.store/sitemap.xml
+Sitemap: https://universalapi.store/sitemap.xml
