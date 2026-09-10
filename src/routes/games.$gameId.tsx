@@ -1865,6 +1865,9 @@ function GamePage() {
   const [stream, setStream] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [age, setAge] = useState(0);
+  const [roundSuspended, setRoundSuspended] = useState(false);
+  const suspensionRound = useRef("");
+  const roundWasOpen = useRef(false);
 
   // Some games (e.g. VIMAAN) have no upstream live event. Polling them only
   // produces 404 "Unknown game" / 400 "Valid eventId required" noise.
@@ -1955,6 +1958,22 @@ function GamePage() {
 
   const feedStatus = (state?.data?.status ?? "").toUpperCase();
 
+  // The upstream occasionally alternates OPEN/SUSPENDED frames near result
+  // time. Original tables enter suspension once and stay there until the next
+  // round, so stabilise the visual phase instead of flashing the veil.
+  useEffect(() => {
+    if (!roundKey) return;
+    const openNow = isOpenStatus(feedStatus);
+    if (suspensionRound.current !== roundKey) {
+      suspensionRound.current = roundKey;
+      roundWasOpen.current = openNow;
+      setRoundSuspended(false);
+      return;
+    }
+    if (openNow) roundWasOpen.current = true;
+    else if (roundWasOpen.current) setRoundSuspended(true);
+  }, [roundKey, feedStatus]);
+
 
 
   // Result polling. Any feed trigger — new roundId or a status change
@@ -1998,7 +2017,7 @@ function GamePage() {
 
   const d = state?.data ?? null;
   const status = (d?.status ?? "").toUpperCase();
-  const suspended = status ? !isOpenStatus(status) : false;
+  const suspended = status ? roundSuspended : false;
   const markets = d?.marketArr ?? [];
   const liveCards = (d?.cardsArr ?? {}) as Record<string, Record<string, string>>;
   // When the live feed has already cleared the table for the next round but the

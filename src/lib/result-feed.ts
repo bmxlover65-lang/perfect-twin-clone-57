@@ -178,15 +178,21 @@ export function useResultFeed({ gameId, round, open, liveWinner, results }: Opti
     return undefined;
   }, [round, results.length]);
 
-  // A new betting round clears the previous winner: banner off, confetti off.
+  // A round change always clears the previous winner and celebration. Do not
+  // wait for an OPEN frame: some feeds briefly skip it, which previously let a
+  // winning animation leak into the following losing round.
   useEffect(() => {
-    if (!round || !open) return;
+    if (!round) return;
     if (celebRound.current && celebRound.current !== round) {
       endWinCelebration();
       setCurrent((c) => (c && c.round !== round ? null : c));
     }
     celebRound.current = round;
-  }, [round, open]);
+  }, [round]);
+
+  // Keep this dependency meaningful for callers: an open frame for the same
+  // round must never clear a freshly declared result.
+  void open;
 
   const history = useMemo(() => results as AnyResult[], [results]);
   return { current, history };
