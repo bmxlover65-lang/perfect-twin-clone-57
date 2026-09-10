@@ -505,7 +505,6 @@ export function BetLayer({
       return;
     }
     const pos = cellPos.current;
-    const rootEl = rootRef.current;
     close();
     if (pos && rootEl) {
       const markExposure = (element: HTMLElement) => {
