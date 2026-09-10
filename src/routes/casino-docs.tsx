@@ -731,6 +731,14 @@ content-type: application/json
     "status": "won", "reference": "your-unique-txn-id", "settled_at": "…" }
 ] }`}
           />
+          <Note>
+            <strong>Method flexible:</strong> <Code>/me</Code>, <Code>/games</Code> and{" "}
+            <Code>/bets</Code> answer to both GET and POST. Write endpoints (<Code>/bet</Code>,{" "}
+            <Code>/balance</Code>, <Code>/cashout</Code>, <Code>/settle</Code>) are POST only and
+            reply with a JSON <Code>method_not_allowed</Code> error (405) on GET — you will never get
+            an HTML page back, so <Code>response.json()</Code> is always safe.
+          </Note>
+
 
           <H3>Your wallet callback</H3>
           <P>
