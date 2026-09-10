@@ -2023,7 +2023,7 @@ function GamePage() {
     };
     void run();
     const burst = [100, 250, 450, 700, 1000, 1400, 2000, 2800].map((ms) => setTimeout(run, ms));
-    const t = setInterval(run, 400);
+    const t = setInterval(run, 250);
 
     return () => {
       alive = false;

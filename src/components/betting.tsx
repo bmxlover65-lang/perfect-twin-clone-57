@@ -57,6 +57,22 @@ function isPriceCell(el: HTMLElement, root: HTMLElement): boolean {
   return true;
 }
 
+/** Every SUSPENDED / CLOSED / LOCKED veil currently painted inside the board. */
+function suspendVeils(root: HTMLElement): HTMLElement[] {
+  const out: HTMLElement[] = [];
+  for (const el of Array.from(root.querySelectorAll<HTMLElement>('[data-suspended="true"]'))) {
+    out.push(el);
+  }
+  for (const el of Array.from(root.querySelectorAll<HTMLElement>("*"))) {
+    if (el.children.length > 0) continue;
+    const txt = (el.textContent ?? "").replace(/\s+/g, " ").trim();
+    if (!txt || txt.length > 24) continue;
+    if (!/^(suspend(ed)?|locked|closed|ball\s*running)$/i.test(txt)) continue;
+    out.push(el.parentElement ?? el);
+  }
+  return out;
+}
+
 /**
  * True when a SUSPENDED / LOCKED / CLOSED banner (or a `data-suspended` block)
  * covers this price cell — those clicks must never open the bet slip.
@@ -67,21 +83,48 @@ function isBlockedByOverlay(cell: HTMLElement, root: HTMLElement): boolean {
   const cy = r.top + r.height / 2;
 
   let scope: HTMLElement | null = cell;
-  for (let i = 0; i < 8 && scope && scope !== root.parentElement; i++, scope = scope.parentElement) {
+  for (let i = 0; i < 10 && scope && scope !== root.parentElement; i++, scope = scope.parentElement) {
     if (scope.getAttribute("data-suspended") === "true") return true;
     if (scope.getAttribute("aria-disabled") === "true") return true;
     if (scope instanceof HTMLButtonElement && scope.disabled) return true;
-    for (const cand of Array.from(scope.querySelectorAll<HTMLElement>("*"))) {
-      if (cand === cell || cand.contains(cell)) continue;
-      const txt = (cand.textContent ?? "").replace(/\s+/g, " ").trim();
-      if (!txt || txt.length > 24) continue;
-      if (!/^(suspend(ed)?|locked|closed|ball\s*running)$/i.test(txt)) continue;
-      const box = (cand.parentElement ?? cand).getBoundingClientRect();
-      if (cx >= box.left && cx <= box.right && cy >= box.top && cy <= box.bottom) return true;
-    }
+  }
+
+  // Veils are often painted as absolute siblings far from the cell in the DOM,
+  // so fall back to geometry: any veil box that covers the cell blocks it.
+  for (const veil of suspendVeils(root)) {
+    if (veil.contains(cell)) return true;
+    const box = veil.getBoundingClientRect();
+    if (box.width <= 0 || box.height <= 0) continue;
+    if (cx >= box.left && cx <= box.right && cy >= box.top && cy <= box.bottom) return true;
   }
   return false;
 }
+
+/**
+ * The market block a bet belongs to. Exposure figures net only inside this
+ * block, so a bet on one market never changes the figures of another.
+ */
+function marketGroup(
+  cell: HTMLElement,
+  opposite: HTMLElement | undefined,
+  root: HTMLElement,
+): HTMLElement {
+  // Smallest common block that holds both plates of the same market.
+  if (opposite) {
+    let a: HTMLElement | null = cell;
+    for (let i = 0; i < 12 && a && a !== root.parentElement; i++, a = a.parentElement) {
+      if (a.contains(opposite)) return a;
+    }
+  }
+  return (
+    cell.closest<HTMLElement>("[data-market-option]")
+    ?? cell.closest<HTMLElement>("[data-runner-row]")?.parentElement
+    ?? cell.parentElement
+    ?? cell
+  );
+}
+
+
 
 /** Reads an odds cell out of any market board without touching every panel. */
 
@@ -251,6 +294,8 @@ export function BetLayer({
     id: number;
     cell: HTMLElement;
     opposite?: HTMLElement | undefined;
+    /** Market block the bet belongs to — exposure nets inside this block only. */
+    group: HTMLElement;
     amount: number;
     profit: number;
   }[]>([]);
@@ -258,7 +303,9 @@ export function BetLayer({
   const cellPos = useRef<{
     cell: HTMLElement;
     opposite?: HTMLElement | undefined;
+    group: HTMLElement;
   } | null>(null);
+
   // Positions are re-measured from the live DOM so the figures stay glued to
   // their plates when the board reflows after a bet.
   const [, setTick] = useState(0);
@@ -449,9 +496,11 @@ export function BetLayer({
               id: Date.now(),
               cell: pos.cell,
               opposite: pos.opposite,
+              group: pos.group,
               amount: stake,
               profit: stake * Math.max(0, odds - 1),
             },
+
           ];
         }
         const next = [...cur];
@@ -552,7 +601,11 @@ export function BetLayer({
 
           }
 
-          cellPos.current = { cell: cellEl, opposite: oppositeEl };
+          // Exposure only nets inside the market the bet belongs to, never
+          // across the whole table (that produced wrong figures on the plates).
+          const groupEl = marketGroup(cellEl, oppositeEl, root);
+          cellPos.current = { cell: cellEl, opposite: oppositeEl, group: groupEl };
+
 
           // Anchor the slip right below the row that was clicked.
           let row: HTMLElement = target;
@@ -599,27 +652,30 @@ export function BetLayer({
 
         const decimals = exposureLayout === "market" ? 0 : 2;
 
-        // Bets on several selections of the same market net out: every
+        // Bets on several selections of the SAME market net out: every
         // selection shows one figure — its own profit minus the stakes
-        // riding on the other selections.
-        const cells: HTMLElement[] = [];
-        const push = (el?: HTMLElement) => {
-          if (el && el.isConnected && !cells.includes(el)) cells.push(el);
+        // riding on the other selections of that market only.
+        const cells: { el: HTMLElement; group: HTMLElement }[] = [];
+        const push = (el: HTMLElement | undefined, group: HTMLElement) => {
+          if (el && el.isConnected && !cells.some((c) => c.el === el)) cells.push({ el, group });
         };
         chips.forEach((c) => {
-          push(c.cell);
-          push(c.opposite);
+          push(c.cell, c.group);
+          push(c.opposite, c.group);
         });
+        const inGroup = (group: HTMLElement) =>
+          chips.filter((c) => c.group === group || group.contains(c.cell));
         const stakeOf = (el: HTMLElement) =>
           chips.filter((c) => c.cell === el).reduce((s, c) => s + c.amount, 0);
         const profitOf = (el: HTMLElement) =>
           chips.filter((c) => c.cell === el).reduce((s, c) => s + c.profit, 0);
-        const totalStake = chips.reduce((s, c) => s + c.amount, 0);
 
-        return cells.map((el, i) => {
-          const net = profitOf(el) - (totalStake - stakeOf(el));
+        return cells.map(({ el, group }, i) => {
+          const groupStake = inGroup(group).reduce((s, c) => s + c.amount, 0);
+          const net = profitOf(el) - (groupStake - stakeOf(el));
           const value = exposureLayout === "market" ? Math.round(net) : net;
           const pos = at(el);
+
           return (
             <span
               key={`exp-${i}`}
