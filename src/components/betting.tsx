@@ -100,6 +100,31 @@ function isBlockedByOverlay(cell: HTMLElement, root: HTMLElement): boolean {
   return false;
 }
 
+/**
+ * The market block a bet belongs to. Exposure figures net only inside this
+ * block, so a bet on one market never changes the figures of another.
+ */
+function marketGroup(
+  cell: HTMLElement,
+  opposite: HTMLElement | undefined,
+  root: HTMLElement,
+): HTMLElement {
+  // Smallest common block that holds both plates of the same market.
+  if (opposite) {
+    let a: HTMLElement | null = cell;
+    for (let i = 0; i < 12 && a && a !== root.parentElement; i++, a = a.parentElement) {
+      if (a.contains(opposite)) return a;
+    }
+  }
+  return (
+    cell.closest<HTMLElement>("[data-market-option]")
+    ?? cell.closest<HTMLElement>("[data-runner-row]")?.parentElement
+    ?? cell.parentElement
+    ?? cell
+  );
+}
+
+
 
 /** Reads an odds cell out of any market board without touching every panel. */
 
