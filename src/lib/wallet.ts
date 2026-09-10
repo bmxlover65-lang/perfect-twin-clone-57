@@ -151,6 +151,39 @@ function sideOf(s: string) {
 }
 
 
+/**
+ * Reduce only unambiguous, single-runner outcomes to a shared key.
+ * A compound side-market label such as "DRAGON RED" deliberately returns
+ * nothing: the overall DRAGON result cannot settle its colour market.
+ */
+function outcomeKey(value: string): string {
+  const clean = value.toLowerCase().replace(/_/g, " ").replace(/\([^)]*\)/g, " ");
+  const matches: string[] = [];
+  const add = (key: string, pattern: RegExp) => {
+    if (pattern.test(clean)) matches.push(key);
+  };
+  add("playera", /\b(player|winner)\s*a\b/);
+  add("playerb", /\b(player|winner)\s*b\b/);
+  add("dragon", /\bdragon\b/);
+  add("tiger", /\btiger\b/);
+  add("lion", /\blion\b/);
+  add("banker", /\bbanker\b/);
+  add("tie", /\b(tie|draw)\b/);
+  add("lowcard", /\blow\s*card\b/);
+  add("highcard", /\bhigh\s*card\b/);
+  add("heads", /\bheads?\b/);
+  add("tails", /\btails?\b/);
+  add("red", /\bred\b/);
+  add("black", /\bblack\b/);
+  add("odd", /\bodd\b/);
+  add("even", /\beven\b/);
+  add("heart", /\bhearts?\b/);
+  add("diamond", /\bdiamonds?\b/);
+  add("spade", /\bspades?\b/);
+  add("club", /\bclubs?\b/);
+  return matches.length === 1 ? matches[0] ?? "" : "";
+}
+
 function isWin(label: string, winner: string) {
   const sa = sideOf(label);
   const sb = sideOf(winner);
@@ -158,7 +191,10 @@ function isWin(label: string, winner: string) {
   const a = norm(label);
   const b = norm(winner);
   if (!a || !b) return false;
-  return a === b || a.includes(b) || b.includes(a);
+  if (a === b) return true;
+  const aKey = outcomeKey(label);
+  const bKey = outcomeKey(winner);
+  return Boolean(aKey && bKey && aKey === bKey);
 }
 
 

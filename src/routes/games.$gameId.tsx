@@ -144,6 +144,35 @@ function isOpenStatus(status?: string | null) {
   return OPEN_STATUSES.has((status ?? "").toUpperCase());
 }
 
+/** Preserve a runner's first closed state until the round changes. */
+function stabilizeCasinoState(previous: CasinoState | null, incoming: CasinoState): CasinoState {
+  const prevData = previous?.data;
+  const nextData = incoming.data;
+  if (!prevData || !nextData || String(prevData.roundId ?? "") !== String(nextData.roundId ?? "")) {
+    return incoming;
+  }
+  const previousMarkets = new Map(
+    (prevData.marketArr ?? []).map((market) => [String(market.marketId), market]),
+  );
+  const marketArr = (nextData.marketArr ?? []).map((market) => {
+    const previousMarket = previousMarkets.get(String(market.marketId));
+    if (!previousMarket) return market;
+    const previousRunners = new Map(
+      (previousMarket.runners ?? []).map((runner) => [String(runner.selectionId), runner]),
+    );
+    return {
+      ...market,
+      runners: (market.runners ?? []).map((runner) => {
+        const previousRunner = previousRunners.get(String(runner.selectionId));
+        const previousStatus = previousRunner?.status;
+        if (!previousStatus || isOpenStatus(previousStatus)) return runner;
+        return { ...runner, status: previousStatus };
+      }),
+    };
+  });
+  return { ...incoming, data: { ...nextData, marketArr } };
+}
+
 /** Original-style suspended veil: faded market background + bold red SUSPENDED text. */
 function SuspendVeil({ className = "", size = "md" }: { className?: string; size?: "sm" | "md" }) {
   return (
@@ -1865,6 +1894,9 @@ function GamePage() {
   const [stream, setStream] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [age, setAge] = useState(0);
+  const [roundSuspended, setRoundSuspended] = useState(false);
+  const suspensionRound = useRef("");
+  const roundWasOpen = useRef(false);
 
   // Some games (e.g. VIMAAN) have no upstream live event. Polling them only
   // produces 404 "Unknown game" / 400 "Valid eventId required" noise.
@@ -1883,7 +1915,7 @@ function GamePage() {
     inFlight.current = true;
     try {
       const s = await fetchCasinoState(gameId);
-      setState(s);
+      setState((previous) => stabilizeCasinoState(previous, s));
       setAge(0);
       setError(null);
     } catch (e) {
@@ -1955,6 +1987,22 @@ function GamePage() {
 
   const feedStatus = (state?.data?.status ?? "").toUpperCase();
 
+  // The upstream occasionally alternates OPEN/SUSPENDED frames near result
+  // time. Original tables enter suspension once and stay there until the next
+  // round, so stabilise the visual phase instead of flashing the veil.
+  useEffect(() => {
+    if (!roundKey) return;
+    const openNow = isOpenStatus(feedStatus);
+    if (suspensionRound.current !== roundKey) {
+      suspensionRound.current = roundKey;
+      roundWasOpen.current = openNow;
+      setRoundSuspended(!openNow);
+      return;
+    }
+    if (openNow) roundWasOpen.current = true;
+    else if (roundWasOpen.current) setRoundSuspended(true);
+  }, [roundKey, feedStatus]);
+
 
 
   // Result polling. Any feed trigger — new roundId or a status change
@@ -1998,7 +2046,7 @@ function GamePage() {
 
   const d = state?.data ?? null;
   const status = (d?.status ?? "").toUpperCase();
-  const suspended = status ? !isOpenStatus(status) : false;
+  const suspended = status ? roundSuspended : false;
   const markets = d?.marketArr ?? [];
   const liveCards = (d?.cardsArr ?? {}) as Record<string, Record<string, string>>;
   // When the live feed has already cleared the table for the next round but the

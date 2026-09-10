@@ -73,3 +73,5 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [ ] Verify every casino page at mobile and desktop widths
 
 - [x] Win celebration confetti on all tables (loss = no celebration)
+- [x] Strict winner matching prevents side-market losses from triggering payout/confetti
+- [x] Casino suspension is stable per round and clears only when the next round starts
