@@ -576,7 +576,11 @@ export function BetLayer({
 
           }
 
-          cellPos.current = { cell: cellEl, opposite: oppositeEl };
+          // Exposure only nets inside the market the bet belongs to, never
+          // across the whole table (that produced wrong figures on the plates).
+          const groupEl = marketGroup(cellEl, oppositeEl, root);
+          cellPos.current = { cell: cellEl, opposite: oppositeEl, group: groupEl };
+
 
           // Anchor the slip right below the row that was clicked.
           let row: HTMLElement = target;
