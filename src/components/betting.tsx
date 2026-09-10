@@ -124,6 +124,35 @@ function marketGroup(
   );
 }
 
+/**
+ * Stable identity for a DOM node inside the board. The live feed re-renders
+ * the market plates a few times per second, so holding element references
+ * loses track of a selection — a positional key survives those re-renders and
+ * keeps repeat bets on the same box adding up.
+ */
+function nodeKey(el: HTMLElement, root: HTMLElement): string {
+  const parts: number[] = [];
+  let n: HTMLElement | null = el;
+  while (n && n !== root) {
+    const p: HTMLElement | null = n.parentElement;
+    if (!p) return "";
+    parts.push(Array.prototype.indexOf.call(p.children, n));
+    n = p;
+  }
+  return parts.reverse().join("-");
+}
+
+function nodeFromKey(key: string, root: HTMLElement): HTMLElement | null {
+  if (!key) return null;
+  let n: HTMLElement = root;
+  for (const part of key.split("-")) {
+    const child = n.children[Number(part)];
+    if (!(child instanceof HTMLElement)) return null;
+    n = child;
+  }
+  return n;
+}
+
 
 
 /** Reads an odds cell out of any market board without touching every panel. */
