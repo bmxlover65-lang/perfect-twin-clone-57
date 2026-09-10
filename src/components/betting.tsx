@@ -627,27 +627,30 @@ export function BetLayer({
 
         const decimals = exposureLayout === "market" ? 0 : 2;
 
-        // Bets on several selections of the same market net out: every
+        // Bets on several selections of the SAME market net out: every
         // selection shows one figure — its own profit minus the stakes
-        // riding on the other selections.
-        const cells: HTMLElement[] = [];
-        const push = (el?: HTMLElement) => {
-          if (el && el.isConnected && !cells.includes(el)) cells.push(el);
+        // riding on the other selections of that market only.
+        const cells: { el: HTMLElement; group: HTMLElement }[] = [];
+        const push = (el: HTMLElement | undefined, group: HTMLElement) => {
+          if (el && el.isConnected && !cells.some((c) => c.el === el)) cells.push({ el, group });
         };
         chips.forEach((c) => {
-          push(c.cell);
-          push(c.opposite);
+          push(c.cell, c.group);
+          push(c.opposite, c.group);
         });
+        const inGroup = (group: HTMLElement) =>
+          chips.filter((c) => c.group === group || group.contains(c.cell));
         const stakeOf = (el: HTMLElement) =>
           chips.filter((c) => c.cell === el).reduce((s, c) => s + c.amount, 0);
         const profitOf = (el: HTMLElement) =>
           chips.filter((c) => c.cell === el).reduce((s, c) => s + c.profit, 0);
-        const totalStake = chips.reduce((s, c) => s + c.amount, 0);
 
-        return cells.map((el, i) => {
-          const net = profitOf(el) - (totalStake - stakeOf(el));
+        return cells.map(({ el, group }, i) => {
+          const groupStake = inGroup(group).reduce((s, c) => s + c.amount, 0);
+          const net = profitOf(el) - (groupStake - stakeOf(el));
           const value = exposureLayout === "market" ? Math.round(net) : net;
           const pos = at(el);
+
           return (
             <span
               key={`exp-${i}`}
