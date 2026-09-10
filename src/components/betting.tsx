@@ -269,6 +269,8 @@ export function BetLayer({
     id: number;
     cell: HTMLElement;
     opposite?: HTMLElement | undefined;
+    /** Market block the bet belongs to — exposure nets inside this block only. */
+    group: HTMLElement;
     amount: number;
     profit: number;
   }[]>([]);
@@ -276,7 +278,9 @@ export function BetLayer({
   const cellPos = useRef<{
     cell: HTMLElement;
     opposite?: HTMLElement | undefined;
+    group: HTMLElement;
   } | null>(null);
+
   // Positions are re-measured from the live DOM so the figures stay glued to
   // their plates when the board reflows after a bet.
   const [, setTick] = useState(0);
