@@ -1,6 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { authenticateOperator, jsonError, productDenied, productOf } from "@/lib/operator-auth.server";
+import {
+  authenticateOperator,
+  jsonError,
+  productDenied,
+  productOf,
+} from "@/lib/operator-auth.server";
 import { walletCall } from "@/lib/callback-wallet.server";
 
 const schema = z.object({
@@ -26,6 +31,11 @@ async function logReject(row: Record<string, unknown>) {
 export const Route = createFileRoute("/api/public/v1/bet")({
   server: {
     handlers: {
+      GET: async () =>
+        Response.json(
+          { status: "error", code: "method_not_allowed", message: "Use POST with a JSON body" },
+          { status: 405 },
+        ),
       POST: async ({ request }) => {
         const auth = await authenticateOperator(request);
         if (!auth.ok) {
@@ -42,7 +52,11 @@ export const Route = createFileRoute("/api/public/v1/bet")({
             ip: auth.ip,
           });
           return Response.json(
-            { status: "error", code: "bad_request", message: parsed.error.issues[0]?.message ?? "Invalid body" },
+            {
+              status: "error",
+              code: "bad_request",
+              message: parsed.error.issues[0]?.message ?? "Invalid body",
+            },
             { status: 400 },
           );
         }
@@ -158,7 +172,11 @@ export const Route = createFileRoute("/api/public/v1/bet")({
             roundId: b.roundId,
           });
           return Response.json(
-            { status: "error", code: "bet_failed", message: "Could not record bet, stake refunded" },
+            {
+              status: "error",
+              code: "bet_failed",
+              message: "Could not record bet, stake refunded",
+            },
             { status: 500 },
           );
         }
