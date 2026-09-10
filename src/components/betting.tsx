@@ -696,25 +696,33 @@ export function BetLayer({
         // Bets on several selections of the SAME market net out: every
         // selection shows one figure — its own profit minus the stakes
         // riding on the other selections of that market only.
-        const cells: { key: string; groupKey: string }[] = [];
-        const push = (key: string | undefined, groupKey: string) => {
-          if (key && !cells.some((c) => c.key === key)) cells.push({ key, groupKey });
+        // One figure per plate. Two chips can resolve to the same plate after a
+        // live re-render — dedupe on the resolved element so the numbers never
+        // print on top of each other.
+        const used = new Set<HTMLElement>();
+        const cells: { el: HTMLElement; groupKey: string; label: string | null }[] = [];
+        const push = (key: string | undefined, groupKey: string, label: string | null) => {
+          if (!key) return;
+          const el = nodeFromKey(key, root);
+          if (!el || !el.isConnected || used.has(el)) return;
+          used.add(el);
+          cells.push({ el, groupKey, label });
         };
-        chips.forEach((c) => {
-          push(c.cellKey, c.groupKey);
-          push(c.oppositeKey, c.groupKey);
-        });
-        const stakeOf = (key: string) =>
-          chips.filter((c) => c.cellKey === key).reduce((s, c) => s + c.amount, 0);
-        const profitOf = (key: string) =>
-          chips.filter((c) => c.cellKey === key).reduce((s, c) => s + c.profit, 0);
+        chips.forEach((c) => push(c.cellKey, c.groupKey, c.label));
+        chips.forEach((c) => push(c.oppositeKey, c.groupKey, null));
+
+        const own = (groupKey: string, label: string | null) =>
+          label === null
+            ? []
+            : chips.filter((c) => c.groupKey === groupKey && c.label === label);
         const groupStakeOf = (groupKey: string) =>
           chips.filter((c) => c.groupKey === groupKey).reduce((s, c) => s + c.amount, 0);
 
-        return cells.map(({ key, groupKey }, i) => {
-          const el = nodeFromKey(key, root);
-          if (!el || !el.isConnected) return null;
-          const net = profitOf(key) - (groupStakeOf(groupKey) - stakeOf(key));
+        return cells.map(({ el, groupKey, label }, i) => {
+          const mine = own(groupKey, label);
+          const stakeOwn = mine.reduce((s, c) => s + c.amount, 0);
+          const profitOwn = mine.reduce((s, c) => s + c.profit, 0);
+          const net = profitOwn - (groupStakeOf(groupKey) - stakeOwn);
           const value = exposureLayout === "market" ? Math.round(net) : net;
           const pos = at(el);
 
