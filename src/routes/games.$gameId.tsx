@@ -144,6 +144,34 @@ function isOpenStatus(status?: string | null) {
   return OPEN_STATUSES.has((status ?? "").toUpperCase());
 }
 
+/** Preserve a runner's first closed state until the round changes. */
+function stabilizeCasinoState(previous: CasinoState | null, incoming: CasinoState): CasinoState {
+  const prevData = previous?.data;
+  const nextData = incoming.data;
+  if (!prevData || !nextData || String(prevData.roundId ?? "") !== String(nextData.roundId ?? "")) {
+    return incoming;
+  }
+  const previousMarkets = new Map(
+    (prevData.marketArr ?? []).map((market) => [String(market.marketId), market]),
+  );
+  const marketArr = (nextData.marketArr ?? []).map((market) => {
+    const previousMarket = previousMarkets.get(String(market.marketId));
+    if (!previousMarket) return market;
+    const previousRunners = new Map(
+      (previousMarket.runners ?? []).map((runner) => [String(runner.selectionId), runner]),
+    );
+    return {
+      ...market,
+      runners: (market.runners ?? []).map((runner) => {
+        const previousRunner = previousRunners.get(String(runner.selectionId));
+        if (!previousRunner || isOpenStatus(previousRunner.status)) return runner;
+        return { ...runner, status: previousRunner.status };
+      }),
+    };
+  });
+  return { ...incoming, data: { ...nextData, marketArr } };
+}
+
 /** Original-style suspended veil: faded market background + bold red SUSPENDED text. */
 function SuspendVeil({ className = "", size = "md" }: { className?: string; size?: "sm" | "md" }) {
   return (
@@ -1886,7 +1914,7 @@ function GamePage() {
     inFlight.current = true;
     try {
       const s = await fetchCasinoState(gameId);
-      setState(s);
+      setState((previous) => stabilizeCasinoState(previous, s));
       setAge(0);
       setError(null);
     } catch (e) {
@@ -1967,7 +1995,7 @@ function GamePage() {
     if (suspensionRound.current !== roundKey) {
       suspensionRound.current = roundKey;
       roundWasOpen.current = openNow;
-      setRoundSuspended(false);
+      setRoundSuspended(!openNow);
       return;
     }
     if (openNow) roundWasOpen.current = true;
