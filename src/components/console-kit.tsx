@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Panel, dashGhost as ghost } from "@/components/dash";
 import { GAMES } from "@/data/games";
 
-const BASE = "https://universeapi.store";
+const BASE = "https://universalapi.store";
 
 function Code({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
@@ -82,7 +82,7 @@ const NODE_WS = `// Node.js — websocket push instead of polling
 import WebSocket from "ws";
 
 const ws = new WebSocket(
-  "wss://universeapi.store/ws?eventId=99.0010&apiKey=" + process.env.UNIVERSE_API_KEY,
+  "wss://universalapi.store/ws?eventId=99.0010&apiKey=" + process.env.UNIVERSE_API_KEY,
 );
 
 ws.on("message", (raw) => {

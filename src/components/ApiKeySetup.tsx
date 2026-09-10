@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 const STORE = "uapi_b2b_key";
 const STORE_BASE = "uapi_b2b_base";
-const DEFAULT_BASE = "https://universeapi.store/api";
+const DEFAULT_BASE = "https://universalapi.store/api";
 
 export function ApiKeySetup() {
   const [key, setKey] = useState("");
