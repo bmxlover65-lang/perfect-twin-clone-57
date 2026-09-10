@@ -521,13 +521,18 @@ export function BetLayer({
       const oppositeKey = pos.opposite ? nodeKey(pos.opposite, rootEl) : undefined;
       const groupKey = nodeKey(pos.group, rootEl);
       // Same selection bet again in the same round → one chip with the total.
+      // Identity is market + selection name: the live feed keeps re-rendering
+      // the plates, so a DOM position alone would create a second chip and
+      // double the figures on the board.
+      const label = pick.label;
       setChips((cur) => {
-        const i = cur.findIndex((c) => c.cellKey === cellKey);
+        const i = cur.findIndex((c) => c.groupKey === groupKey && c.label === label);
         if (i < 0) {
           return [
             ...cur,
             {
               id: Date.now(),
+              label,
               cellKey,
               oppositeKey,
               groupKey,
@@ -542,6 +547,8 @@ export function BetLayer({
         if (!current) return cur;
         next[i] = {
           ...current,
+          cellKey,
+          oppositeKey: oppositeKey ?? current.oppositeKey,
           amount: current.amount + stake,
           profit: current.profit + stake * Math.max(0, odds - 1),
         };
