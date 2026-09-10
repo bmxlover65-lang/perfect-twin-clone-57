@@ -321,10 +321,10 @@ export function BetLayer({
   // Reference-style liability/profit figures shown directly below the market plates.
   const [chips, setChips] = useState<{
     id: number;
-    cell: HTMLElement;
-    opposite?: HTMLElement | undefined;
+    cellKey: string;
+    oppositeKey?: string | undefined;
     /** Market block the bet belongs to — exposure nets inside this block only. */
-    group: HTMLElement;
+    groupKey: string;
     amount: number;
     profit: number;
   }[]>([]);
