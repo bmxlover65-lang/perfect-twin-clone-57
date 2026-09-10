@@ -1986,20 +1986,8 @@ function GamePage() {
   }, [gameId, roundKey, feedStatus]);
 
 
-  // auto settlement — every finished round settles my open bets
-  useEffect(() => {
-    results.slice(0, 6).forEach((r) => {
-      const rr = r as CasinoResult & { result?: string; selectionName?: string };
-      const winner = (rr.winner ?? rr.result ?? rr.selectionName ?? "").toString().trim();
-      const rid = String(r.roundId ?? "");
-      if (rid) settleRound(gameId, rid, winner);
-    });
-    const top = results[0] as (CasinoResult & { _id?: string; result?: string; selectionName?: string }) | undefined;
-    if (top && !top.roundId) {
-      const winner = (top.winner ?? top.result ?? top.selectionName ?? "").toString().trim();
-      settleLatest(gameId, String(top._id ?? winner), winner);
-    }
-  }, [results, gameId]);
+  {/* settlement now lives in the shared result feed above */}
+
 
 
   useEffect(() => {
