@@ -358,17 +358,20 @@ const OP_FLOW: { t: string; b: string }[] = [
 ];
 
 const ENDPOINTS: [string, string][] = [
-  ["GET /api/public/v1/me", "Is key ko casino / sports me se kya allowed hai"],
-  ["GET /api/public/v1/games", "Casino table list + ids"],
+  ["GET|POST /api/public/v1/me", "Is key ko casino / sports me se kya allowed hai"],
+  ["GET|POST /api/public/v1/games", "Casino table list + ids"],
   ["GET /api/public/v1/state?eventId=", "Live markets, cards, timer, results"],
   ["WS  /ws?eventId=&apiKey=", "Same state, pushed (recommended)"],
   ["POST /api/public/v1/bet", "Place a bet (debits your wallet)"],
-  ["GET /api/public/v1/bets?userId=", "Bet history for one player"],
-  ["GET /api/public/v1/balance?userId=", "Balance as your wallet reports it"],
+  ["POST /api/public/v1/cashout", "Crash games — cash out at a multiplier"],
+  ["POST /api/public/v1/settle", "Settle a bet: won / lost / void"],
+  ["GET|POST /api/public/v1/bets?userId=", "Bet history for one player"],
+  ["POST /api/public/v1/balance", "Balance as your wallet reports it — body { userId }"],
   ["GET /api/public/v1/sports/events?sportId=", "In-play + pre-match events"],
   ["GET /api/public/v1/sports/{sportId}/{exEventId}/odds", "Full odds ladder"],
   ["WS  /ws/sports?sportId=&exEventId=&apiKey=", "Odds push"],
 ];
+
 
 const GAME_JSON = JSON.stringify(
   {
