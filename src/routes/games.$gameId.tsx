@@ -2492,44 +2492,28 @@ function lucky7Label(winner: string): string | null {
 
 
 
+/**
+ * Winner banner — driven purely by the real-time result feed: it appears with
+ * the declared round and disappears when the next round opens.
+ */
 function ResultBanner({
-  results,
+  result,
   gameId,
   gameName,
-  liveWinner,
-  round,
 }: {
-  results: CasinoResult[];
+  result: FeedResult | null;
   gameId?: string;
   gameName?: string | null;
-  liveWinner?: string;
-  round?: string;
 }) {
-
-  const top = results[0] as AnyResult | undefined;
-  const live = (liveWinner ?? "").trim();
-  const key = live ? `live|${round ?? ""}` : String(top?.roundId ?? top?._id ?? "");
-  const winner =
-    live || deriveWinner(top, !!gameId && LUCKY7_GAMES.includes(gameId));
-  const seen = useRef<string>("");
-  const init = useRef(false);
+  const winner = (result?.winner ?? "").trim();
+  const key = result ? `${result.round}|${winner}` : "";
   const [show, setShow] = useState(false);
 
-  // A new round always clears the previous winner banner.
   useEffect(() => {
-    setShow(false);
-  }, [round]);
-
-  useEffect(() => {
-    // a winner already on screen at load is stale — never flash it
-    if (!init.current) {
-      init.current = true;
-      if (winner) seen.current = key;
+    if (!key || !winner) {
+      setShow(false);
       return;
     }
-    if (!key || !winner) return;
-    if (seen.current === key) return;
-    seen.current = key;
     setShow(true);
     // safety cap so the banner never sticks if no new round arrives
     const t = setTimeout(() => setShow(false), 30000);
