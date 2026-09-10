@@ -17,6 +17,11 @@ const schema = z.object({
 export const Route = createFileRoute("/api/public/v1/settle")({
   server: {
     handlers: {
+      GET: async () =>
+        Response.json(
+          { status: "error", code: "method_not_allowed", message: "Use POST with a JSON body" },
+          { status: 405 },
+        ),
       POST: async ({ request }) => {
         const auth = await authenticateOperator(request);
         if (!auth.ok) return jsonError(auth);
@@ -24,7 +29,11 @@ export const Route = createFileRoute("/api/public/v1/settle")({
         const parsed = schema.safeParse(await request.json().catch(() => null));
         if (!parsed.success) {
           return Response.json(
-            { status: "error", code: "bad_request", message: "userId, reference and outcome are required" },
+            {
+              status: "error",
+              code: "bad_request",
+              message: "userId, reference and outcome are required",
+            },
             { status: 400 },
           );
         }
@@ -39,7 +48,10 @@ export const Route = createFileRoute("/api/public/v1/settle")({
           .maybeSingle();
 
         if (!bet || bet.operator_user_id !== userId) {
-          return Response.json({ status: "error", code: "not_found", message: "Bet not found" }, { status: 404 });
+          return Response.json(
+            { status: "error", code: "not_found", message: "Bet not found" },
+            { status: 404 },
+          );
         }
         if (bet.status !== "open") {
           return Response.json({ status: "ok", duplicate: true, payout: 0 });
