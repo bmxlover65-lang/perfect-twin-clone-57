@@ -164,8 +164,9 @@ function stabilizeCasinoState(previous: CasinoState | null, incoming: CasinoStat
       ...market,
       runners: (market.runners ?? []).map((runner) => {
         const previousRunner = previousRunners.get(String(runner.selectionId));
-        if (!previousRunner || isOpenStatus(previousRunner.status)) return runner;
-        return { ...runner, status: previousRunner.status };
+        const previousStatus = previousRunner?.status;
+        if (!previousStatus || isOpenStatus(previousStatus)) return runner;
+        return { ...runner, status: previousStatus };
       }),
     };
   });
