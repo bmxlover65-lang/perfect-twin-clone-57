@@ -471,9 +471,11 @@ export function BetLayer({
               id: Date.now(),
               cell: pos.cell,
               opposite: pos.opposite,
+              group: pos.group,
               amount: stake,
               profit: stake * Math.max(0, odds - 1),
             },
+
           ];
         }
         const next = [...cur];
