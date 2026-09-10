@@ -505,8 +505,9 @@ export function BetLayer({
       return;
     }
     const pos = cellPos.current;
+    const rootEl = rootRef.current;
     close();
-    if (pos) {
+    if (pos && rootEl) {
       const markExposure = (element: HTMLElement) => {
         const plate = element.closest<HTMLElement>("[data-market-plate]")
           ?? element.querySelector<HTMLElement>("[data-market-plate]")
@@ -515,17 +516,20 @@ export function BetLayer({
       };
       markExposure(pos.cell);
       if (pos.opposite) markExposure(pos.opposite);
+      const cellKey = nodeKey(pos.cell, rootEl);
+      const oppositeKey = pos.opposite ? nodeKey(pos.opposite, rootEl) : undefined;
+      const groupKey = nodeKey(pos.group, rootEl);
       // Same selection bet again in the same round → one chip with the total.
       setChips((cur) => {
-        const i = cur.findIndex((c) => c.cell === pos.cell);
+        const i = cur.findIndex((c) => c.cellKey === cellKey);
         if (i < 0) {
           return [
             ...cur,
             {
               id: Date.now(),
-              cell: pos.cell,
-              opposite: pos.opposite,
-              group: pos.group,
+              cellKey,
+              oppositeKey,
+              groupKey,
               amount: stake,
               profit: stake * Math.max(0, odds - 1),
             },
