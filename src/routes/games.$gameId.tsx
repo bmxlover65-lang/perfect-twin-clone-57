@@ -2482,8 +2482,6 @@ function GamePage() {
 
 
 /** "RESULT DECLARED" overlay — shows the winning selection right after a round settles. */
-const LUCKY7_GAMES = ["99.0030", "99.0010", "99.0019"];
-
 function lucky7Label(winner: string): string | null {
   const w = winner.trim().toUpperCase();
   if (/^(H|HIGH)\b|HIGH\s*CARD|8\s*TO\s*K/.test(w)) return "HIGH CARD ( 8 TO K ) WIN";
@@ -2492,46 +2490,6 @@ function lucky7Label(winner: string): string | null {
   return null;
 }
 
-type AnyResult = CasinoResult & { _id?: string; result?: string; selectionName?: string };
-
-/** Winner label from a result row — flat `winner` field or nested market results. */
-function deriveWinner(r?: AnyResult, lucky7?: boolean): string {
-  if (!r) return "";
-  const flat = (r.winner ?? r.result ?? r.selectionName ?? "").toString().trim();
-  const markets = r.results ?? [];
-  // Lucky 7 rule: when the dealt card is a 7 the round is a TIE — neither
-  // LOW nor HIGH wins, so the feed reports no WINNER-market winner.
-  if (lucky7) {
-    const cardCode = String((r as { cards?: { card?: string } }).cards?.card ?? "");
-    const clean = cardCode.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
-    let rank = clean.slice(1);
-    if (rank === "T") rank = "10";
-    if (rank === "7") return "TIE";
-  }
-  // Prefer an explicit WINNER market, but fall back to ANY market that has a
-  // declared winning runner — some tables never publish a "WINNER" market.
-  const ordered = [
-    ...markets.filter((m) => /winner/i.test(m.marketName ?? "")),
-    ...markets.filter((m) => !/winner/i.test(m.marketName ?? "")),
-  ];
-  for (const nested of ordered) {
-    const nRunners = nested?.runners as unknown;
-    let derived = "";
-    if (Array.isArray(nRunners)) {
-      const w = (nRunners as { selectionId?: string | number; result?: string }[]).find(
-        (x) => String(x.result ?? "").toUpperCase() === "WINNER",
-      );
-      if (w) derived = (nested.runnersName ?? {})[String(w.selectionId)] ?? "";
-    } else if (nRunners && typeof nRunners === "object") {
-      const id = Object.entries(nRunners as Record<string, string>).find(
-        ([, v]) => String(v).toUpperCase() === "WINNER",
-      )?.[0];
-      if (id) derived = (nested.runnersName ?? {})[id] ?? "";
-    }
-    if (derived) return derived;
-  }
-  return flat.replace(/_/g, " ");
-}
 
 
 function ResultBanner({
