@@ -688,26 +688,28 @@ export function BetLayer({
         // Bets on several selections of the SAME market net out: every
         // selection shows one figure — its own profit minus the stakes
         // riding on the other selections of that market only.
-        const cells: { el: HTMLElement; group: HTMLElement }[] = [];
-        const push = (el: HTMLElement | undefined, group: HTMLElement) => {
-          if (el && el.isConnected && !cells.some((c) => c.el === el)) cells.push({ el, group });
+        const cells: { key: string; groupKey: string }[] = [];
+        const push = (key: string | undefined, groupKey: string) => {
+          if (key && !cells.some((c) => c.key === key)) cells.push({ key, groupKey });
         };
         chips.forEach((c) => {
-          push(c.cell, c.group);
-          push(c.opposite, c.group);
+          push(c.cellKey, c.groupKey);
+          push(c.oppositeKey, c.groupKey);
         });
-        const inGroup = (group: HTMLElement) =>
-          chips.filter((c) => c.group === group || group.contains(c.cell));
-        const stakeOf = (el: HTMLElement) =>
-          chips.filter((c) => c.cell === el).reduce((s, c) => s + c.amount, 0);
-        const profitOf = (el: HTMLElement) =>
-          chips.filter((c) => c.cell === el).reduce((s, c) => s + c.profit, 0);
+        const stakeOf = (key: string) =>
+          chips.filter((c) => c.cellKey === key).reduce((s, c) => s + c.amount, 0);
+        const profitOf = (key: string) =>
+          chips.filter((c) => c.cellKey === key).reduce((s, c) => s + c.profit, 0);
+        const groupStakeOf = (groupKey: string) =>
+          chips.filter((c) => c.groupKey === groupKey).reduce((s, c) => s + c.amount, 0);
 
-        return cells.map(({ el, group }, i) => {
-          const groupStake = inGroup(group).reduce((s, c) => s + c.amount, 0);
-          const net = profitOf(el) - (groupStake - stakeOf(el));
+        return cells.map(({ key, groupKey }, i) => {
+          const el = nodeFromKey(key, root);
+          if (!el || !el.isConnected) return null;
+          const net = profitOf(key) - (groupStakeOf(groupKey) - stakeOf(key));
           const value = exposureLayout === "market" ? Math.round(net) : net;
           const pos = at(el);
+
 
           return (
             <span
