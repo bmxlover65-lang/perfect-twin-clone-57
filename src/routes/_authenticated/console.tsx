@@ -67,6 +67,7 @@ import {
 
 import { AdminGuide } from "@/components/dash-guide";
 import { AdminKit } from "@/components/console-kit";
+import { GameControl } from "@/components/game-control";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -77,6 +78,7 @@ const TABS = [
   { id: "bets", label: "Bet history" },
   { id: "users", label: "Users & GGR" },
   { id: "rejected", label: "Rejected bets" },
+  { id: "gamecontrol", label: "Game control" },
   { id: "guide", label: "Guide / Kit" },
 ];
 
@@ -1016,6 +1018,8 @@ function ConsolePage() {
           </Panel>
           ) : null}
 
+
+          {tab === "gamecontrol" ? <GameControl /> : null}
 
           {tab === "guide" ? (
             <>
