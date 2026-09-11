@@ -9,16 +9,24 @@ import {
 } from "@/lib/admin";
 import { clearTelemetry, useTelemetry } from "@/lib/telemetry";
 
-const GAMES: { id: string; name: string; options: string[] }[] = [
-  { id: "88.0019", name: "Lucky 0 to 9", options: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"] },
-  { id: "88.0020", name: "Dream Catcher", options: ["1", "2", "5", "10", "20", "40"] },
-  { id: "88.0021", name: "Heads & Tails", options: ["HEADS", "TAILS"] },
-  {
-    id: "88.0023",
-    name: "Balloon (crash multiplier)",
-    options: ["1.10", "1.50", "2.00", "3.00", "5.00", "10.00", "25.00"],
-  },
-];
+/** Hand-tuned option lists where the feed labels differ from the game data. */
+const CUSTOM_OPTIONS: Record<string, string[]> = {
+  "88.0019": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+  "88.0020": ["1", "2", "5", "10", "20", "40"],
+  "88.0021": ["HEADS", "TAILS"],
+  "88.0023": ["1.10", "1.50", "2.00", "3.00", "5.00", "10.00", "25.00"],
+};
+
+/** Every casino table (VIMAAN has its own crash card below). */
+const CONTROL_GAMES: { id: string; name: string; options: string[] }[] = GAME_LIST.filter(
+  (g) => g.kind !== "aviator",
+).map((g) => {
+  const fromMarkets = g.markets[0]?.runners ?? [];
+  const options =
+    CUSTOM_OPTIONS[g.id] ??
+    Array.from(new Set([...fromMarkets, ...g.results].map((s) => s.trim()).filter(Boolean)));
+  return { id: g.id, name: g.name, options };
+});
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
