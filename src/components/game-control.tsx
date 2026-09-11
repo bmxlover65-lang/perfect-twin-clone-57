@@ -1,6 +1,12 @@
 import type React from "react";
 import { useEffect, useState } from "react";
-import { type AdminConfig, DEFAULT_CONFIG, readConfig, writeConfig } from "@/lib/admin";
+import {
+  type AdminConfig,
+  DEFAULT_CONFIG,
+  readConfig,
+  setAdminStored,
+  writeConfig,
+} from "@/lib/admin";
 import { clearTelemetry, useTelemetry } from "@/lib/telemetry";
 
 const GAMES: { id: string; name: string; options: string[] }[] = [

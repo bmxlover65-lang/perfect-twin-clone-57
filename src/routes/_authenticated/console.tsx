@@ -1019,6 +1019,8 @@ function ConsolePage() {
           ) : null}
 
 
+          {tab === "gamecontrol" ? <GameControl /> : null}
+
           {tab === "guide" ? (
             <>
               <AdminKit />
