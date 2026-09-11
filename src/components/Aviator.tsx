@@ -1162,13 +1162,42 @@ export function Aviator() {
           shown = 1;
         }
 
+        // admin crash control (console → Game control → VIMAAN)
+        const ctl = avRef.current;
+        const cap =
+          ctl && ctl.mode === "never"
+            ? 1
+            : ctl && ctl.mode === "forced"
+              ? Math.max(1, ctl.crash)
+              : Infinity;
+
+        const doCrash = (crash: number) => {
+          if (fPhase !== "crashed") {
+            fPhase = "crashed";
+            crashRef.current = crash;
+            fPeak = crash;
+            shown = crash;
+            setMultiplier(crash);
+            setPhase("crashed");
+            setRound((r) => r + 1);
+            bustAll();
+          } else {
+            shown = crash;
+            setMultiplier(crash);
+          }
+        };
+
         if (live.status === "RUN") {
-          fPeak = Math.max(fPeak, live.mult);
-          if (fPhase !== "flying") {
+          fPeak = Math.min(Math.max(fPeak, live.mult), cap);
+          if (fPhase !== "flying" && fPhase !== "crashed") {
             fPhase = "flying";
             shown = Math.min(shown, fPeak);
             stageBets();
             setPhase("flying");
+          }
+          if (cap !== Infinity && fPeak >= cap) {
+            doCrash(cap);
+            return;
           }
           // ease toward the feed value so the number climbs step by step
           const gap = fPeak - shown;
@@ -1177,7 +1206,7 @@ export function Aviator() {
           setMultiplier(shown);
           botCashouts(shown);
         } else if (live.status === "BLAST") {
-          const crash = Math.max(fPeak, live.mult);
+          const crash = Math.min(Math.max(fPeak, live.mult), cap);
           if (fPhase !== "crashed") {
             fPhase = "crashed";
             crashRef.current = crash;
