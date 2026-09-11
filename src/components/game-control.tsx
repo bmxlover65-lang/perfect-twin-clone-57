@@ -49,6 +49,7 @@ export function GameControl() {
   const tele = useTelemetry();
 
   useEffect(() => {
+    setAdminStored(true);
     setCfg(readConfig());
   }, []);
 
