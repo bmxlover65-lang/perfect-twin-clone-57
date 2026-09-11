@@ -8,6 +8,7 @@ import {
   writeConfig,
 } from "@/lib/admin";
 import { clearTelemetry, useTelemetry } from "@/lib/telemetry";
+import { GAMES as GAME_LIST } from "@/data/games";
 
 /** Hand-tuned option lists where the feed labels differ from the game data. */
 const CUSTOM_OPTIONS: Record<string, string[]> = {
@@ -172,7 +173,7 @@ export function GameControl() {
 
       <h2 className="mt-6 text-[1.05rem] font-extrabold text-foreground">Result controls</h2>
       <div className="mt-3 space-y-3">
-        {GAMES.map((g) => {
+        {CONTROL_GAMES.map((g) => {
           const o = cfg.games[g.id] ?? { mode: "real" as const, value: g.options[0]! };
           return (
             <div key={g.id} className="rounded-lg border border-border bg-card p-4">
