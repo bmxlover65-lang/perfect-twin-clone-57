@@ -561,7 +561,7 @@ async function mergeBackupPrices(splat: string, text: string) {
 }
 
 
-async function proxy(splat: string, search: string, body?: string, origin = "") {
+export async function proxy(splat: string, search: string, body?: string, origin = "") {
   const snapshotKey = sportsSnapshotKey(splat, search);
   try {
     if (splat === "stream") {
