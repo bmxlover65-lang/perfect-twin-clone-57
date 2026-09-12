@@ -30,6 +30,8 @@ import { Route as ApiPublicV1CashoutRouteImport } from './routes/api/public/v1/c
 import { Route as ApiPublicV1GamesRouteImport } from './routes/api/public/v1/games'
 import { Route as ApiPublicV1MeRouteImport } from './routes/api/public/v1/me'
 import { Route as ApiPublicV1SettleRouteImport } from './routes/api/public/v1/settle'
+import { Route as ApiPublicV1SportsRouteImport } from './routes/api/public/v1/sports'
+import { Route as ApiPublicV1SportsSplatRouteImport } from './routes/api/public/v1/sports.$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -135,6 +137,16 @@ const ApiPublicV1SettleRoute = ApiPublicV1SettleRouteImport.update({
   path: '/api/public/v1/settle',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1SportsRoute = ApiPublicV1SportsRouteImport.update({
+  id: '/api/public/v1/sports',
+  path: '/api/public/v1/sports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1SportsSplatRoute = ApiPublicV1SportsSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => ApiPublicV1SportsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -157,6 +169,8 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/games': typeof ApiPublicV1GamesRoute
   '/api/public/v1/me': typeof ApiPublicV1MeRoute
   '/api/public/v1/settle': typeof ApiPublicV1SettleRoute
+  '/api/public/v1/sports': typeof ApiPublicV1SportsRouteWithChildren
+  '/api/public/v1/sports/$': typeof ApiPublicV1SportsSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -179,6 +193,8 @@ export interface FileRoutesByTo {
   '/api/public/v1/games': typeof ApiPublicV1GamesRoute
   '/api/public/v1/me': typeof ApiPublicV1MeRoute
   '/api/public/v1/settle': typeof ApiPublicV1SettleRoute
+  '/api/public/v1/sports': typeof ApiPublicV1SportsRouteWithChildren
+  '/api/public/v1/sports/$': typeof ApiPublicV1SportsSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -203,6 +219,8 @@ export interface FileRoutesById {
   '/api/public/v1/games': typeof ApiPublicV1GamesRoute
   '/api/public/v1/me': typeof ApiPublicV1MeRoute
   '/api/public/v1/settle': typeof ApiPublicV1SettleRoute
+  '/api/public/v1/sports': typeof ApiPublicV1SportsRouteWithChildren
+  '/api/public/v1/sports/$': typeof ApiPublicV1SportsSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -227,6 +245,8 @@ export interface FileRouteTypes {
     | '/api/public/v1/games'
     | '/api/public/v1/me'
     | '/api/public/v1/settle'
+    | '/api/public/v1/sports'
+    | '/api/public/v1/sports/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -249,6 +269,8 @@ export interface FileRouteTypes {
     | '/api/public/v1/games'
     | '/api/public/v1/me'
     | '/api/public/v1/settle'
+    | '/api/public/v1/sports'
+    | '/api/public/v1/sports/$'
   id:
     | '__root__'
     | '/'
@@ -272,6 +294,8 @@ export interface FileRouteTypes {
     | '/api/public/v1/games'
     | '/api/public/v1/me'
     | '/api/public/v1/settle'
+    | '/api/public/v1/sports'
+    | '/api/public/v1/sports/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -294,6 +318,7 @@ export interface RootRouteChildren {
   ApiPublicV1GamesRoute: typeof ApiPublicV1GamesRoute
   ApiPublicV1MeRoute: typeof ApiPublicV1MeRoute
   ApiPublicV1SettleRoute: typeof ApiPublicV1SettleRoute
+  ApiPublicV1SportsRoute: typeof ApiPublicV1SportsRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -445,6 +470,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1SettleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/sports': {
+      id: '/api/public/v1/sports'
+      path: '/api/public/v1/sports'
+      fullPath: '/api/public/v1/sports'
+      preLoaderRoute: typeof ApiPublicV1SportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/sports/$': {
+      id: '/api/public/v1/sports/$'
+      path: '/$'
+      fullPath: '/api/public/v1/sports/$'
+      preLoaderRoute: typeof ApiPublicV1SportsSplatRouteImport
+      parentRoute: typeof ApiPublicV1SportsRoute
+    }
   }
 }
 
@@ -460,6 +499,17 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface ApiPublicV1SportsRouteChildren {
+  ApiPublicV1SportsSplatRoute: typeof ApiPublicV1SportsSplatRoute
+}
+
+const ApiPublicV1SportsRouteChildren: ApiPublicV1SportsRouteChildren = {
+  ApiPublicV1SportsSplatRoute: ApiPublicV1SportsSplatRoute,
+}
+
+const ApiPublicV1SportsRouteWithChildren =
+  ApiPublicV1SportsRoute._addFileChildren(ApiPublicV1SportsRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -481,6 +531,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1GamesRoute: ApiPublicV1GamesRoute,
   ApiPublicV1MeRoute: ApiPublicV1MeRoute,
   ApiPublicV1SettleRoute: ApiPublicV1SettleRoute,
+  ApiPublicV1SportsRoute: ApiPublicV1SportsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
