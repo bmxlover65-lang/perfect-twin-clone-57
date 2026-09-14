@@ -313,3 +313,135 @@ export const myWhitelistRemove = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/** Open (unsettled) rounds of this operator, grouped by game + round. */
+export const myOpenRounds = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ operatorId: z.string().uuid(), limit: z.number().max(500).default(300) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    // RLS: owner (or admin) only.
+    const { data: op, error } = await context.supabase
+      .from("operators")
+      .select("id")
+      .eq("id", data.operatorId)
+      .single();
+    if (error || !op) throw new Error("Operator not found");
+
+    const { data: rows } = await context.supabase
+      .from("bets")
+      .select("id, game_id, round_id, operator_user_id, selection, odds, stake, created_at, status")
+      .eq("operator_id", data.operatorId)
+      .eq("status", "open")
+      .order("created_at", { ascending: false })
+      .limit(data.limit);
+
+    const groups = new Map<
+      string,
+      {
+        gameId: string;
+        roundId: string;
+        bets: number;
+        staked: number;
+        users: number;
+        selections: string[];
+        last: string;
+      }
+    >();
+    const seenUsers = new Map<string, Set<string>>();
+
+    for (const b of (rows ?? []) as Array<Record<string, any>>) {
+      const key = `${b['game_id']}|${b['round_id']}`;
+      const g =
+        groups.get(key) ??
+        groups
+          .set(key, {
+            gameId: String(b['game_id']),
+            roundId: String(b['round_id']),
+            bets: 0,
+            staked: 0,
+            users: 0,
+            selections: [],
+            last: "",
+          })
+          .get(key)!;
+      g.bets += 1;
+      g.staked += Number(b['stake'] ?? 0);
+      const sel = String(b['selection'] ?? "");
+      if (sel && !g.selections.includes(sel)) g.selections.push(sel);
+      if (!g.last || String(b['created_at']) > g.last) g.last = String(b['created_at']);
+      const us = seenUsers.get(key) ?? new Set<string>();
+      us.add(String(b['operator_user_id']));
+      seenUsers.set(key, us);
+    }
+    for (const [key, g] of groups) g.users = seenUsers.get(key)?.size ?? 0;
+
+    return {
+      rounds: [...groups.values()].sort((a, b) => (a.last > b.last ? -1 : 1)),
+      bets: rows ?? [],
+    };
+  });
+
+/** Operator declares the result of one of its own open rounds. */
+export const mySettleRound = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        operatorId: z.string().uuid(),
+        gameId: z.string().min(1).max(80),
+        roundId: z.string().min(1).max(120),
+        winners: z.array(z.string().min(1).max(80)).default([]),
+        voidRound: z.boolean().default(false),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: op, error } = await context.supabase
+      .from("operators")
+      .select("id")
+      .eq("id", data.operatorId)
+      .single();
+    if (error || !op) throw new Error("Operator not found");
+    if (!data.voidRound && data.winners.length === 0) throw new Error("Pick at least one winning selection");
+
+    const { settleOperatorRound } = await import("@/lib/operator-settle.server");
+    return settleOperatorRound({
+      operatorId: data.operatorId,
+      gameId: data.gameId,
+      roundId: data.roundId,
+      winners: data.winners,
+      voidRound: data.voidRound,
+    });
+  });
+
+/** Operator settles a single open bet (won / lost / void). */
+export const mySettleBet = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        operatorId: z.string().uuid(),
+        betId: z.string().uuid(),
+        outcome: z.enum(["won", "lost", "void"]),
+        multiplier: z.number().min(0).max(10_000).optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: op, error } = await context.supabase
+      .from("operators")
+      .select("id")
+      .eq("id", data.operatorId)
+      .single();
+    if (error || !op) throw new Error("Operator not found");
+
+    const { settleOperatorBet } = await import("@/lib/operator-settle.server");
+    return settleOperatorBet({
+      operatorId: data.operatorId,
+      betId: data.betId,
+      outcome: data.outcome,
+      ...(data.multiplier !== undefined ? { multiplier: data.multiplier } : {}),
+    });
+  });
