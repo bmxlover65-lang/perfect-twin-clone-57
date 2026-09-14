@@ -502,13 +502,45 @@ function OperatorPage() {
                 <p className="mb-3 text-xs text-muted-foreground">
                   Jo round settle nahi hua, uska result aap khud de sakte hain. Winner select karke "Declare
                   result" dabayein — winning bets aapke wallet callback pe credit ho jayengi, losing bets 0 pe
-                  close hongi. "Void round" sabka stake refund kar deta hai.
+                  close hongi. "Void round" sabka stake refund kar deta hai. Casino aur sports dono ke round
+                  yahin dikhte hain.
                 </p>
-                {!pending.rounds.length ? (
+                <div className="mb-3 flex flex-wrap gap-2">
+                  {(
+                    [
+                      ["all", "Sab (All)"],
+                      ["casino", "Casino"],
+                      ["sports", "Sports"],
+                    ] as const
+                  ).map(([v, l]) => (
+                    <button
+                      key={v}
+                      onClick={() => setResultFilter(v)}
+                      className={`rounded-md border px-3 py-1 text-xs ${
+                        resultFilter === v
+                          ? "border-primary bg-primary/15 text-foreground"
+                          : "border-border text-muted-foreground"
+                      }`}
+                    >
+                      {l}
+                    </button>
+                  ))}
+                </div>
+                {!pending.rounds.filter(
+                  (r: any) =>
+                    resultFilter === "all" ||
+                    (resultFilter === "sports") === isSportsGameId(r.gameId),
+                ).length ? (
                   <p className="text-sm text-muted-foreground">Koi unsettled round nahi hai.</p>
                 ) : null}
                 <div className="space-y-3">
-                  {pending.rounds.map((r: any) => {
+                  {pending.rounds
+                    .filter(
+                      (r: any) =>
+                        resultFilter === "all" ||
+                        (resultFilter === "sports") === isSportsGameId(r.gameId),
+                    )
+                    .map((r: any) => {
                     const key = `${r.gameId}|${r.roundId}`;
                     const picked = winners[key] ?? [];
                     const toggle = (s: string) =>
