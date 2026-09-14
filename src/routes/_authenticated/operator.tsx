@@ -91,6 +91,12 @@ function OperatorPage() {
   const [testAction, setTestAction] = useState<"balance" | "debit" | "credit" | "rollback">("balance");
   const [testAmount, setTestAmount] = useState("10");
 
+  const openRoundsFn = useServerFn(myOpenRounds);
+  const settleRoundFn = useServerFn(mySettleRound);
+  const settleBetFn = useServerFn(mySettleBet);
+  const [pending, setPending] = useState<{ rounds: any[]; bets: any[] }>({ rounds: [], bets: [] });
+  const [winners, setWinners] = useState<Record<string, string[]>>({});
+  const [manual, setManual] = useState<Record<string, string>>({});
 
   const run = async (fn: () => Promise<void>) => {
     setErr("");
