@@ -685,7 +685,11 @@ function OperatorPage() {
                           </td>
                         </tr>
                       ))}
-                      {!pending.bets.length ? (
+                      {!pending.bets.filter(
+                        (b: any) =>
+                          resultFilter === "all" ||
+                          (resultFilter === "sports") === isSportsGameId(b.game_id),
+                      ).length ? (
                         <tr>
                           <td className="p-3 text-muted-foreground" colSpan={7}>
                             Koi open bet nahi.
