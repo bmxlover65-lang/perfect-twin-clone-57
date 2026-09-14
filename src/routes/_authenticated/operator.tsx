@@ -113,8 +113,9 @@ function OperatorPage() {
       setSum(s);
       setCbUrl(s.operator?.callback_url ?? "");
       setCbLogs(await logsFn({ data: { operatorId: id, limit: 25 } }));
+      setPending(await openRoundsFn({ data: { operatorId: id, limit: 300 } }));
     },
-    [summaryFn, logsFn],
+    [summaryFn, logsFn, openRoundsFn],
   );
 
   useEffect(() => {
