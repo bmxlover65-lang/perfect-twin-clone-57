@@ -55,6 +55,7 @@ const TABS = [
   { id: "bets", label: "Bet history" },
   { id: "rejected", label: "Rejected bets" },
   { id: "results", label: "Declare result" },
+  { id: "sports", label: "Sports control" },
   { id: "callback", label: "Callback URL" },
   { id: "guide", label: "Guide / Kit" },
 ];
