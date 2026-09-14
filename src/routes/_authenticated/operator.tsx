@@ -47,6 +47,7 @@ import {
 
 import { OperatorGuide } from "@/components/dash-guide";
 import { AdminKit } from "@/components/console-kit";
+import { OperatorSports } from "@/components/operator-sports";
 
 const TABS = [
   { id: "overview", label: "Overview" },
