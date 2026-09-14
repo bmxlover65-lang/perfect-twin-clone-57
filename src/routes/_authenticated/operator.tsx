@@ -47,7 +47,7 @@ import {
 
 import { OperatorGuide } from "@/components/dash-guide";
 import { AdminKit } from "@/components/console-kit";
-import { OperatorSports } from "@/components/operator-sports";
+import { OperatorSports, isSportsGameId } from "@/components/operator-sports";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -98,6 +98,7 @@ function OperatorPage() {
   const settleBetFn = useServerFn(mySettleBet);
   const [pending, setPending] = useState<{ rounds: any[]; bets: any[] }>({ rounds: [], bets: [] });
   const [winners, setWinners] = useState<Record<string, string[]>>({});
+  const [resultFilter, setResultFilter] = useState<"all" | "casino" | "sports">("all");
   const [manual, setManual] = useState<Record<string, string>>({});
 
   const run = async (fn: () => Promise<void>) => {
@@ -501,13 +502,45 @@ function OperatorPage() {
                 <p className="mb-3 text-xs text-muted-foreground">
                   Jo round settle nahi hua, uska result aap khud de sakte hain. Winner select karke "Declare
                   result" dabayein — winning bets aapke wallet callback pe credit ho jayengi, losing bets 0 pe
-                  close hongi. "Void round" sabka stake refund kar deta hai.
+                  close hongi. "Void round" sabka stake refund kar deta hai. Casino aur sports dono ke round
+                  yahin dikhte hain.
                 </p>
-                {!pending.rounds.length ? (
+                <div className="mb-3 flex flex-wrap gap-2">
+                  {(
+                    [
+                      ["all", "Sab (All)"],
+                      ["casino", "Casino"],
+                      ["sports", "Sports"],
+                    ] as const
+                  ).map(([v, l]) => (
+                    <button
+                      key={v}
+                      onClick={() => setResultFilter(v)}
+                      className={`rounded-md border px-3 py-1 text-xs ${
+                        resultFilter === v
+                          ? "border-primary bg-primary/15 text-foreground"
+                          : "border-border text-muted-foreground"
+                      }`}
+                    >
+                      {l}
+                    </button>
+                  ))}
+                </div>
+                {!pending.rounds.filter(
+                  (r: any) =>
+                    resultFilter === "all" ||
+                    (resultFilter === "sports") === isSportsGameId(r.gameId),
+                ).length ? (
                   <p className="text-sm text-muted-foreground">Koi unsettled round nahi hai.</p>
                 ) : null}
                 <div className="space-y-3">
-                  {pending.rounds.map((r: any) => {
+                  {pending.rounds
+                    .filter(
+                      (r: any) =>
+                        resultFilter === "all" ||
+                        (resultFilter === "sports") === isSportsGameId(r.gameId),
+                    )
+                    .map((r: any) => {
                     const key = `${r.gameId}|${r.roundId}`;
                     const picked = winners[key] ?? [];
                     const toggle = (s: string) =>
@@ -546,7 +579,16 @@ function OperatorPage() {
                       <div key={key} className="rounded-lg border border-border p-3">
                         <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                           <span className="font-bold text-foreground">
-                            {r.gameId} · round {r.roundId}
+                            {r.gameId} · round {r.roundId}{" "}
+                            <span
+                              className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${
+                                isSportsGameId(r.gameId)
+                                  ? "bg-blue-500/15 text-blue-400"
+                                  : "bg-amber-500/15 text-amber-400"
+                              }`}
+                            >
+                              {isSportsGameId(r.gameId) ? "Sports" : "Casino"}
+                            </span>
                           </span>
                           <span className="text-muted-foreground">
                             {r.bets} bets · {r.users} users · staked {inr(r.staked)}
@@ -602,7 +644,13 @@ function OperatorPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {pending.bets.map((b: any) => (
+                      {pending.bets
+                        .filter(
+                          (b: any) =>
+                            resultFilter === "all" ||
+                            (resultFilter === "sports") === isSportsGameId(b.game_id),
+                        )
+                        .map((b: any) => (
                         <tr key={b.id} className="border-t border-border">
                           <td className="p-2">{new Date(b.created_at).toLocaleString()}</td>
                           <td className="p-2 font-mono">{b.operator_user_id}</td>
@@ -637,7 +685,11 @@ function OperatorPage() {
                           </td>
                         </tr>
                       ))}
-                      {!pending.bets.length ? (
+                      {!pending.bets.filter(
+                        (b: any) =>
+                          resultFilter === "all" ||
+                          (resultFilter === "sports") === isSportsGameId(b.game_id),
+                      ).length ? (
                         <tr>
                           <td className="p-3 text-muted-foreground" colSpan={7}>
                             Koi open bet nahi.
