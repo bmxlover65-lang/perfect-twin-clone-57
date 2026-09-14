@@ -644,7 +644,13 @@ function OperatorPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {pending.bets.map((b: any) => (
+                      {pending.bets
+                        .filter(
+                          (b: any) =>
+                            resultFilter === "all" ||
+                            (resultFilter === "sports") === isSportsGameId(b.game_id),
+                        )
+                        .map((b: any) => (
                         <tr key={b.id} className="border-t border-border">
                           <td className="p-2">{new Date(b.created_at).toLocaleString()}</td>
                           <td className="p-2 font-mono">{b.operator_user_id}</td>
