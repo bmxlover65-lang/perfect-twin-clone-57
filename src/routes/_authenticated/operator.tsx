@@ -579,7 +579,16 @@ function OperatorPage() {
                       <div key={key} className="rounded-lg border border-border p-3">
                         <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                           <span className="font-bold text-foreground">
-                            {r.gameId} · round {r.roundId}
+                            {r.gameId} · round {r.roundId}{" "}
+                            <span
+                              className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${
+                                isSportsGameId(r.gameId)
+                                  ? "bg-blue-500/15 text-blue-400"
+                                  : "bg-amber-500/15 text-amber-400"
+                              }`}
+                            >
+                              {isSportsGameId(r.gameId) ? "Sports" : "Casino"}
+                            </span>
                           </span>
                           <span className="text-muted-foreground">
                             {r.bets} bets · {r.users} users · staked {inr(r.staked)}
