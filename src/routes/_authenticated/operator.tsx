@@ -493,6 +493,173 @@ function OperatorPage() {
             </Panel>
           ) : null}
 
+          {tab === "results" ? (
+            <>
+              <Panel title="Pending rounds — declare your own result">
+                <p className="mb-3 text-xs text-muted-foreground">
+                  Jo round settle nahi hua, uska result aap khud de sakte hain. Winner select karke "Declare
+                  result" dabayein — winning bets aapke wallet callback pe credit ho jayengi, losing bets 0 pe
+                  close hongi. "Void round" sabka stake refund kar deta hai.
+                </p>
+                {!pending.rounds.length ? (
+                  <p className="text-sm text-muted-foreground">Koi unsettled round nahi hai.</p>
+                ) : null}
+                <div className="space-y-3">
+                  {pending.rounds.map((r: any) => {
+                    const key = `${r.gameId}|${r.roundId}`;
+                    const picked = winners[key] ?? [];
+                    const toggle = (s: string) =>
+                      setWinners((w) => ({
+                        ...w,
+                        [key]: (w[key] ?? []).includes(s)
+                          ? (w[key] ?? []).filter((x) => x !== s)
+                          : [...(w[key] ?? []), s],
+                      }));
+                    const declare = (voidRound: boolean) =>
+                      run(async () => {
+                        const extra = (manual[key] ?? "")
+                          .split(",")
+                          .map((s) => s.trim())
+                          .filter(Boolean);
+                        const list = [...new Set([...picked, ...extra])];
+                        if (!voidRound && !list.length) throw new Error("Pehle winner select karein");
+                        const res = await settleRoundFn({
+                          data: {
+                            operatorId: sel,
+                            gameId: r.gameId,
+                            roundId: r.roundId,
+                            winners: list,
+                            voidRound,
+                          },
+                        });
+                        setNote(
+                          `${r.gameId} / ${r.roundId}: ${res.settled} bets settled · won ${res.won} · lost ${res.lost} · void ${res.voided} · paid ${inr(res.paidOut)}${
+                            res.failedPayouts ? ` · ${res.failedPayouts} payout FAILED (callback error)` : ""
+                          }`,
+                        );
+                        await load(sel);
+                      });
+
+                    return (
+                      <div key={key} className="rounded-lg border border-border p-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                          <span className="font-bold text-foreground">
+                            {r.gameId} · round {r.roundId}
+                          </span>
+                          <span className="text-muted-foreground">
+                            {r.bets} bets · {r.users} users · staked {inr(r.staked)}
+                          </span>
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {r.selections.map((s: string) => (
+                            <button
+                              key={s}
+                              onClick={() => toggle(s)}
+                              className={`rounded-md border px-2 py-1 text-xs ${
+                                picked.includes(s)
+                                  ? "border-primary bg-primary/15 text-foreground"
+                                  : "border-border text-muted-foreground"
+                              }`}
+                            >
+                              {s}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <input
+                            value={manual[key] ?? ""}
+                            onChange={(e) => setManual((m) => ({ ...m, [key]: e.target.value }))}
+                            placeholder="extra winners (comma separated)"
+                            className={`${input} max-w-[260px]`}
+                          />
+                          <button className={btn} onClick={() => declare(false)}>
+                            Declare result
+                          </button>
+                          <button className={ghost} onClick={() => declare(true)}>
+                            Void round (refund)
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Panel>
+
+              <Panel title="Open bets — settle one by one">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead className="text-muted-foreground">
+                      <tr>
+                        <th className="p-2 text-left">Time</th>
+                        <th className="p-2 text-left">User</th>
+                        <th className="p-2 text-left">Game / round</th>
+                        <th className="p-2 text-left">Selection</th>
+                        <th className="p-2 text-right">Odds</th>
+                        <th className="p-2 text-right">Stake</th>
+                        <th className="p-2 text-left">Settle</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pending.bets.map((b: any) => (
+                        <tr key={b.id} className="border-t border-border">
+                          <td className="p-2">{new Date(b.created_at).toLocaleString()}</td>
+                          <td className="p-2 font-mono">{b.operator_user_id}</td>
+                          <td className="p-2">
+                            {b.game_id} / {b.round_id}
+                          </td>
+                          <td className="p-2">{b.selection}</td>
+                          <td className="p-2 text-right">{Number(b.odds).toFixed(2)}</td>
+                          <td className="p-2 text-right">{Number(b.stake).toLocaleString("en-IN")}</td>
+                          <td className="p-2">
+                            <div className="flex gap-1">
+                              {(["won", "lost", "void"] as const).map((o) => (
+                                <button
+                                  key={o}
+                                  className={ghost}
+                                  onClick={() =>
+                                    run(async () => {
+                                      const res = await settleBetFn({
+                                        data: { operatorId: sel, betId: b.id, outcome: o },
+                                      });
+                                      setNote(
+                                        `Bet settled as ${o} · payout ${inr(Number((res as any).payout ?? 0))}`,
+                                      );
+                                      await load(sel);
+                                    })
+                                  }
+                                >
+                                  {o}
+                                </button>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {!pending.bets.length ? (
+                        <tr>
+                          <td className="p-3 text-muted-foreground" colSpan={7}>
+                            Koi open bet nahi.
+                          </td>
+                        </tr>
+                      ) : null}
+                    </tbody>
+                  </table>
+                </div>
+              </Panel>
+
+              <Panel title="Apne server se result dena ho to (API)">
+                <pre className="overflow-auto rounded-lg bg-muted p-3 font-mono text-xs">{`GET  https://universalapi.store/api/public/v1/result      → pending (unsettled) rounds
+POST https://universalapi.store/api/public/v1/result
+headers: x-api-key: <your key>
+body:    { "gameId": "88.0023", "roundId": "123456", "winners": ["Player A"] }
+void:    { "gameId": "88.0023", "roundId": "123456", "void": true }`}</pre>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Ek single bet settle karni ho to POST /api/public/v1/settle → {`{ userId, reference, outcome }`}.
+                </p>
+              </Panel>
+            </>
+          ) : null}
+
           {tab === "callback" ? (
             <>
               <Panel title="Callback URL (your wallet endpoint)">
