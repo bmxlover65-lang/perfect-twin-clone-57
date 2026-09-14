@@ -416,7 +416,6 @@ export function BetLayer({
       const cellEl = cellPos.current?.cell;
       if (cellEl && (inLatchedMarket(cellEl) || isBlockedByOverlay(cellEl, root))) {
         setPick(null);
-        setErr("Bet Suspended.");
       }
     }, 120);
     return () => window.clearInterval(id);
@@ -443,7 +442,6 @@ export function BetLayer({
       const cellEl = cellPos.current?.cell;
       if (!rootEl || !cellEl) return;
       if (!cellEl.isConnected || isBlockedByOverlay(cellEl, rootEl)) {
-        setErr("Bet Suspended.");
         setPick(null);
       }
     }, 120);
@@ -468,7 +466,6 @@ export function BetLayer({
       return;
     }
     if (cellPos.current?.cell && inLatchedMarket(cellPos.current.cell)) {
-      setErr("Bet Suspended.");
       close();
       return;
     }
@@ -476,7 +473,6 @@ export function BetLayer({
     const rootEl = rootRef.current;
     const cellEl = cellPos.current?.cell;
     if (rootEl && cellEl && isBlockedByOverlay(cellEl, rootEl)) {
-      setErr("Bet Suspended.");
       close();
       return;
     }
@@ -572,7 +568,6 @@ export function BetLayer({
         const root = e.currentTarget as HTMLElement;
         // This market was suspended — no new bets on it until the next round.
         if (inLatchedMarket(e.target as HTMLElement)) {
-          setErr("Bet Suspended.");
           return;
         }
 
