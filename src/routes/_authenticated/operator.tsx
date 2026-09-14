@@ -47,6 +47,7 @@ import {
 
 import { OperatorGuide } from "@/components/dash-guide";
 import { AdminKit } from "@/components/console-kit";
+import { OperatorSports } from "@/components/operator-sports";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -55,6 +56,7 @@ const TABS = [
   { id: "bets", label: "Bet history" },
   { id: "rejected", label: "Rejected bets" },
   { id: "results", label: "Declare result" },
+  { id: "sports", label: "Sports control" },
   { id: "callback", label: "Callback URL" },
   { id: "guide", label: "Guide / Kit" },
 ];
@@ -658,6 +660,32 @@ void:    { "gameId": "88.0023", "roundId": "123456", "void": true }`}</pre>
                 </p>
               </Panel>
             </>
+          ) : null}
+
+          {tab === "sports" ? (
+            <OperatorSports
+              operatorId={sel}
+              rounds={pending.rounds}
+              bets={pending.bets}
+              onSettleRound={async ({ gameId, roundId, winners: list, voidRound }) =>
+                run(async () => {
+                  const res = await settleRoundFn({
+                    data: { operatorId: sel, gameId, roundId, winners: list, voidRound },
+                  });
+                  setNote(
+                    `${gameId} / ${roundId}: ${res.settled} bets settled · won ${res.won} · lost ${res.lost} · void ${res.voided} · paid ${inr(res.paidOut)}`,
+                  );
+                  await load(sel);
+                })
+              }
+              onSettleBet={async (betId, outcome) =>
+                run(async () => {
+                  const res = await settleBetFn({ data: { operatorId: sel, betId, outcome } });
+                  setNote(`Bet settled as ${outcome} · payout ${inr(Number((res as any).payout ?? 0))}`);
+                  await load(sel);
+                })
+              }
+            />
           ) : null}
 
           {tab === "callback" ? (
