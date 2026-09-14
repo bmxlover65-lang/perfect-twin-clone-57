@@ -29,6 +29,7 @@ import { Route as ApiPublicV1BetsRouteImport } from './routes/api/public/v1/bets
 import { Route as ApiPublicV1CashoutRouteImport } from './routes/api/public/v1/cashout'
 import { Route as ApiPublicV1GamesRouteImport } from './routes/api/public/v1/games'
 import { Route as ApiPublicV1MeRouteImport } from './routes/api/public/v1/me'
+import { Route as ApiPublicV1ResultRouteImport } from './routes/api/public/v1/result'
 import { Route as ApiPublicV1SettleRouteImport } from './routes/api/public/v1/settle'
 import { Route as ApiPublicV1SportsRouteImport } from './routes/api/public/v1/sports'
 import { Route as ApiPublicV1SportsSplatRouteImport } from './routes/api/public/v1/sports.$'
@@ -132,6 +133,11 @@ const ApiPublicV1MeRoute = ApiPublicV1MeRouteImport.update({
   path: '/api/public/v1/me',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1ResultRoute = ApiPublicV1ResultRouteImport.update({
+  id: '/api/public/v1/result',
+  path: '/api/public/v1/result',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1SettleRoute = ApiPublicV1SettleRouteImport.update({
   id: '/api/public/v1/settle',
   path: '/api/public/v1/settle',
@@ -168,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/cashout': typeof ApiPublicV1CashoutRoute
   '/api/public/v1/games': typeof ApiPublicV1GamesRoute
   '/api/public/v1/me': typeof ApiPublicV1MeRoute
+  '/api/public/v1/result': typeof ApiPublicV1ResultRoute
   '/api/public/v1/settle': typeof ApiPublicV1SettleRoute
   '/api/public/v1/sports': typeof ApiPublicV1SportsRouteWithChildren
   '/api/public/v1/sports/$': typeof ApiPublicV1SportsSplatRoute
@@ -192,6 +199,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/cashout': typeof ApiPublicV1CashoutRoute
   '/api/public/v1/games': typeof ApiPublicV1GamesRoute
   '/api/public/v1/me': typeof ApiPublicV1MeRoute
+  '/api/public/v1/result': typeof ApiPublicV1ResultRoute
   '/api/public/v1/settle': typeof ApiPublicV1SettleRoute
   '/api/public/v1/sports': typeof ApiPublicV1SportsRouteWithChildren
   '/api/public/v1/sports/$': typeof ApiPublicV1SportsSplatRoute
@@ -218,6 +226,7 @@ export interface FileRoutesById {
   '/api/public/v1/cashout': typeof ApiPublicV1CashoutRoute
   '/api/public/v1/games': typeof ApiPublicV1GamesRoute
   '/api/public/v1/me': typeof ApiPublicV1MeRoute
+  '/api/public/v1/result': typeof ApiPublicV1ResultRoute
   '/api/public/v1/settle': typeof ApiPublicV1SettleRoute
   '/api/public/v1/sports': typeof ApiPublicV1SportsRouteWithChildren
   '/api/public/v1/sports/$': typeof ApiPublicV1SportsSplatRoute
@@ -244,6 +253,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/cashout'
     | '/api/public/v1/games'
     | '/api/public/v1/me'
+    | '/api/public/v1/result'
     | '/api/public/v1/settle'
     | '/api/public/v1/sports'
     | '/api/public/v1/sports/$'
@@ -268,6 +278,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/cashout'
     | '/api/public/v1/games'
     | '/api/public/v1/me'
+    | '/api/public/v1/result'
     | '/api/public/v1/settle'
     | '/api/public/v1/sports'
     | '/api/public/v1/sports/$'
@@ -293,6 +304,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/cashout'
     | '/api/public/v1/games'
     | '/api/public/v1/me'
+    | '/api/public/v1/result'
     | '/api/public/v1/settle'
     | '/api/public/v1/sports'
     | '/api/public/v1/sports/$'
@@ -317,6 +329,7 @@ export interface RootRouteChildren {
   ApiPublicV1CashoutRoute: typeof ApiPublicV1CashoutRoute
   ApiPublicV1GamesRoute: typeof ApiPublicV1GamesRoute
   ApiPublicV1MeRoute: typeof ApiPublicV1MeRoute
+  ApiPublicV1ResultRoute: typeof ApiPublicV1ResultRoute
   ApiPublicV1SettleRoute: typeof ApiPublicV1SettleRoute
   ApiPublicV1SportsRoute: typeof ApiPublicV1SportsRouteWithChildren
 }
@@ -463,6 +476,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1MeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/result': {
+      id: '/api/public/v1/result'
+      path: '/api/public/v1/result'
+      fullPath: '/api/public/v1/result'
+      preLoaderRoute: typeof ApiPublicV1ResultRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/settle': {
       id: '/api/public/v1/settle'
       path: '/api/public/v1/settle'
@@ -530,6 +550,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1CashoutRoute: ApiPublicV1CashoutRoute,
   ApiPublicV1GamesRoute: ApiPublicV1GamesRoute,
   ApiPublicV1MeRoute: ApiPublicV1MeRoute,
+  ApiPublicV1ResultRoute: ApiPublicV1ResultRoute,
   ApiPublicV1SettleRoute: ApiPublicV1SettleRoute,
   ApiPublicV1SportsRoute: ApiPublicV1SportsRouteWithChildren,
 }

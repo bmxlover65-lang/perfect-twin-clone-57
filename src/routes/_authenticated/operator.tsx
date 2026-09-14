@@ -4,6 +4,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import {
   listCallbackLogs,
+  myOpenRounds,
+  mySettleBet,
+  mySettleRound,
   myWhitelistAdd,
   myWhitelistRemove,
   operatorSummary,
