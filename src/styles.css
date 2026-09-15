@@ -418,7 +418,7 @@
 .coin-flipper[data-face="tails"] { transform: rotateX(180deg); }
 .coin-face { backface-visibility: hidden; }
 .coin-back { transform: rotateX(180deg); }
-.coin-toss { animation: coin-toss 2s cubic-bezier(.3,.02,.2,1) both; }
+.coin-toss { animation: none; }
 .coin-flip-heads { animation: coin-flip-heads 2s ease both; }
 .coin-flip-tails { animation: coin-flip-tails 2s ease both; }
 @keyframes coin-flip-heads { from { transform: rotateX(0); } to { transform: rotateX(2160deg); } }
@@ -431,7 +431,7 @@
   90% { translate: 0 5px; scale: 1.02; }
   100% { translate: 0 0; scale: 1; }
 }
-.coin-spin-idle { animation: coin-spin-idle 900ms linear infinite; }
+.coin-spin-idle { animation: coin-spin-idle 700ms linear infinite; }
 @keyframes coin-spin-idle {
   from { transform: rotateX(0deg); }
   to { transform: rotateX(360deg); }

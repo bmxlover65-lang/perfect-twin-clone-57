@@ -85,7 +85,7 @@ export function CoinStageImage({
         </span>
       ) : null}
       <div
-        className={`relative my-8 h-[min(350px,89vw)] w-[min(350px,89vw)] ${flipping ? "coin-toss" : ""}`}
+        className="relative my-8 h-[min(350px,89vw)] w-[min(350px,89vw)]"
         style={{ perspective: 900 }}
       >
         <div
@@ -94,7 +94,7 @@ export function CoinStageImage({
               ? winner === "TAILS"
                 ? "coin-flip-tails"
                 : "coin-flip-heads"
-               : settledRound !== roundId
+               : suspended && settledRound !== roundId
                 ? "coin-spin-idle"
                 : ""
           }`}
