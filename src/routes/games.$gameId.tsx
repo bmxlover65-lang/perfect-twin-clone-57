@@ -2240,8 +2240,9 @@ function GamePage() {
             leftSec={Math.max(0, (raw.leftSec ?? 0) - age)}
             suspended={!bbbOpen}
             total={20}
+            variant="bbb"
             className="absolute right-1.5 top-1.5 z-20"
-            size="h-[50px] w-[50px]"
+            size="h-[52px] w-[52px]"
           />
           {!bbbOpen && liveBallResult ? (
             <div className="bbb-result-ball absolute left-1/2 top-1/2 z-20 grid h-[136px] w-[136px] -translate-x-1/2 -translate-y-1/2 place-items-center">
