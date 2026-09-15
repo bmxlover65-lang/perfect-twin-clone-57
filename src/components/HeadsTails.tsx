@@ -75,6 +75,8 @@ export function CoinStageImage({
     if (!flipping && winner && flipKey.current !== roundId) setShown(winner);
   }, [flipping, winner, roundId]);
 
+  const landed = !flipping && !!winner && flipKey.current === roundId;
+
   return (
     <div className="relative flex w-full items-center justify-center overflow-hidden bg-black py-2">
       {roundId ? (
@@ -82,7 +84,12 @@ export function CoinStageImage({
           RID: {roundId}
         </span>
       ) : null}
-      <div className="my-8 h-[min(350px,89vw)] w-[min(350px,89vw)]" style={{ perspective: 900 }}>
+      <div
+        className="coin-stage-wrap relative my-8 h-[min(350px,89vw)] w-[min(350px,89vw)]"
+        style={{ perspective: 900 }}
+        data-side={landed ? (winner === "TAILS" ? "tails" : "heads") : undefined}
+      >
+        <span className="coin-halo pointer-events-none absolute inset-[-6%] z-0 rounded-full" />
         <div
           className={`coin-flipper relative h-full w-full ${flipping ? (winner === "TAILS" ? "coin-flip-tails" : "coin-flip-heads") : ""}`}
           data-face={shown.toLowerCase()}
@@ -90,26 +97,34 @@ export function CoinStageImage({
           <img
             src={headsCoin.url}
             alt="Heads coin"
-            className="coin-face absolute inset-0 h-full w-full select-none object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.65)]"
+            className="coin-face absolute inset-0 h-full w-full select-none object-contain"
             draggable={false}
           />
           <img
             src={tailsCoin.url}
             alt="Tails coin"
-            className="coin-face coin-back absolute inset-0 h-full w-full select-none object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.65)]"
+            className="coin-face coin-back absolute inset-0 h-full w-full select-none object-contain"
             draggable={false}
           />
         </div>
+        <span className="coin-sheen pointer-events-none absolute inset-0 z-10 rounded-full" />
       </div>
       <RoundTimer leftSec={leftSec} suspended={suspended || flipping} className="absolute right-1 top-1 z-20" size="h-[50px] w-[50px]" />
-      {!flipping && winner && flipKey.current === roundId ? (
-        <span className="coin-winner absolute left-1/2 top-1/2 z-20 -translate-x-1/2 rounded-[12px] bg-gradient-to-b from-[#FD8F3B] to-[#FD3523] px-5 py-2 text-[1.18rem] font-extrabold uppercase text-white shadow-lg">
+      {landed ? (
+        <span
+          className={`coin-winner absolute bottom-3 z-20 rounded-[12px] px-5 py-2 text-[1.12rem] font-extrabold uppercase text-white shadow-lg ${
+            winner === "TAILS"
+              ? "right-[8%] bg-gradient-to-b from-[#60A5FA] to-[#1D4ED8]"
+              : "left-[8%] bg-gradient-to-b from-[#A78BFA] to-[#6D28D9]"
+          }`}
+        >
           {winner} wins
         </span>
       ) : null}
     </div>
   );
 }
+
 
 
 export type CoinRunner = {
