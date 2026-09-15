@@ -8,7 +8,7 @@ import { useEmbed } from "@/lib/embed";
 
 import { applyOverride, useAdminConfig } from "@/lib/admin";
 import { logResult } from "@/lib/telemetry";
-import { BalanceChip, BetLayer } from "@/components/betting";
+import { BetLayer } from "@/components/betting";
 import {
   deriveWinner,
   useResultFeed,

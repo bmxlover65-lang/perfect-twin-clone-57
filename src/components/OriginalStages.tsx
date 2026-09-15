@@ -1277,18 +1277,18 @@ export function BallByBallBoard({
       data-market-option=""
       data-market-plate=""
       data-suspended={open(r.status) ? undefined : "true"}
-      className={`bbb-rate-plate relative flex h-[40px] min-w-0 items-center rounded-[7px] px-1.5 text-casino-market-text ${plateTone(r.label)}`}
+      className={`bbb-rate-plate relative flex h-[38px] min-w-0 items-center gap-1 rounded-[7px] px-1 text-casino-market-text sm:h-[40px] sm:px-1.5 ${plateTone(r.label)}`}
       style={{ animationDelay: `${index * 80}ms` }}
     >
-      <span className="flex w-[44%] shrink-0 flex-col items-center justify-center leading-none">
-        <span className="text-[0.68rem] font-extrabold">
+      <span className="flex w-[42%] shrink-0 flex-col items-center justify-center leading-none">
+        <span className="text-[0.66rem] font-extrabold sm:text-[0.68rem]">
           {r.backPrice ? r.backPrice.toFixed(2) : "—"}
         </span>
-        <span className="mt-0.5 text-[0.54rem] font-medium">
+        <span className="mt-0.5 text-[0.5rem] font-medium sm:text-[0.54rem]">
           {r.backSize ? Math.round(r.backSize).toLocaleString("en-IN") : ""}
         </span>
       </span>
-      <span className="min-w-0 flex-1 text-center text-[0.66rem] font-extrabold uppercase leading-[0.72rem]">
+      <span className="min-w-0 flex-1 break-words text-center text-[0.58rem] font-extrabold uppercase leading-[0.66rem] sm:text-[0.66rem] sm:leading-[0.72rem]">
         {r.label}
       </span>
     </div>
@@ -1310,7 +1310,7 @@ export function BallByBallBoard({
           Back
         </span>
       </div>
-      <div className="grid grid-cols-2 gap-x-5 bg-bbb-field px-3 py-2">
+      <div className="grid grid-cols-2 gap-x-2 bg-bbb-field px-1.5 py-2 sm:gap-x-5 sm:px-3">
         <div className="flex min-w-0 flex-col gap-1.5">
           {left.map((r, index) => (
             <Plate key={r.selectionId} r={r} index={index} />
@@ -1330,11 +1330,11 @@ export function BallByBallBoard({
       {recent && recent.length ? (
         <div className="flex h-[34px] items-center gap-1 overflow-hidden bg-background px-2">
           <p className="shrink-0 text-[0.56rem] font-bold">Recent Result</p>
-          <div className="flex min-w-0 items-center gap-1 overflow-hidden">
+          <div className="flex min-w-0 items-center gap-1 overflow-x-auto">
             {recent.slice(0, 14).map((w, i) => (
               <span
                 key={`${w}-${i}`}
-                className={`grid h-4 w-4 shrink-0 place-items-center rounded-full text-[0.48rem] font-extrabold text-board-header-foreground ${plateTone(w)}`}
+                className={`grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full text-[0.5rem] font-extrabold text-board-header-foreground ${plateTone(w)}`}
               >
                 {w}
               </span>
