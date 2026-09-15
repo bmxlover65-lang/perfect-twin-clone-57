@@ -400,15 +400,15 @@ export function BetLayer({
       ];
 
       for (const flag of flags) {
+        // A selection that carries its own live lock flag needs no latch: the
+        // attribute itself says whether it is open right now, and latching it
+        // would keep it blocked after the board re-opens it.
+        if (flag.matches("[data-market-option]")) continue;
         // Latch the market block that the banner covers, not the whole table.
-        // A flag that is itself a single selection (boards that mark each rate
-        // plate suspended) latches only that selection.
         let market: HTMLElement = flag;
-        if (!flag.matches("[data-market-option]")) {
-          for (let i = 0; i < 4 && market.parentElement && market.parentElement !== root; i++) {
-            market = market.parentElement;
-            if (market.querySelector("[data-market-option],[data-runner-row]")) break;
-          }
+        for (let i = 0; i < 4 && market.parentElement && market.parentElement !== root; i++) {
+          market = market.parentElement;
+          if (market.querySelector("[data-market-option],[data-runner-row]")) break;
         }
         if (!latched.current.includes(market)) latched.current.push(market);
       }
