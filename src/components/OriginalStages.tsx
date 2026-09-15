@@ -1369,47 +1369,65 @@ export function BallByBallBoard({
 
       {rulesOpen ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-3 py-6"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-3 py-6"
           onClick={() => setRulesOpen(false)}
         >
           <div
-            className="max-h-full w-full max-w-[420px] overflow-y-auto rounded-[10px] bg-bbb-field p-3"
+            className="max-h-full w-full max-w-[370px] overflow-y-auto rounded-[12px] bg-bbb-field p-4 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="grid grid-cols-2 gap-2">
+            <p className="text-[1.02rem] font-bold text-casino-market-text">
+              Ball by Ball Market Rules
+            </p>
+            <p className="mt-1.5 text-[0.76rem] font-semibold leading-[1.05rem] text-casino-market-text">
+              These rules apply to each individual delivery and define how every available option
+              will be settled.
+            </p>
+            <p className="mt-3 text-[0.86rem] font-bold text-casino-market-text">
+              Available Options Rules
+            </p>
+            <div className="mt-2 grid grid-cols-2 gap-3">
               {BBB_RULES.map((rule) => (
-                <div key={rule.tag} className="rounded-[8px] bg-background p-2">
+                <div key={rule.tag} className="rounded-[8px] bg-background p-2.5">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`grid h-[26px] min-w-[26px] place-items-center rounded-[6px] px-1 text-[0.72rem] font-extrabold text-casino-market-text ${plateTone(rule.tone)}`}
+                      className={`grid h-[24px] min-w-[24px] place-items-center rounded-[5px] px-1 text-[0.74rem] font-extrabold ${
+                        rule.tag === "EX"
+                          ? "bg-casino-market-header text-board-header-foreground"
+                          : `text-casino-market-text ${plateTone(rule.tone)}`
+                      }`}
                     >
                       {rule.tag}
                     </span>
-                    <span className="text-[0.78rem] font-bold">{rule.title}</span>
+                    <span className="text-[0.82rem] font-bold text-foreground">{rule.title}</span>
                   </div>
-                  <p className="mt-1 text-[0.7rem] leading-[0.95rem] text-foreground">{rule.text}</p>
+                  <p className="mt-2 text-[0.76rem] font-medium leading-[1.02rem] text-foreground">
+                    {rule.text}
+                  </p>
                 </div>
               ))}
             </div>
-            <div className="mt-2 rounded-[8px] border-l-4 border-casino-market-header bg-background p-2">
-              <p className="text-[0.8rem] font-bold">Video &amp; Scoreboard Disclaimer</p>
-              <p className="mt-1 text-[0.7rem] leading-[0.95rem]">
+            <div className="mt-3 rounded-[8px] border-l-[5px] border-casino-market-header bg-background p-2.5">
+              <p className="text-[0.84rem] font-bold text-foreground">
+                Video &amp; Scoreboard Disclaimer
+              </p>
+              <p className="mt-2 text-[0.76rem] font-semibold leading-[1.02rem] text-foreground">
                 Videos may be sourced from different broadcasters, which can result in delays or
                 discrepancies in the scoreboard.
               </p>
-              <p className="mt-1 text-[0.7rem] leading-[0.95rem]">
+              <p className="mt-2 text-[0.76rem] font-semibold leading-[1.02rem] text-foreground">
                 In such cases, all bets will be settled strictly as per our platform rules and based
                 on the video displayed on our system.
               </p>
-              <p className="mt-1 text-[0.7rem] leading-[0.95rem]">
+              <p className="mt-2 text-[0.76rem] font-semibold leading-[1.02rem] text-foreground">
                 Any delay or mismatch in external scoreboards will not affect the final result.
               </p>
             </div>
-            <div className="mt-3 flex justify-center">
+            <div className="mt-4 flex justify-center">
               <button
                 type="button"
                 onClick={() => setRulesOpen(false)}
-                className="rounded-[6px] bg-casino-market-header px-8 py-2 text-[0.85rem] font-bold text-board-header-foreground"
+                className="rounded-[6px] bg-casino-market-header px-12 py-2.5 text-[0.9rem] font-bold text-board-header-foreground"
               >
                 OK
               </button>
@@ -1417,6 +1435,7 @@ export function BallByBallBoard({
           </div>
         </div>
       ) : null}
+
     </div>
   );
 }
