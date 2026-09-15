@@ -84,7 +84,10 @@ export function CoinStageImage({
           RID: {roundId}
         </span>
       ) : null}
-      <div className="relative my-8 h-[min(350px,89vw)] w-[min(350px,89vw)]" style={{ perspective: 900 }}>
+      <div
+        className={`relative my-8 h-[min(350px,89vw)] w-[min(350px,89vw)] ${flipping ? "coin-toss" : ""}`}
+        style={{ perspective: 900 }}
+      >
         <div
           className={`coin-flipper relative h-full w-full ${
             flipping
