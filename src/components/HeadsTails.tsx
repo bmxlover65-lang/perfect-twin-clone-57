@@ -41,6 +41,7 @@ export function CoinStageImage({
   leftSec?: number | undefined;
 }) {
   const [flipping, setFlipping] = useState(false);
+  const [settledRound, setSettledRound] = useState<string | null>(null);
   const [shown, setShown] = useState<CoinSide>("HEADS");
   const flipKey = useRef<string | null>(null);
   const timers = useRef<number[]>([]);
