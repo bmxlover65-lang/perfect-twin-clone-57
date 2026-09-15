@@ -343,6 +343,8 @@ export function BetLayer({
     profit: number;
   }[]>([]);
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const slipRef = useRef<HTMLDivElement | null>(null);
+  const openedPlate = useRef<HTMLElement | null>(null);
   const cellPos = useRef<{
     cell: HTMLElement;
     opposite?: HTMLElement | undefined;
@@ -389,6 +391,8 @@ export function BetLayer({
 
   useEffect(() => {
     setChips([]);
+    openedPlate.current?.style.removeProperty("margin-bottom");
+    openedPlate.current = null;
     latched.current = []; // new round → every market opens again
     roundChangedAt.current = Date.now();
     rootRef.current
@@ -446,8 +450,24 @@ export function BetLayer({
   }, []);
 
   const close = () => {
+    openedPlate.current?.style.removeProperty("margin-bottom");
+    openedPlate.current = null;
     setPick(null);
   };
+
+  // Ball by Ball uses a two-column CSS grid. Expanding the selected plate's
+  // grid row reserves real space for the slip, keeping every later Runs row
+  // visible below it instead of covering those rows with an overlay.
+  useEffect(() => {
+    const plate = openedPlate.current;
+    const slip = slipRef.current;
+    if (!pick || !plate || !slip || !plate.matches(".bbb-rate-plate")) return;
+    const size = () => plate.style.setProperty("margin-bottom", `${slip.offsetHeight}px`);
+    size();
+    const observer = new ResizeObserver(size);
+    observer.observe(slip);
+    return () => observer.disconnect();
+  }, [pick]);
 
   // Watch the clicked cell while the slip is open: the moment it gets a
   // SUSPENDED / locked overlay, the slip closes so no bet can be confirmed.
@@ -663,6 +683,8 @@ export function BetLayer({
           // to a wide board wrapper, which could put the slip below the whole
           // market instead of beneath the selected row.
           const clickedPlate = p.element.closest<HTMLElement>("[data-market-option]") ?? p.element;
+          openedPlate.current?.style.removeProperty("margin-bottom");
+          openedPlate.current = clickedPlate;
           const top = u(clickedPlate.getBoundingClientRect().bottom - rootBox.top);
           setAnchor(Math.max(0, top));
           pickRound.current = round;
@@ -764,6 +786,7 @@ export function BetLayer({
 
       {pick ? (
         <div
+          ref={slipRef}
           data-nobet=""
           className="absolute left-0 right-0 z-[70]"
           style={{ top: `${anchor}px` }}
