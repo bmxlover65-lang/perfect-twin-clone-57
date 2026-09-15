@@ -7,7 +7,7 @@ export type Pick = { label: string; odds: number };
 type ExtractedPick = Pick & { element: HTMLElement };
 
 /** Quick-stake buttons in the bet slip — original site layout (4 × 2). */
-const SLIP_CHIPS = [1000, 5000, 10000, 25000, 50000, 100000, 200000, 500000];
+const SLIP_CHIPS = [100, 200, 500, 5000, 10000, 25000, 50000, 100000];
 
 const DEFAULT_STAKE = 1000;
 const LAST_STAKE_KEY = "uapi.lastStake";
@@ -455,13 +455,13 @@ export function BetLayer({
     setPick(null);
   };
 
-  // Ball by Ball uses a two-column CSS grid. Expanding the selected plate's
-  // grid row reserves real space for the slip, keeping every later Runs row
-  // visible below it instead of covering those rows with an overlay.
+  // Ball by Ball and Heads & Tails use two-column grids. Expanding the clicked
+  // plate's row reserves real space for the slip, so every later row stays
+  // visible instead of being covered by the absolute-positioned panel.
   useEffect(() => {
     const plate = openedPlate.current;
     const slip = slipRef.current;
-    if (!pick || !plate || !slip || !plate.matches(".bbb-rate-plate")) return;
+    if (!pick || !plate || !slip || !plate.matches(".bbb-rate-plate,.coin-bet-plate")) return;
     const size = () => plate.style.setProperty("margin-bottom", `${slip.offsetHeight}px`);
     size();
     const observer = new ResizeObserver(size);
@@ -690,6 +690,7 @@ export function BetLayer({
           pickRound.current = round;
           setPick({ label: p.label, odds: p.odds });
           setOdds(p.odds);
+          setStake(0);
           setErr(null);
         }
       }}
@@ -792,7 +793,7 @@ export function BetLayer({
           style={{ top: `${anchor}px` }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="mx-auto w-full max-w-[430px] overflow-hidden border-y border-[#b9cddb] bg-[#dbe7f0] shadow-[0_10px_24px_rgba(0,0,0,0.25)]">
+          <div className="mx-auto w-full max-w-[430px] overflow-hidden border-y border-[#a8c1d2] bg-[#d8efd5] shadow-[0_10px_24px_rgba(0,0,0,0.22)]">
             {embed ? null : (
               <div className="flex items-center justify-between bg-[#1f3b4d] px-3 py-1.5">
                 <span className="text-[0.72rem] font-bold uppercase tracking-[0.1em] text-white/80">
@@ -804,13 +805,13 @@ export function BetLayer({
               </div>
             )}
 
-            <div className="px-2.5 pb-2.5 pt-2.5">
-              <div className="grid grid-cols-2 gap-2.5">
+            <div className="px-1 pb-2 pt-2">
+              <div className="grid grid-cols-2 gap-1.5">
                 <Stepper value={odds} onChange={setOdds} step={0.01} decimals={2} />
                 <Stepper value={stake} onChange={setStake} step={100} decimals={0} editable min={100} />
               </div>
 
-              <div className="mt-2.5 grid grid-cols-4 gap-2.5">
+              <div className="mt-2 grid grid-cols-4 gap-2">
                 {SLIP_CHIPS.map((c) => (
                   <button
                     key={c}
@@ -819,7 +820,7 @@ export function BetLayer({
                       setStake(c);
                       saveLastStake(c);
                     }}
-                    className={`h-11 rounded-[8px] border text-[0.95rem] font-medium active:bg-[#eef4f8] ${
+                    className={`h-[31px] rounded-[4px] border text-[0.88rem] font-medium active:bg-[#eef4f8] ${
                       Math.round(stake) === c
                         ? "border-[#2f7fbe] bg-[#2f7fbe] text-white"
                         : "border-[#c3d3de] bg-white text-[#1d2c36]"
@@ -830,11 +831,11 @@ export function BetLayer({
                 ))}
               </div>
 
-              <div className="mt-2.5 grid grid-cols-2 gap-2.5">
+              <div className="mt-2 grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={close}
-                  className="h-12 rounded-[8px] border border-[#c3d3de] bg-white text-[1.05rem] font-bold text-[#1d2c36]"
+                  className="h-[38px] rounded-[4px] border border-[#55606a] bg-white text-[0.98rem] font-bold text-[#1d2c36]"
                 >
                   Cancel
                 </button>
@@ -842,7 +843,7 @@ export function BetLayer({
                   type="button"
                   onClick={submit}
                   disabled={stake < 100}
-                  className="h-12 rounded-[8px] bg-[#2f7fbe] text-[1.05rem] font-bold text-white disabled:bg-[#b9bdc0] disabled:text-white/85"
+                  className="h-[38px] rounded-[4px] bg-[#2f7fbe] text-[0.98rem] font-bold text-white disabled:bg-[#5d695f] disabled:text-white/85"
                 >
                   Place Bet
                 </button>
