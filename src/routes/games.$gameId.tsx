@@ -1897,6 +1897,14 @@ function GamePage() {
   const [age, setAge] = useState(0);
   const [roundSuspended, setRoundSuspended] = useState(false);
   const suspensionRound = useRef("");
+  const bbbFrameRef = useRef<{
+    mid: string;
+    data: { runners?: BbbRunner[]; news?: string; min?: number; max?: number; gameResult?: string };
+    roundId: string;
+    leftSec: number;
+    ts: number;
+  } | null>(null);
+
   const roundWasOpen = useRef(false);
 
   // Some games (e.g. VIMAAN) have no upstream live event. Polling them only
@@ -2172,6 +2180,7 @@ function GamePage() {
 
   const isOriginal = gameId.startsWith("88.");
   const isBbb = gameId === "4.3544687543453";
+
   const raw = (d ?? {}) as unknown as {
     multiplier?: string;
     runners?: BbbRunner[];
@@ -2183,6 +2192,21 @@ function GamePage() {
   };
 
   if (isBbb) {
+    // The upstream alternates between the live market frame and a stale frame
+    // from the previous market id (leftSec 0, everything SUSPENDED). Keep the
+    // last open frame and count its timer down locally so the board does not
+    // flicker into a locked state every other poll.
+    const nowMs = Date.now();
+    const liveMid = String((d as unknown as { marketId?: string })?.marketId ?? "");
+    const frameOpen = (raw.runners ?? []).some((r) => isOpenStatus(r.status));
+    if (frameOpen) bbbFrameRef.current = { mid: liveMid, data: raw, roundId: String(d?.roundId ?? ""), leftSec: raw.leftSec ?? 0, ts: nowMs };
+    const cached = bbbFrameRef.current;
+    const cachedLeft = cached ? cached.leftSec - (nowMs - cached.ts) / 1000 : 0;
+    const useCached = !frameOpen && !!cached && cached.mid !== liveMid && cachedLeft > 0;
+    const view = useCached && cached ? cached.data : raw;
+    const viewRound = useCached && cached ? cached.roundId : String(d?.roundId ?? "");
+    const viewLeft = useCached ? Math.max(0, cachedLeft) : Math.max(0, (raw.leftSec ?? 0) - age);
+
     const bbbRecent = results.slice(0, 14).map((r) => {
       const rr = r as CasinoResult & { result?: string; selectionName?: string };
       const s = (rr.winner ?? rr.result ?? rr.selectionName ?? "-").toString().trim();
@@ -2197,17 +2221,13 @@ function GamePage() {
       const runs = s.match(/^\d+/)?.[0];
       return runs ? `${runs} ${runs === "1" ? "RUN" : "RUNS"}` : s;
     };
+    const bbbOpen = (view.runners ?? []).some((r) => isOpenStatus(r.status));
     const liveBallResult = normalizeBallResult(
-      raw.gameResult ||
+      view.gameResult ||
         (liveResult?.round === roundKey ? liveResult.winner : "") ||
-        (!((raw.runners ?? []).some((r) => (r.status ?? "").toUpperCase() === "ACTIVE")) &&
-        String(results[0]?.roundId ?? "") === roundKey
-          ? bbbRecent[0] ?? ""
-          : ""),
+        (!bbbOpen && String(results[0]?.roundId ?? "") === roundKey ? bbbRecent[0] ?? "" : ""),
     );
-    const bbbOpen = (raw.runners ?? []).some(
-      (r) => (r.status ?? "").toUpperCase() === "ACTIVE",
-    );
+
     return (
       <div className={shell("max-w-[620px]")}>
         <div className="bg-secondary px-2 py-1">
@@ -2226,8 +2246,9 @@ function GamePage() {
             {d?.eventName ?? "Ball By Ball"}
           </span>
           <span className="shrink-0 text-[0.55rem] font-bold text-board-header-foreground">
-            {d?.roundId ?? "—"}
+            {viewRound || "—"}
           </span>
+
         </div>
         <div className="relative aspect-video overflow-hidden bg-secondary">
           <img
@@ -2237,7 +2258,8 @@ function GamePage() {
             className="block h-full w-full object-cover"
           />
           <RoundTimer
-            leftSec={Math.max(0, (raw.leftSec ?? 0) - age)}
+            leftSec={viewLeft}
+
             suspended={!bbbOpen}
             total={20}
             variant="bbb"
@@ -2262,16 +2284,17 @@ function GamePage() {
         <BetLayer
           gameId={gameId}
           gameName={d?.eventName ?? "Ball By Ball"}
-          round={String(d?.roundId ?? "")}
+          round={viewRound}
           disabled={!bbbOpen}
         >
           <BallByBallBoard
-            runners={raw.runners ?? []}
-            min={raw.min ?? 20}
-            max={raw.max ?? 100000}
-            news={raw.news}
+            runners={view.runners ?? []}
+            min={view.min ?? 20}
+            max={view.max ?? 100000}
+            news={view.news}
             recent={bbbRecent}
           />
+
 
         </BetLayer>
       </div>
