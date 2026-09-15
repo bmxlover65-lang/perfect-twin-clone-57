@@ -1312,7 +1312,24 @@ const Plate = ({ r, index }: { r: BbbRunner; index: number }) => (
         </span>
       </span>
     </div>
-  );
+);
+
+export function BallByBallBoard({
+  runners,
+  min,
+  max,
+  news,
+  recent,
+}: {
+  runners: BbbRunner[];
+  min: number;
+  max: number;
+  news?: string | undefined;
+  recent?: string[];
+}) {
+  const left = runners.filter((_, i) => i % 2 === 0);
+  const right = runners.filter((_, i) => i % 2 === 1);
+  const [rulesOpen, setRulesOpen] = useState(false);
 
   return (
     <div className="bg-background text-casino-market-text">
