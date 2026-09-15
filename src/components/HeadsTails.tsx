@@ -209,7 +209,7 @@ export function HeadsTailsPanel({
       <p className="mb-2 text-right text-[0.62rem] font-semibold text-white/55">
         Min:{min} Max:{max}
       </p>
-      <div className="grid grid-cols-2 gap-3">
+       <div className="grid grid-cols-2 gap-[11px]">
         {runners.map((r) => (
           <Plate
             key={r.id}

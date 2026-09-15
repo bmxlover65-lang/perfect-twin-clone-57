@@ -475,8 +475,8 @@
   62%, 100% { left: 125%; opacity: 0; }
 }
 .bbb-rate-plate[data-suspended="true"] {
-  background: transparent;
-  box-shadow: none;
+  background: var(--bbb-plate-gradient);
+  box-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 28%, transparent);
   animation: none;
 }
 .bbb-rate-plate[data-suspended="true"]::after {

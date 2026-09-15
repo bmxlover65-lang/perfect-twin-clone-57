@@ -1285,7 +1285,7 @@ const Plate = ({ r, index }: { r: BbbRunner; index: number }) => (
       data-bet-label={r.label}
       data-bet-odds={r.backPrice ?? undefined}
       data-suspended={open(r.status) ? undefined : "true"}
-      className={`bbb-rate-plate relative flex h-[64px] min-w-0 items-center gap-1 overflow-hidden rounded-[7px] px-2 text-casino-market-text sm:h-[66px] sm:px-2.5 ${plateTone(r.label)}`}
+      className={`bbb-rate-plate relative flex h-[68px] min-w-0 items-center gap-1 overflow-hidden rounded-[7px] px-2 text-casino-market-text sm:h-[70px] sm:px-2.5 ${plateTone(r.label)}`}
       style={{ animationDelay: `${index * 80}ms` }}
     >
       <span className="pointer-events-none absolute bottom-0 left-[42%] top-0 z-[1] border-l-[3px] border-dashed border-casino-market-text" />
@@ -1298,22 +1298,18 @@ const Plate = ({ r, index }: { r: BbbRunner; index: number }) => (
         </span>
       </span>
       <span className="relative z-[1] flex min-w-0 flex-1 items-center justify-center gap-1 break-words text-center text-[0.78rem] font-extrabold uppercase leading-[0.86rem] sm:text-[0.82rem] sm:leading-[0.9rem]">
-        {open(r.status) ? null : (
-          <svg viewBox="0 0 24 24" className="h-[17px] w-[17px] shrink-0" aria-hidden="true">
-            <path
-              d="M8 10V7a4 4 0 0 1 8 0"
-              fill="none"
-              stroke="#8B2F1D"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-            />
-            <rect x="5" y="10" width="14" height="10" rx="2" fill="#A8412A" />
-          </svg>
-        )}
         <span className={r.label.length > 9 ? "min-w-0 break-words" : "whitespace-nowrap"}>
           {r.label}
         </span>
       </span>
+      {open(r.status) ? null : (
+        <span className="pointer-events-none absolute inset-0 z-[4] grid place-items-center bg-black/55">
+          <svg viewBox="0 0 24 24" className="h-7 w-7" aria-label="Locked">
+            <path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" />
+            <rect x="5" y="10" width="14" height="11" rx="2" fill="white" />
+          </svg>
+        </span>
+      )}
     </div>
 );
 
@@ -1367,7 +1363,7 @@ export function BallByBallBoard({
           Back
         </span>
       </div>
-      <div className="grid grid-cols-2 items-start gap-x-[45px] gap-y-[11px] bg-bbb-field px-[22px] py-2 sm:gap-x-12 sm:px-6">
+      <div className="grid grid-cols-2 items-start gap-x-[40px] gap-y-[10px] bg-bbb-field px-[22px] py-[10px] sm:gap-x-12 sm:px-6">
         {runners.map((r, index) => (
           <Plate key={r.selectionId} r={r} index={index} />
         ))}
