@@ -71,7 +71,7 @@ export function CoinStageImage({
     }, 2000);
     timers.current.push(stop);
     return () => window.clearTimeout(stop);
-  }, [suspended, winner, roundId]);
+  }, [winner, roundId]);
 
   useEffect(() => {
     if (!flipping && winner && flipKey.current !== roundId) setShown(winner);
@@ -91,7 +91,7 @@ export function CoinStageImage({
               ? winner === "TAILS"
                 ? "coin-flip-tails"
                 : "coin-flip-heads"
-              : suspended && settledRound !== roundId
+               : settledRound !== roundId
                 ? "coin-spin-idle"
                 : ""
           }`}
