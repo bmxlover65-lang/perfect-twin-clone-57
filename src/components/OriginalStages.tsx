@@ -1302,7 +1302,9 @@ export function BallByBallBoard({
             <rect x="5" y="10" width="14" height="10" rx="2" fill="#A8412A" />
           </svg>
         )}
-        <span className="min-w-0 break-words">{r.label}</span>
+        <span className={r.label.length > 9 ? "min-w-0 break-words" : "whitespace-nowrap"}>
+          {r.label}
+        </span>
       </span>
     </div>
   );
