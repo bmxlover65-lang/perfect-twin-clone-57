@@ -1247,6 +1247,21 @@ export type BbbRunner = {
   backSize?: number | null;
 };
 
+/** Recent-result bubble colours, matching the live reference board. */
+function resultTone(label: string) {
+  const l = label.toUpperCase();
+  if (l.startsWith("W")) return "#D32F2F";
+  if (l.startsWith("EX")) return "#7E57C2";
+  if (l.startsWith("4") || l.startsWith("6")) return "#2E9E4F";
+  if (l.startsWith("0")) return "#9AA1A8";
+  return "#2F6FD0";
+}
+
+/** Reference shows 11 / 12.2 rather than 11.00 / 12.20. */
+function fmtPrice(n: number) {
+  return String(Number(n.toFixed(2)));
+}
+
 function plateTone(label: string) {
   const l = label.toUpperCase();
   if (l.startsWith("WICKET")) return "bbb-tone-wicket";
