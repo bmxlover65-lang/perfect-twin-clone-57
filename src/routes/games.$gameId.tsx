@@ -2237,8 +2237,9 @@ function GamePage() {
             {d?.eventName ?? "Ball By Ball"}
           </span>
           <span className="shrink-0 text-[0.55rem] font-bold text-board-header-foreground">
-            {d?.roundId ?? "—"}
+            {viewRound || "—"}
           </span>
+
         </div>
         <div className="relative aspect-video overflow-hidden bg-secondary">
           <img
