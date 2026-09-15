@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { RoundTimer } from "@/components/RoundTimer";
+import { ErrorToast, SuccessToast } from "@/components/betting";
+import { placeBet, readWallet } from "@/lib/wallet";
 import headsCoin from "@/assets/coin/heads.png.asset.json";
 import tailsCoin from "@/assets/coin/tails.png.asset.json";
 import coinSound from "@/assets/coin/coinsound.mp3.asset.json";
@@ -15,14 +17,14 @@ import chip200 from "@/assets/chips/chips200.svg.asset.json";
 import chip500 from "@/assets/chips/chips500.svg.asset.json";
 
 const CHIPS = [
-  { v: "100", src: chip1k.url },
-  { v: "200", src: chip5.url },
-  { v: "500", src: chip10.url },
-  { v: "1k", src: chip20.url },
-  { v: "10k", src: chip50.url },
-  { v: "25k", src: chip100.url },
-  { v: "50k", src: chip200.url },
-  { v: "100k", src: chip500.url },
+  { v: "100", amount: 100, src: chip1k.url },
+  { v: "200", amount: 200, src: chip5.url },
+  { v: "500", amount: 500, src: chip10.url },
+  { v: "1k", amount: 1000, src: chip20.url },
+  { v: "10k", amount: 10000, src: chip50.url },
+  { v: "25k", amount: 25000, src: chip100.url },
+  { v: "50k", amount: 50000, src: chip200.url },
+  { v: "100k", amount: 100000, src: chip500.url },
 ];
 
 export type CoinSide = "HEADS" | "TAILS";
@@ -186,14 +188,71 @@ export function HeadsTailsPanel({
   min,
   max,
   recent,
+  gameId,
+  gameName,
+  round,
+  disabled,
 }: {
   runners: CoinRunner[];
   min: number;
   max: number;
   recent?: string[];
+  gameId?: string;
+  gameName?: string;
+  round?: string;
+  disabled?: boolean;
 }) {
-  const [chip, setChip] = useState("1k");
+  const [chip, setChip] = useState("100");
   const [selected, setSelected] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+  const [staked, setStaked] = useState<Record<string, number>>({});
+  const roundRef = useRef<string | undefined>(round);
+
+  useEffect(() => {
+    if (roundRef.current !== round) {
+      roundRef.current = round;
+      setStaked({});
+      setSelected(null);
+    }
+  }, [round]);
+
+  const amount = CHIPS.find((c) => c.v === chip)?.amount ?? 100;
+
+  const bet = (r: CoinRunner) => {
+    setSelected(r.id);
+    if (!gameId || !round) return;
+    if (disabled || !r.open) {
+      setToast({ kind: "err", text: "Bet is suspended." });
+      return;
+    }
+    if (amount < min) {
+      setToast({ kind: "err", text: `Minimum bet is ${min}.` });
+      return;
+    }
+    if (amount > max) {
+      setToast({ kind: "err", text: `Maximum bet is ${max}.` });
+      return;
+    }
+    if (amount > readWallet().balance) {
+      setToast({ kind: "err", text: "You have Insufficient Balance." });
+      return;
+    }
+    const ref = placeBet({
+      gameId,
+      gameName: gameName ?? gameId,
+      round,
+      label: r.label,
+      odds: r.price ?? 0,
+      stake: amount,
+    });
+    if (!ref) {
+      setToast({ kind: "err", text: "You have Insufficient Balance." });
+      return;
+    }
+    setStaked((s) => ({ ...s, [r.id]: (s[r.id] ?? 0) + amount }));
+    setToast({ kind: "ok", text: `Bet placed on ${r.label.toUpperCase()} — ${amount}` });
+  };
+
 
   const recentItems = (recent ?? [])
     .slice(0, 10)
@@ -211,12 +270,14 @@ export function HeadsTailsPanel({
       </p>
        <div className="grid grid-cols-2 gap-[11px]">
         {runners.map((r) => (
-          <Plate
-            key={r.id}
-            r={r}
-            selected={selected === r.id}
-            onClick={() => setSelected((s) => (s === r.id ? null : r.id))}
-          />
+          <div key={r.id} className="flex flex-col">
+            <Plate r={r} selected={selected === r.id} onClick={() => bet(r)} />
+            {staked[r.id] ? (
+              <span className="mt-1 text-center text-[0.72rem] font-extrabold text-[#F2C500]">
+                {staked[r.id]}
+              </span>
+            ) : null}
+          </div>
         ))}
       </div>
       <div className="mt-3 flex flex-nowrap items-center gap-2 overflow-x-auto bg-black px-2 py-2">
@@ -258,6 +319,13 @@ export function HeadsTailsPanel({
             </span>
           ))}
         </div>
+      ) : null}
+
+      {toast?.kind === "err" ? (
+        <ErrorToast message={toast.text} onDone={() => setToast(null)} />
+      ) : null}
+      {toast?.kind === "ok" ? (
+        <SuccessToast message={toast.text} onDone={() => setToast(null)} />
       ) : null}
     </div>
   );

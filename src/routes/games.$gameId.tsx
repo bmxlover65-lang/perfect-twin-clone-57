@@ -2448,43 +2448,48 @@ function GamePage() {
           />
         )}
 
-        <BetLayer
-          gameId={gameId}
-          gameName={d?.eventName ?? gameId}
-          round={String(d?.roundId ?? "")}
-          disabled={suspended}
-        >
+        {gameId === "88.0021" ? (
           <Fit mobileNative designWidth={900}>
-          {gameId === "88.0021" ? (
-            <div>
-              <HeadsTailsPanel
-                runners={(markets[0]?.runners ?? []).map((r) => ({
-                  id: String(r.selectionId),
-                  label:
-                    markets[0]?.runnersName?.[String(r.selectionId)] ?? String(r.selectionId),
-                  price: r.price?.back?.[0]?.price,
-                  size: r.price?.back?.[0]?.size,
-                  open: !suspended && isOpenStatus(r.status),
-                }))}
-                min={markets[0]?.min ?? 100}
-                max={markets[0]?.max ?? 100000}
-                recent={results.slice(0, 10).map((r) => {
-                  const rr = r as CasinoResult & { result?: string; selectionName?: string };
-                  return (rr.winner ?? rr.result ?? rr.selectionName ?? "-").toString().trim();
-                })}
-              />
-            </div>
-          ) : gameId !== "88.0023" && markets.length ? (
-            <NumberPanel
-              markets={markets}
-              suspended={suspended}
-              perRow={gameId === "88.0019" ? 5 : gameId === "88.0020" ? 3 : 2}
-              dream={gameId === "88.0020"}
+            <HeadsTailsPanel
+              gameId={gameId}
+              gameName={d?.eventName ?? gameId}
+              round={String(d?.roundId ?? "")}
+              disabled={suspended}
+              runners={(markets[0]?.runners ?? []).map((r) => ({
+                id: String(r.selectionId),
+                label:
+                  markets[0]?.runnersName?.[String(r.selectionId)] ?? String(r.selectionId),
+                price: r.price?.back?.[0]?.price,
+                size: r.price?.back?.[0]?.size,
+                open: !suspended && isOpenStatus(r.status),
+              }))}
+              min={markets[0]?.min ?? 100}
+              max={markets[0]?.max ?? 100000}
+              recent={results.slice(0, 10).map((r) => {
+                const rr = r as CasinoResult & { result?: string; selectionName?: string };
+                return (rr.winner ?? rr.result ?? rr.selectionName ?? "-").toString().trim();
+              })}
             />
-          ) : null}
           </Fit>
-
-        </BetLayer>
+        ) : (
+          <BetLayer
+            gameId={gameId}
+            gameName={d?.eventName ?? gameId}
+            round={String(d?.roundId ?? "")}
+            disabled={suspended}
+          >
+            <Fit mobileNative designWidth={900}>
+              {gameId !== "88.0023" && markets.length ? (
+                <NumberPanel
+                  markets={markets}
+                  suspended={suspended}
+                  perRow={gameId === "88.0019" ? 5 : gameId === "88.0020" ? 3 : 2}
+                  dream={gameId === "88.0020"}
+                />
+              ) : null}
+            </Fit>
+          </BetLayer>
+        )}
 
 
         {gameId !== "88.0021" && gameId !== "88.0023" ? (

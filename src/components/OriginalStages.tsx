@@ -1303,9 +1303,9 @@ const Plate = ({ r, index }: { r: BbbRunner; index: number }) => (
         </span>
       </span>
       {open(r.status) ? null : (
-        <span className="pointer-events-none absolute inset-0 z-[4] grid place-items-center bg-black/55">
-          <svg viewBox="0 0 24 24" className="h-7 w-7" aria-label="Locked">
-            <path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" />
+        <span className="pointer-events-none absolute inset-0 z-[4] grid place-items-center bg-black/35">
+          <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] opacity-90" aria-label="Locked">
+            <path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="white" strokeWidth="2.4" strokeLinecap="round" />
             <rect x="5" y="10" width="14" height="11" rx="2" fill="white" />
           </svg>
         </span>
