@@ -1247,6 +1247,21 @@ export type BbbRunner = {
   backSize?: number | null;
 };
 
+/** Recent-result bubble colours, matching the live reference board. */
+function resultTone(label: string) {
+  const l = label.toUpperCase();
+  if (l.startsWith("W")) return "#D32F2F";
+  if (l.startsWith("EX")) return "#7E57C2";
+  if (l.startsWith("4") || l.startsWith("6")) return "#2E9E4F";
+  if (l.startsWith("0")) return "#9AA1A8";
+  return "#2F6FD0";
+}
+
+/** Reference shows 11 / 12.2 rather than 11.00 / 12.20. */
+function fmtPrice(n: number) {
+  return String(Number(n.toFixed(2)));
+}
+
 function plateTone(label: string) {
   const l = label.toUpperCase();
   if (l.startsWith("WICKET")) return "bbb-tone-wicket";
@@ -1285,7 +1300,7 @@ export function BallByBallBoard({
     >
       <span className="relative z-[1] flex w-[42%] shrink-0 flex-col items-center justify-center leading-none">
         <span className="text-[0.72rem] font-extrabold sm:text-[0.76rem]">
-          {r.backPrice ? r.backPrice.toFixed(2) : "—"}
+          {r.backPrice ? fmtPrice(r.backPrice) : "—"}
         </span>
         <span className="mt-0.5 text-[0.62rem] font-medium sm:text-[0.65rem]">
           {r.backSize ? Math.round(r.backSize).toLocaleString("en-US", { useGrouping: false }) : ""}
@@ -1360,7 +1375,8 @@ export function BallByBallBoard({
             {recent.slice(0, 14).map((w, i) => (
               <span
                 key={`${w}-${i}`}
-                className={`grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full text-[0.5rem] font-extrabold text-board-header-foreground ${plateTone(w)}`}
+                className="grid h-[20px] w-[20px] shrink-0 place-items-center rounded-full text-[0.62rem] font-extrabold text-white"
+                style={{ background: resultTone(w) }}
               >
                 {w}
               </span>
