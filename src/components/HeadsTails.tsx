@@ -57,7 +57,9 @@ export function CoinStageImage({
   };
 
   useEffect(() => {
-    if (!winner || !roundId) return;
+    // A stale winner can remain in the upstream frame while the next round is
+    // open. Only start the result flip after that round has actually locked.
+    if (!suspended || !winner || !roundId) return;
     if (flipKey.current === roundId) return;
     flipKey.current = roundId;
     setShown("HEADS");
@@ -71,7 +73,7 @@ export function CoinStageImage({
     }, 2000);
     timers.current.push(stop);
     return () => window.clearTimeout(stop);
-  }, [winner, roundId]);
+  }, [winner, roundId, suspended]);
 
   useEffect(() => {
     if (!flipping && winner && flipKey.current !== roundId) setShown(winner);
