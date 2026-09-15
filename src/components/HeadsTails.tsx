@@ -86,7 +86,15 @@ export function CoinStageImage({
       ) : null}
       <div className="relative my-8 h-[min(350px,89vw)] w-[min(350px,89vw)]" style={{ perspective: 900 }}>
         <div
-          className={`coin-flipper relative h-full w-full ${flipping ? (winner === "TAILS" ? "coin-flip-tails" : "coin-flip-heads") : ""}`}
+          className={`coin-flipper relative h-full w-full ${
+            flipping
+              ? winner === "TAILS"
+                ? "coin-flip-tails"
+                : "coin-flip-heads"
+              : suspended && settledRound !== roundId
+                ? "coin-spin-idle"
+                : ""
+          }`}
           data-face={shown.toLowerCase()}
         >
           <img
