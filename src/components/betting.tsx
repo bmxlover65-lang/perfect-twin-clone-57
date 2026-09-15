@@ -155,7 +155,9 @@ function nodeFromKey(key: string, root: HTMLElement): HTMLElement | null {
 
 function extractPick(target: HTMLElement, root: HTMLElement): ExtractedPick | null {
   // Never treat media / inputs / explicitly opted-out areas as a bet click.
-  if (target.closest("iframe,video,img,input,textarea,select,a,[data-nobet]")) return null;
+  // Buttons are controls (quick stake, steppers, modal actions), not market
+  // prices. The board's genuinely clickable prices are div-based plates.
+  if (target.closest("iframe,video,img,input,textarea,select,a,button,[data-nobet]")) return null;
 
   let el: HTMLElement | null = target;
   let odds: number | null = null;
@@ -751,6 +753,7 @@ export function BetLayer({
 
       {pick ? (
         <div
+          data-nobet=""
           className="absolute left-0 right-0 z-[70]"
           style={{ top: `${anchor}px` }}
           onClick={(e) => e.stopPropagation()}
