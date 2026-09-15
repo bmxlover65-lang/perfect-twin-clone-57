@@ -288,7 +288,7 @@ function Stepper({
           inputMode="numeric"
           min={min}
           step="1"
-          value={value || ""}
+          value={value}
           aria-label="Bet amount"
           onChange={(event) => onChange(Math.max(0, Math.floor(Number(event.target.value) || 0)))}
           onBlur={() => {
