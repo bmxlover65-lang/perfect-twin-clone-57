@@ -1277,18 +1277,18 @@ export function BallByBallBoard({
       data-market-option=""
       data-market-plate=""
       data-suspended={open(r.status) ? undefined : "true"}
-      className={`bbb-rate-plate relative flex h-[38px] min-w-0 items-center gap-1 rounded-[7px] px-1 text-casino-market-text sm:h-[40px] sm:px-1.5 ${plateTone(r.label)}`}
+      className={`bbb-rate-plate relative flex h-[64px] min-w-0 items-center gap-1 overflow-hidden rounded-[7px] px-2 text-casino-market-text sm:h-[66px] sm:px-2.5 ${plateTone(r.label)}`}
       style={{ animationDelay: `${index * 80}ms` }}
     >
-      <span className="flex w-[42%] shrink-0 flex-col items-center justify-center leading-none">
-        <span className="text-[0.66rem] font-extrabold sm:text-[0.68rem]">
+      <span className="relative z-[1] flex w-[42%] shrink-0 flex-col items-center justify-center leading-none">
+        <span className="text-[0.72rem] font-extrabold sm:text-[0.76rem]">
           {r.backPrice ? r.backPrice.toFixed(2) : "—"}
         </span>
-        <span className="mt-0.5 text-[0.5rem] font-medium sm:text-[0.54rem]">
-          {r.backSize ? Math.round(r.backSize).toLocaleString("en-IN") : ""}
+        <span className="mt-0.5 text-[0.62rem] font-medium sm:text-[0.65rem]">
+          {r.backSize ? Math.round(r.backSize).toLocaleString("en-US", { useGrouping: false }) : ""}
         </span>
       </span>
-      <span className="min-w-0 flex-1 break-words text-center text-[0.58rem] font-extrabold uppercase leading-[0.66rem] sm:text-[0.66rem] sm:leading-[0.72rem]">
+      <span className="relative z-[1] min-w-0 flex-1 break-words text-center text-[0.78rem] font-extrabold uppercase leading-[0.86rem] sm:text-[0.82rem] sm:leading-[0.9rem]">
         {r.label}
       </span>
     </div>
@@ -1296,34 +1296,34 @@ export function BallByBallBoard({
 
   return (
     <div className="bg-background text-casino-market-text">
-      <div className="flex h-[24px] items-center justify-between bg-casino-market-header px-2">
-        <span className="text-[0.62rem] font-bold text-board-header-foreground">Runs ⓘ</span>
-        <span className="text-[0.52rem] font-medium text-board-header-foreground">
+      <div className="flex h-[28px] items-center justify-between bg-casino-market-header px-2">
+        <span className="text-[0.68rem] font-bold text-board-header-foreground">Runs ⓘ</span>
+        <span className="text-[0.56rem] font-medium text-board-header-foreground">
           Min/Max: {min} - {max}
         </span>
       </div>
-      <div className="grid h-[24px] grid-cols-2 border-b border-casino-market-divider bg-casino-market-body">
-        <span className="flex items-center justify-center text-[0.68rem] font-semibold">
+      <div className="grid h-[26px] grid-cols-2 border-b border-casino-market-divider bg-casino-market-body">
+        <span className="flex items-center justify-center text-[0.86rem] font-semibold">
           Back
         </span>
-        <span className="flex items-center justify-center text-[0.68rem] font-semibold">
+        <span className="flex items-center justify-center text-[0.86rem] font-semibold">
           Back
         </span>
       </div>
-      <div className="grid grid-cols-2 gap-x-2 bg-bbb-field px-1.5 py-2 sm:gap-x-5 sm:px-3">
-        <div className="flex min-w-0 flex-col gap-1.5">
+      <div className="grid grid-cols-2 gap-x-[45px] bg-bbb-field px-[22px] py-2 sm:gap-x-12 sm:px-6">
+        <div className="flex min-w-0 flex-col gap-[11px]">
           {left.map((r, index) => (
             <Plate key={r.selectionId} r={r} index={index} />
           ))}
         </div>
-        <div className="flex min-w-0 flex-col gap-1.5">
+        <div className="flex min-w-0 flex-col gap-[11px]">
           {right.map((r, index) => (
             <Plate key={r.selectionId} r={r} index={index + left.length} />
           ))}
         </div>
       </div>
 
-      <div className="border-y border-casino-market-divider bg-secondary px-2 py-1 text-center text-[0.54rem] font-medium leading-[0.62rem] text-secondary-foreground">
+      <div className="border-y border-casino-market-divider bg-secondary px-5 py-2 text-center text-[0.74rem] font-medium leading-[0.9rem] text-secondary-foreground">
         {news ?? "Results are based on stream only. Score board may be different or updated later"}
       </div>
 

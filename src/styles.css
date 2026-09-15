@@ -406,22 +406,35 @@
 }
 
 @keyframes bbb-rate-glow {
-  0%, 46% {
-    background: transparent;
-    box-shadow: none;
-  }
-  54%, 92% {
-    background: var(--bbb-plate-gradient);
-    box-shadow: 0 0 8px var(--bbb-glow), inset 0 1px 0 color-mix(in oklab, var(--board-header-foreground) 65%, transparent);
-  }
-  100% {
-    background: transparent;
-    box-shadow: none;
-  }
+  0%, 100% { box-shadow: 0 0 0 transparent, inset 0 1px 0 color-mix(in oklab, var(--board-header-foreground) 42%, transparent); }
+  50% { box-shadow: 0 0 12px var(--bbb-glow), inset 0 1px 0 color-mix(in oklab, var(--board-header-foreground) 75%, transparent); }
 }
 
 .bbb-rate-plate {
-  animation: bbb-rate-glow 10s ease-in-out infinite;
+  animation: bbb-rate-glow 2.2s ease-in-out infinite;
+}
+.bbb-rate-plate::after {
+  content: "";
+  position: absolute;
+  inset: -30% auto -30% -55%;
+  width: 38%;
+  transform: skewX(-18deg);
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--board-header-foreground) 44%, transparent), transparent);
+  animation: bbb-shine 2.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes bbb-shine {
+  0%, 18% { left: -55%; opacity: 0; }
+  35% { opacity: 0.9; }
+  62%, 100% { left: 125%; opacity: 0; }
+}
+.bbb-rate-plate[data-suspended="true"] {
+  background: transparent;
+  box-shadow: none;
+  animation: none;
+}
+.bbb-rate-plate[data-suspended="true"]::after {
+  display: none;
 }
 .bbb-tone-runs { --bbb-plate-gradient: linear-gradient(180deg, var(--bbb-runs-top), var(--bbb-runs-bottom)); background: var(--bbb-plate-gradient); }
 .bbb-tone-four { --bbb-plate-gradient: linear-gradient(180deg, var(--bbb-four-top), var(--bbb-four-bottom)); background: var(--bbb-plate-gradient); }
@@ -430,9 +443,17 @@
 .bbb-live-result {
   box-shadow: 0 0 0 2px color-mix(in oklab, var(--foreground) 45%, transparent), 0 0 10px var(--bbb-glow);
 }
+.bbb-result-ball {
+  animation: bbb-result-pop 260ms ease-out both;
+  filter: drop-shadow(0 8px 12px color-mix(in oklab, var(--foreground) 38%, transparent));
+}
+@keyframes bbb-result-pop {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.72); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .bbb-rate-plate { animation: none; }
+  .bbb-rate-plate, .bbb-rate-plate::after, .bbb-result-ball { animation: none; }
 }
 
 /* Exchange rate change flash — original site jaisa */

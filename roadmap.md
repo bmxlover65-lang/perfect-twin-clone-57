@@ -45,7 +45,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 
 ## Phase 5 — Original table parity (in progress)
 - [ ] Compare all 21 casino games against universeapi.shop at mobile width
-- [x] Ball by Ball: two-minute reference audit; matched compact headers, 16:9 artwork, two-column rate geometry, timed glow, result bubble, disclaimer and circular history
+- [x] Ball by Ball: four-minute mobile reference audit; matched 20-second timer, live rate cadence, 64px boxes, shine, transparent locked state, cricket-ball result, disclaimer and circular history
 - [x] Remove white bottom gap in embedded game pages; Balloon artwork fills the available frame height
 - [x] Match the shared 393px mobile header height, 16px page gutters, title scale, live-TV width, and compact table scaling
 - [ ] Verify video area, timer, round ID, live cards and result banner per table
