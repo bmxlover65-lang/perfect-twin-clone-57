@@ -1330,8 +1330,6 @@ export function BallByBallBoard({
   news?: string | undefined;
   recent?: string[];
 }) {
-  const left = runners.filter((_, i) => i % 2 === 0);
-  const right = runners.filter((_, i) => i % 2 === 1);
   const [rulesOpen, setRulesOpen] = useState(false);
 
   return (
@@ -1369,17 +1367,10 @@ export function BallByBallBoard({
           Back
         </span>
       </div>
-      <div className="grid grid-cols-2 gap-x-[45px] bg-bbb-field px-[22px] py-2 sm:gap-x-12 sm:px-6">
-        <div className="flex min-w-0 flex-col gap-[11px]">
-          {left.map((r, index) => (
-            <Plate key={r.selectionId} r={r} index={index} />
-          ))}
-        </div>
-        <div className="flex min-w-0 flex-col gap-[11px]">
-          {right.map((r, index) => (
-            <Plate key={r.selectionId} r={r} index={index + left.length} />
-          ))}
-        </div>
+      <div className="grid grid-cols-2 items-start gap-x-[45px] gap-y-[11px] bg-bbb-field px-[22px] py-2 sm:gap-x-12 sm:px-6">
+        {runners.map((r, index) => (
+          <Plate key={r.selectionId} r={r} index={index} />
+        ))}
       </div>
 
       <div className="border-y border-casino-market-divider bg-secondary px-5 py-2 text-center text-[0.74rem] font-medium leading-[0.9rem] text-secondary-foreground">
