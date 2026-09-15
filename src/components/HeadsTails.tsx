@@ -207,6 +207,7 @@ export function HeadsTailsPanel({
   gameName,
   round,
   disabled,
+  winner,
 }: {
   runners: CoinRunner[];
   min: number;
@@ -216,6 +217,7 @@ export function HeadsTailsPanel({
   gameName?: string;
   round?: string;
   disabled?: boolean;
+  winner?: CoinSide | null;
 }) {
   const [chip, setChip] = useState("100");
   const [selected, setSelected] = useState<string | null>(null);
