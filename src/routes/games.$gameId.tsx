@@ -2200,7 +2200,8 @@ function GamePage() {
     const liveBallResult = normalizeBallResult(
       raw.gameResult ||
         (liveResult?.round === roundKey ? liveResult.winner : "") ||
-        (!((raw.runners ?? []).some((r) => (r.status ?? "").toUpperCase() === "ACTIVE"))
+        (!((raw.runners ?? []).some((r) => (r.status ?? "").toUpperCase() === "ACTIVE")) &&
+        String(results[0]?.roundId ?? "") === roundKey
           ? bbbRecent[0] ?? ""
           : ""),
     );
