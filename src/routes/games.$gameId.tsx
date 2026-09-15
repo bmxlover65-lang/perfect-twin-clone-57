@@ -2198,7 +2198,11 @@ function GamePage() {
       return runs ? `${runs} ${runs === "1" ? "RUN" : "RUNS"}` : s;
     };
     const liveBallResult = normalizeBallResult(
-      raw.gameResult || (liveResult?.round === roundKey ? liveResult.winner : ""),
+      raw.gameResult ||
+        (liveResult?.round === roundKey ? liveResult.winner : "") ||
+        (!((raw.runners ?? []).some((r) => (r.status ?? "").toUpperCase() === "ACTIVE"))
+          ? bbbRecent[0] ?? ""
+          : ""),
     );
     const bbbOpen = (raw.runners ?? []).some(
       (r) => (r.status ?? "").toUpperCase() === "ACTIVE",
