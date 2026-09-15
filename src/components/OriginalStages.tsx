@@ -1363,7 +1363,7 @@ export function BallByBallBoard({
           Back
         </span>
       </div>
-      <div className="grid grid-cols-2 items-start gap-x-[45px] gap-y-[15px] bg-bbb-field px-[22px] py-[10px] sm:gap-x-12 sm:px-6">
+      <div className="grid grid-cols-2 items-start gap-x-[40px] gap-y-[10px] bg-bbb-field px-[22px] py-[10px] sm:gap-x-12 sm:px-6">
         {runners.map((r, index) => (
           <Plate key={r.selectionId} r={r} index={index} />
         ))}
