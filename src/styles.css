@@ -418,18 +418,14 @@
 .coin-flipper[data-face="tails"] { transform: rotateX(180deg); }
 .coin-face { backface-visibility: hidden; }
 .coin-back { transform: rotateX(180deg); }
-.coin-toss { animation: none; }
+.coin-toss { animation: coin-toss 700ms ease-in-out infinite; }
 .coin-flip-heads { animation: coin-flip-heads 2s ease both; }
 .coin-flip-tails { animation: coin-flip-tails 2s ease both; }
 @keyframes coin-flip-heads { from { transform: rotateX(0); } to { transform: rotateX(2160deg); } }
 @keyframes coin-flip-tails { from { transform: rotateX(0); } to { transform: rotateX(1980deg); } }
 @keyframes coin-toss {
-  0% { translate: 0 0; scale: 1; }
-  16% { translate: 0 -24px; scale: .94; }
-  48% { translate: 0 -82px; scale: .76; }
-  76% { translate: 0 -26px; scale: .93; }
-  90% { translate: 0 5px; scale: 1.02; }
-  100% { translate: 0 0; scale: 1; }
+  0%, 100% { transform: translateY(12px) scale(0.96); }
+  50% { transform: translateY(-30px) scale(1); }
 }
 .coin-spin-idle { animation: coin-spin-idle 700ms linear infinite; }
 @keyframes coin-spin-idle {
@@ -517,7 +513,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .bbb-rate-plate, .bbb-rate-plate::after, .bbb-result-ball,
-  .coin-flip-heads, .coin-flip-tails, .coin-spin-idle, .coin-winner,
+  .coin-toss, .coin-flip-heads, .coin-flip-tails, .coin-spin-idle, .coin-winner,
   .coin-bet-plate::after { animation: none; }
 }
 
