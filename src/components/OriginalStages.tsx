@@ -1271,6 +1271,7 @@ export function BallByBallBoard({
   const open = (s?: string) => (s ?? "").toUpperCase() === "ACTIVE";
   const left = runners.filter((_, i) => i % 2 === 0);
   const right = runners.filter((_, i) => i % 2 === 1);
+  const [rulesOpen, setRulesOpen] = useState(false);
 
   const Plate = ({ r, index }: { r: BbbRunner; index: number }) => (
     <div
