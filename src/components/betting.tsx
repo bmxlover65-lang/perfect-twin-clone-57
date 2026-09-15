@@ -718,7 +718,7 @@ export function BetLayer({
           const b = plate.getBoundingClientRect();
           return {
             x: (b.left + b.width / 2 - rootBox.left) / scale,
-            y: (b.bottom - rootBox.top) / scale + 2,
+            y: (b.bottom - rootBox.top) / scale + 7,
           };
         };
 
