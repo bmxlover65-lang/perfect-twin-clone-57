@@ -401,10 +401,14 @@ export function BetLayer({
 
       for (const flag of flags) {
         // Latch the market block that the banner covers, not the whole table.
+        // A flag that is itself a single selection (boards that mark each rate
+        // plate suspended) latches only that selection.
         let market: HTMLElement = flag;
-        for (let i = 0; i < 4 && market.parentElement && market.parentElement !== root; i++) {
-          market = market.parentElement;
-          if (market.querySelector('[data-market-option],[data-runner-row]')) break;
+        if (!flag.matches("[data-market-option]")) {
+          for (let i = 0; i < 4 && market.parentElement && market.parentElement !== root; i++) {
+            market = market.parentElement;
+            if (market.querySelector("[data-market-option],[data-runner-row]")) break;
+          }
         }
         if (!latched.current.includes(market)) latched.current.push(market);
       }
