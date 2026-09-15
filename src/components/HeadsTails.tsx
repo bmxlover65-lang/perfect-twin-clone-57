@@ -143,10 +143,12 @@ function formatOdds(n?: number) {
 function Plate({
   r,
   selected,
+  won,
   onClick,
 }: {
   r: CoinRunner;
   selected: boolean;
+  won?: boolean;
   onClick: () => void;
 }) {
   const heads = r.label.toUpperCase().startsWith("H");
@@ -167,7 +169,7 @@ function Plate({
       data-bet-odds={r.price ?? undefined}
       data-suspended={r.open ? undefined : "true"}
       onClick={onClick}
-      className={`${base} ${theme} ${selected ? "ring-2 ring-[#F2C500]" : ""}`}
+      className={`${base} ${theme} ${selected ? "ring-2 ring-[#F2C500]" : ""} ${won ? "coin-plate-win" : ""}`}
     >
       {/* decorative side dots */}
       <span className="pointer-events-none absolute left-2 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-white/60" />
@@ -288,7 +290,12 @@ export function HeadsTailsPanel({
        <div className="grid grid-cols-2 gap-[11px]">
         {runners.map((r) => (
           <div key={r.id} className="flex flex-col">
-            <Plate r={r} selected={selected === r.id} onClick={() => bet(r)} />
+            <Plate
+              r={r}
+              selected={selected === r.id}
+              won={!!winner && r.label.toUpperCase().startsWith(winner[0]!)}
+              onClick={() => bet(r)}
+            />
             {staked[r.id] ? (
               <span className="mt-1 text-center text-[0.72rem] font-extrabold text-[#F2C500]">
                 {staked[r.id]}
