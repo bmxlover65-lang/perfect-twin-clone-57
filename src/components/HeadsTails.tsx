@@ -75,8 +75,6 @@ export function CoinStageImage({
     if (!flipping && winner && flipKey.current !== roundId) setShown(winner);
   }, [flipping, winner, roundId]);
 
-  const landed = !flipping && !!winner && flipKey.current === roundId;
-
   return (
     <div className="relative flex w-full items-center justify-center overflow-hidden bg-black py-2">
       {roundId ? (
@@ -84,12 +82,7 @@ export function CoinStageImage({
           RID: {roundId}
         </span>
       ) : null}
-      <div
-        className="coin-stage-wrap relative my-8 h-[min(350px,89vw)] w-[min(350px,89vw)]"
-        style={{ perspective: 900 }}
-        data-side={landed ? (winner === "TAILS" ? "tails" : "heads") : undefined}
-      >
-        <span className="coin-halo pointer-events-none absolute inset-[-6%] z-0 rounded-full" />
+      <div className="relative my-8 h-[min(350px,89vw)] w-[min(350px,89vw)]" style={{ perspective: 900 }}>
         <div
           className={`coin-flipper relative h-full w-full ${flipping ? (winner === "TAILS" ? "coin-flip-tails" : "coin-flip-heads") : ""}`}
           data-face={shown.toLowerCase()}
@@ -107,24 +100,11 @@ export function CoinStageImage({
             draggable={false}
           />
         </div>
-        <span className="coin-sheen pointer-events-none absolute inset-0 z-10 rounded-full" />
       </div>
       <RoundTimer leftSec={leftSec} suspended={suspended || flipping} className="absolute right-1 top-1 z-20" size="h-[50px] w-[50px]" />
-      {landed ? (
-        <span
-          className={`coin-winner absolute bottom-3 z-20 rounded-[12px] px-5 py-2 text-[1.12rem] font-extrabold uppercase text-white shadow-lg ${
-            winner === "TAILS"
-              ? "right-[8%] bg-gradient-to-b from-[#60A5FA] to-[#1D4ED8]"
-              : "left-[8%] bg-gradient-to-b from-[#A78BFA] to-[#6D28D9]"
-          }`}
-        >
-          {winner} wins
-        </span>
-      ) : null}
     </div>
   );
 }
-
 
 
 export type CoinRunner = {
@@ -143,12 +123,10 @@ function formatOdds(n?: number) {
 function Plate({
   r,
   selected,
-  won,
   onClick,
 }: {
   r: CoinRunner;
   selected: boolean;
-  won?: boolean;
   onClick: () => void;
 }) {
   const heads = r.label.toUpperCase().startsWith("H");
@@ -169,7 +147,7 @@ function Plate({
       data-bet-odds={r.price ?? undefined}
       data-suspended={r.open ? undefined : "true"}
       onClick={onClick}
-      className={`${base} ${theme} ${selected ? "ring-2 ring-[#F2C500]" : ""} ${won ? "coin-plate-win" : ""}`}
+      className={`${base} ${theme} ${selected ? "ring-2 ring-[#F2C500]" : ""}`}
     >
       {/* decorative side dots */}
       <span className="pointer-events-none absolute left-2 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-white/60" />
@@ -290,12 +268,7 @@ export function HeadsTailsPanel({
        <div className="grid grid-cols-2 gap-[11px]">
         {runners.map((r) => (
           <div key={r.id} className="flex flex-col">
-            <Plate
-              r={r}
-              selected={selected === r.id}
-              won={!!winner && r.label.toUpperCase().startsWith(winner[0]!)}
-              onClick={() => bet(r)}
-            />
+            <Plate r={r} selected={selected === r.id} onClick={() => bet(r)} />
             {staked[r.id] ? (
               <span className="mt-1 text-center text-[0.72rem] font-extrabold text-[#F2C500]">
                 {staked[r.id]}
