@@ -1289,8 +1289,20 @@ export function BallByBallBoard({
           {r.backSize ? Math.round(r.backSize).toLocaleString("en-US", { useGrouping: false }) : ""}
         </span>
       </span>
-      <span className="relative z-[1] min-w-0 flex-1 break-words text-center text-[0.78rem] font-extrabold uppercase leading-[0.86rem] sm:text-[0.82rem] sm:leading-[0.9rem]">
-        {r.label}
+      <span className="relative z-[1] flex min-w-0 flex-1 items-center justify-center gap-1 break-words text-center text-[0.78rem] font-extrabold uppercase leading-[0.86rem] sm:text-[0.82rem] sm:leading-[0.9rem]">
+        {open(r.status) ? null : (
+          <svg viewBox="0 0 24 24" className="h-[17px] w-[17px] shrink-0" aria-hidden="true">
+            <path
+              d="M8 10V7a4 4 0 0 1 8 0"
+              fill="none"
+              stroke="#8B2F1D"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+            />
+            <rect x="5" y="10" width="14" height="10" rx="2" fill="#A8412A" />
+          </svg>
+        )}
+        <span className="min-w-0 break-words">{r.label}</span>
       </span>
     </div>
   );
