@@ -2172,6 +2172,7 @@ function GamePage() {
 
   const isOriginal = gameId.startsWith("88.");
   const isBbb = gameId === "4.3544687543453";
+
   const raw = (d ?? {}) as unknown as {
     multiplier?: string;
     runners?: BbbRunner[];
