@@ -2180,9 +2180,17 @@ function GamePage() {
   };
 
   if (isBbb) {
+    const bbbRecent = results.slice(0, 14).map((r) => {
+      const rr = r as CasinoResult & { result?: string; selectionName?: string };
+      const s = (rr.winner ?? rr.result ?? rr.selectionName ?? "-").toString().trim();
+      if (/^EXTRA/i.test(s)) return "EX";
+      if (/^WICKET/i.test(s)) return "W";
+      return s.match(/^\d+/)?.[0] ?? s;
+    });
+    const latestBall = bbbRecent[0];
     return (
-      <div className={shell("max-w-[900px]")}>
-        <div className="bg-[#EDEDED] px-3 py-2">
+      <div className={shell("max-w-[620px]")}>
+        <div className="bg-secondary px-2 py-1">
           {embed ? null : (
 
             <Link to="/" className="text-sm text-[#2563EB] hover:underline">
@@ -2193,20 +2201,27 @@ function GamePage() {
 
           )}
         </div>
-        <div className="flex items-center justify-between bg-[#2E4B5C] px-3 py-2">
-          <span className="text-[0.95rem] font-bold uppercase text-white">
+        <div className="flex h-[25px] items-center justify-between bg-casino-market-header px-2">
+          <span className="text-[0.68rem] font-bold uppercase text-board-header-foreground">
             {d?.eventName ?? "Ball By Ball"}
           </span>
-          <span className="flex items-center gap-2 text-[0.85rem] font-bold text-white">
+          <span className="flex items-center gap-1 text-[0.5rem] font-bold text-board-header-foreground">
             {d?.roundId ?? "—"} <BalanceChip />
           </span>
         </div>
-        <img
-          src={ballByBallBanner.url}
-          alt="Ball by Ball"
-          loading="lazy"
-          className="block w-full"
-        />
+        <div className="relative aspect-video overflow-hidden bg-secondary">
+          <img
+            src={ballByBallBanner.url}
+            alt="Ball by Ball"
+            loading="eager"
+            className="block h-full w-full object-cover"
+          />
+          {latestBall && latestBall !== "-" ? (
+            <span className={`bbb-live-result absolute right-1 top-1 grid h-8 w-8 place-items-center rounded-full border-2 border-board-header-foreground text-sm font-extrabold ${latestBall === "W" ? "bbb-tone-wicket" : latestBall === "6" ? "bbb-tone-six" : latestBall === "4" ? "bbb-tone-four" : "bbb-tone-runs"}`}>
+              {latestBall}
+            </span>
+          ) : null}
+        </div>
         <BetLayer
           gameId={gameId}
           gameName={d?.eventName ?? "Ball By Ball"}
@@ -2218,13 +2233,7 @@ function GamePage() {
             min={raw.min ?? 100}
             max={raw.max ?? 100000}
             news={raw.news}
-            recent={results.slice(0, 10).map((r) => {
-              const rr = r as CasinoResult & { result?: string; selectionName?: string };
-              const s = (rr.winner ?? rr.result ?? rr.selectionName ?? "-").toString().trim();
-              if (/^EXTRA/i.test(s)) return "EX";
-              if (/^WICKET/i.test(s)) return "W";
-              return s.match(/^\d+/)?.[0] ?? s;
-            })}
+            recent={bbbRecent}
           />
 
         </BetLayer>
