@@ -1310,7 +1310,16 @@ export function BallByBallBoard({
   return (
     <div className="bg-background text-casino-market-text">
       <div className="flex h-[28px] items-center justify-between bg-casino-market-header px-2">
-        <span className="text-[0.68rem] font-bold text-board-header-foreground">Runs ⓘ</span>
+        <button
+          type="button"
+          onClick={() => setRulesOpen(true)}
+          className="flex items-center gap-1 text-[0.68rem] font-bold text-board-header-foreground"
+        >
+          Runs
+          <span className="grid h-[14px] w-[14px] place-items-center rounded-full border border-board-header-foreground text-[0.55rem] leading-none">
+            i
+          </span>
+        </button>
         <span className="text-[0.56rem] font-medium text-board-header-foreground">
           Min/Max: {min} - {max}
         </span>
