@@ -186,14 +186,71 @@ export function HeadsTailsPanel({
   min,
   max,
   recent,
+  gameId,
+  gameName,
+  round,
+  disabled,
 }: {
   runners: CoinRunner[];
   min: number;
   max: number;
   recent?: string[];
+  gameId?: string;
+  gameName?: string;
+  round?: string;
+  disabled?: boolean;
 }) {
-  const [chip, setChip] = useState("1k");
+  const [chip, setChip] = useState("100");
   const [selected, setSelected] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+  const [staked, setStaked] = useState<Record<string, number>>({});
+  const roundRef = useRef<string | undefined>(round);
+
+  useEffect(() => {
+    if (roundRef.current !== round) {
+      roundRef.current = round;
+      setStaked({});
+      setSelected(null);
+    }
+  }, [round]);
+
+  const amount = CHIPS.find((c) => c.v === chip)?.amount ?? 100;
+
+  const bet = (r: CoinRunner) => {
+    setSelected(r.id);
+    if (!gameId || !round) return;
+    if (disabled || !r.open) {
+      setToast({ kind: "err", text: "Bet is suspended." });
+      return;
+    }
+    if (amount < min) {
+      setToast({ kind: "err", text: `Minimum bet is ${min}.` });
+      return;
+    }
+    if (amount > max) {
+      setToast({ kind: "err", text: `Maximum bet is ${max}.` });
+      return;
+    }
+    if (amount > readWallet().balance) {
+      setToast({ kind: "err", text: "You have Insufficient Balance." });
+      return;
+    }
+    const ref = placeBet({
+      gameId,
+      gameName: gameName ?? gameId,
+      round,
+      label: r.label,
+      odds: r.price ?? 0,
+      stake: amount,
+    });
+    if (!ref) {
+      setToast({ kind: "err", text: "You have Insufficient Balance." });
+      return;
+    }
+    setStaked((s) => ({ ...s, [r.id]: (s[r.id] ?? 0) + amount }));
+    setToast({ kind: "ok", text: `Bet placed on ${r.label.toUpperCase()} — ${amount}` });
+  };
+
 
   const recentItems = (recent ?? [])
     .slice(0, 10)
