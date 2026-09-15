@@ -6,12 +6,8 @@ import { useEmbed } from "@/lib/embed";
 export type Pick = { label: string; odds: number };
 type ExtractedPick = Pick & { element: HTMLElement };
 
-const CHIPS = [100, 200, 500, 1000, 2000, 5000, 10000, 25000, 50000, 100000];
-
-/** Short chip label: 1000 → 1k, 25000 → 25k. */
-function chipText(v: number) {
-  return v >= 1000 ? `${v / 1000}k` : String(v);
-}
+/** Quick-stake buttons in the bet slip — original site layout (4 × 2). */
+const SLIP_CHIPS = [1000, 5000, 10000, 25000, 50000, 100000, 200000, 500000];
 
 const DEFAULT_STAKE = 1000;
 const LAST_STAKE_KEY = "uapi.lastStake";
@@ -755,28 +751,26 @@ export function BetLayer({
           style={{ top: `${anchor}px` }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="mx-auto w-full max-w-[430px] overflow-hidden rounded-[4px] border border-[#9fb6c4] bg-[linear-gradient(180deg,#cfe0ea_0%,#e9f1f5_100%)] shadow-[0_10px_24px_rgba(0,0,0,0.35)]">
-            <div className="flex items-center justify-between bg-[#1f3b4d] px-3 py-2">
-              <span className="text-[0.72rem] font-bold uppercase tracking-[0.1em] text-white/80">
-                {pick.label}
-              </span>
-              {embed ? null : (
+          <div className="mx-auto w-full max-w-[430px] overflow-hidden border-y border-[#b9cddb] bg-[#dbe7f0] shadow-[0_10px_24px_rgba(0,0,0,0.25)]">
+            {embed ? null : (
+              <div className="flex items-center justify-between bg-[#1f3b4d] px-3 py-1.5">
+                <span className="text-[0.72rem] font-bold uppercase tracking-[0.1em] text-white/80">
+                  {pick.label}
+                </span>
                 <span className="text-[0.78rem] font-extrabold text-white">
                   Bal {Math.round(wallet.balance).toLocaleString("en-IN")}
                 </span>
-              )}
-            </div>
+              </div>
+            )}
 
-            <div className="px-3 pb-3 pt-2">
-
-
-              <div className="mt-2 grid grid-cols-2 gap-2">
+            <div className="px-2.5 pb-2.5 pt-2.5">
+              <div className="grid grid-cols-2 gap-2.5">
                 <Stepper value={odds} onChange={setOdds} step={0.01} decimals={2} />
                 <Stepper value={stake} onChange={setStake} step={100} decimals={0} editable min={100} />
               </div>
 
-              <div className="mt-2 grid grid-cols-5 gap-1.5">
-                {CHIPS.map((c) => (
+              <div className="mt-2.5 grid grid-cols-4 gap-2.5">
+                {SLIP_CHIPS.map((c) => (
                   <button
                     key={c}
                     type="button"
@@ -784,29 +778,22 @@ export function BetLayer({
                       setStake(c);
                       saveLastStake(c);
                     }}
-                    className={`h-9 rounded-[4px] border text-[0.78rem] font-bold active:bg-[#dfe9ef] ${
+                    className={`h-11 rounded-[8px] border text-[0.95rem] font-medium active:bg-[#eef4f8] ${
                       Math.round(stake) === c
                         ? "border-[#2f7fbe] bg-[#2f7fbe] text-white"
-                        : "border-[#c9d6de] bg-white text-[#20384a]"
+                        : "border-[#c3d3de] bg-white text-[#1d2c36]"
                     }`}
                   >
-                    {chipText(c)}
+                    {c}
                   </button>
                 ))}
               </div>
 
-
-
-              <div className="mt-2 flex items-center justify-between px-1 text-[0.75rem] font-bold text-[#4a6274]">
-                <span>Stake {Math.round(stake).toLocaleString("en-IN")}</span>
-                <span>Returns {Math.round(stake * odds).toLocaleString("en-IN")}</span>
-              </div>
-
-              <div className="mt-2 grid grid-cols-2 gap-3">
+              <div className="mt-2.5 grid grid-cols-2 gap-2.5">
                 <button
                   type="button"
                   onClick={close}
-                  className="h-11 rounded-[4px] border border-[#c9d6de] bg-white text-[0.95rem] font-extrabold text-[#20384a]"
+                  className="h-12 rounded-[8px] border border-[#c3d3de] bg-white text-[1.05rem] font-bold text-[#1d2c36]"
                 >
                   Cancel
                 </button>
@@ -814,7 +801,7 @@ export function BetLayer({
                   type="button"
                   onClick={submit}
                   disabled={stake < 100}
-                  className="h-11 rounded-[4px] bg-[#2f7fbe] text-[0.95rem] font-extrabold text-white disabled:bg-[#b9c6ce] disabled:text-white/80"
+                  className="h-12 rounded-[8px] bg-[#2f7fbe] text-[1.05rem] font-bold text-white disabled:bg-[#b9bdc0] disabled:text-white/85"
                 >
                   Place Bet
                 </button>

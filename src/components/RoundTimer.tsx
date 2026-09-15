@@ -18,7 +18,7 @@ export function RoundTimer({
   size?: string | undefined;
   variant?: "default" | "bbb" | undefined;
 }) {
-  const secs = Math.max(0, Math.round(leftSec ?? 0));
+  const secs = Math.max(0, Math.ceil(leftSec ?? 0));
   if (suspended || leftSec == null || secs <= 0) return null;
   const pct = Math.max(0, Math.min(1, secs / Math.max(total, secs)));
   const ring = variant === "bbb" ? "#2E7D32" : secs <= 5 ? "#EF4444" : "#22C55E";
