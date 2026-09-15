@@ -56,7 +56,7 @@ export function CoinStageImage({
   };
 
   useEffect(() => {
-    if (!suspended || !winner || !roundId) return;
+    if (!winner || !roundId) return;
     if (flipKey.current === roundId) return;
     flipKey.current = roundId;
     setShown("HEADS");
@@ -72,8 +72,8 @@ export function CoinStageImage({
   }, [suspended, winner, roundId]);
 
   useEffect(() => {
-    if (!flipping && winner && !suspended) setShown(winner);
-  }, [flipping, winner, suspended]);
+    if (!flipping && winner && flipKey.current !== roundId) setShown(winner);
+  }, [flipping, winner, roundId]);
 
   return (
     <div className="relative flex w-full items-center justify-center overflow-hidden bg-black py-2">
@@ -102,7 +102,7 @@ export function CoinStageImage({
         </div>
       </div>
       <RoundTimer leftSec={leftSec} suspended={suspended || flipping} className="absolute right-1 top-1 z-20" size="h-[50px] w-[50px]" />
-      {!flipping && suspended && winner ? (
+      {!flipping && winner && flipKey.current === roundId ? (
         <span className="coin-winner absolute left-1/2 top-1/2 z-20 -translate-x-1/2 rounded-[12px] bg-gradient-to-b from-[#FD8F3B] to-[#FD3523] px-5 py-2 text-[1.18rem] font-extrabold uppercase text-white shadow-lg">
           {winner} wins
         </span>

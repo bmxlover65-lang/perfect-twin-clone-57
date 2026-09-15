@@ -2422,9 +2422,9 @@ function GamePage() {
                   admin,
                   gameId,
                   (d as unknown as { gameResult?: string })?.gameResult ??
-                    results[0]?.winner ??
+                    (liveResult?.round === roundKey ? liveResult.winner : "") ??
                     "",
-                ) ?? ""
+                ) ?? (String(results[0]?.roundId ?? "") === roundKey ? String(results[0]?.winner ?? "") : "")
               )
                 .toString()
                 .toUpperCase();
