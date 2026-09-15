@@ -155,9 +155,9 @@ function nodeFromKey(key: string, root: HTMLElement): HTMLElement | null {
 
 function extractPick(target: HTMLElement, root: HTMLElement): ExtractedPick | null {
   // Never treat media / inputs / explicitly opted-out areas as a bet click.
-  // Buttons are controls (quick stake, steppers, modal actions), not market
-  // prices. The board's genuinely clickable prices are div-based plates.
-  if (target.closest("iframe,video,img,input,textarea,select,a,button,[data-nobet]")) return null;
+  if (target.closest("iframe,video,img,input,textarea,select,a,[data-nobet]")) return null;
+  const control = target.closest("button");
+  if (control && !control.hasAttribute("data-market-option")) return null;
 
   let el: HTMLElement | null = target;
   let odds: number | null = null;

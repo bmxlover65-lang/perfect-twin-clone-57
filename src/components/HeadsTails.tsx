@@ -40,7 +40,6 @@ export function CoinStageImage({
 }) {
   const [flipping, setFlipping] = useState(false);
   const [shown, setShown] = useState<CoinSide>("HEADS");
-  const [face, setFace] = useState<CoinSide>("HEADS");
   const flipKey = useRef<string | null>(null);
   const timers = useRef<number[]>([]);
 
@@ -58,13 +57,14 @@ export function CoinStageImage({
     if (!suspended || !winner || !roundId) return;
     if (flipKey.current === roundId) return;
     flipKey.current = roundId;
+    setShown("HEADS");
     setFlipping(true);
     play(coinSound.url);
     const stop = window.setTimeout(() => {
       setFlipping(false);
       setShown(winner);
       play(winner === "HEADS" ? headWinSound.url : tailWinSound.url);
-    }, 2600);
+    }, 2000);
     timers.current.push(stop);
     return () => window.clearTimeout(stop);
   }, [suspended, winner, roundId]);
@@ -73,45 +73,38 @@ export function CoinStageImage({
     if (!flipping && winner && !suspended) setShown(winner);
   }, [flipping, winner, suspended]);
 
-  useEffect(() => {
-    if (!flipping) {
-      setFace(shown);
-      return undefined;
-    }
-    const i = window.setInterval(
-      () => setFace((f) => (f === "HEADS" ? "TAILS" : "HEADS")),
-      140,
-    );
-    return () => window.clearInterval(i);
-  }, [flipping, shown]);
-
   return (
-    <div className="relative flex w-full items-center justify-center bg-black py-5">
+    <div className="relative flex w-full items-center justify-center overflow-hidden bg-black py-2">
       {roundId ? (
-        <span className="pointer-events-none absolute left-3 top-3 text-[0.72rem] font-extrabold text-white/85">
+        <span className="pointer-events-none absolute left-1 top-1 z-20 bg-black/45 px-1.5 py-1 text-[0.63rem] font-extrabold text-white/90">
           RID: {roundId}
         </span>
       ) : null}
-      <div style={{ perspective: 900 }}>
-        <img
-          src={face === "HEADS" ? headsCoin.url : tailsCoin.url}
-          alt={`${face} coin`}
-          className="h-[min(320px,78vw)] w-[min(320px,78vw)] select-none object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.65)]"
-          draggable={false}
-          style={
-            flipping
-              ? { animation: "uapi-coin-flip 0.42s linear infinite", transformStyle: "preserve-3d" }
-              : undefined
-          }
-        />
+      <div className="my-8 h-[min(350px,89vw)] w-[min(350px,89vw)]" style={{ perspective: 900 }}>
+        <div
+          className={`coin-flipper relative h-full w-full ${flipping ? (winner === "TAILS" ? "coin-flip-tails" : "coin-flip-heads") : ""}`}
+          data-face={shown.toLowerCase()}
+        >
+          <img
+            src={headsCoin.url}
+            alt="Heads coin"
+            className="coin-face absolute inset-0 h-full w-full select-none object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.65)]"
+            draggable={false}
+          />
+          <img
+            src={tailsCoin.url}
+            alt="Tails coin"
+            className="coin-face coin-back absolute inset-0 h-full w-full select-none object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.65)]"
+            draggable={false}
+          />
+        </div>
       </div>
-      <RoundTimer leftSec={leftSec} suspended={suspended || flipping} className="absolute right-3 top-3" />
+      <RoundTimer leftSec={leftSec} suspended={suspended || flipping} className="absolute right-1 top-1 z-20" size="h-[50px] w-[50px]" />
       {!flipping && suspended && winner ? (
-        <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-[#F2C500] px-4 py-1 text-[0.8rem] font-extrabold uppercase text-black">
+        <span className="coin-winner absolute left-1/2 top-1/2 z-20 -translate-x-1/2 rounded-[12px] bg-gradient-to-b from-[#FD8F3B] to-[#FD3523] px-5 py-2 text-[1.18rem] font-extrabold uppercase text-white shadow-lg">
           {winner} wins
         </span>
       ) : null}
-      <style>{`@keyframes uapi-coin-flip{0%{transform:rotateX(0deg)}100%{transform:rotateX(360deg)}}`}</style>
     </div>
   );
 }
@@ -141,7 +134,7 @@ function Plate({
 }) {
   const heads = r.label.toUpperCase().startsWith("H");
   const base =
-    "relative flex flex-col items-center justify-center rounded-[10px] border-2 p-2 text-white shadow-[0_4px_14px_rgba(0,0,0,0.45)] transition-transform active:scale-[0.98]";
+    "coin-bet-plate relative flex h-[72px] flex-col items-center justify-center overflow-hidden rounded-[6px] border p-1.5 text-white shadow-[0_2px_7px_rgba(103,130,139,0.9)] transition-transform active:scale-[0.98]";
   const theme = heads
     ? "border-[#C4B5FD] bg-gradient-to-b from-[#A78BFA] to-[#7C3AED]"
     : "border-[#93C5FD] bg-gradient-to-b from-[#60A5FA] to-[#2563EB]";
@@ -151,6 +144,9 @@ function Plate({
   return (
     <button
       type="button"
+      data-market-option=""
+      data-market-plate=""
+      data-suspended={r.open ? undefined : "true"}
       onClick={onClick}
       className={`${base} ${theme} ${selected ? "ring-2 ring-[#F2C500]" : ""}`}
     >
@@ -171,8 +167,12 @@ function Plate({
       </div>
 
       {!r.open ? (
-        <span className="absolute inset-0 grid place-items-center rounded-[10px] bg-black/80 text-[0.85rem] font-black uppercase tracking-wide text-white">
-          Suspended
+        <span className="absolute inset-0 z-10 grid place-items-center bg-black/40">
+          <svg viewBox="0 0 24 24" className="h-6 w-6" aria-label="Locked">
+            <path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" />
+            <rect x="5" y="10" width="14" height="11" rx="2" fill="white" />
+            <circle cx="12" cy="15" r="1.5" fill="#243849" />
+          </svg>
         </span>
       ) : null}
     </button>
@@ -197,14 +197,14 @@ export function HeadsTailsPanel({
     .slice(0, 10)
     .map((r) => {
       const raw = r.toString().trim().toUpperCase();
-      if (raw.startsWith("T")) return { key: "T", tone: "bg-[#F472B6] text-black" };
-      if (raw.startsWith("H")) return { key: "H", tone: "bg-[#60A5FA] text-black" };
+          if (raw.startsWith("T")) return { key: "T", tone: "border-[#273C68] bg-[#0F1626] text-[#6198FF]" };
+          if (raw.startsWith("H")) return { key: "H", tone: "border-[#533668] bg-[#1F1426] text-[#CC85FF]" };
       return { key: raw.slice(0, 1), tone: "bg-white/20 text-white" };
     });
 
   return (
     <div className="bg-black p-2">
-      <p className="mb-2 text-right text-[0.62rem] font-semibold text-white/40">
+      <p className="mb-2 text-right text-[0.62rem] font-semibold text-white/55">
         Min:{min} Max:{max}
       </p>
       <div className="grid grid-cols-2 gap-3">
@@ -246,11 +246,11 @@ export function HeadsTailsPanel({
 
       {recentItems.length ? (
         <div className="mt-3 flex items-center gap-2 overflow-x-auto rounded-md bg-black px-1 py-2">
-          <span className="mr-1 shrink-0 text-[0.95rem] font-bold text-white">Recent Result</span>
+          <span className="mr-1 shrink-0 text-[1.05rem] font-bold text-white">Recent Result</span>
           {recentItems.map((item, idx) => (
             <span
               key={`${item.key}-${idx}`}
-              className={`flex h-9 min-w-9 shrink-0 items-center justify-center rounded-full px-2 text-sm font-black ${item.tone}`}
+              className={`flex h-10 min-w-10 shrink-0 items-center justify-center rounded-full border-2 px-2 text-base font-black ${item.tone}`}
             >
               {item.key}
             </span>
