@@ -431,7 +431,7 @@
   90% { translate: 0 5px; scale: 1.02; }
   100% { translate: 0 0; scale: 1; }
 }
-.coin-spin-idle { animation: coin-spin-idle 900ms linear infinite; }
+.coin-spin-idle { animation: coin-spin-idle 700ms linear infinite; }
 @keyframes coin-spin-idle {
   from { transform: rotateX(0deg); }
   to { transform: rotateX(360deg); }
