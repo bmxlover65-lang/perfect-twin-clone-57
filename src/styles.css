@@ -420,6 +420,8 @@
 .coin-flip-tails { animation: coin-flip-tails 2s ease both; }
 @keyframes coin-flip-heads { from { transform: rotateX(0); } to { transform: rotateX(2160deg); } }
 @keyframes coin-flip-tails { from { transform: rotateX(0); } to { transform: rotateX(1980deg); } }
+.coin-spin-idle { animation: coin-spin-idle 1.1s linear infinite; }
+@keyframes coin-spin-idle { from { transform: rotateX(0); } to { transform: rotateX(360deg); } }
 
 
 .coin-winner {
@@ -501,7 +503,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .bbb-rate-plate, .bbb-rate-plate::after, .bbb-result-ball,
-  .coin-flip-heads, .coin-flip-tails, .coin-winner,
+  .coin-flip-heads, .coin-flip-tails, .coin-spin-idle, .coin-winner,
   .coin-bet-plate::after { animation: none; }
 }
 
