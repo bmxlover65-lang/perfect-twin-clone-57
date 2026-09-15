@@ -1271,6 +1271,7 @@ export function BallByBallBoard({
   const open = (s?: string) => (s ?? "").toUpperCase() === "ACTIVE";
   const left = runners.filter((_, i) => i % 2 === 0);
   const right = runners.filter((_, i) => i % 2 === 1);
+  const [rulesOpen, setRulesOpen] = useState(false);
 
   const Plate = ({ r, index }: { r: BbbRunner; index: number }) => (
     <div
@@ -1288,8 +1289,22 @@ export function BallByBallBoard({
           {r.backSize ? Math.round(r.backSize).toLocaleString("en-US", { useGrouping: false }) : ""}
         </span>
       </span>
-      <span className="relative z-[1] min-w-0 flex-1 break-words text-center text-[0.78rem] font-extrabold uppercase leading-[0.86rem] sm:text-[0.82rem] sm:leading-[0.9rem]">
-        {r.label}
+      <span className="relative z-[1] flex min-w-0 flex-1 items-center justify-center gap-1 break-words text-center text-[0.78rem] font-extrabold uppercase leading-[0.86rem] sm:text-[0.82rem] sm:leading-[0.9rem]">
+        {open(r.status) ? null : (
+          <svg viewBox="0 0 24 24" className="h-[17px] w-[17px] shrink-0" aria-hidden="true">
+            <path
+              d="M8 10V7a4 4 0 0 1 8 0"
+              fill="none"
+              stroke="#8B2F1D"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+            />
+            <rect x="5" y="10" width="14" height="10" rx="2" fill="#A8412A" />
+          </svg>
+        )}
+        <span className={r.label.length > 9 ? "min-w-0 break-words" : "whitespace-nowrap"}>
+          {r.label}
+        </span>
       </span>
     </div>
   );
@@ -1297,7 +1312,16 @@ export function BallByBallBoard({
   return (
     <div className="bg-background text-casino-market-text">
       <div className="flex h-[28px] items-center justify-between bg-casino-market-header px-2">
-        <span className="text-[0.68rem] font-bold text-board-header-foreground">Runs ⓘ</span>
+        <button
+          type="button"
+          onClick={() => setRulesOpen(true)}
+          className="flex items-center gap-1 text-[0.68rem] font-bold text-board-header-foreground"
+        >
+          Runs
+          <span className="grid h-[14px] w-[14px] place-items-center rounded-full border border-board-header-foreground text-[0.55rem] leading-none">
+            i
+          </span>
+        </button>
         <span className="text-[0.56rem] font-medium text-board-header-foreground">
           Min/Max: {min} - {max}
         </span>
@@ -1342,7 +1366,79 @@ export function BallByBallBoard({
           </div>
         </div>
       ) : null}
+
+      {rulesOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-3 py-6"
+          onClick={() => setRulesOpen(false)}
+        >
+          <div
+            className="max-h-full w-full max-w-[420px] overflow-y-auto rounded-[10px] bg-bbb-field p-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="grid grid-cols-2 gap-2">
+              {BBB_RULES.map((rule) => (
+                <div key={rule.tag} className="rounded-[8px] bg-background p-2">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`grid h-[26px] min-w-[26px] place-items-center rounded-[6px] px-1 text-[0.72rem] font-extrabold text-casino-market-text ${plateTone(rule.tone)}`}
+                    >
+                      {rule.tag}
+                    </span>
+                    <span className="text-[0.78rem] font-bold">{rule.title}</span>
+                  </div>
+                  <p className="mt-1 text-[0.7rem] leading-[0.95rem] text-foreground">{rule.text}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-2 rounded-[8px] border-l-4 border-casino-market-header bg-background p-2">
+              <p className="text-[0.8rem] font-bold">Video &amp; Scoreboard Disclaimer</p>
+              <p className="mt-1 text-[0.7rem] leading-[0.95rem]">
+                Videos may be sourced from different broadcasters, which can result in delays or
+                discrepancies in the scoreboard.
+              </p>
+              <p className="mt-1 text-[0.7rem] leading-[0.95rem]">
+                In such cases, all bets will be settled strictly as per our platform rules and based
+                on the video displayed on our system.
+              </p>
+              <p className="mt-1 text-[0.7rem] leading-[0.95rem]">
+                Any delay or mismatch in external scoreboards will not affect the final result.
+              </p>
+            </div>
+            <div className="mt-3 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setRulesOpen(false)}
+                className="rounded-[6px] bg-casino-market-header px-8 py-2 text-[0.85rem] font-bold text-board-header-foreground"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
+
+const BBB_RULES: { tag: string; tone: string; title: string; text: string }[] = [
+  { tag: "0", tone: "0", title: "0 Runs", text: "Wins only if no run is scored off the ball." },
+  { tag: "1", tone: "1", title: "1 Runs", text: "Wins only if exactly one run is scored." },
+  { tag: "2", tone: "2", title: "2 Runs", text: "Wins only if exactly two runs are scored." },
+  { tag: "3", tone: "3", title: "3 Runs", text: "Wins only if exactly three runs are scored." },
+  { tag: "4", tone: "4", title: "4 Runs", text: "Wins only if a boundary four is scored." },
+  { tag: "6", tone: "6", title: "6 Runs", text: "Wins only if a six is scored." },
+  {
+    tag: "W",
+    tone: "WICKET",
+    title: "Wicket",
+    text: "Wins if any wicket falls on the ball. Wicket overrides all other outcomes.",
+  },
+  {
+    tag: "EX",
+    tone: "EXTRA",
+    title: "Extra Runs",
+    text: "Wins if the delivery results in any extras, including Wide, No Ball, Bye, or Leg Bye. This also applies when runs are scored along with extras, such as No Ball + 4, Wide + runs, or Bye + runs.",
+  },
+];
 
