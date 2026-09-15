@@ -156,6 +156,22 @@ function nodeFromKey(key: string, root: HTMLElement): HTMLElement | null {
 function extractPick(target: HTMLElement, root: HTMLElement): ExtractedPick | null {
   // Never treat media / inputs / explicitly opted-out areas as a bet click.
   if (target.closest("iframe,video,img,input,textarea,select,a,[data-nobet]")) return null;
+  const control = target.closest("button");
+  if (control && !control.hasAttribute("data-market-option")) return null;
+
+  const explicit = target.closest<HTMLElement>("[data-bet-label][data-bet-odds]");
+  if (explicit) {
+    const explicitOdds = Number(explicit.getAttribute("data-bet-odds"));
+    const explicitLabel = explicit.getAttribute("data-bet-label")?.trim();
+    if (
+      explicitLabel &&
+      Number.isFinite(explicitOdds) &&
+      explicitOdds >= 1.01 &&
+      !isBlockedByOverlay(explicit, root)
+    ) {
+      return { label: explicitLabel, odds: explicitOdds, element: explicit };
+    }
+  }
 
   let el: HTMLElement | null = target;
   let odds: number | null = null;
@@ -751,6 +767,7 @@ export function BetLayer({
 
       {pick ? (
         <div
+          data-nobet=""
           className="absolute left-0 right-0 z-[70]"
           style={{ top: `${anchor}px` }}
           onClick={(e) => e.stopPropagation()}

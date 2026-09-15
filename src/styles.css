@@ -410,6 +410,52 @@
   50% { box-shadow: 0 0 12px var(--bbb-glow), inset 0 1px 0 color-mix(in oklab, var(--board-header-foreground) 75%, transparent); }
 }
 
+.coin-flipper {
+  transform-style: preserve-3d;
+  transition: transform 180ms ease-out;
+}
+.coin-flipper[data-face="tails"] { transform: rotateX(180deg); }
+.coin-face { backface-visibility: hidden; }
+.coin-back { transform: rotateX(180deg); }
+.coin-flip-heads { animation: coin-flip-heads 2s cubic-bezier(.2,.65,.25,1) both; }
+.coin-flip-tails { animation: coin-flip-tails 2s cubic-bezier(.2,.65,.25,1) both; }
+@keyframes coin-flip-heads { from { transform: rotateX(0); } to { transform: rotateX(1800deg); } }
+@keyframes coin-flip-tails { from { transform: rotateX(0); } to { transform: rotateX(1980deg); } }
+.coin-winner {
+  animation: coin-winner-pop 420ms cubic-bezier(.22,1.45,.45,1) 120ms both;
+}
+.coin-winner::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  transform: translateX(-50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #fd3523;
+}
+.coin-bet-plate::after {
+  content: "";
+  position: absolute;
+  inset: -35% auto -35% -45%;
+  z-index: 2;
+  width: 28%;
+  transform: skewX(-18deg);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / .62), transparent);
+  animation: coin-plate-shine 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes coin-plate-shine {
+  0%, 22% { left: -45%; opacity: 0; }
+  42% { opacity: .9; }
+  68%, 100% { left: 125%; opacity: 0; }
+}
+.coin-bet-plate[data-suspended="true"]::after { display: none; }
+@keyframes coin-winner-pop {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(.25); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
 .bbb-rate-plate {
   animation: bbb-rate-glow 2.2s ease-in-out infinite;
 }
@@ -453,7 +499,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bbb-rate-plate, .bbb-rate-plate::after, .bbb-result-ball { animation: none; }
+  .bbb-rate-plate, .bbb-rate-plate::after, .bbb-result-ball,
+  .coin-flip-heads, .coin-flip-tails, .coin-winner,
+  .coin-bet-plate::after { animation: none; }
 }
 
 /* Exchange rate change flash — original site jaisa */
