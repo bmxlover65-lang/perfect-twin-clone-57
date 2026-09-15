@@ -1360,7 +1360,8 @@ export function BallByBallBoard({
             {recent.slice(0, 14).map((w, i) => (
               <span
                 key={`${w}-${i}`}
-                className={`grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full text-[0.5rem] font-extrabold text-board-header-foreground ${plateTone(w)}`}
+                className="grid h-[20px] w-[20px] shrink-0 place-items-center rounded-full text-[0.62rem] font-extrabold text-white"
+                style={{ background: resultTone(w) }}
               >
                 {w}
               </span>
