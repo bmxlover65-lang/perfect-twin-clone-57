@@ -268,12 +268,14 @@ export function HeadsTailsPanel({
       </p>
        <div className="grid grid-cols-2 gap-[11px]">
         {runners.map((r) => (
-          <Plate
-            key={r.id}
-            r={r}
-            selected={selected === r.id}
-            onClick={() => setSelected((s) => (s === r.id ? null : r.id))}
-          />
+          <div key={r.id} className="flex flex-col">
+            <Plate r={r} selected={selected === r.id} onClick={() => bet(r)} />
+            {staked[r.id] ? (
+              <span className="mt-1 text-center text-[0.72rem] font-extrabold text-[#F2C500]">
+                {staked[r.id]}
+              </span>
+            ) : null}
+          </div>
         ))}
       </div>
       <div className="mt-3 flex flex-nowrap items-center gap-2 overflow-x-auto bg-black px-2 py-2">
