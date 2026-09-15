@@ -38,6 +38,7 @@ import {
   type BbbRunner,
 } from "@/components/OriginalStages";
 import ballByBallBanner from "@/assets/games/ballbyball.gif.asset.json";
+import ballByBallResult from "@/assets/ball-by-ball-result.png";
 import chip1k from "@/assets/chips/chips1k.svg.asset.json";
 import chip5 from "@/assets/chips/chips5.svg.asset.json";
 import chip10 from "@/assets/chips/chips10.svg.asset.json";
@@ -2177,6 +2178,8 @@ function GamePage() {
     news?: string;
     min?: number;
     max?: number;
+    leftSec?: number;
+    gameResult?: string;
   };
 
   if (isBbb) {
@@ -2187,7 +2190,19 @@ function GamePage() {
       if (/^WICKET/i.test(s)) return "W";
       return s.match(/^\d+/)?.[0] ?? s;
     });
-    const latestBall = bbbRecent[0];
+    const normalizeBallResult = (value: string) => {
+      const s = value.trim().toUpperCase();
+      if (/^EXTRA/.test(s)) return "EXTRA RUNS";
+      if (/^WICKET/.test(s) || s === "W") return "WICKET";
+      const runs = s.match(/^\d+/)?.[0];
+      return runs ? `${runs} ${runs === "1" ? "RUN" : "RUNS"}` : s;
+    };
+    const liveBallResult = normalizeBallResult(
+      raw.gameResult || (liveResult?.round === roundKey ? liveResult.winner : ""),
+    );
+    const bbbOpen = (raw.runners ?? []).some(
+      (r) => (r.status ?? "").toUpperCase() === "ACTIVE",
+    );
     return (
       <div className={shell("max-w-[620px]")}>
         <div className="bg-secondary px-2 py-1">
@@ -2216,21 +2231,37 @@ function GamePage() {
             loading="eager"
             className="block h-full w-full object-cover"
           />
-          {latestBall && latestBall !== "-" ? (
-            <span className={`bbb-live-result absolute right-1 top-1 grid h-8 w-8 place-items-center rounded-full border-2 border-board-header-foreground text-sm font-extrabold ${latestBall === "W" ? "bbb-tone-wicket" : latestBall === "6" ? "bbb-tone-six" : latestBall === "4" ? "bbb-tone-four" : "bbb-tone-runs"}`}>
-              {latestBall}
-            </span>
+          <RoundTimer
+            leftSec={Math.max(0, (raw.leftSec ?? 0) - age)}
+            suspended={!bbbOpen}
+            total={20}
+            className="absolute right-1.5 top-1.5 z-20"
+            size="h-[50px] w-[50px]"
+          />
+          {!bbbOpen && liveBallResult ? (
+            <div className="bbb-result-ball absolute left-1/2 top-1/2 z-20 grid h-[136px] w-[136px] -translate-x-1/2 -translate-y-1/2 place-items-center">
+              <img
+                src={ballByBallResult}
+                alt=""
+                width={768}
+                height={768}
+                className="absolute inset-0 h-full w-full object-contain"
+              />
+              <span className="relative z-[1] max-w-[104px] text-center text-[1.05rem] font-extrabold leading-tight text-board-header-foreground">
+                {liveBallResult}
+              </span>
+            </div>
           ) : null}
         </div>
         <BetLayer
           gameId={gameId}
           gameName={d?.eventName ?? "Ball By Ball"}
           round={String(d?.roundId ?? "")}
-          disabled={!(raw.runners ?? []).some((r) => (r.status ?? "").toUpperCase() === "ACTIVE")}
+          disabled={!bbbOpen}
         >
           <BallByBallBoard
             runners={raw.runners ?? []}
-            min={raw.min ?? 100}
+            min={raw.min ?? 20}
             max={raw.max ?? 100000}
             news={raw.news}
             recent={bbbRecent}
