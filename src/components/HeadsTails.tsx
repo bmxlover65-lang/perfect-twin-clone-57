@@ -320,6 +320,13 @@ export function HeadsTailsPanel({
           ))}
         </div>
       ) : null}
+
+      {toast?.kind === "err" ? (
+        <ErrorToast message={toast.text} onDone={() => setToast(null)} />
+      ) : null}
+      {toast?.kind === "ok" ? (
+        <SuccessToast message={toast.text} onDone={() => setToast(null)} />
+      ) : null}
     </div>
   );
 }
