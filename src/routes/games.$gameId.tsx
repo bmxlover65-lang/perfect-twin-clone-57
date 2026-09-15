@@ -2203,10 +2203,24 @@ function GamePage() {
     const nowMs = Date.now();
     const liveMid = String((d as unknown as { marketId?: string })?.marketId ?? "");
     const frameOpen = (raw.runners ?? []).some((r) => isOpenStatus(r.status));
-    if (frameOpen) bbbFrameRef.current = { mid: liveMid, data: raw, roundId: String(d?.roundId ?? ""), leftSec: raw.leftSec ?? 0, ts: nowMs };
+    // The upstream also flips back and forth between two open markets. Once a
+    // round is on screen, stay on it until its own timer runs out so the round
+    // id, the countdown and an open bet slip do not jump every other poll.
+    const held = bbbFrameRef.current;
+    const heldLeft = held ? held.leftSec - (nowMs - held.ts) / 1000 : 0;
+    const stick = !!held && held.mid !== liveMid && heldLeft > 1.5;
+    if (frameOpen && !stick) {
+      bbbFrameRef.current = {
+        mid: liveMid,
+        data: raw,
+        roundId: String(d?.roundId ?? ""),
+        leftSec: raw.leftSec ?? 0,
+        ts: nowMs,
+      };
+    }
     const cached = bbbFrameRef.current;
     const cachedLeft = cached ? cached.leftSec - (nowMs - cached.ts) / 1000 : 0;
-    const useCached = !frameOpen && !!cached && cached.mid !== liveMid && cachedLeft > 0;
+    const useCached = (!frameOpen || stick) && !!cached && cached.mid !== liveMid && cachedLeft > 0;
     const view = useCached && cached ? cached.data : raw;
     const viewRound = useCached && cached ? cached.roundId : String(d?.roundId ?? "");
     const feedLeft = useCached ? Math.max(0, cachedLeft) : Math.max(0, (raw.leftSec ?? 0) - age);
