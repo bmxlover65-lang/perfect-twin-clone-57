@@ -1441,12 +1441,18 @@ export function BallByBallBoard({
 }
 
 const BBB_RULES: { tag: string; tone: string; title: string; text: string }[] = [
-  { tag: "0", tone: "0", title: "0 Runs", text: "Wins only if no run is scored off the ball." },
-  { tag: "1", tone: "1", title: "1 Runs", text: "Wins only if exactly one run is scored." },
-  { tag: "2", tone: "2", title: "2 Runs", text: "Wins only if exactly two runs are scored." },
-  { tag: "3", tone: "3", title: "3 Runs", text: "Wins only if exactly three runs are scored." },
+  {
+    tag: "0",
+    tone: "0",
+    title: "0 Runs",
+    text: "Wins if exactly 0 runs are scored on the ball. No extras and no wicket should occur.",
+  },
+  { tag: "1", tone: "1", title: "1 Run", text: "Wins if exactly 1 run is scored off the bat." },
+  { tag: "2", tone: "2", title: "2 Runs", text: "Wins if exactly 2 runs are scored off the bat." },
+  { tag: "3", tone: "3", title: "3 Runs", text: "Wins if exactly 3 runs are scored off the bat." },
   { tag: "4", tone: "4", title: "4 Runs", text: "Wins only if a boundary four is scored." },
   { tag: "6", tone: "6", title: "6 Runs", text: "Wins only if a six is scored." },
+
   {
     tag: "W",
     tone: "WICKET",
