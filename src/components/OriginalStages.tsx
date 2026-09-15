@@ -1249,11 +1249,10 @@ export type BbbRunner = {
 
 function plateTone(label: string) {
   const l = label.toUpperCase();
-  if (l.startsWith("WICKET"))
-    return "bg-[linear-gradient(180deg,#F98F86,#F26C61)] text-black";
-  if (l.startsWith("6")) return "bg-[linear-gradient(180deg,#A9A9F7,#8E8EF0)] text-black";
-  if (l.startsWith("4")) return "bg-[linear-gradient(180deg,#7FE0A2,#4CCB7C)] text-black";
-  return "bg-[linear-gradient(180deg,#E3DE4A,#CFC820)] text-black";
+  if (l.startsWith("WICKET")) return "bbb-tone-wicket";
+  if (l.startsWith("6")) return "bbb-tone-six";
+  if (l.startsWith("4")) return "bbb-tone-four";
+  return "bbb-tone-runs";
 }
 
 export function BallByBallBoard({
@@ -1273,81 +1272,69 @@ export function BallByBallBoard({
   const left = runners.filter((_, i) => i % 2 === 0);
   const right = runners.filter((_, i) => i % 2 === 1);
 
-  const Plate = ({ r }: { r: BbbRunner }) => (
+  const Plate = ({ r, index }: { r: BbbRunner; index: number }) => (
     <div
-      className={`relative flex h-[58px] items-center rounded-[8px] px-2 shadow-[0_1px_2px_rgba(0,0,0,0.25)] sm:h-[74px] sm:px-4 ${plateTone(r.label)}`}
+      data-market-option=""
+      data-market-plate=""
+      data-suspended={open(r.status) ? undefined : "true"}
+      className={`bbb-rate-plate relative flex h-[40px] min-w-0 items-center rounded-[7px] px-1.5 text-casino-market-text ${plateTone(r.label)}`}
+      style={{ animationDelay: `${index * 80}ms` }}
     >
-      <span className="flex w-[46px] shrink-0 flex-col items-center leading-tight sm:w-[86px]">
-        <span className="text-[0.8rem] font-bold sm:text-[1rem]">
+      <span className="flex w-[44%] shrink-0 flex-col items-center justify-center leading-none">
+        <span className="text-[0.68rem] font-extrabold">
           {r.backPrice ? r.backPrice.toFixed(2) : "—"}
         </span>
-        <span className="text-[0.6rem] font-semibold opacity-80 sm:text-[0.74rem]">
+        <span className="mt-0.5 text-[0.54rem] font-medium">
           {r.backSize ? Math.round(r.backSize).toLocaleString("en-IN") : ""}
         </span>
       </span>
-      <span className="min-w-0 flex-1 truncate text-center text-[0.8rem] font-extrabold uppercase tracking-wide sm:text-[1.05rem]">
-        {open(r.status) ? r.label : "SUSPENDED"}
+      <span className="min-w-0 flex-1 text-center text-[0.66rem] font-extrabold uppercase leading-[0.72rem]">
+        {r.label}
       </span>
     </div>
   );
 
   return (
-    <div className="bg-white">
-      <div className="flex items-center justify-between bg-[#2E4B5C] px-3 py-[7px]">
-        <span className="text-[0.85rem] font-bold text-white sm:text-[0.95rem]">Runs ⓘ</span>
-        <span className="text-[0.7rem] font-semibold text-white sm:text-[0.82rem]">
+    <div className="bg-background text-casino-market-text">
+      <div className="flex h-[24px] items-center justify-between bg-casino-market-header px-2">
+        <span className="text-[0.62rem] font-bold text-board-header-foreground">Runs ⓘ</span>
+        <span className="text-[0.52rem] font-medium text-board-header-foreground">
           Min/Max: {min} - {max}
         </span>
       </div>
-      <div className="grid grid-cols-2 border-b border-black/10 bg-[#F1F1F1]">
-        <span className="py-[6px] text-center text-[0.85rem] font-semibold text-black/80 sm:text-[0.95rem]">
+      <div className="grid h-[24px] grid-cols-2 border-b border-casino-market-divider bg-casino-market-body">
+        <span className="flex items-center justify-center text-[0.68rem] font-semibold">
           Back
         </span>
-        <span className="py-[6px] text-center text-[0.85rem] font-semibold text-black/80 sm:text-[0.95rem]">
+        <span className="flex items-center justify-center text-[0.68rem] font-semibold">
           Back
         </span>
       </div>
-      <div className="grid grid-cols-2 gap-x-0 px-2 py-2 sm:px-3 sm:py-3">
-        <div className="flex flex-col gap-2 border-r border-black/10 pr-2 sm:gap-3 sm:pr-4">
-          {left.map((r) => (
-            <Plate key={r.selectionId} r={r} />
+      <div className="grid grid-cols-2 gap-x-5 bg-bbb-field px-3 py-2">
+        <div className="flex min-w-0 flex-col gap-1.5">
+          {left.map((r, index) => (
+            <Plate key={r.selectionId} r={r} index={index} />
           ))}
         </div>
-        <div className="flex flex-col gap-2 pl-2 sm:gap-3 sm:pl-4">
-          {right.map((r) => (
-            <Plate key={r.selectionId} r={r} />
+        <div className="flex min-w-0 flex-col gap-1.5">
+          {right.map((r, index) => (
+            <Plate key={r.selectionId} r={r} index={index + left.length} />
           ))}
         </div>
       </div>
 
-      <div className="overflow-hidden bg-[#FFC800] py-[6px]">
-        <div className="marquee-track flex w-max gap-16 whitespace-nowrap text-[0.85rem] font-bold text-black sm:text-[0.95rem]">
-          {[0, 1].map((k) => (
-            <span key={k}>
-              {news ??
-                "Results are based on stream only. Score board may be different or updated later"}
-            </span>
-          ))}
-        </div>
+      <div className="border-y border-casino-market-divider bg-secondary px-2 py-1 text-center text-[0.54rem] font-medium leading-[0.62rem] text-secondary-foreground">
+        {news ?? "Results are based on stream only. Score board may be different or updated later"}
       </div>
 
       {recent && recent.length ? (
-        <div className="px-2 py-3 sm:px-3">
-          <p className="text-[0.9rem] font-bold text-black sm:text-[0.95rem]">Recent Result</p>
-          <div className="mt-2 flex flex-wrap gap-1.5 sm:gap-2">
-
-            {recent.slice(0, 10).map((w, i) => (
+        <div className="flex h-[34px] items-center gap-1 overflow-hidden bg-background px-2">
+          <p className="shrink-0 text-[0.56rem] font-bold">Recent Result</p>
+          <div className="flex min-w-0 items-center gap-1 overflow-hidden">
+            {recent.slice(0, 14).map((w, i) => (
               <span
                 key={`${w}-${i}`}
-                className={`grid h-9 w-9 place-items-center rounded-[6px] text-[0.9rem] font-bold sm:h-11 sm:w-11 sm:text-[1rem] ${
-                  w === "W"
-                    ? "bg-[linear-gradient(180deg,#F98F86,#F26C61)] text-white"
-                    : w === "6"
-                      ? "bg-[linear-gradient(180deg,#A9A9F7,#8E8EF0)] text-black"
-                      : w === "4"
-                        ? "bg-[linear-gradient(180deg,#7FE0A2,#4CCB7C)] text-black"
-                        : "bg-[linear-gradient(180deg,#E3DE4A,#CFC820)] text-black"
-                }`}
+                className={`grid h-4 w-4 shrink-0 place-items-center rounded-full text-[0.48rem] font-extrabold text-board-header-foreground ${plateTone(w)}`}
               >
                 {w}
               </span>
