@@ -2275,16 +2275,17 @@ function GamePage() {
         <BetLayer
           gameId={gameId}
           gameName={d?.eventName ?? "Ball By Ball"}
-          round={String(d?.roundId ?? "")}
+          round={viewRound}
           disabled={!bbbOpen}
         >
           <BallByBallBoard
-            runners={raw.runners ?? []}
-            min={raw.min ?? 20}
-            max={raw.max ?? 100000}
-            news={raw.news}
+            runners={view.runners ?? []}
+            min={view.min ?? 20}
+            max={view.max ?? 100000}
+            news={view.news}
             recent={bbbRecent}
           />
+
 
         </BetLayer>
       </div>
