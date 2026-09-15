@@ -410,51 +410,17 @@
   50% { box-shadow: 0 0 12px var(--bbb-glow), inset 0 1px 0 color-mix(in oklab, var(--board-header-foreground) 75%, transparent); }
 }
 
-.coin-stage-wrap {
-  transition: transform 520ms cubic-bezier(.22,1.2,.4,1);
-}
-.coin-stage-wrap[data-side="heads"] { transform: translateX(-9%) scale(1.02); }
-.coin-stage-wrap[data-side="tails"] { transform: translateX(9%) scale(1.02); }
-
 .coin-flipper {
   transform-style: preserve-3d;
-  transition: transform 180ms ease-out;
-  filter: drop-shadow(0 10px 22px rgb(0 0 0 / .7));
 }
 .coin-flipper[data-face="tails"] { transform: rotateX(180deg); }
 .coin-face { backface-visibility: hidden; }
 .coin-back { transform: rotateX(180deg); }
-.coin-flip-heads { animation: coin-flip-heads 2.1s cubic-bezier(.16,.72,.2,1) both, coin-toss 2.1s cubic-bezier(.3,.05,.3,1) both; }
-.coin-flip-tails { animation: coin-flip-tails 2.1s cubic-bezier(.16,.72,.2,1) both, coin-toss 2.1s cubic-bezier(.3,.05,.3,1) both; }
+.coin-flip-heads { animation: coin-flip-heads 2s ease both; }
+.coin-flip-tails { animation: coin-flip-tails 2s ease both; }
 @keyframes coin-flip-heads { from { transform: rotateX(0); } to { transform: rotateX(2160deg); } }
-@keyframes coin-flip-tails { from { transform: rotateX(0); } to { transform: rotateX(2340deg); } }
-@keyframes coin-toss {
-  0% { translate: 0 0; scale: 1; }
-  22% { translate: 0 -14%; scale: 1.08; }
-  55% { translate: 0 -6%; scale: 1.04; }
-  82% { translate: 0 2%; scale: .99; }
-  92% { translate: 0 -2%; scale: 1.02; }
-  100% { translate: 0 0; scale: 1; }
-}
-.coin-halo {
-  background: radial-gradient(circle, rgb(255 205 80 / .35) 0%, rgb(255 170 40 / .16) 42%, transparent 68%);
-  animation: coin-halo-pulse 2.6s ease-in-out infinite;
-}
-@keyframes coin-halo-pulse {
-  0%, 100% { opacity: .55; transform: scale(.92); }
-  50% { opacity: 1; transform: scale(1.06); }
-}
-.coin-sheen {
-  background: linear-gradient(115deg, transparent 38%, rgb(255 255 255 / .55) 48%, transparent 58%);
-  mask-image: radial-gradient(circle at 50% 50%, #000 47%, transparent 49%);
-  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 47%, transparent 49%);
-  animation: coin-sheen-sweep 3.2s ease-in-out infinite;
-}
-@keyframes coin-sheen-sweep {
-  0%, 14% { transform: translateX(-120%); opacity: 0; }
-  30% { opacity: 1; }
-  62%, 100% { transform: translateX(120%); opacity: 0; }
-}
+@keyframes coin-flip-tails { from { transform: rotateX(0); } to { transform: rotateX(1980deg); } }
+
 
 .coin-winner {
   animation: coin-winner-pop 420ms cubic-bezier(.22,1.45,.45,1) 120ms both;
