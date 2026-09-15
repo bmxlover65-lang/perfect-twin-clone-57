@@ -81,3 +81,5 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Win celebration confetti on all tables (loss = no celebration)
 - [x] Strict winner matching prevents side-market losses from triggering payout/confetti
 - [x] Casino suspension is stable per round and clears only when the next round starts
+- [x] Heads & Tails: chip-first betting — chip select karo, phir Heads/Tails par ek click = bet (no bet slip)
+- [x] Ball by Ball: locked plates par chhota lock, rate/label dikhte rahein
