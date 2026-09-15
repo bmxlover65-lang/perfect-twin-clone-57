@@ -659,14 +659,11 @@ export function BetLayer({
           cellPos.current = { cell: cellEl, opposite: oppositeEl, group: groupEl };
 
 
-          // Anchor the slip right below the row that was clicked.
-          let row: HTMLElement = target;
-          const rootW = rootBox.width;
-          for (let i = 0; i < 8 && row.parentElement && row.parentElement !== root; i++) {
-            if (row.getBoundingClientRect().width >= rootW * 0.8) break;
-            row = row.parentElement;
-          }
-          const top = u(row.getBoundingClientRect().bottom - rootBox.top);
+          // Open directly below the clicked rate box. Previously this climbed
+          // to a wide board wrapper, which could put the slip below the whole
+          // market instead of beneath the selected row.
+          const clickedPlate = p.element.closest<HTMLElement>("[data-market-option]") ?? p.element;
+          const top = u(clickedPlate.getBoundingClientRect().bottom - rootBox.top);
           setAnchor(Math.max(0, top));
           pickRound.current = round;
           setPick({ label: p.label, odds: p.odds });
