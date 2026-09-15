@@ -2458,6 +2458,10 @@ function GamePage() {
           {gameId === "88.0021" ? (
             <div>
               <HeadsTailsPanel
+                gameId={gameId}
+                gameName={d?.eventName ?? gameId}
+                round={String(d?.roundId ?? "")}
+                disabled={suspended}
                 runners={(markets[0]?.runners ?? []).map((r) => ({
                   id: String(r.selectionId),
                   label:
