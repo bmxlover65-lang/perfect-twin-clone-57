@@ -764,12 +764,12 @@ export function BetLayer({
               key={`exp-${i}`}
               className={`pointer-events-none absolute z-[60] whitespace-nowrap font-semibold leading-none text-casino-market-text ${
                 market
-                  ? "-translate-x-1/2 -translate-y-1/2 rounded-full bg-white/85 px-1.5 py-[2px] text-[0.62rem] shadow-[0_1px_2px_rgba(0,0,0,0.12)]"
+                  ? "-translate-x-1/2 -translate-y-1/2 text-[0.68rem] font-bold tracking-tight"
                   : "text-[0.78rem]"
               }`}
               style={{ left: `${pos.x}px`, top: `${pos.y}px` }}
             >
-              {exposureLayout === "sports" ? null : `${net >= 0 ? "P" : "L"}:`}
+              {exposureLayout === "sports" ? null : `${net >= 0 ? "P" : "L"} : `}
               <strong className={net >= 0 ? "text-live-win" : "text-live-lose"}>
                 {exposureLayout === "sports" ? "➜ " : null}
                 {value.toLocaleString("en-IN", {
