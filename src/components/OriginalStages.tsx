@@ -1364,7 +1364,79 @@ export function BallByBallBoard({
           </div>
         </div>
       ) : null}
+
+      {rulesOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-3 py-6"
+          onClick={() => setRulesOpen(false)}
+        >
+          <div
+            className="max-h-full w-full max-w-[420px] overflow-y-auto rounded-[10px] bg-bbb-field p-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="grid grid-cols-2 gap-2">
+              {BBB_RULES.map((rule) => (
+                <div key={rule.tag} className="rounded-[8px] bg-background p-2">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`grid h-[26px] min-w-[26px] place-items-center rounded-[6px] px-1 text-[0.72rem] font-extrabold text-casino-market-text ${plateTone(rule.tone)}`}
+                    >
+                      {rule.tag}
+                    </span>
+                    <span className="text-[0.78rem] font-bold">{rule.title}</span>
+                  </div>
+                  <p className="mt-1 text-[0.7rem] leading-[0.95rem] text-foreground">{rule.text}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-2 rounded-[8px] border-l-4 border-casino-market-header bg-background p-2">
+              <p className="text-[0.8rem] font-bold">Video &amp; Scoreboard Disclaimer</p>
+              <p className="mt-1 text-[0.7rem] leading-[0.95rem]">
+                Videos may be sourced from different broadcasters, which can result in delays or
+                discrepancies in the scoreboard.
+              </p>
+              <p className="mt-1 text-[0.7rem] leading-[0.95rem]">
+                In such cases, all bets will be settled strictly as per our platform rules and based
+                on the video displayed on our system.
+              </p>
+              <p className="mt-1 text-[0.7rem] leading-[0.95rem]">
+                Any delay or mismatch in external scoreboards will not affect the final result.
+              </p>
+            </div>
+            <div className="mt-3 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setRulesOpen(false)}
+                className="rounded-[6px] bg-casino-market-header px-8 py-2 text-[0.85rem] font-bold text-board-header-foreground"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
+
+const BBB_RULES: { tag: string; tone: string; title: string; text: string }[] = [
+  { tag: "0", tone: "0", title: "0 Runs", text: "Wins only if no run is scored off the ball." },
+  { tag: "1", tone: "1", title: "1 Runs", text: "Wins only if exactly one run is scored." },
+  { tag: "2", tone: "2", title: "2 Runs", text: "Wins only if exactly two runs are scored." },
+  { tag: "3", tone: "3", title: "3 Runs", text: "Wins only if exactly three runs are scored." },
+  { tag: "4", tone: "4", title: "4 Runs", text: "Wins only if a boundary four is scored." },
+  { tag: "6", tone: "6", title: "6 Runs", text: "Wins only if a six is scored." },
+  {
+    tag: "W",
+    tone: "WICKET",
+    title: "Wicket",
+    text: "Wins if any wicket falls on the ball. Wicket overrides all other outcomes.",
+  },
+  {
+    tag: "EX",
+    tone: "EXTRA",
+    title: "Extra Runs",
+    text: "Wins if the delivery results in any extras, including Wide, No Ball, Bye, or Leg Bye. This also applies when runs are scored along with extras, such as No Ball + 4, Wide + runs, or Bye + runs.",
+  },
+];
 
