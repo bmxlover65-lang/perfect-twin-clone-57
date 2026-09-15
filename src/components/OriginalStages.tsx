@@ -1268,7 +1268,9 @@ export function BallByBallBoard({
   news?: string | undefined;
   recent?: string[];
 }) {
-  const open = (s?: string) => (s ?? "").toUpperCase() === "ACTIVE";
+  const open = (s?: string) =>
+    ["ACTIVE", "ONLINE", "OPEN", "IN_PLAY"].includes((s ?? "").toUpperCase());
+
   const left = runners.filter((_, i) => i % 2 === 0);
   const right = runners.filter((_, i) => i % 2 === 1);
   const [rulesOpen, setRulesOpen] = useState(false);
