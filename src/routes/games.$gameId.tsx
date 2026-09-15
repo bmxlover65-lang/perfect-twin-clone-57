@@ -2249,7 +2249,8 @@ function GamePage() {
             className="block h-full w-full object-cover"
           />
           <RoundTimer
-            leftSec={Math.max(0, (raw.leftSec ?? 0) - age)}
+            leftSec={viewLeft}
+
             suspended={!bbbOpen}
             total={20}
             variant="bbb"
