@@ -1904,6 +1904,10 @@ function GamePage() {
     leftSec: number;
     ts: number;
   } | null>(null);
+  // Smooth local clock for the Ball by Ball round: the feed only reports whole
+  // seconds and repeats/jumps values, so the ring is driven off a fixed end
+  // time that is only re-synced when a new round starts or the feed drifts.
+  const bbbClock = useRef<{ round: string; endAt: number; total: number } | null>(null);
 
   const roundWasOpen = useRef(false);
 
@@ -2199,13 +2203,40 @@ function GamePage() {
     const nowMs = Date.now();
     const liveMid = String((d as unknown as { marketId?: string })?.marketId ?? "");
     const frameOpen = (raw.runners ?? []).some((r) => isOpenStatus(r.status));
-    if (frameOpen) bbbFrameRef.current = { mid: liveMid, data: raw, roundId: String(d?.roundId ?? ""), leftSec: raw.leftSec ?? 0, ts: nowMs };
+    // The upstream also flips back and forth between two open markets. Once a
+    // round is on screen, stay on it until its own timer runs out so the round
+    // id, the countdown and an open bet slip do not jump every other poll.
+    const held = bbbFrameRef.current;
+    const heldLeft = held ? held.leftSec - (nowMs - held.ts) / 1000 : 0;
+    const stick = !!held && held.mid !== liveMid && heldLeft > 1.5;
+    if (frameOpen && !stick) {
+      bbbFrameRef.current = {
+        mid: liveMid,
+        data: raw,
+        roundId: String(d?.roundId ?? ""),
+        leftSec: raw.leftSec ?? 0,
+        ts: nowMs,
+      };
+    }
     const cached = bbbFrameRef.current;
     const cachedLeft = cached ? cached.leftSec - (nowMs - cached.ts) / 1000 : 0;
-    const useCached = !frameOpen && !!cached && cached.mid !== liveMid && cachedLeft > 0;
+    const useCached = (!frameOpen || stick) && !!cached && cached.mid !== liveMid && cachedLeft > 0;
     const view = useCached && cached ? cached.data : raw;
     const viewRound = useCached && cached ? cached.roundId : String(d?.roundId ?? "");
-    const viewLeft = useCached ? Math.max(0, cachedLeft) : Math.max(0, (raw.leftSec ?? 0) - age);
+    const feedLeft = useCached ? Math.max(0, cachedLeft) : Math.max(0, (raw.leftSec ?? 0) - age);
+    // Re-sync only on a new round or when the feed drifts more than a second
+    // from the local clock; otherwise count down smoothly from the round start.
+    const clock = bbbClock.current;
+    const localLeft = clock ? (clock.endAt - nowMs) / 1000 : 0;
+    if (!clock || clock.round !== viewRound || feedLeft - localLeft > 1 || localLeft - feedLeft > 1.5) {
+      bbbClock.current = {
+        round: viewRound,
+        endAt: nowMs + feedLeft * 1000,
+        total: Math.max(clock && clock.round === viewRound ? clock.total : 0, Math.ceil(feedLeft) || 20),
+      };
+    }
+    const viewLeft = Math.max(0, (bbbClock.current!.endAt - nowMs) / 1000);
+    const viewTotal = Math.max(bbbClock.current!.total, 1);
 
     const bbbRecent = results.slice(0, 14).map((r) => {
       const rr = r as CasinoResult & { result?: string; selectionName?: string };
@@ -2261,7 +2292,7 @@ function GamePage() {
             leftSec={viewLeft}
 
             suspended={!bbbOpen}
-            total={20}
+            total={viewTotal}
             variant="bbb"
             className="absolute right-1.5 top-1.5 z-20"
             size="h-[52px] w-[52px]"
