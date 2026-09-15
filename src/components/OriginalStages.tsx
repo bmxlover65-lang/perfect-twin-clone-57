@@ -1286,6 +1286,7 @@ const Plate = ({ r, index }: { r: BbbRunner; index: number }) => (
       className={`bbb-rate-plate relative flex h-[64px] min-w-0 items-center gap-1 overflow-hidden rounded-[7px] px-2 text-casino-market-text sm:h-[66px] sm:px-2.5 ${plateTone(r.label)}`}
       style={{ animationDelay: `${index * 80}ms` }}
     >
+      <span className="pointer-events-none absolute bottom-0 left-[42%] top-0 z-[1] border-l-[3px] border-dashed border-casino-market-text" />
       <span className="relative z-[1] flex w-[42%] shrink-0 flex-col items-center justify-center leading-none">
         <span className="text-[0.72rem] font-extrabold sm:text-[0.76rem]">
           {r.backPrice ? fmtPrice(r.backPrice) : "—"}
@@ -1344,9 +1345,19 @@ export function BallByBallBoard({
             i
           </span>
         </button>
-        <span className="text-[0.56rem] font-medium text-board-header-foreground">
-          Min/Max: {min} - {max}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-[0.56rem] font-medium text-board-header-foreground">
+            Min/Max: {min} - {max}
+          </span>
+          <button
+            type="button"
+            aria-label="Open Ball by Ball rules"
+            onClick={() => setRulesOpen(true)}
+            className="grid h-[16px] w-[16px] place-items-center rounded-full border border-board-header-foreground text-[0.58rem] font-extrabold leading-none text-board-header-foreground"
+          >
+            i
+          </button>
+        </div>
       </div>
       <div className="grid h-[26px] grid-cols-2 border-b border-casino-market-divider bg-casino-market-body">
         <span className="flex items-center justify-center text-[0.86rem] font-semibold">
