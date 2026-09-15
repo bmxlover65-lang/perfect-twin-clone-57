@@ -2201,12 +2201,12 @@ function GamePage() {
 
           )}
         </div>
-        <div className="flex h-[25px] items-center justify-between bg-casino-market-header px-2">
-          <span className="text-[0.68rem] font-bold uppercase text-board-header-foreground">
+        <div className="grid h-[26px] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 bg-casino-market-header px-2">
+          <span className="truncate text-[0.7rem] font-bold uppercase text-board-header-foreground">
             {d?.eventName ?? "Ball By Ball"}
           </span>
-          <span className="flex items-center gap-1 text-[0.5rem] font-bold text-board-header-foreground">
-            {d?.roundId ?? "—"} <BalanceChip />
+          <span className="shrink-0 text-[0.55rem] font-bold text-board-header-foreground">
+            {d?.roundId ?? "—"}
           </span>
         </div>
         <div className="relative aspect-video overflow-hidden bg-secondary">
