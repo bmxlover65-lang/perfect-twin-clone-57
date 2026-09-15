@@ -66,6 +66,7 @@ export function CoinStageImage({
     const stop = window.setTimeout(() => {
       setFlipping(false);
       setShown(winner);
+      setSettledRound(roundId);
       play(winner === "HEADS" ? headWinSound.url : tailWinSound.url);
     }, 2000);
     timers.current.push(stop);
