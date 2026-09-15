@@ -1897,6 +1897,14 @@ function GamePage() {
   const [age, setAge] = useState(0);
   const [roundSuspended, setRoundSuspended] = useState(false);
   const suspensionRound = useRef("");
+  const bbbFrameRef = useRef<{
+    mid: string;
+    data: { runners?: BbbRunner[]; news?: string; min?: number; max?: number; gameResult?: string };
+    roundId: string;
+    leftSec: number;
+    ts: number;
+  } | null>(null);
+
   const roundWasOpen = useRef(false);
 
   // Some games (e.g. VIMAAN) have no upstream live event. Polling them only
