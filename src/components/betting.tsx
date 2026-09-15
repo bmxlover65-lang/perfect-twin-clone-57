@@ -562,18 +562,23 @@ export function BetLayer({
       data-bet-root=""
       className="relative"
       onClickCapture={(e) => {
-        if (disabled) return;
+        if (disabled) {
+          console.log("[betdbg] disabled");
+          return;
+        }
         // Only a real pointer click on a price cell may open the slip.
         if (e.detail === 0) return;
         const root = e.currentTarget as HTMLElement;
         // This market was suspended — no new bets on it until the next round.
         if (inLatchedMarket(e.target as HTMLElement)) {
+          console.log("[betdbg] latched");
           return;
         }
 
 
         const target = e.target as HTMLElement;
         const p = extractPick(target, root);
+        console.log("[betdbg] pick", p?.label, p?.odds);
         if (p) {
           const rootBox = root.getBoundingClientRect();
           // Mobile boards are scaled down with a transform: rect coords are visual
