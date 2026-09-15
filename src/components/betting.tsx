@@ -159,6 +159,20 @@ function extractPick(target: HTMLElement, root: HTMLElement): ExtractedPick | nu
   const control = target.closest("button");
   if (control && !control.hasAttribute("data-market-option")) return null;
 
+  const explicit = target.closest<HTMLElement>("[data-bet-label][data-bet-odds]");
+  if (explicit) {
+    const explicitOdds = Number(explicit.getAttribute("data-bet-odds"));
+    const explicitLabel = explicit.getAttribute("data-bet-label")?.trim();
+    if (
+      explicitLabel &&
+      Number.isFinite(explicitOdds) &&
+      explicitOdds >= 1.01 &&
+      !isBlockedByOverlay(explicit, root)
+    ) {
+      return { label: explicitLabel, odds: explicitOdds, element: explicit };
+    }
+  }
+
   let el: HTMLElement | null = target;
   let odds: number | null = null;
   let node: HTMLElement | null = null;

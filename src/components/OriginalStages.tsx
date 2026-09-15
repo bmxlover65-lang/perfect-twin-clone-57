@@ -1282,6 +1282,8 @@ const Plate = ({ r, index }: { r: BbbRunner; index: number }) => (
     <div
       data-market-option=""
       data-market-plate=""
+      data-bet-label={r.label}
+      data-bet-odds={r.backPrice ?? undefined}
       data-suspended={open(r.status) ? undefined : "true"}
       className={`bbb-rate-plate relative flex h-[64px] min-w-0 items-center gap-1 overflow-hidden rounded-[7px] px-2 text-casino-market-text sm:h-[66px] sm:px-2.5 ${plateTone(r.label)}`}
       style={{ animationDelay: `${index * 80}ms` }}

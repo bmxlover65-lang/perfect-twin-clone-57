@@ -146,6 +146,8 @@ function Plate({
       type="button"
       data-market-option=""
       data-market-plate=""
+      data-bet-label={r.label}
+      data-bet-odds={r.price ?? undefined}
       data-suspended={r.open ? undefined : "true"}
       onClick={onClick}
       className={`${base} ${theme} ${selected ? "ring-2 ring-[#F2C500]" : ""}`}
