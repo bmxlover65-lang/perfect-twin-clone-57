@@ -434,6 +434,23 @@
   border-right: 8px solid transparent;
   border-top: 8px solid #fd3523;
 }
+.coin-bet-plate::after {
+  content: "";
+  position: absolute;
+  inset: -35% auto -35% -45%;
+  z-index: 2;
+  width: 28%;
+  transform: skewX(-18deg);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / .62), transparent);
+  animation: coin-plate-shine 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes coin-plate-shine {
+  0%, 22% { left: -45%; opacity: 0; }
+  42% { opacity: .9; }
+  68%, 100% { left: 125%; opacity: 0; }
+}
+.coin-bet-plate[data-suspended="true"]::after { display: none; }
 @keyframes coin-winner-pop {
   from { opacity: 0; transform: translate(-50%, -50%) scale(.25); }
   to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
@@ -483,7 +500,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .bbb-rate-plate, .bbb-rate-plate::after, .bbb-result-ball,
-  .coin-flip-heads, .coin-flip-tails, .coin-winner { animation: none; }
+  .coin-flip-heads, .coin-flip-tails, .coin-winner,
+  .coin-bet-plate::after { animation: none; }
 }
 
 /* Exchange rate change flash — original site jaisa */
