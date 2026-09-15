@@ -2455,6 +2455,23 @@ function GamePage() {
               gameName={d?.eventName ?? gameId}
               round={String(d?.roundId ?? "")}
               disabled={suspended}
+              winner={(() => {
+                const w = (
+                  applyOverride(
+                    cfg,
+                    admin,
+                    gameId,
+                    (d as unknown as { gameResult?: string })?.gameResult ??
+                      (liveResult?.round === roundKey ? liveResult.winner : "") ??
+                      "",
+                  ) ?? (String(results[0]?.roundId ?? "") === roundKey ? String(results[0]?.winner ?? "") : "")
+                )
+                  .toString()
+                  .toUpperCase();
+                if (w.startsWith("T")) return "TAILS" as const;
+                if (w.startsWith("H")) return "HEADS" as const;
+                return null;
+              })()}
               runners={(markets[0]?.runners ?? []).map((r) => ({
                 id: String(r.selectionId),
                 label:
