@@ -1270,27 +1270,15 @@ function plateTone(label: string) {
   return "bbb-tone-runs";
 }
 
-export function BallByBallBoard({
-  runners,
-  min,
-  max,
-  news,
-  recent,
-}: {
-  runners: BbbRunner[];
-  min: number;
-  max: number;
-  news?: string | undefined;
-  recent?: string[];
-}) {
-  const open = (s?: string) =>
-    ["ACTIVE", "ONLINE", "OPEN", "IN_PLAY"].includes((s ?? "").toUpperCase());
+const open = (s?: string) =>
+  ["ACTIVE", "ONLINE", "OPEN", "IN_PLAY"].includes((s ?? "").toUpperCase());
 
-  const left = runners.filter((_, i) => i % 2 === 0);
-  const right = runners.filter((_, i) => i % 2 === 1);
-  const [rulesOpen, setRulesOpen] = useState(false);
-
-  const Plate = ({ r, index }: { r: BbbRunner; index: number }) => (
+/**
+ * One rate plate. Declared at module level on purpose: defining it inside the
+ * board would give it a new component type on every live poll, which remounts
+ * the plates, kills the shine animation and drops an open bet slip.
+ */
+const Plate = ({ r, index }: { r: BbbRunner; index: number }) => (
     <div
       data-market-option=""
       data-market-plate=""
