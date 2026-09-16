@@ -62,18 +62,29 @@ export function CoinStageImage({
     if (!suspended || !winner || !roundId) return;
     if (flipKey.current === roundId) return;
     flipKey.current = roundId;
+    const thisRound = roundId;
+    const thisWinner = winner;
     setShown("HEADS");
     setFlipping(true);
     play(coinSound.url);
+    // NOTE: never cleared on dependency change — otherwise a winner/feed update
+    // mid-flip would cancel the settle and leave the coin spinning forever.
     const stop = window.setTimeout(() => {
       setFlipping(false);
-      setShown(winner);
-      setSettledRound(roundId);
-      play(winner === "HEADS" ? headWinSound.url : tailWinSound.url);
+      setShown(thisWinner);
+      setSettledRound(thisRound);
+      play(thisWinner === "HEADS" ? headWinSound.url : tailWinSound.url);
     }, 2000);
     timers.current.push(stop);
-    return () => window.clearTimeout(stop);
   }, [winner, roundId, suspended]);
+
+  // Clear any pending timers only when the component unmounts.
+  useEffect(() => {
+    const list = timers.current;
+    return () => {
+      list.forEach((t) => window.clearTimeout(t));
+    };
+  }, []);
 
   useEffect(() => {
     if (!flipping && winner && flipKey.current !== roundId) setShown(winner);
