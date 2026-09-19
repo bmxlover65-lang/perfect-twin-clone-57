@@ -401,7 +401,7 @@ export function BalloonStage({
   leftSec?: number | undefined;
 }) {
   const [muted, setMuted] = useState(false);
-  const [stake, setStake] = useState(10);
+  const [stake, setStake] = useState(100);
   const [phase, setPhase] = useState<"waiting" | "flying" | "crashed">("waiting");
   const [shown, setShown] = useState(1);
   const [climb, setClimb] = useState(0);
@@ -791,7 +791,7 @@ export function BalloonStage({
       } else {
         // no new bets once the round has started, and only one bet per round
         if (phase === "flying" || usedRef.current[i]) return prev;
-        if (stake <= 0) return prev;
+        if (stake < 100) return prev;
         const ref = placeBet({
           gameId: "balloon",
           gameName: "Balloon",
@@ -1104,9 +1104,9 @@ export function BalloonStage({
         <div className="absolute inset-x-0 bottom-0 z-20 flex items-end justify-between gap-2 rounded-t-[14px] rounded-b-[7px] bg-[linear-gradient(180deg,rgba(77,184,214,0.48)_0%,rgba(245,215,116,0.32)_100%)] px-2 pb-2 pt-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-[1px] sm:gap-4 sm:px-4 sm:pb-4">
           {/* left cluster: auto toggles + stakes + edits/clear/min/max */}
           <div className="shrink-0">
-            <div className="mb-1 flex items-end gap-2 sm:gap-3">
+            <div className="mb-1 flex w-[183px] items-end justify-between sm:w-[370px]">
               {([0, 1] as const).map((i) => (
-                <div key={i} className="flex w-[72px] items-center gap-1 sm:w-[150px] sm:gap-2">
+                <div key={i} className="flex w-[57px] items-center gap-1 sm:w-[110px] sm:gap-2">
                   <button
                     type="button"
                     onClick={() => setAutos((a) => (i === 0 ? [!a[0], a[1]] : [a[0], !a[1]]))}
@@ -1151,8 +1151,8 @@ export function BalloonStage({
                     key={s}
                     type="button"
                     onClick={() => setStake(s)}
-                    className={`balloon-stake h-[22px] w-[72px] rounded-full border border-white bg-[linear-gradient(180deg,#164681_0%,#082A5B_100%)] text-[0.62rem] font-extrabold text-white shadow-[0_1px_3px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.25)] transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
-                      stake === s ? "ring-2 ring-[#E01E1E]" : ""
+                    className={`h-[22px] w-[72px] rounded-full border border-white bg-[linear-gradient(180deg,#164681_0%,#082A5B_100%)] text-[0.62rem] font-extrabold text-white shadow-[0_1px_3px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.25)] transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
+                      stake === s ? "ring-2 ring-[#E01E1E]" : s < 100 ? "opacity-65" : ""
                     }`}
                   >
                     {s}
@@ -1164,7 +1164,7 @@ export function BalloonStage({
                   [
                     ["Edits", 100, "bg-[#E8871E] text-white"],
                     ["Clear", 0, "bg-[#E01E1E] text-white"],
-                    ["Min", 10, "border border-white bg-[#281334] text-white/70"],
+                    ["Min", 100, "border border-white bg-[#281334] text-white/70"],
                     ["Max", 10000, "border border-white bg-[#281334] text-white/70"],
                   ] as const
                 ).map(([label, val, tone]) => (
@@ -1187,13 +1187,14 @@ export function BalloonStage({
               const bet = bets[i];
               const fl = flash[i];
               const live = bet && !bet.pending;
-              const blocked = !bet && (phase === "flying" || used[i]);
+               const blocked = !bet && (phase === "flying" || used[i] || stake < 100);
               return (
                 <button
                   key={i}
                   type="button"
                   onClick={() => pressHeat(i)}
                   disabled={blocked}
+                  aria-label={blocked ? "Betting locked" : live ? "Cash out" : "Place heat bet"}
                   className={`relative flex h-[39px] items-center justify-center gap-1 rounded-[7px] border-2 border-[#101B16] text-[0.8rem] font-extrabold text-white ring-1 ring-inset ring-white/55 transition-transform active:translate-y-[2px] active:shadow-none sm:h-[52px] sm:gap-3 sm:text-[1.15rem] ${
                     blocked
                       ? "cursor-not-allowed bg-[linear-gradient(180deg,#5A6270_0%,#3D434D_100%)] opacity-60 shadow-[0_3px_0_#2A2F36]"
@@ -1220,7 +1221,7 @@ export function BalloonStage({
                     </span>
                   ) : blocked ? (
                     <span className="text-[0.6rem] font-bold uppercase leading-tight sm:text-[0.8rem]">
-                      {used[i] ? "Bet used" : "Bets closed"}
+                      BETTING LOCK
                     </span>
                   ) : (
                     <>

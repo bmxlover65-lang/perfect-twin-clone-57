@@ -72,6 +72,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Balloon: transparent scenic betting controls and masked live-player activity below the avatar
 - [x] Balloon: remove the white strip below betting controls and continue the scene to the frame edge
 - [x] Balloon: match supplied mobile result strip, two-row live activity, full scene fit, and compact two-panel betting controls
+- [x] Balloon: remove artificial white sweep, enforce 100 minimum, one bet per panel per round, and reference Auto/control alignment
 
 ## Phase 7 — Royal444 full casino structure parity (pending reference access)
 - [ ] Audit the reference casino lobby and every casino game page at mobile width
