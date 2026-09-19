@@ -1630,7 +1630,7 @@ export function Aviator() {
             ) : null}
           </div>
 
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-x-2 gap-y-[2px] border-t border-white/10 px-1 pt-[8px] text-[0.64rem] text-white/45 sm:text-[0.7rem]">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-x-2 gap-y-[2px] border-t border-white/10 px-1 pb-[16px] pt-[10px] text-[0.64rem] text-white/45 sm:text-[0.7rem]">
             <span className="flex items-center gap-1">
               This game is
               <img src={fairIcon} alt="" className="h-[14px] w-[13px]" />
