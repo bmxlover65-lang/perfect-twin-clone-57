@@ -549,7 +549,7 @@ export function BalloonStage({
       roundRef.current && (initialStatus === "RUN" || (!initialStatus && apiRef.current >= 1))
         ? "flying"
         : "waiting";
-    let t = 1; // seconds left in the current phase
+    let t = 8; // seconds left in the current phase
     let v = 1;
     let target = 2;
     let curRound = roundRef.current;
@@ -1234,7 +1234,7 @@ export function BalloonStage({
                   aria-label={blocked ? "Betting locked" : live ? "Cash out" : "Place heat bet"}
                   className={`relative flex h-full items-center justify-center gap-1 rounded-[7px] border-2 border-[#101B16] text-[0.8rem] font-extrabold text-white ring-1 ring-inset ring-white/55 transition-transform active:translate-y-[2px] active:shadow-none sm:gap-3 sm:text-[1.15rem] ${
                     blocked
-                      ? "cursor-not-allowed bg-[linear-gradient(180deg,#5A6270_0%,#3D434D_100%)] opacity-60 shadow-[0_3px_0_#2A2F36]"
+                      ? "cursor-not-allowed bg-[linear-gradient(180deg,#57E066_0%,#2FBB40_48%,#149329_100%)] opacity-75 shadow-[0_4px_0_#0E6B1D]"
                       : live
                         ? "bg-[linear-gradient(180deg,#F0A500_0%,#D98200_100%)] shadow-[0_3px_0_#8A5600]"
                         : bet
