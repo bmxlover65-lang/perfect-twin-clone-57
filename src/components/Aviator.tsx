@@ -47,7 +47,7 @@ function HistToggle({ open, onClick }: { open: boolean; onClick: () => void }) {
       onClick={onClick}
       aria-expanded={open}
       aria-label="Round history"
-      className="flex h-[22px] w-[36px] shrink-0 items-center justify-center gap-[3px] rounded-full border border-[#FF003C]/70 bg-[#141517]"
+      className="flex h-[20px] w-[34px] shrink-0 items-center justify-center gap-[3px] rounded-full border border-[#4A4D52] bg-[#1B1C1F] shadow-[inset_0_1px_0_rgba(255,255,255,.08)]"
     >
       <img src={historyIcon} alt="" className="h-[12px] w-[13px]" />
       <img
@@ -837,19 +837,14 @@ function FlightStage({
   const c2y = y0 - (y0 - y) * 0.42;
   const path = `M${x0},${y0} C ${c1x},${c1y} ${c2x},${c2y} ${x},${y}`;
   const area = `${path} L ${x},${y0} Z`;
-  const planeW = 118;
+  const planeW = 170;
   const planeH = planeW * (74 / 150);
   const tick = (t / 22) % 60;
 
 
 
-  // deep navy atmospheric glow that swells with the multiplier
-  const glow = Math.max(0, Math.min(1, (multiplier - 1) / 8));
-  const glowInner = `rgba(${Math.round(20 + glow * 90)},${Math.round(96 - glow * 60)},${Math.round(155 + glow * 60)},${0.5 + glow * 0.3})`;
-  const glowMid = `rgba(${Math.round(8 + glow * 50)},44,${Math.round(82 + glow * 40)},${0.3 + glow * 0.16})`;
-
   return (
-    <div className="relative overflow-hidden bg-black sm:rounded-[14px] sm:border sm:border-[#1B1D20]">
+    <div className="relative overflow-hidden rounded-[13px] border border-[#2B2D31] bg-black">
       {/* spribe-style rotating sun rays from the bottom-left */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
@@ -864,16 +859,6 @@ function FlightStage({
             animationPlayState: phase === "flying" ? "running" : "paused",
           }}
         />
-        <div
-          className="absolute inset-0 transition-opacity duration-700"
-          style={{
-            background: `radial-gradient(ellipse 58% 62% at 62% 40%, ${glowInner}, ${glowMid} 40%, transparent 72%)`,
-            opacity: phase === "flying" ? 1 : 0,
-          }}
-        />
-
-
-
       </div>
       <style>{`@keyframes av-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes av-prop{to{transform:rotate(360deg)}}
@@ -884,7 +869,7 @@ function FlightStage({
       <svg
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
-        className="relative block aspect-[16/10] h-auto w-full sm:aspect-[19/9] lg:aspect-[19/8] lg:max-h-[430px]"
+        className="relative block aspect-[4/3] h-auto w-full sm:aspect-[19/9] lg:aspect-[19/8] lg:max-h-[430px]"
       >
         <defs>
           <linearGradient id="av-area" x1="0" y1="0" x2="0" y2="1">
@@ -928,7 +913,7 @@ function FlightStage({
           <image
             href={aviatorPlane}
             x={18}
-            y={H - 40 - planeH * 0.72}
+            y={H - 40 - planeH * 0.62}
             width={planeW}
             height={planeH}
             opacity={0.95}
@@ -992,16 +977,16 @@ function FlightStage({
               src={propellerImg.url}
               alt=""
               aria-hidden="true"
-              className="mb-2 h-[64px] w-[64px] sm:mb-3 sm:h-[110px] sm:w-[110px]"
+              className="mb-2 h-[48px] w-[48px] sm:mb-3 sm:h-[88px] sm:w-[88px]"
               style={{ animation: "av-prop 2.6s linear infinite" }}
             />
 
-            <p className="px-4 text-center text-[1.15rem] uppercase tracking-[0.02em] text-white sm:text-[2rem]">
-              Waiting for next round
+            <p className="px-4 text-center text-[1rem] font-medium uppercase text-white sm:text-[2rem]">
+              WAITING FOR NEXT ROUND
             </p>
-            <div className="mt-4 h-[5px] w-[200px] overflow-hidden rounded-full bg-[#3A3D42] sm:w-[240px]">
+            <div className="mt-3 h-[4px] w-[76px] overflow-hidden bg-[#292C32] sm:mt-4 sm:w-[180px]">
               <div
-                className="h-full rounded-full bg-[#EF1B2E]"
+                className="h-full bg-[#F00032]"
                 style={{ width: `${Math.max(0, Math.min(100, (countdown / BET_MS) * 100))}%` }}
               />
             </div>
@@ -1010,16 +995,16 @@ function FlightStage({
 
         ) : phase === "crashed" ? (
           <>
-            <p className="text-[1.35rem] font-medium uppercase tracking-[0.01em] text-white sm:text-[2.1rem]">
-              Flew Away!
+            <p className="text-[1rem] font-medium uppercase text-white sm:text-[2.1rem]">
+              FLEW AWAY!
             </p>
 
-            <p className="mt-1 text-[2.8rem] font-extrabold leading-none text-[#FF1238] drop-shadow-[0_4px_14px_rgba(0,0,0,.7)] sm:text-[4.6rem] lg:text-[5.6rem]">
+            <p className="mt-2 text-[3rem] font-extrabold leading-none text-[#E9002B] drop-shadow-[0_4px_14px_rgba(0,0,0,.7)] sm:text-[4.6rem] lg:text-[5.6rem]">
               {fmt(multiplier)}x
             </p>
           </>
         ) : (
-          <p className="text-[3.1rem] font-extrabold leading-none text-white drop-shadow-[0_6px_26px_rgba(0,0,0,.65)] sm:text-[5rem] lg:text-[6.6rem]">
+          <p className="text-[3rem] font-extrabold leading-none text-white drop-shadow-[0_6px_26px_rgba(0,0,0,.65)] sm:text-[5rem] lg:text-[6.6rem]">
             {fmt(multiplier)}x
           </p>
         )}
@@ -1508,13 +1493,13 @@ export function Aviator() {
         {/* bets + chat */}
         <div className="order-2 flex min-w-0 flex-col overflow-hidden bg-[#151618] p-2 lg:order-1 sm:rounded-[14px] sm:border sm:border-[#303238] sm:p-3">
 
-          <div className="mx-auto flex w-full max-w-[300px] rounded-full bg-[#0B0C0E] p-[3px] text-[0.62rem] font-bold text-white/55 sm:w-[86%] sm:text-[0.78rem]">
+          <div className="mx-auto flex w-[150px] rounded-full bg-[#0B0C0E] p-[2px] text-[0.58rem] font-semibold text-white/50 sm:w-[86%] sm:max-w-[300px] sm:p-[3px] sm:text-[0.78rem]">
             {([["all", "All Bets"], ["my", "My Bets"]] as const).map(([k, l]) => (
               <button
                 key={k}
                 type="button"
                 onClick={() => setTab(k)}
-                className={`h-[20px] flex-1 rounded-full px-2 leading-none ${
+                className={`h-[17px] flex-1 rounded-full px-2 leading-none sm:h-[20px] ${
                   tab === k ? "bg-[#2C2D30] text-white" : ""
                 }`}
               >
@@ -1524,7 +1509,7 @@ export function Aviator() {
           </div>
 
           {tab === "all" ? (
-            <div className="mt-[10px] flex items-start justify-between text-[0.7rem] font-bold text-white/85">
+            <div className="mt-[6px] flex items-start justify-between px-[6px] text-[0.68rem] font-bold text-white/90 sm:mt-[10px] sm:px-0 sm:text-[0.7rem]">
               <span className="flex flex-col gap-[2px] leading-tight">
                 ALL BETS
                 <span className="text-[0.66rem] font-semibold text-white/60">{bets.length}</span>
@@ -1537,7 +1522,7 @@ export function Aviator() {
           ) : null}
 
           {tab === "my" ? (
-            <div className="mt-[10px] flex items-start justify-between text-[0.7rem] font-bold text-white/85">
+            <div className="mt-[6px] flex items-start justify-between px-[6px] text-[0.68rem] font-bold text-white/90 sm:mt-[10px] sm:px-0 sm:text-[0.7rem]">
               <span className="flex flex-col gap-[2px] leading-tight">
                 MY BETS
                 <span className="text-[0.66rem] font-semibold text-white/60">
@@ -1553,7 +1538,7 @@ export function Aviator() {
             </div>
           ) : null}
 
-          <div className="mt-[8px] grid grid-cols-[1fr_38px_44px_54px] gap-x-2 border-b border-white/10 px-2 pb-[3px] text-[0.58rem] font-semibold text-white/40">
+          <div className="mt-[5px] grid h-[18px] grid-cols-[1fr_38px_44px_54px] items-center gap-x-2 border-b border-white/10 bg-[#111214] px-[6px] text-[0.55rem] font-medium text-white/35 sm:mt-[8px] sm:px-2 sm:text-[0.58rem]">
             <span>{tab === "my" ? "Round" : "User"}</span>
             <span>Bet</span>
             <span>X</span>
@@ -1696,7 +1681,7 @@ export function Aviator() {
         {/* stage + panels */}
         <div className="order-1 flex min-w-0 flex-col gap-2 lg:order-2 lg:min-h-0">
           {/* history strip — sits above the flying stage */}
-          <div className="bg-[#090A0C] px-2 py-2 sm:rounded-[8px] sm:border sm:border-[#34363B] sm:bg-[#202125] sm:px-3">
+          <div className="bg-[#090A0C] px-[6px] py-[3px] sm:rounded-[8px] sm:border sm:border-[#34363B] sm:bg-[#202125] sm:px-3 sm:py-2">
             {histOpen ? (
               <div className="mb-2 flex items-center justify-between gap-2">
                 <span className="text-[0.72rem] font-semibold uppercase tracking-[0.03em] text-white">
@@ -1706,9 +1691,9 @@ export function Aviator() {
               </div>
             ) : null}
 
-            <div className="flex min-w-0 items-center gap-[6px] sm:gap-2">
+            <div className="flex min-w-0 items-center gap-[4px] sm:gap-2">
               <div
-                className={`flex min-w-0 flex-1 items-center gap-x-[6px] gap-y-[5px] sm:gap-x-2 ${
+                className={`flex min-w-0 flex-1 items-center gap-x-[3px] gap-y-[5px] sm:gap-x-2 ${
                   histOpen
                     ? "flex-wrap justify-center"
                     : "flex-nowrap overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -1717,7 +1702,7 @@ export function Aviator() {
                 {(histOpen ? history : history.slice(0, 40)).map((h, i) => (
                   <span
                     key={`${h}-${i}`}
-                    className={`shrink-0 rounded-full bg-[#090B0E] px-[8px] py-[2px] text-[0.68rem] font-semibold sm:text-[0.72rem] ${chipTone(h)}`}
+                    className={`shrink-0 rounded-full bg-[#090B0E] px-[5px] py-[1px] text-[0.58rem] font-semibold leading-[16px] sm:px-[8px] sm:py-[2px] sm:text-[0.72rem] ${chipTone(h)}`}
                   >
                     {fmt(h)}x
                   </span>
