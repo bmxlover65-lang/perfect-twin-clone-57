@@ -2472,7 +2472,7 @@ function GamePage() {
               })}
             />
           </Fit>
-        ) : (
+        ) : gameId === "88.0023" ? null : (
           <BetLayer
             gameId={gameId}
             gameName={d?.eventName ?? gameId}
@@ -2480,7 +2480,7 @@ function GamePage() {
             disabled={suspended}
           >
             <Fit mobileNative designWidth={900}>
-              {gameId !== "88.0023" && markets.length ? (
+              {markets.length ? (
                 <NumberPanel
                   markets={markets}
                   suspended={suspended}
