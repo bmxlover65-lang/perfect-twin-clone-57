@@ -1488,7 +1488,7 @@ export function Aviator() {
     <div className="overflow-hidden bg-[#090A0C] sm:rounded-[16px] sm:border sm:border-[#303238] sm:p-3">
       <div className="grid items-stretch gap-2 lg:h-[680px] lg:grid-cols-[minmax(340px,27%)_1fr]">
         {/* bets + chat */}
-        className="order-2 flex min-w-0 flex-col overflow-hidden rounded-t-[14px] bg-[#191A1C] px-[7px] pb-2 pt-[7px] lg:order-1 sm:rounded-[14px] sm:border sm:border-[#303238] sm:p-3">
+        <div className="order-2 flex min-w-0 flex-col overflow-hidden rounded-t-[14px] bg-[#191A1C] px-[7px] pb-2 pt-[7px] lg:order-1 sm:rounded-[14px] sm:border sm:border-[#303238] sm:p-3">
 
           <div className="mx-auto flex h-[24px] w-[204px] rounded-full bg-[#101113] p-[1px] text-[0.82rem] font-normal text-white/60 shadow-[0_1px_2px_rgba(0,0,0,0.55)] sm:h-auto sm:w-[86%] sm:max-w-[300px] sm:p-[3px] sm:text-[0.78rem]">
             {([["all", "All Bets"], ["my", "My Bets"]] as const).map(([k, l]) => (
