@@ -77,6 +77,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Balloon: reference flight path — small plane crosses left-to-right on a gentle curve with a drawn air trail; clouds and stars follow the flying phase
 - [x] Balloon: 8-second wait, plane kept ahead of its trail through the right edge, vertical cloud/star drift, disabled HEAT label retained, aligned Auto controls and full-width scenic dock
 - [x] Balloon: align the plane's rear with the live trail endpoint and split the long cloud strip into compact cloud clusters
+- [ ] Balloon: match the supplied real betting dock — navy stake pills, compact Edit/Clear/Min/Max column, aligned Auto switches and darker HEAT buttons
 
 ## Phase 7 — Royal444 full casino structure parity (pending reference access)
 - [ ] Audit the reference casino lobby and every casino game page at mobile width
