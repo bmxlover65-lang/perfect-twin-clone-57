@@ -392,10 +392,12 @@ export function BalloonStage({
   multiplier,
   roundId,
   suspended,
+  status,
 }: {
   multiplier: string;
   roundId?: string | undefined;
   suspended?: boolean;
+  status?: string | undefined;
   leftSec?: number | undefined;
 }) {
   const [muted, setMuted] = useState(false);
@@ -429,6 +431,8 @@ export function BalloonStage({
   roundRef.current = roundId;
   const suspRef = useRef<boolean>(!!suspended);
   suspRef.current = !!suspended;
+  const statusRef = useRef((status ?? "").toUpperCase());
+  statusRef.current = (status ?? "").toUpperCase();
   const stakeRef = useRef(stake);
   stakeRef.current = stake;
   const autoRef = useRef(autos);
@@ -539,7 +543,10 @@ export function BalloonStage({
 
     let raf = 0;
     let last = performance.now();
-    let ph: "waiting" | "flying" | "crashed" = "waiting";
+    let ph: "waiting" | "flying" | "crashed" =
+      roundRef.current && (apiRef.current >= 1 || statusRef.current === "RUN")
+        ? "flying"
+        : "waiting";
     let t = 1; // seconds left in the current phase
     let v = 1;
     let target = 2;
@@ -601,6 +608,8 @@ export function BalloonStage({
       t = 2.4;
     };
 
+    if (ph === "flying") startRound(curRound);
+
 
     const tick = (now: number) => {
       const dt = Math.min(0.1, (now - last) / 1000);
@@ -655,16 +664,6 @@ export function BalloonStage({
           setShown(v);
           setCrashAt(goal);
 
-          // the live feed's own multiplier is the round result: as soon as the
-          // feed suspends the round (or stops advancing) we burst on that value
-          if (peak > 1 && (suspRef.current ? stall > 0.4 : stall > 2.2)) {
-            v = peak;
-            setShown(peak);
-            burst(peak);
-          }
-
-
-
         } else {
 
           // offline pacing: gentle at first, faster the higher it goes
@@ -686,10 +685,15 @@ export function BalloonStage({
             setPhase("waiting");
             t = 5;
           } else {
-            // waiting over: feed never advanced while we waited → mark stale
-            // and start a local round; a new feed id will resync automatically
-            if (live) stale = true;
-            startRound(undefined);
+            // With a live round id, wait for the upstream id to advance. This
+            // keeps take-off locked to the real game instead of starting an
+            // independent local round after the countdown.
+            if (apiRound) {
+              t = 0.25;
+            } else {
+              stale = true;
+              startRound(undefined);
+            }
           }
         }
       }
@@ -810,7 +814,7 @@ export function BalloonStage({
   const flying = phase === "flying";
 
   const popped = phase === "crashed";
-  const grow = Math.min(1, climb * 0.78 + (Math.log(Math.max(1, shown)) / Math.log(10)) * 0.35);
+  const grow = Math.min(1, climb * 0.66 + (Math.log(Math.max(1, shown)) / Math.log(10)) * 0.22);
 
   const bgIndex = Math.abs(hashStr(roundId ?? "0")) % LOCATIONS.length;
 
@@ -895,10 +899,10 @@ export function BalloonStage({
 
         {/* The Royal game keeps the balloon visible through flight, result and countdown. */}
           <div
-            className="absolute left-1/2 z-10 w-[43%] min-w-[132px] max-w-[250px] sm:w-[27%] sm:min-w-[170px]"
+            className="absolute left-1/2 z-10 w-[40%] min-w-[124px] max-w-[220px] sm:w-[25%] sm:min-w-[158px]"
             style={{
-              bottom: `${31 + grow * 10}%`,
-              transform: `translateX(-50%) scale(${flying ? 1 + grow * 0.08 : 1})`,
+              bottom: `${31 + grow * 8}%`,
+              transform: "translateX(-50%)",
               transition: "bottom 240ms linear, transform 240ms linear",
             }}
           >
@@ -1046,12 +1050,12 @@ export function BalloonStage({
         {betOk ? <SuccessToast message={betOk} onDone={() => setBetOk(null)} /> : null}
 
         {/* compact Royal-style betting dock */}
-        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 rounded-b-[10px] bg-[#173E4B]/88 px-2 pb-2 pt-2.5 shadow-[0_-1px_0_rgba(255,255,255,0.12)] backdrop-blur-[2px] sm:gap-4 sm:px-4 sm:pb-4">
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 rounded-b-[10px] bg-[#3B1744]/95 px-2 pb-2 pt-2 shadow-[0_-1px_0_rgba(255,255,255,0.12)] backdrop-blur-[2px] sm:gap-4 sm:px-4 sm:pb-4">
           {/* left cluster: auto toggles + stakes + edits/clear/min/max */}
           <div className="shrink-0">
             <div className="mb-1 flex items-end gap-2 sm:gap-3">
               {([0, 1] as const).map((i) => (
-                <div key={i} className="flex w-[96px] items-center gap-1 sm:w-[150px] sm:gap-2">
+                <div key={i} className="flex w-[72px] items-center gap-1 sm:w-[150px] sm:gap-2">
                   <button
                     type="button"
                     onClick={() => setAutos((a) => (i === 0 ? [!a[0], a[1]] : [a[0], !a[1]]))}
@@ -1090,13 +1094,13 @@ export function BalloonStage({
               ))}
             </div>
             <div className="flex items-start gap-2 sm:gap-2">
-              <div className="grid grid-cols-2 gap-x-2 gap-y-[4px] sm:gap-x-2 sm:gap-y-1.5">
+              <div className="grid grid-cols-2 gap-x-[7px] gap-y-[4px] sm:gap-x-2 sm:gap-y-1.5">
                 {BALLOON_STAKES.map((s) => (
                   <button
                     key={s}
                     type="button"
                     onClick={() => setStake(s)}
-                    className={`h-[22px] w-[88px] rounded-full border border-white bg-[linear-gradient(180deg,#164681_0%,#082A5B_100%)] text-[0.62rem] font-extrabold text-white shadow-[0_1px_3px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.25)] transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
+                    className={`h-[22px] w-[72px] rounded-full border border-white bg-[linear-gradient(180deg,#164681_0%,#082A5B_100%)] text-[0.62rem] font-extrabold text-white shadow-[0_1px_3px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.25)] transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
                       stake === s ? "ring-2 ring-[#E01E1E]" : ""
                     }`}
                   >
@@ -1104,7 +1108,7 @@ export function BalloonStage({
                   </button>
                 ))}
               </div>
-              <div className="grid w-[58px] gap-[4px] sm:w-[110px] sm:gap-1.5">
+              <div className="grid w-[52px] gap-[4px] sm:w-[110px] sm:gap-1.5">
                 {(
                   [
                     ["Edits", 100, "bg-[#E8871E] text-white"],
@@ -1127,7 +1131,7 @@ export function BalloonStage({
           </div>
 
           {/* heat buttons — bet / queue for next round / cash out */}
-          <div className="ml-auto grid h-full w-[27%] min-w-[94px] shrink-0 gap-1.5 sm:w-[24%] sm:min-w-[150px] sm:gap-2">
+          <div className="ml-auto grid h-full w-[27%] min-w-[90px] shrink-0 gap-2 sm:w-[24%] sm:min-w-[150px] sm:gap-2">
             {([0, 1] as const).map((i) => {
               const bet = bets[i];
               const fl = flash[i];
@@ -1139,7 +1143,7 @@ export function BalloonStage({
                   type="button"
                   onClick={() => pressHeat(i)}
                   disabled={blocked}
-                  className={`relative flex h-[45px] items-center justify-center gap-1 rounded-[7px] border-2 border-[#101B16] text-[0.8rem] font-extrabold text-white ring-1 ring-inset ring-white/55 transition-transform active:translate-y-[2px] active:shadow-none sm:h-[52px] sm:gap-3 sm:text-[1.15rem] ${
+                  className={`relative flex h-[40px] items-center justify-center gap-1 rounded-[7px] border-2 border-[#101B16] text-[0.8rem] font-extrabold text-white ring-1 ring-inset ring-white/55 transition-transform active:translate-y-[2px] active:shadow-none sm:h-[52px] sm:gap-3 sm:text-[1.15rem] ${
                     blocked
                       ? "cursor-not-allowed bg-[linear-gradient(180deg,#5A6270_0%,#3D434D_100%)] opacity-60 shadow-[0_3px_0_#2A2F36]"
                       : live
