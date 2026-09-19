@@ -93,9 +93,9 @@ function VimaanMobileNav() {
     { label: "Account", icon: UserRound, to: "/auth" as const },
   ];
   return (
-    <nav className="sticky bottom-0 z-30 grid h-[48px] grid-cols-5 border-t border-[#24465A] bg-[linear-gradient(180deg,#19465F_0%,#123247_100%)] text-white sm:hidden">
-      {items.map(({ label, icon: Icon, to }) => (
-        <Link key={label} to={to} className="flex min-w-0 flex-col items-center justify-center gap-[1px] text-[0.57rem] font-bold leading-none">
+    <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto grid h-[48px] w-full max-w-[1080px] grid-cols-5 border-t border-[#24465A] bg-[linear-gradient(180deg,#19465F_0%,#123247_100%)] text-white sm:hidden">
+      {items.map(({ label, icon: Icon, to }, index) => (
+        <Link key={label} to={to} className={`flex min-w-0 flex-col items-center justify-center gap-[1px] text-[0.57rem] font-bold leading-none ${index === 2 ? "relative -top-[10px] h-[58px] rounded-t-full bg-[#173F58] pt-[6px]" : ""}`}>
           <Icon className="h-[21px] w-[21px]" strokeWidth={2.2} />
           <span className="max-w-full truncate px-1">{label}</span>
         </Link>
@@ -1535,7 +1535,7 @@ export function Aviator() {
       <VimaanMobileHeader onHistory={() => setHistOpen((open) => !open)} />
       <div className="grid items-stretch gap-[5px] lg:h-[680px] lg:grid-cols-[minmax(340px,27%)_1fr] lg:gap-2">
         {/* bets + chat */}
-        <div className="order-2 flex min-h-[246px] min-w-0 flex-col overflow-hidden bg-[#151618] px-[6px] pb-0 pt-[5px] lg:order-1 lg:min-h-0 sm:rounded-[14px] sm:border sm:border-[#303238] sm:p-3">
+        <div className="order-2 flex min-h-[198px] min-w-0 flex-col overflow-hidden bg-[#151618] px-[6px] pb-0 pt-[5px] lg:order-1 lg:min-h-0 sm:min-h-0 sm:rounded-[14px] sm:border sm:border-[#303238] sm:p-3">
 
           <div className="mx-auto flex w-[150px] rounded-full bg-[#0B0C0E] p-[2px] text-[0.54rem] font-semibold text-white/50 sm:w-[86%] sm:max-w-[300px] sm:p-[3px] sm:text-[0.78rem]">
             {([["all", "All Bets"], ["my", "My Bets"]] as const).map(([k, l]) => (
@@ -1591,7 +1591,7 @@ export function Aviator() {
 
 
           <div
-            className="flex h-[154px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-[2px] lg:h-0 lg:min-h-0 sm:h-[430px] sm:pt-2"
+            className="flex h-[106px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-[2px] lg:h-0 lg:min-h-0 sm:h-[430px] sm:pt-2"
             style={{
               overscrollBehavior: "contain",
               WebkitOverflowScrolling: "touch",

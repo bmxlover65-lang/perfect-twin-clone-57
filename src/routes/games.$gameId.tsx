@@ -2335,7 +2335,7 @@ function GamePage() {
 
   if (gameId === "88.0030") {
     return (
-      <div className={embed ? shell("max-w-[1080px]") : "mx-auto w-full max-w-[1080px] bg-[#090A0C] px-0 py-0 sm:px-4 sm:py-5"}>
+      <div className={embed ? shell("max-w-[1080px]") : "mx-auto min-h-dvh w-full max-w-[1080px] bg-[#090A0C] px-0 pb-[48px] pt-0 sm:px-4 sm:py-5"}>
         {embed ? null : (
 
           <Link to="/" className="hidden text-sm text-[#2563EB] hover:underline sm:inline">
