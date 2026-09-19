@@ -975,7 +975,7 @@ export function BalloonStage({
           <div
             className={`absolute left-1/2 z-10 ${flying || popped ? "w-[40%] min-w-[124px] max-w-[220px] sm:w-[25%] sm:min-w-[158px]" : "w-[44%] min-w-[142px] max-w-[230px] sm:w-[27%] sm:min-w-[170px]"}`}
             style={{
-              top: flying || popped ? undefined : "4%",
+              top: flying || popped ? undefined : "0%",
               bottom: flying || popped ? `${31 + grow * 8}%` : undefined,
               transform: "translateX(-50%)",
               transition: "bottom 240ms linear, top 240ms linear, transform 240ms linear",
