@@ -78,7 +78,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Balloon: 8-second wait, plane kept ahead of its trail through the right edge, vertical cloud/star drift, disabled HEAT label retained, aligned Auto controls and full-width scenic dock
 - [x] Balloon: align the plane's rear with the live trail endpoint and split the long cloud strip into compact cloud clusters
 - [x] Balloon: match the supplied real betting dock — navy stake pills, compact Edit/Clear/Min/Max column, aligned Auto switches and darker HEAT buttons
-- [ ] Balloon: extend and scale the scenery through the full mobile frame so no white strip appears below the betting dock
+- [x] Balloon: extend and scale the scenery through the full mobile frame so no white strip appears below the betting dock
 
 ## Phase 7 — Royal444 full casino structure parity (pending reference access)
 - [ ] Audit the reference casino lobby and every casino game page at mobile width

@@ -871,7 +871,7 @@ export function BalloonStage({
 
   return (
     <div className={`w-full bg-[linear-gradient(160deg,#2B2B2E_0%,#0A0A0B_55%,#1A1A1D_100%)] p-1 shadow-[0_18px_44px_-18px_rgba(0,0,0,0.9)] ring-1 ring-inset ring-white/10 ${embedded ? "min-h-dvh rounded-none" : "rounded-[10px]"}`}>
-      <div className={`relative w-full overflow-hidden bg-[linear-gradient(180deg,#4FB6CE_0%,#7ACBD6_38%,#BFE0CC_66%,#F3E4B4_88%,#F7EFD2_100%)] ${embedded ? "h-[calc(100dvh-0.5rem)] rounded-[7px]" : "h-[650px] max-h-[calc(100dvh-132px)] min-h-[610px] rounded-[7px] sm:h-auto sm:min-h-0 sm:aspect-[16/10] sm:max-h-none"}`}>
+      <div className={`relative w-full overflow-hidden bg-[linear-gradient(180deg,#4FB6CE_0%,#7ACBD6_38%,#BFE0CC_66%,#F3E4B4_88%,#F7EFD2_100%)] ${embedded ? "h-[calc(100dvh-0.5rem)] rounded-[7px]" : "h-[calc(100dvh-132px)] min-h-[650px] rounded-[7px] sm:h-auto sm:min-h-0 sm:aspect-[16/10]"}`}>
         {/* premium cinematic vignette + top sheen */}
         <div
           className="pointer-events-none absolute inset-0 z-[5]"
