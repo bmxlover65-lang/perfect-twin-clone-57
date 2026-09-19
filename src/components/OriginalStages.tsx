@@ -971,9 +971,9 @@ export function BalloonStage({
 
         {/* The Royal game keeps the balloon visible through flight, result and countdown. */}
           <div
-            className={`absolute left-1/2 z-10 ${flying || popped ? "w-[40%] min-w-[124px] max-w-[220px] sm:w-[25%] sm:min-w-[158px]" : "w-[44%] min-w-[142px] max-w-[230px] sm:w-[27%] sm:min-w-[170px]"}`}
+            className={`absolute left-1/2 z-10 ${flying || popped ? "w-[40%] min-w-[124px] max-w-[220px] sm:w-[25%] sm:min-w-[158px]" : "w-[52%] min-w-[168px] max-w-[270px] sm:w-[30%] sm:min-w-[190px]"}`}
             style={{
-              top: flying || popped ? undefined : "0%",
+              top: flying || popped ? undefined : "11%",
               bottom: flying || popped ? `${31 + grow * 8}%` : undefined,
               transform: "translateX(-50%)",
               transition: "bottom 240ms linear, top 240ms linear, transform 240ms linear",
