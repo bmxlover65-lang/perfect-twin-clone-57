@@ -18,6 +18,7 @@ import skyBg from "@/assets/balloon/sky-bg-1.jpg.asset.json";
 import bonusSfx from "@/assets/balloon/balloon_achieve_bonus.mp3.asset.json";
 
 const LOCATIONS = [skyBg, skyBg, loc1, loc2, loc3];
+const BALLOON_STAKES = [100, 200, 500, 1000, 10000, 25000, 50000, 100000];
 
 function hashStr(s: string) {
   let h = 0;
