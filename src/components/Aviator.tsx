@@ -911,11 +911,10 @@ function FlightStage({
         {phase === "betting" ? (
           <image
             href={aviatorPlane}
-            x={-planeW * 0.2}
-            y={H - 30 - planeH * 0.6}
+            x={-planeW * 0.1}
+            y={H - 24 - planeH}
             width={planeW}
             height={planeH}
-            transform={`rotate(-26 ${-planeW * 0.2 + planeW / 2} ${H - 30 - planeH * 0.6 + planeH / 2})`}
             opacity={0.95}
           />
         ) : null}
