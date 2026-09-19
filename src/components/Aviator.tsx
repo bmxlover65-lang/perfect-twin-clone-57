@@ -345,33 +345,33 @@ function MobileBetSlot({
   };
 
   return (
-    <div className="flex w-[113px] min-w-0 flex-col items-center gap-[3px]">
-      <div className="flex h-[18px] items-center gap-[12px]">
-        <span className="text-[0.6rem] font-bold leading-none text-white">Auto</span>
+    <div className="flex w-[128px] min-w-0 flex-col items-center gap-[4px]">
+      <div className="flex h-[22px] items-center gap-[18px]">
+        <span className="text-[0.75rem] font-bold leading-none text-white">Auto</span>
         <button
           type="button"
           onClick={() => setState((p) => ({ ...p, auto: !p.auto, mode: !p.auto ? "auto" : "bet" }))}
           aria-pressed={state.auto}
-          className={`relative h-[15px] w-[31px] shrink-0 rounded-full border border-[#7B7E82] transition-colors ${
+          className={`relative h-[19px] w-[43px] shrink-0 rounded-full border border-[#9A9DA0] transition-colors ${
             state.auto ? "bg-[#16A62A]" : "bg-[#25272A]"
           }`}
         >
           <span
-            className={`absolute top-[2px] h-[10px] w-[10px] rounded-full bg-white transition-all ${
-              state.auto ? "left-[18px]" : "left-[2px]"
+            className={`absolute top-[2px] h-[13px] w-[13px] rounded-full bg-white transition-all ${
+              state.auto ? "left-[26px]" : "left-[3px]"
             }`}
           />
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-[5px] gap-y-[2px]">
+      <div className="grid grid-cols-2 gap-x-[5px] gap-y-[3px]">
         {MOBILE_PRESETS.map((q) => (
           <button
             key={q}
             type="button"
             disabled={locked}
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`h-[19px] w-[54px] rounded-full border border-[#898B8E] bg-[#151719] text-[0.6rem] font-medium leading-none text-[#AEB1B5] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] disabled:opacity-40 ${
+            className={`h-[22px] w-[62px] rounded-full border border-[#B8BABD] bg-[#151719] text-[0.72rem] font-medium leading-none text-[#979A9E] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] disabled:opacity-40 ${
               state.amount === q ? "text-white" : ""
             }`}
           >
@@ -383,7 +383,7 @@ function MobileBetSlot({
       <button
         type="button"
         onClick={press}
-        className={`mt-[5px] h-[37px] w-[85px] rounded-[6px] border text-[0.86rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.18)] ${
+        className={`mt-[7px] h-[49px] w-[109px] rounded-[8px] border text-[1.05rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.18)] ${
           canCash
             ? "border-[#8A5A05] bg-[linear-gradient(180deg,#FFBC4B_0%,#F59E0B_55%,#C87C05_100%)]"
             : pending
@@ -458,10 +458,10 @@ function MobileCenterActions({
     setSlot(1, fn);
   };
   const base =
-    "h-[22px] w-[49px] rounded-[7px] text-[0.61rem] font-semibold leading-none shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.22)]";
+    "h-[28px] w-[63px] rounded-[8px] text-[0.78rem] font-semibold leading-none shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.22)]";
   const outline = `${base} border border-[#85888B] bg-[#17191B] text-[#AEB1B5]`;
   return (
-    <div className="flex flex-col items-center gap-[5px] pt-[29px]">
+    <div className="flex flex-col items-center gap-[9px] pt-[35px]">
       <button
         type="button"
         onClick={() => setEditing(!editing)}
@@ -483,7 +483,7 @@ function MobileCenterActions({
       <button
         type="button"
         onClick={() => both((p) => ({ ...p, amount: 10000 }))}
-        className={`${outline} !w-[62px]`}
+        className={`${outline} !w-[72px]`}
       >
         Max
       </button>
@@ -510,7 +510,7 @@ function MobileBetRow({
   const [editing, setEditing] = useState(false);
   const [custom, setCustom] = useState("");
   return (
-    <div className="mx-auto w-full rounded-[14px] border border-[#2E3034] bg-[#1B1D20] px-[8px] pb-[7px] pt-[6px] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:hidden">
+    <div className="mx-auto w-full rounded-[14px] border border-[#2E3034] bg-[#1B1D20] px-[10px] pb-[7px] pt-[7px] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:hidden">
       {editing ? (
         <div className="mb-[8px] flex items-center justify-center gap-2">
           <input
@@ -536,7 +536,7 @@ function MobileBetRow({
           </button>
         </div>
       ) : null}
-      <div className="grid grid-cols-[113px_49px_113px] items-start justify-between">
+      <div className="grid grid-cols-[128px_63px_128px] items-start justify-between">
         <MobileBetSlot
           state={slots[0]!}
           setState={(fn) => setSlot(0, fn)}
@@ -866,7 +866,7 @@ function FlightStage({
       <svg
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
-        className="relative block aspect-[4/3] h-auto w-full sm:aspect-[19/9] lg:aspect-[19/8] lg:max-h-[430px]"
+        className="relative block aspect-[6/5] h-auto w-full sm:aspect-[19/9] lg:aspect-[19/8] lg:max-h-[430px]"
       >
         <defs>
           <linearGradient id="av-area" x1="0" y1="0" x2="0" y2="1">
@@ -974,14 +974,14 @@ function FlightStage({
               src={propellerImg.url}
               alt=""
               aria-hidden="true"
-              className="mb-2 h-[40px] w-[40px] sm:mb-3 sm:h-[88px] sm:w-[88px]"
+              className="mb-3 h-[54px] w-[54px] sm:h-[88px] sm:w-[88px]"
               style={{ animation: "av-prop 2.6s linear infinite" }}
             />
 
-            <p className="px-4 text-center text-[14px] font-medium uppercase text-white sm:text-[2rem]">
+            <p className="px-4 text-center text-[20px] font-medium uppercase text-white sm:text-[2rem]">
               WAITING FOR NEXT ROUND
             </p>
-            <div className="mt-2.5 h-[4px] w-[66px] overflow-hidden bg-[#292C32] sm:mt-4 sm:w-[180px]">
+            <div className="mt-3 h-[4px] w-[100px] overflow-hidden bg-[#292C32] sm:mt-4 sm:w-[180px]">
               <div
                 className="h-full bg-[#F00032]"
                 style={{ width: `${Math.max(0, Math.min(100, (countdown / BET_MS) * 100))}%` }}
