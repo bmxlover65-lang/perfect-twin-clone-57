@@ -1532,17 +1532,18 @@ export function Aviator() {
 
   return (
     <div className="overflow-hidden bg-[#090A0C] sm:rounded-[16px] sm:border sm:border-[#303238] sm:p-3">
-      <div className="grid items-stretch gap-2 lg:h-[680px] lg:grid-cols-[minmax(340px,27%)_1fr]">
+      <VimaanMobileHeader onHistory={() => setHistOpen((open) => !open)} />
+      <div className="grid items-stretch gap-[5px] lg:h-[680px] lg:grid-cols-[minmax(340px,27%)_1fr] lg:gap-2">
         {/* bets + chat */}
-        <div className="order-2 flex min-w-0 flex-col overflow-hidden bg-[#151618] p-2 lg:order-1 sm:rounded-[14px] sm:border sm:border-[#303238] sm:p-3">
+        <div className="order-2 flex min-h-[246px] min-w-0 flex-col overflow-hidden bg-[#151618] px-[6px] pb-0 pt-[5px] lg:order-1 lg:min-h-0 sm:rounded-[14px] sm:border sm:border-[#303238] sm:p-3">
 
-          <div className="mx-auto flex w-[150px] rounded-full bg-[#0B0C0E] p-[2px] text-[0.58rem] font-semibold text-white/50 sm:w-[86%] sm:max-w-[300px] sm:p-[3px] sm:text-[0.78rem]">
+          <div className="mx-auto flex w-[150px] rounded-full bg-[#0B0C0E] p-[2px] text-[0.54rem] font-semibold text-white/50 sm:w-[86%] sm:max-w-[300px] sm:p-[3px] sm:text-[0.78rem]">
             {([["all", "All Bets"], ["my", "My Bets"]] as const).map(([k, l]) => (
               <button
                 key={k}
                 type="button"
                 onClick={() => setTab(k)}
-                className={`h-[17px] flex-1 rounded-full px-2 leading-none sm:h-[20px] ${
+                 className={`h-[16px] flex-1 rounded-full px-2 leading-none sm:h-[20px] ${
                   tab === k ? "bg-[#2C2D30] text-white" : ""
                 }`}
               >
@@ -1552,7 +1553,7 @@ export function Aviator() {
           </div>
 
           {tab === "all" ? (
-            <div className="mt-[6px] flex items-start justify-between px-[6px] text-[0.68rem] font-bold text-white/90 sm:mt-[10px] sm:px-0 sm:text-[0.7rem]">
+            <div className="mt-[6px] flex items-start justify-between px-[1px] text-[0.6rem] font-bold text-white/90 sm:mt-[10px] sm:px-0 sm:text-[0.7rem]">
               <span className="flex flex-col gap-[2px] leading-tight">
                 ALL BETS
                 <span className="text-[0.66rem] font-semibold text-white/60">{bets.length}</span>
@@ -1565,7 +1566,7 @@ export function Aviator() {
           ) : null}
 
           {tab === "my" ? (
-            <div className="mt-[6px] flex items-start justify-between px-[6px] text-[0.68rem] font-bold text-white/90 sm:mt-[10px] sm:px-0 sm:text-[0.7rem]">
+            <div className="mt-[6px] flex items-start justify-between px-[1px] text-[0.6rem] font-bold text-white/90 sm:mt-[10px] sm:px-0 sm:text-[0.7rem]">
               <span className="flex flex-col gap-[2px] leading-tight">
                 MY BETS
                 <span className="text-[0.66rem] font-semibold text-white/60">
@@ -1581,7 +1582,7 @@ export function Aviator() {
             </div>
           ) : null}
 
-          <div className="mt-[5px] grid h-[18px] grid-cols-[1fr_38px_44px_54px] items-center gap-x-2 border-b border-white/10 bg-[#111214] px-[6px] text-[0.55rem] font-medium text-white/35 sm:mt-[8px] sm:px-2 sm:text-[0.58rem]">
+          <div className="mt-[4px] grid h-[16px] grid-cols-[1fr_38px_44px_54px] items-center gap-x-2 border-b border-white/10 bg-[#111214] px-[2px] text-[0.48rem] font-medium text-white/35 sm:mt-[8px] sm:h-[18px] sm:px-2 sm:text-[0.58rem]">
             <span>{tab === "my" ? "Round" : "User"}</span>
             <span>Bet</span>
             <span>X</span>
@@ -1590,7 +1591,7 @@ export function Aviator() {
 
 
           <div
-            className="flex h-[430px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-2 lg:h-0 lg:min-h-0"
+            className="flex h-[154px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-[2px] lg:h-0 lg:min-h-0 sm:h-[430px] sm:pt-2"
             style={{
               overscrollBehavior: "contain",
               WebkitOverflowScrolling: "touch",
@@ -1662,7 +1663,7 @@ export function Aviator() {
                   return (
                     <div
                       key={`${b.id}-${i}`}
-                      className={`grid shrink-0 grid-cols-[1fr_38px_44px_54px] items-center gap-x-2 px-2 py-[5px] text-[0.64rem] sm:text-[0.8rem] ${
+                       className={`grid shrink-0 grid-cols-[1fr_38px_44px_54px] items-center gap-x-2 px-[2px] py-[2px] text-[0.56rem] sm:px-2 sm:py-[5px] sm:text-[0.8rem] ${
                         done
                           ? "rounded-[7px] border border-[#3B8F20] bg-[#0D4206] text-white"
                           : "border-b border-white/[0.05] bg-[#131416] text-white/70"
@@ -1675,7 +1676,7 @@ export function Aviator() {
                           loading="lazy"
                           width={96}
                           height={96}
-                          className="h-[21px] w-[21px] shrink-0 rounded-full object-cover"
+                           className="h-[20px] w-[20px] shrink-0 rounded-full object-cover"
                         />
                         <span className={`truncate ${done ? "font-semibold text-white" : "text-[#7E92B5]"}`}>
                           {maskName(b.user)}
@@ -1708,7 +1709,7 @@ export function Aviator() {
             ) : null}
           </div>
 
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-x-2 gap-y-[2px] border-t border-white/10 px-1 pb-[26px] pt-[12px] text-[0.7rem] text-white/50 sm:text-[0.75rem]">
+          <div className="mt-5 hidden flex-wrap items-center justify-between gap-x-2 gap-y-[2px] border-t border-white/10 px-1 pb-[26px] pt-[12px] text-[0.7rem] text-white/50 sm:flex sm:text-[0.75rem]">
             <span className="flex items-center gap-1">
               This game is
               <img src={fairIcon} alt="" className="h-[16px] w-[15px]" />
@@ -1722,9 +1723,9 @@ export function Aviator() {
         </div>
 
         {/* stage + panels */}
-        <div className="order-1 flex min-w-0 flex-col gap-2 lg:order-2 lg:min-h-0">
+        <div className="order-1 flex min-w-0 flex-col gap-[4px] lg:order-2 lg:min-h-0 lg:gap-2">
           {/* history strip — sits above the flying stage */}
-          <div className="bg-[#090A0C] px-[6px] py-[3px] sm:rounded-[8px] sm:border sm:border-[#34363B] sm:bg-[#202125] sm:px-3 sm:py-2">
+          <div className="bg-[#090A0C] px-[5px] py-[2px] sm:rounded-[8px] sm:border sm:border-[#34363B] sm:bg-[#202125] sm:px-3 sm:py-2">
             {histOpen ? (
               <div className="mb-2 flex items-center justify-between gap-2">
                 <span className="text-[0.72rem] font-semibold uppercase tracking-[0.03em] text-white">
@@ -1742,10 +1743,10 @@ export function Aviator() {
                     : "flex-nowrap overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                 }`}
               >
-                {(histOpen ? history : history.slice(0, 40)).map((h, i) => (
+                {(histOpen ? history : history.slice(0, 8)).map((h, i) => (
                   <span
                     key={`${h}-${i}`}
-                    className={`shrink-0 rounded-full bg-[#090B0E] px-[5px] py-[1px] text-[0.58rem] font-semibold leading-[16px] sm:px-[8px] sm:py-[2px] sm:text-[0.72rem] ${chipTone(h)}`}
+                    className={`shrink-0 px-[2px] py-0 text-[0.52rem] font-bold leading-[15px] sm:rounded-full sm:bg-[#090B0E] sm:px-[8px] sm:py-[2px] sm:text-[0.72rem] ${chipTone(h)}`}
                   >
                     {fmt(h)}x
                   </span>
@@ -1759,7 +1760,7 @@ export function Aviator() {
 
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} feedLive={feedLive} />
 
-          <div className="bg-[#111315] p-2 sm:rounded-[12px] sm:border sm:border-[#292D32] sm:p-4 lg:flex lg:flex-1 lg:flex-col lg:justify-start">
+          <div className="bg-[#111315] p-[5px] sm:rounded-[12px] sm:border sm:border-[#292D32] sm:p-4 lg:flex lg:flex-1 lg:flex-col lg:justify-start">
             {/* mobile: left presets | center actions | right presets */}
             <MobileBetRow
               slots={slots}
@@ -1789,6 +1790,7 @@ export function Aviator() {
 
         </div>
       </div>
+      <VimaanMobileNav />
     </div>
   );
 }
