@@ -1,7 +1,5 @@
 import { useEmbed } from "@/lib/embed";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "@tanstack/react-router";
-import { Clock3, Home, RotateCcw, Trophy, UserRound, Volleyball } from "lucide-react";
 import aviatorPlane from "@/assets/aviator/plane-0.svg";
 import historyIcon from "@/assets/aviator/history.svg";
 import arrowIcon from "@/assets/aviator/arrow-down.svg";
@@ -60,51 +58,6 @@ function HistToggle({ open, onClick }: { open: boolean; onClick: () => void }) {
     </button>
   );
 }
-
-function VimaanMobileHeader({ onHistory }: { onHistory: () => void }) {
-  return (
-    <div className="grid h-[55px] grid-cols-[68px_66px_minmax(0,1fr)_32px_32px] items-center gap-[5px] border-b border-[#101114] bg-[linear-gradient(180deg,#303236_0%,#202225_55%,#161719_100%)] px-[5px] sm:hidden">
-      <button type="button" className="h-[35px] rounded-[4px] border border-[#4A4D52] bg-[linear-gradient(180deg,#25282C_0%,#121416_100%)] text-[0.72rem] font-extrabold text-white shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_1px_2px_rgba(0,0,0,.65)]">
-        Rules
-      </button>
-      <Link to="/" className="grid h-[34px] place-items-center rounded-[5px] border border-[#9B6E00] bg-[linear-gradient(180deg,#FFE642_0%,#FFC400_100%)] text-center text-[0.67rem] font-black uppercase leading-[0.82] text-[#080808] shadow-[inset_0_1px_0_rgba(255,255,255,.65),0_1px_2px_rgba(0,0,0,.55)]">
-        <span>Gaming<br />Lobby</span>
-      </Link>
-      <div className="min-w-0 text-center text-[0.53rem] font-extrabold leading-[1.8] text-white">
-        <p className="truncate">Main PTI 1128.00</p>
-        <p className="truncate">Exp (0.00)</p>
-      </div>
-      <button type="button" aria-label="Refresh game" onClick={() => window.location.reload()} className="grid h-[32px] w-[32px] place-items-center rounded-[4px] border border-[#383B40] bg-[linear-gradient(180deg,#292C31_0%,#111317_100%)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.12)]">
-        <RotateCcw className="h-[19px] w-[19px]" strokeWidth={2.4} />
-      </button>
-      <button type="button" aria-label="Open round history" onClick={onHistory} className="grid h-[32px] w-[32px] place-items-center rounded-[4px] border border-[#383B40] bg-[linear-gradient(180deg,#292C31_0%,#111317_100%)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.12)]">
-        <RotateCcw className="h-[19px] w-[19px] -scale-x-100" strokeWidth={2.4} />
-      </button>
-    </div>
-  );
-}
-
-function VimaanMobileNav() {
-  const items = [
-    { label: "Home", icon: Home, to: "/" as const },
-    { label: "In-Play", icon: Clock3, to: "/sports" as const },
-    { label: "Sports", icon: Trophy, to: "/sports" as const },
-    { label: "Multi Ma...", icon: Volleyball, to: "/sports" as const },
-    { label: "Account", icon: UserRound, to: "/auth" as const },
-  ];
-  return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto grid h-[48px] w-full max-w-[1080px] grid-cols-5 border-t border-[#24465A] bg-[linear-gradient(180deg,#19465F_0%,#123247_100%)] text-white sm:hidden">
-      {items.map(({ label, icon: Icon, to }, index) => (
-        <Link key={label} to={to} className={`flex min-w-0 flex-col items-center justify-center gap-[1px] text-[0.57rem] font-bold leading-none ${index === 2 ? "relative -top-[10px] h-[58px] rounded-t-full bg-[#173F58] pt-[6px]" : ""}`}>
-          <Icon className="h-[21px] w-[21px]" strokeWidth={2.2} />
-          <span className="max-w-full truncate px-1">{label}</span>
-        </Link>
-      ))}
-    </nav>
-  );
-}
-
-
 
 /* ---------------- live bets (real players only) ---------------- */
 
@@ -889,24 +842,20 @@ function FlightStage({
 
   return (
     <div className="relative overflow-hidden rounded-[13px] border border-[#2B2D31] bg-black">
-      {/* spribe-style rotating sun rays from the bottom-left */}
+      {/* fixed light rays from the lower-left corner */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -bottom-[22%] -left-[18%] h-[76%] w-[76%] rounded-full bg-[radial-gradient(circle,rgba(75,27,110,.58)_0%,rgba(45,14,69,.3)_30%,transparent_69%)]" />
         <div
-          className="absolute left-[4%] top-[96%] h-[1100px] w-[1100px] -translate-x-1/2 -translate-y-1/2 opacity-90"
+          className="absolute left-0 top-full h-[1100px] w-[1100px] -translate-x-1/2 -translate-y-1/2 opacity-90"
           style={{
             background:
               "repeating-conic-gradient(from 0deg, rgba(31,35,40,.92) 0deg 6.5deg, rgba(1,2,3,.98) 6.5deg 13deg)",
             borderRadius: "9999px",
             maskImage: "radial-gradient(circle, #000 0%, #000 58%, transparent 88%)",
             WebkitMaskImage: "radial-gradient(circle, #000 0%, #000 58%, transparent 88%)",
-            animation: "av-spin 36s linear infinite",
           }}
         />
-        <div className="absolute bottom-[2%] left-[1%] h-[18px] w-[18px] rounded-full bg-[radial-gradient(circle,rgba(187,118,255,.5)_0%,rgba(114,52,169,.24)_38%,transparent_72%)] blur-[1px]" />
       </div>
-      <style>{`@keyframes av-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
-@keyframes av-prop{to{transform:rotate(360deg)}}
+      <style>{`@keyframes av-prop{to{transform:rotate(360deg)}}
 @keyframes av-row-in{from{opacity:0;transform:translateY(-10px) scale(0.98)}to{opacity:1;transform:none}}
 .av-row-in{animation:av-row-in .38s cubic-bezier(.2,.8,.3,1)}`}</style>
 
@@ -1533,7 +1482,6 @@ export function Aviator() {
 
   return (
     <div className="overflow-hidden bg-[#090A0C] sm:rounded-[16px] sm:border sm:border-[#303238] sm:p-3">
-      <VimaanMobileHeader onHistory={() => setHistOpen((open) => !open)} />
       <div className="grid items-stretch gap-[5px] lg:h-[680px] lg:grid-cols-[minmax(340px,27%)_1fr] lg:gap-2">
         {/* bets + chat */}
         <div className="order-2 flex min-h-[198px] min-w-0 flex-col overflow-hidden bg-[#151618] px-[6px] pb-0 pt-[5px] lg:order-1 lg:min-h-0 sm:min-h-0 sm:rounded-[14px] sm:border sm:border-[#303238] sm:p-3">
@@ -1791,7 +1739,6 @@ export function Aviator() {
 
         </div>
       </div>
-      <VimaanMobileNav />
     </div>
   );
 }
