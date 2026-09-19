@@ -1140,7 +1140,7 @@ export function BalloonStage({
         {betOk ? <SuccessToast message={betOk} onDone={() => setBetOk(null)} /> : null}
 
         {/* compact Royal-style betting dock */}
-        <div className="balloon-bet-dock absolute inset-x-0 bottom-[10px] z-20 sm:bottom-[14px] flex items-end justify-between gap-[6px] rounded-[13px] px-[7px] pb-[5px] pt-[8px] sm:gap-4 sm:px-4 sm:pb-4">
+        <div className="balloon-bet-dock absolute inset-x-0 bottom-[34px] z-20 sm:bottom-[44px] flex items-end justify-between gap-[6px] rounded-[13px] px-[7px] pb-[5px] pt-[8px] sm:gap-4 sm:px-4 sm:pb-4">
           {/* left cluster: auto toggles + stakes + edits/clear/min/max */}
           <div className="shrink-0">
             <div className="mb-[4px] grid w-[226px] grid-cols-[145px_81px] items-center sm:w-[370px] sm:grid-cols-[250px_120px]">
