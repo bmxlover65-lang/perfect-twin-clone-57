@@ -1,9 +1,9 @@
 import { useEmbed } from "@/lib/embed";
 import { useCallback, useEffect, useRef, useState } from "react";
-import plane0 from "@/assets/aviator/plane-0.svg";
-import plane1 from "@/assets/aviator/plane-1.svg";
-import plane2 from "@/assets/aviator/plane-2.svg";
-import plane3 from "@/assets/aviator/plane-3.svg";
+import vimaanPlane from "@/assets/vimaan/plane.png.asset.json";
+import vimaanPlane2 from "@/assets/vimaan/plane-2.png.asset.json";
+import vimaanStars from "@/assets/vimaan/stars.png.asset.json";
+import vimaanClouds from "@/assets/vimaan/clouds.png.asset.json";
 import historyIcon from "@/assets/aviator/history.svg";
 import arrowIcon from "@/assets/aviator/arrow-down.svg";
 import fairIcon from "@/assets/aviator/provably-fair.svg";
@@ -23,9 +23,8 @@ import { type AviatorControl, useAdminConfig } from "@/lib/admin";
 import { playerSession, remoteBet, remoteCashout, remoteSettle } from "@/lib/player";
 import { logBet, setBalance as saveBalance } from "@/lib/telemetry";
 
-const PLANE_FRAMES = [plane0, plane1, plane2, plane3];
 if (typeof window !== "undefined") {
-  PLANE_FRAMES.forEach((src) => {
+  [vimaanPlane.url, vimaanPlane2.url, vimaanStars.url, vimaanClouds.url].forEach((src) => {
     const img = new window.Image();
     img.src = src;
   });
@@ -37,7 +36,7 @@ const AVATARS = [av1, av2, av3, av4, av5, av6];
 
 type Phase = "betting" | "flying" | "crashed";
 
-const BET_MS = 6000;
+const BET_MS = 8000;
 
 
 
@@ -711,8 +710,9 @@ function FlightStage({
   const c2y = y0 - (y0 - y) * 0.42;
   const path = `M${x0},${y0} C ${c1x},${c1y} ${c2x},${c2y} ${x},${y}`;
   const area = `${path} L ${x},${y0} Z`;
-  const planeW = 96;
-  const planeH = planeW * (74 / 150);
+  const planeW = 118;
+  const planeH = planeW * (180 / 300);
+  const movingPlane = Math.floor(t / 90) % 2 === 0 ? vimaanPlane.url : vimaanPlane2.url;
   const tick = (t / 22) % 60;
 
 
@@ -751,8 +751,25 @@ function FlightStage({
       </div>
       <style>{`@keyframes av-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes av-prop{to{transform:rotate(360deg)}}
+@keyframes av-stars{from{transform:translate3d(0,0,0)}to{transform:translate3d(-12%,8%,0)}}
+@keyframes av-cloud-air{from{transform:translate3d(38%,8%,0)}to{transform:translate3d(-42%,-8%,0)}}
 @keyframes av-row-in{from{opacity:0;transform:translateY(-10px) scale(0.98)}to{opacity:1;transform:none}}
 .av-row-in{animation:av-row-in .38s cubic-bezier(.2,.8,.3,1)}`}</style>
+
+      <img
+        src={vimaanStars.url}
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 h-full w-[116%] max-w-none object-cover opacity-55"
+        style={{ animation: phase === "flying" ? "av-stars 6s linear infinite alternate" : "none" }}
+      />
+      <img
+        src={vimaanClouds.url}
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-[2%] h-[46%] w-full object-fill opacity-80"
+        style={{ animation: phase === "flying" ? "av-cloud-air 4.8s linear infinite" : "none" }}
+      />
 
 
       <svg
@@ -800,9 +817,9 @@ function FlightStage({
         {/* plane parked at the start position while waiting */}
         {phase === "betting" ? (
           <image
-            href={PLANE_FRAMES[0]}
+            href={vimaanPlane.url}
             x={18}
-            y={H - 40 - planeH * 0.62}
+            y={H - 40 - planeH * 0.72}
             width={planeW}
             height={planeH}
             opacity={0.95}
@@ -822,9 +839,9 @@ function FlightStage({
             />
 
             <image
-              href={PLANE_FRAMES[0]}
+              href={movingPlane}
               x={px - planeW * 0.72}
-              y={py - planeH * 0.62}
+              y={py - planeH * 0.68}
               width={planeW}
               height={planeH}
               transform={`rotate(${-(6 + 12 * p)} ${px - planeW * 0.22} ${py - planeH * 0.12})`}
