@@ -394,45 +394,44 @@ function MobileBetSlot({
         {canCash ? "Cash Out" : pending ? "Cancel" : "Cash In"}
       </button>
 
-      {state.auto ? (
-        <div className="flex items-center gap-[6px]">
+      {/* Fixed-height slot so toggling Auto never shifts the layout above. */}
+      <div className={`flex h-[22px] w-[105px] items-center gap-[5px] ${state.auto ? "" : "invisible"}`}>
+        <button
+          type="button"
+          onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
+          aria-pressed={state.auto}
+          className={`relative h-[16px] w-[31px] shrink-0 rounded-full border border-[#55595F] transition-colors ${
+            state.auto ? "bg-[#16A62A]" : "bg-[#1B1D20]"
+          }`}
+        >
+          <span
+            className={`absolute top-[2px] h-[10px] w-[10px] rounded-full bg-white transition-all ${
+              state.auto ? "left-[18px]" : "left-[3px]"
+            }`}
+          />
+        </button>
+        <div className="flex h-[22px] min-w-0 flex-1 items-center gap-1 rounded-full bg-[#0B0C0E] px-2">
+          <input
+            type="number"
+            step="0.01"
+            min="1.01"
+            value={state.autoCashout}
+            onChange={(e) => {
+              const v = Number(e.target.value);
+              setState((p) => ({ ...p, autoCashout: Number.isFinite(v) ? v : p.autoCashout }));
+            }}
+            className="min-w-0 flex-1 bg-transparent text-center text-[0.66rem] font-bold text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+          />
           <button
             type="button"
-            onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
-            aria-pressed={state.auto}
-            className={`relative h-[16px] w-[31px] shrink-0 rounded-full border border-[#55595F] transition-colors ${
-              state.auto ? "bg-[#16A62A]" : "bg-[#1B1D20]"
-            }`}
+            onClick={() => setState((p) => ({ ...p, autoCashout: 1.1, auto: false }))}
+            aria-label="Clear auto cashout"
+            className="shrink-0 text-[0.72rem] leading-none text-white/45 hover:text-white"
           >
-            <span
-              className={`absolute top-[2px] h-[10px] w-[10px] rounded-full bg-white transition-all ${
-                state.auto ? "left-[18px]" : "left-[3px]"
-              }`}
-            />
+            ×
           </button>
-          <div className="flex min-w-0 flex-1 items-center gap-1 rounded-full bg-[#0B0C0E] px-2 py-[3px]">
-            <input
-              type="number"
-              step="0.01"
-              min="1.01"
-              value={state.autoCashout}
-              onChange={(e) => {
-                const v = Number(e.target.value);
-                setState((p) => ({ ...p, autoCashout: Number.isFinite(v) ? v : p.autoCashout }));
-              }}
-              className="min-w-0 flex-1 bg-transparent text-center text-[0.66rem] font-bold text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
-            />
-            <button
-              type="button"
-              onClick={() => setState((p) => ({ ...p, autoCashout: 1.1, auto: false }))}
-              aria-label="Clear auto cashout"
-              className="shrink-0 text-[0.72rem] leading-none text-white/45 hover:text-white"
-            >
-              ×
-            </button>
-          </div>
         </div>
-      ) : null}
+      </div>
 
 
 
