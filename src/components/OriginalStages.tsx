@@ -22,7 +22,7 @@ import balloonStars from "@/assets/vimaan/stars.png.asset.json";
 import balloonClouds from "@/assets/vimaan/clouds.png.asset.json";
 
 const LOCATIONS = [skyBg, skyBg, loc1, loc2, loc3];
-const BALLOON_STAKES = [100, 200, 500, 1000, 10000, 25000, 50000, 100000];
+const BALLOON_STAKES = [10, 50, 100, 500, 1000, 2500, 5000, 10000];
 
 function hashStr(s: string) {
   let h = 0;
@@ -1141,30 +1141,30 @@ export function BalloonStage({
         {betOk ? <SuccessToast message={betOk} onDone={() => setBetOk(null)} /> : null}
 
         {/* compact Royal-style betting dock */}
-        <div className="absolute inset-x-0 bottom-0 z-20 flex items-end justify-between gap-[5px] rounded-t-[14px] bg-[linear-gradient(180deg,rgba(77,184,214,0.48)_0%,rgba(245,215,116,0.32)_100%)] px-2 pb-2 pt-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-[1px] sm:gap-4 sm:px-4 sm:pb-4">
+        <div className="balloon-bet-dock absolute inset-x-0 bottom-0 z-20 flex items-end justify-between gap-[6px] rounded-t-[13px] px-[7px] pb-[5px] pt-[8px] sm:gap-4 sm:px-4 sm:pb-4">
           {/* left cluster: auto toggles + stakes + edits/clear/min/max */}
           <div className="shrink-0">
-            <div className="mb-1 grid w-[202px] grid-cols-[151px_51px] items-center sm:w-[370px] sm:grid-cols-[250px_120px]">
+            <div className="mb-[4px] grid w-[199px] grid-cols-[132px_67px] items-center sm:w-[370px] sm:grid-cols-[250px_120px]">
               {([0, 1] as const).map((i) => (
                 <div
                   key={i}
-                  className={`flex items-center text-white ${i === 0 ? "w-[103px] justify-between pl-1" : "w-[88px] justify-between sm:w-[110px]"}`}
+                  className={`flex items-center text-white ${i === 0 ? "w-[81px] justify-between pl-[3px]" : "w-[67px] justify-between sm:w-[110px]"}`}
                 >
                   <button
                     type="button"
                     onClick={() => setAutos((a) => (i === 0 ? [!a[0], a[1]] : [a[0], !a[1]]))}
-                    className="contents text-[0.68rem] font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] sm:text-[0.82rem]"
+                    className="contents text-[0.62rem] font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] sm:text-[0.82rem]"
                     aria-pressed={autos[i]}
                   >
                     Auto
                     <span
-                      className={`relative inline-flex h-[18px] w-[34px] items-center rounded-full transition-colors sm:h-5 sm:w-10 ${
+                      className={`relative inline-flex h-[15px] w-[32px] items-center rounded-full border border-white/45 transition-colors sm:h-5 sm:w-10 ${
                         autos[i] ? "bg-[#2FA84F]" : "bg-[#D9D9D9]"
                       }`}
                     >
                       <span
-                        className={`absolute top-[2px] h-[14px] w-[14px] rounded-full bg-white shadow transition-all sm:top-[2px] sm:h-4 sm:w-4 ${
-                          autos[i] ? "left-[17px] sm:left-[1.35rem]" : "left-[2px]"
+                          className={`absolute top-[1px] h-[11px] w-[11px] rounded-full bg-white shadow transition-all sm:top-[2px] sm:h-4 sm:w-4 ${
+                           autos[i] ? "left-[18px] sm:left-[1.35rem]" : "left-[2px]"
                         }`}
                       />
                     </span>
@@ -1187,14 +1187,14 @@ export function BalloonStage({
                 </div>
               ))}
             </div>
-            <div className="flex items-start gap-[7px] sm:gap-2">
-              <div className="grid grid-cols-2 gap-x-[7px] gap-y-[4px] sm:gap-x-2 sm:gap-y-1.5">
+            <div className="flex items-start gap-[8px] sm:gap-2">
+              <div className="grid grid-cols-2 gap-x-[10px] gap-y-[3px] sm:gap-x-2 sm:gap-y-1.5">
                 {BALLOON_STAKES.map((s) => (
                   <button
                     key={s}
                     type="button"
                     onClick={() => setStake(s)}
-                    className={`h-[22px] w-[72px] rounded-full border border-white bg-[linear-gradient(180deg,#164681_0%,#082A5B_100%)] text-[0.62rem] font-extrabold text-white shadow-[0_1px_3px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.25)] transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
+                    className={`balloon-stake h-[18px] w-[61px] rounded-full text-[0.6rem] font-extrabold transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
                       stake === s ? "ring-2 ring-[#E01E1E]" : s < 100 ? "opacity-65" : ""
                     }`}
                   >
@@ -1202,7 +1202,7 @@ export function BalloonStage({
                   </button>
                 ))}
               </div>
-              <div className="grid w-[52px] gap-[4px] sm:w-[110px] sm:gap-1.5">
+              <div className="grid w-[50px] gap-[3px] sm:w-[110px] sm:gap-1.5">
                 {(
                   [
                     ["Edits", 100, "bg-[#E8871E] text-white"],
@@ -1215,7 +1215,7 @@ export function BalloonStage({
                     key={label}
                     type="button"
                     onClick={() => setStake(val)}
-                    className={`h-[22px] rounded-full text-[0.58rem] font-extrabold shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-transform active:scale-95 sm:h-8 sm:text-[0.9rem] ${tone}`}
+                    className={`h-[18px] rounded-full text-[0.58rem] font-extrabold shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-transform active:scale-95 sm:h-8 sm:text-[0.9rem] ${tone}`}
                   >
                     {label}
                   </button>
@@ -1225,7 +1225,7 @@ export function BalloonStage({
           </div>
 
           {/* heat buttons — bet / queue for next round / cash out */}
-          <div className="ml-auto grid h-[100px] w-[29%] min-w-[92px] shrink-0 grid-rows-2 gap-[5px] sm:h-[136px] sm:w-[24%] sm:min-w-[150px] sm:gap-2">
+          <div className="ml-auto grid h-[84px] w-[29%] min-w-[96px] shrink-0 grid-rows-2 gap-[6px] sm:h-[136px] sm:w-[24%] sm:min-w-[150px] sm:gap-2">
             {([0, 1] as const).map((i) => {
               const bet = bets[i];
               const fl = flash[i];
@@ -1238,14 +1238,14 @@ export function BalloonStage({
                   onClick={() => pressHeat(i)}
                   disabled={blocked}
                   aria-label={blocked ? "Betting locked" : live ? "Cash out" : "Place heat bet"}
-                  className={`relative flex h-full items-center justify-center gap-1 rounded-[7px] border-2 border-[#101B16] text-[0.8rem] font-extrabold text-white ring-1 ring-inset ring-white/55 transition-transform active:translate-y-[2px] active:shadow-none sm:gap-3 sm:text-[1.15rem] ${
+                  className={`relative flex h-full items-center justify-center gap-1 rounded-[7px] border-2 border-[#101B16] text-[0.8rem] font-extrabold text-white ring-1 ring-inset ring-white/35 transition-transform active:translate-y-[2px] active:shadow-none sm:gap-3 sm:text-[1.15rem] ${
                     blocked
-                      ? "cursor-not-allowed bg-[linear-gradient(180deg,#57E066_0%,#2FBB40_48%,#149329_100%)] opacity-75 shadow-[0_4px_0_#0E6B1D]"
+                      ? "cursor-not-allowed bg-[linear-gradient(180deg,#259A42_0%,#14752C_52%,#07551B_100%)] shadow-[0_3px_0_#063B13]"
                       : live
                         ? "bg-[linear-gradient(180deg,#F0A500_0%,#D98200_100%)] shadow-[0_3px_0_#8A5600]"
                         : bet
                           ? "bg-[linear-gradient(180deg,#8C96A3_0%,#6B7480_100%)] shadow-[0_3px_0_#454C55]"
-                          : "bg-[linear-gradient(180deg,#57E066_0%,#2FBB40_48%,#149329_100%)] shadow-[0_4px_0_#0E6B1D,0_10px_20px_-8px_rgba(20,147,41,0.75),inset_0_1px_0_rgba(255,255,255,0.55)]"
+                          : "bg-[linear-gradient(180deg,#2FC552_0%,#159532_52%,#08621F_100%)] shadow-[0_3px_0_#063B13,inset_0_1px_0_rgba(255,255,255,0.4)]"
                   }`}
                 >
                   {live ? (
