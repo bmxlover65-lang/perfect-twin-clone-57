@@ -909,11 +909,10 @@ function FlightStage({
         {phase === "betting" ? (
           <image
             href={aviatorPlane}
-            x={-planeW * 0.1}
+            x={16}
             y={H - 24 - planeH}
             width={planeW}
             height={planeH}
-            transform={`rotate(8 ${-planeW * 0.1 + planeW / 2} ${H - 24 - planeH / 2})`}
             opacity={0.95}
           />
         ) : null}
@@ -975,14 +974,14 @@ function FlightStage({
               src={propellerImg.url}
               alt=""
               aria-hidden="true"
-              className="mb-2 h-[48px] w-[48px] sm:mb-3 sm:h-[88px] sm:w-[88px]"
+              className="mb-2 h-[40px] w-[40px] sm:mb-3 sm:h-[88px] sm:w-[88px]"
               style={{ animation: "av-prop 2.6s linear infinite" }}
             />
 
-            <p className="px-4 text-center text-[1rem] font-medium uppercase text-white sm:text-[2rem]">
+            <p className="px-4 text-center text-[14px] font-medium uppercase text-white sm:text-[2rem]">
               WAITING FOR NEXT ROUND
             </p>
-            <div className="mt-3 h-[4px] w-[76px] overflow-hidden bg-[#292C32] sm:mt-4 sm:w-[180px]">
+            <div className="mt-2.5 h-[4px] w-[66px] overflow-hidden bg-[#292C32] sm:mt-4 sm:w-[180px]">
               <div
                 className="h-full bg-[#F00032]"
                 style={{ width: `${Math.max(0, Math.min(100, (countdown / BET_MS) * 100))}%` }}
