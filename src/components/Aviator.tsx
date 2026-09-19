@@ -836,7 +836,7 @@ function FlightStage({
   const c2y = y0 - (y0 - y) * 0.42;
   const path = `M${x0},${y0} C ${c1x},${c1y} ${c2x},${c2y} ${x},${y}`;
   const area = `${path} L ${x},${y0} Z`;
-  const planeW = 116;
+  const planeW = 84;
   const planeH = planeW * (74 / 150);
   return (
     <div className="relative overflow-hidden rounded-[13px] border border-[#2B2D31] bg-black">
