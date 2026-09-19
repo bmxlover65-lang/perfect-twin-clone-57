@@ -1,6 +1,7 @@
 import { useEmbed } from "@/lib/embed";
 import { useCallback, useEffect, useRef, useState } from "react";
 import vimaanPlane from "@/assets/vimaan/plane.png.asset.json";
+import vimaanPlane2 from "@/assets/vimaan/plane-2.png.asset.json";
 import vimaanStars from "@/assets/vimaan/stars.png.asset.json";
 import vimaanClouds from "@/assets/vimaan/clouds.png.asset.json";
 import historyIcon from "@/assets/aviator/history.svg";
@@ -23,7 +24,7 @@ import { playerSession, remoteBet, remoteCashout, remoteSettle } from "@/lib/pla
 import { logBet, setBalance as saveBalance } from "@/lib/telemetry";
 
 if (typeof window !== "undefined") {
-  [vimaanPlane.url, vimaanStars.url, vimaanClouds.url].forEach((src) => {
+  [vimaanPlane.url, vimaanPlane2.url, vimaanStars.url, vimaanClouds.url].forEach((src) => {
     const img = new window.Image();
     img.src = src;
   });
@@ -711,6 +712,7 @@ function FlightStage({
   const area = `${path} L ${x},${y0} Z`;
   const planeW = 118;
   const planeH = planeW * (180 / 300);
+  const movingPlane = Math.floor(t / 90) % 2 === 0 ? vimaanPlane.url : vimaanPlane2.url;
   const tick = (t / 22) % 60;
 
 
@@ -837,7 +839,7 @@ function FlightStage({
             />
 
             <image
-              href={vimaanPlane.url}
+              href={movingPlane}
               x={px - planeW * 0.72}
               y={py - planeH * 0.68}
               width={planeW}
