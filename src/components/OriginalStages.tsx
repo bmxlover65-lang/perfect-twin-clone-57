@@ -857,6 +857,12 @@ export function BalloonStage({
 
   const seedHist = [1.81, 5.68, 2.58, 1.12, 1.15, 3.88, 2.59, 1.3, 1.25, 1.03];
   const histList = (history.length ? history : seedHist).slice(0, 12);
+  const crowd = [
+    { icon: "🧑🏻", name: "a••••••7", amount: 500 },
+    { icon: "🧑🏽", name: "p•••••g", amount: 100 },
+    { icon: "🧑🏼", name: "p•••••s", amount: 100 },
+    { icon: "🧑🏾", name: "h••••••o", amount: 100 },
+  ];
 
 
 
@@ -1063,14 +1069,31 @@ export function BalloonStage({
         </div>
 
 
-        {/* compact profile control; integration balance is intentionally hidden */}
-        <div className="absolute left-0 top-[11%] flex items-center gap-1 rounded-r-full bg-[#4E9AC5]/70 py-[3px] pl-2 pr-[3px] shadow-[0_1px_3px_rgba(0,0,0,0.18)]">
-          <img src={profileIcon.url} alt="" className="h-[18px] w-[18px] shrink-0" />
-          <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#2C7BE5]">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M6 14.5l6-6 6 6" />
-            </svg>
-          </span>
+        {/* profile and anonymised live activity; never exposes the integration user's balance */}
+        <div className="absolute left-0 top-[11%] z-20">
+          <div className="flex w-fit items-center gap-1 rounded-r-full bg-[#4E9AC5]/70 py-[3px] pl-2 pr-[3px] shadow-[0_1px_3px_rgba(0,0,0,0.18)]">
+            <img src={profileIcon.url} alt="" className="h-[18px] w-[18px] shrink-0" />
+            <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#2C7BE5] shadow-[0_1px_3px_rgba(0,0,0,0.2)]">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 14.5l6-6 6 6" />
+              </svg>
+            </span>
+          </div>
+          <div className="mt-2 space-y-[2px] pl-1.5">
+            {crowd.map((person, index) => (
+              <div
+                key={person.name}
+                className="flex h-[17px] items-center text-[0.48rem] font-extrabold text-[#17251E] drop-shadow-[0_1px_0_rgba(255,255,255,0.45)]"
+                style={{ opacity: 1 - index * 0.06 }}
+              >
+                <span className="mr-0.5 grid h-[14px] w-[14px] place-items-center rounded-full bg-white/45 text-[0.58rem]">
+                  {person.icon}
+                </span>
+                <span className="w-[44px] truncate">{person.name}</span>
+                <span className="ml-1 tabular-nums">{person.amount.toFixed(2)}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
 
@@ -1080,7 +1103,7 @@ export function BalloonStage({
         {betOk ? <SuccessToast message={betOk} onDone={() => setBetOk(null)} /> : null}
 
         {/* compact Royal-style betting dock */}
-        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 rounded-b-[10px] bg-[#3B1744]/95 px-2 pb-2 pt-2 shadow-[0_-1px_0_rgba(255,255,255,0.12)] backdrop-blur-[2px] sm:gap-4 sm:px-4 sm:pb-4">
+        <div className="absolute inset-x-0 bottom-0 z-20 flex items-end justify-between gap-2 rounded-b-[10px] bg-[linear-gradient(180deg,rgba(255,238,177,0.08)_0%,rgba(14,55,62,0.14)_100%)] px-2 pb-2 pt-2 shadow-[0_-1px_0_rgba(255,255,255,0.24)] sm:gap-4 sm:px-4 sm:pb-4">
           {/* left cluster: auto toggles + stakes + edits/clear/min/max */}
           <div className="shrink-0">
             <div className="mb-1 flex items-end gap-2 sm:gap-3">
@@ -1089,7 +1112,7 @@ export function BalloonStage({
                   <button
                     type="button"
                     onClick={() => setAutos((a) => (i === 0 ? [!a[0], a[1]] : [a[0], !a[1]]))}
-                    className="flex items-center gap-1 text-[0.68rem] font-bold text-white/90 sm:gap-2 sm:text-[0.82rem]"
+                    className="flex items-center gap-1 text-[0.68rem] font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] sm:gap-2 sm:text-[0.82rem]"
                     aria-pressed={autos[i]}
                   >
                     Auto
