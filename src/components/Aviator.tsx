@@ -1,5 +1,7 @@
 import { useEmbed } from "@/lib/embed";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { Clock3, Home, RotateCcw, Trophy, UserRound, Volleyball } from "lucide-react";
 import aviatorPlane from "@/assets/aviator/plane-0.svg";
 import historyIcon from "@/assets/aviator/history.svg";
 import arrowIcon from "@/assets/aviator/arrow-down.svg";
@@ -56,6 +58,49 @@ function HistToggle({ open, onClick }: { open: boolean; onClick: () => void }) {
         className={`h-[6px] w-[8px] transition-transform ${open ? "rotate-180" : ""}`}
       />
     </button>
+  );
+}
+
+function VimaanMobileHeader({ onHistory }: { onHistory: () => void }) {
+  return (
+    <div className="grid h-[55px] grid-cols-[68px_66px_minmax(0,1fr)_32px_32px] items-center gap-[5px] border-b border-[#101114] bg-[linear-gradient(180deg,#303236_0%,#202225_55%,#161719_100%)] px-[5px] sm:hidden">
+      <button type="button" className="h-[35px] rounded-[4px] border border-[#4A4D52] bg-[linear-gradient(180deg,#25282C_0%,#121416_100%)] text-[0.72rem] font-extrabold text-white shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_1px_2px_rgba(0,0,0,.65)]">
+        Rules
+      </button>
+      <Link to="/" className="grid h-[34px] place-items-center rounded-[5px] border border-[#9B6E00] bg-[linear-gradient(180deg,#FFE642_0%,#FFC400_100%)] text-center text-[0.67rem] font-black uppercase leading-[0.82] text-[#080808] shadow-[inset_0_1px_0_rgba(255,255,255,.65),0_1px_2px_rgba(0,0,0,.55)]">
+        <span>Gaming<br />Lobby</span>
+      </Link>
+      <div className="min-w-0 text-center text-[0.53rem] font-extrabold leading-[1.8] text-white">
+        <p className="truncate">Main PTI 1128.00</p>
+        <p className="truncate">Exp (0.00)</p>
+      </div>
+      <button type="button" aria-label="Refresh game" onClick={() => window.location.reload()} className="grid h-[32px] w-[32px] place-items-center rounded-[4px] border border-[#383B40] bg-[linear-gradient(180deg,#292C31_0%,#111317_100%)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.12)]">
+        <RotateCcw className="h-[19px] w-[19px]" strokeWidth={2.4} />
+      </button>
+      <button type="button" aria-label="Open round history" onClick={onHistory} className="grid h-[32px] w-[32px] place-items-center rounded-[4px] border border-[#383B40] bg-[linear-gradient(180deg,#292C31_0%,#111317_100%)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.12)]">
+        <RotateCcw className="h-[19px] w-[19px] -scale-x-100" strokeWidth={2.4} />
+      </button>
+    </div>
+  );
+}
+
+function VimaanMobileNav() {
+  const items = [
+    { label: "Home", icon: Home, to: "/" as const },
+    { label: "In-Play", icon: Clock3, to: "/sports" as const },
+    { label: "Sports", icon: Trophy, to: "/sports" as const },
+    { label: "Multi Ma...", icon: Volleyball, to: "/sports" as const },
+    { label: "Account", icon: UserRound, to: "/auth" as const },
+  ];
+  return (
+    <nav className="sticky bottom-0 z-30 grid h-[48px] grid-cols-5 border-t border-[#24465A] bg-[linear-gradient(180deg,#19465F_0%,#123247_100%)] text-white sm:hidden">
+      {items.map(({ label, icon: Icon, to }) => (
+        <Link key={label} to={to} className="flex min-w-0 flex-col items-center justify-center gap-[1px] text-[0.57rem] font-bold leading-none">
+          <Icon className="h-[21px] w-[21px]" strokeWidth={2.2} />
+          <span className="max-w-full truncate px-1">{label}</span>
+        </Link>
+      ))}
+    </nav>
   );
 }
 
@@ -371,7 +416,7 @@ function MobileBetSlot({
             type="button"
             disabled={locked}
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`h-[18px] w-[54px] rounded-full border bg-[linear-gradient(180deg,#26292D_0%,#1A1C1F_55%,#141618_100%)] text-[0.58rem] font-medium leading-none disabled:opacity-40 ${
+            className={`h-[18px] w-[52px] rounded-full border bg-[linear-gradient(180deg,#26292D_0%,#1A1C1F_55%,#141618_100%)] text-[0.58rem] font-medium leading-none disabled:opacity-40 ${
               state.amount === q ? "border-[#F20000] text-white" : "border-[#55595F] text-[#D2D4D9]"
             }`}
           >
@@ -383,7 +428,7 @@ function MobileBetSlot({
       <button
         type="button"
         onClick={press}
-        className={`mt-[2px] h-[38px] w-[105px] rounded-[8px] border text-[0.86rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.22)] ${
+        className={`mt-[4px] h-[38px] w-[83px] rounded-[7px] border text-[0.78rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.22)] ${
           canCash
             ? "border-[#8A5A05] bg-[linear-gradient(180deg,#FFBC4B_0%,#F59E0B_55%,#C87C05_100%)]"
             : pending
@@ -394,7 +439,7 @@ function MobileBetSlot({
         {canCash ? "Cash Out" : pending ? "Cancel" : "Cash In"}
       </button>
 
-      {state.auto ? <div className="mt-[2px] flex h-[25px] w-[105px] items-center gap-[5px]">
+      {state.auto ? <div className="mt-[2px] flex h-[25px] w-[83px] items-center gap-[4px]">
         <button
           type="button"
           onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
@@ -461,7 +506,7 @@ function MobileCenterActions({
     "h-[20px] w-[49px] rounded-[7px] text-[0.6rem] font-semibold leading-none shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.28)]";
   const outline = `${base} border border-[#55595F] bg-[linear-gradient(180deg,#26292D_0%,#1A1C1F_55%,#141618_100%)] text-[#9BA0A6]`;
   return (
-    <div className="flex flex-col items-center gap-[5px] pt-[32px]">
+    <div className="flex flex-col items-center gap-[5px] pt-[35px]">
       <button
         type="button"
         onClick={() => setEditing(!editing)}
@@ -510,7 +555,7 @@ function MobileBetRow({
   const [editing, setEditing] = useState(false);
   const [custom, setCustom] = useState("");
   return (
-    <div className="rounded-[10px] bg-[#0D0E10] px-[8px] pb-[6px] pt-[5px] sm:hidden">
+    <div className="rounded-[10px] bg-[#0D0E10] px-[8px] pb-[7px] pt-[5px] sm:hidden">
       {editing ? (
         <div className="mb-[8px] flex items-center justify-center gap-2">
           <input
@@ -536,7 +581,7 @@ function MobileBetRow({
           </button>
         </div>
       ) : null}
-      <div className="grid grid-cols-[1fr_49px_1fr] items-start gap-[5px]">
+      <div className="grid grid-cols-[minmax(0,1fr)_49px_minmax(0,1fr)] items-start gap-[5px]">
         <MobileBetSlot
           state={slots[0]!}
           setState={(fn) => setSlot(0, fn)}
@@ -847,10 +892,10 @@ function FlightStage({
       {/* spribe-style rotating sun rays from the bottom-left */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
-          className="absolute left-[3%] top-[92%] h-[1100px] w-[1100px] -translate-x-1/2 -translate-y-1/2 opacity-90"
+          className="absolute left-[6%] top-[96%] h-[1100px] w-[1100px] -translate-x-1/2 -translate-y-1/2 opacity-90"
           style={{
             background:
-              "repeating-conic-gradient(from 0deg, #14171C 0deg 6.5deg, #000000 6.5deg 13deg)",
+              "repeating-conic-gradient(from 0deg, #21102F 0deg 6.5deg, #030305 6.5deg 13deg)",
             borderRadius: "9999px",
             maskImage: "radial-gradient(circle, #000 0%, #000 52%, transparent 82%)",
             WebkitMaskImage: "radial-gradient(circle, #000 0%, #000 52%, transparent 82%)",
@@ -868,7 +913,7 @@ function FlightStage({
       <svg
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
-        className="relative block aspect-[4/3] h-auto w-full sm:aspect-[19/9] lg:aspect-[19/8] lg:max-h-[430px]"
+        className="relative block aspect-[1.34] h-auto w-full sm:aspect-[19/9] lg:aspect-[19/8] lg:max-h-[430px]"
       >
         <defs>
           <linearGradient id="av-area" x1="0" y1="0" x2="0" y2="1">
@@ -1002,7 +1047,7 @@ function FlightStage({
             </p>
           </>
         ) : (
-          <p className="text-[3rem] font-extrabold leading-none text-white drop-shadow-[0_6px_26px_rgba(0,0,0,.65)] sm:text-[5rem] lg:text-[6.6rem]">
+          <p className="text-[3.15rem] font-extrabold leading-none text-white drop-shadow-[0_6px_26px_rgba(0,0,0,.65)] sm:text-[5rem] lg:text-[6.6rem]">
             {fmt(multiplier)}x
           </p>
         )}
