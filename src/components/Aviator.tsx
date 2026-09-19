@@ -913,7 +913,7 @@ function FlightStage({
           <image
             href={aviatorPlane}
             x={58}
-            y={H - 40 - planeH * 0.82}
+            y={H - 40 - planeH * 0.54}
             width={planeW}
             height={planeH}
             opacity={0.95}
