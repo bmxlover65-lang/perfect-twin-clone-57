@@ -842,7 +842,7 @@ function FlightStage({
   const flyPlaneW = 132;
   const flyPlaneH = flyPlaneW * (74 / 150);
   return (
-    <div className="relative overflow-hidden rounded-[13px] border border-[#2B2D31] bg-black">
+    <div className="relative overflow-hidden rounded-[16px] border border-[#2B2D31] bg-black sm:rounded-[13px]">
       {/* spribe-style rotating sun rays from the bottom-left */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-[4%] top-[96%] h-[1100px] w-[1100px] -translate-x-1/2 -translate-y-1/2 opacity-90">
@@ -866,7 +866,7 @@ function FlightStage({
       <svg
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
-        className="relative block aspect-[6/5] h-auto w-full sm:aspect-[19/9] lg:aspect-[19/8] lg:max-h-[430px]"
+        className="relative block aspect-[1.18/1] h-auto w-full sm:aspect-[19/9] lg:aspect-[19/8] lg:max-h-[430px]"
       >
         <defs>
           <linearGradient id="av-area" x1="0" y1="0" x2="0" y2="1">
@@ -1488,16 +1488,16 @@ export function Aviator() {
     <div className="overflow-hidden bg-[#090A0C] sm:rounded-[16px] sm:border sm:border-[#303238] sm:p-3">
       <div className="grid items-stretch gap-2 lg:h-[680px] lg:grid-cols-[minmax(340px,27%)_1fr]">
         {/* bets + chat */}
-        <div className="order-2 flex min-w-0 flex-col overflow-hidden bg-[#151618] p-2 lg:order-1 sm:rounded-[14px] sm:border sm:border-[#303238] sm:p-3">
+        className="order-2 flex min-w-0 flex-col overflow-hidden rounded-t-[14px] bg-[#191A1C] px-[7px] pb-2 pt-[7px] lg:order-1 sm:rounded-[14px] sm:border sm:border-[#303238] sm:p-3">
 
-          <div className="mx-auto flex w-[150px] rounded-full bg-[#0B0C0E] p-[2px] text-[0.58rem] font-semibold text-white/50 sm:w-[86%] sm:max-w-[300px] sm:p-[3px] sm:text-[0.78rem]">
+          <div className="mx-auto flex h-[24px] w-[204px] rounded-full bg-[#101113] p-[1px] text-[0.82rem] font-normal text-white/60 shadow-[0_1px_2px_rgba(0,0,0,0.55)] sm:h-auto sm:w-[86%] sm:max-w-[300px] sm:p-[3px] sm:text-[0.78rem]">
             {([["all", "All Bets"], ["my", "My Bets"]] as const).map(([k, l]) => (
               <button
                 key={k}
                 type="button"
                 onClick={() => setTab(k)}
-                className={`h-[17px] flex-1 rounded-full px-2 leading-none sm:h-[20px] ${
-                  tab === k ? "bg-[#2C2D30] text-white" : ""
+                className={`h-[22px] flex-1 rounded-full px-2 leading-none sm:h-[20px] ${
+                  tab === k ? "bg-[#2C2D30] text-white shadow-[0_1px_2px_rgba(0,0,0,0.55)]" : ""
                 }`}
               >
                 {l}
@@ -1506,20 +1506,20 @@ export function Aviator() {
           </div>
 
           {tab === "all" ? (
-            <div className="mt-[6px] flex items-start justify-between px-[6px] text-[0.68rem] font-bold text-white/90 sm:mt-[10px] sm:px-0 sm:text-[0.7rem]">
-              <span className="flex flex-col gap-[2px] leading-tight">
+            <div className="mt-[7px] flex min-h-[43px] items-start justify-between px-[8px] text-[0.88rem] font-normal text-white/95 sm:mt-[10px] sm:min-h-0 sm:px-0 sm:text-[0.7rem] sm:font-bold">
+              <span className="flex flex-col gap-[1px] leading-tight">
                 ALL BETS
-                <span className="text-[0.66rem] font-semibold text-white/60">{bets.length}</span>
+                <span className="text-[0.86rem] font-normal text-white/90 sm:text-[0.66rem] sm:font-semibold sm:text-white/60">{bets.length}</span>
               </span>
-              <span className="flex flex-col items-end gap-[2px] leading-tight">
+              <span className="flex flex-col items-end gap-[1px] leading-tight">
                 <span>Users</span>
-                <span className="text-[0.66rem] font-semibold text-white/60">{bets.length.toLocaleString()}</span>
+                <span className="text-[0.86rem] font-normal text-white/90 sm:text-[0.66rem] sm:font-semibold sm:text-white/60">{bets.length.toLocaleString()}</span>
               </span>
             </div>
           ) : null}
 
           {tab === "my" ? (
-            <div className="mt-[6px] flex items-start justify-between px-[6px] text-[0.68rem] font-bold text-white/90 sm:mt-[10px] sm:px-0 sm:text-[0.7rem]">
+            <div className="mt-[7px] flex min-h-[43px] items-start justify-between px-[8px] text-[0.88rem] font-normal text-white/95 sm:mt-[10px] sm:min-h-0 sm:px-0 sm:text-[0.7rem] sm:font-bold">
               <span className="flex flex-col gap-[2px] leading-tight">
                 MY BETS
                 <span className="text-[0.66rem] font-semibold text-white/60">
@@ -1535,7 +1535,7 @@ export function Aviator() {
             </div>
           ) : null}
 
-          <div className="mt-[5px] grid h-[18px] grid-cols-[1fr_38px_44px_54px] items-center gap-x-2 border-b border-white/10 bg-[#111214] px-[6px] text-[0.55rem] font-medium text-white/35 sm:mt-[8px] sm:px-2 sm:text-[0.58rem]">
+          <div className="mt-[2px] grid h-[24px] grid-cols-[1fr_38px_44px_70px] items-center gap-x-2 border-y border-black/30 bg-[#151618] px-[8px] text-[0.72rem] font-normal text-white/40 sm:mt-[8px] sm:h-[18px] sm:grid-cols-[1fr_38px_44px_54px] sm:px-2 sm:text-[0.58rem] sm:font-medium">
             <span>{tab === "my" ? "Round" : "User"}</span>
             <span>Bet</span>
             <span>X</span>
@@ -1544,7 +1544,7 @@ export function Aviator() {
 
 
           <div
-            className="flex h-[430px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-2 lg:h-0 lg:min-h-0"
+            className="flex h-[430px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-0 lg:h-0 lg:min-h-0"
             style={{
               overscrollBehavior: "contain",
               WebkitOverflowScrolling: "touch",
@@ -1678,7 +1678,7 @@ export function Aviator() {
         {/* stage + panels */}
         <div className="order-1 flex min-w-0 flex-col gap-2 lg:order-2 lg:min-h-0">
           {/* history strip — sits above the flying stage */}
-          <div className="bg-[#090A0C] px-[6px] py-[3px] sm:rounded-[8px] sm:border sm:border-[#34363B] sm:bg-[#202125] sm:px-3 sm:py-2">
+          <div className="bg-[#090A0C] px-[8px] py-[7px] sm:rounded-[8px] sm:border sm:border-[#34363B] sm:bg-[#202125] sm:px-3 sm:py-2">
             {histOpen ? (
               <div className="mb-2 flex items-center justify-between gap-2">
                 <span className="text-[0.72rem] font-semibold uppercase tracking-[0.03em] text-white">
@@ -1688,9 +1688,9 @@ export function Aviator() {
               </div>
             ) : null}
 
-            <div className="flex min-w-0 items-center gap-[4px] sm:gap-2">
+            <div className="flex min-w-0 items-center gap-[6px] sm:gap-2">
               <div
-                className={`flex min-w-0 flex-1 items-center gap-x-[3px] gap-y-[5px] sm:gap-x-2 ${
+                className={`flex min-w-0 flex-1 items-center gap-x-[6px] gap-y-[5px] sm:gap-x-2 ${
                   histOpen
                     ? "flex-wrap justify-center"
                     : "flex-nowrap overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -1699,7 +1699,7 @@ export function Aviator() {
                 {(histOpen ? history : history.slice(0, 40)).map((h, i) => (
                   <span
                     key={`${h}-${i}`}
-                    className={`shrink-0 rounded-full bg-[#090B0E] px-[5px] py-[1px] text-[0.58rem] font-semibold leading-[16px] sm:px-[8px] sm:py-[2px] sm:text-[0.72rem] ${chipTone(h)}`}
+                    className={`shrink-0 rounded-full bg-[#050608] px-[7px] py-[1px] text-[0.72rem] font-bold leading-[19px] sm:px-[8px] sm:py-[2px] sm:text-[0.72rem] ${chipTone(h)}`}
                   >
                     {fmt(h)}x
                   </span>
