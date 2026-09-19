@@ -529,7 +529,7 @@ export function BalloonStage({
       }
     };
     void load();
-    const id = window.setInterval(load, 1000);
+    const id = window.setInterval(load, 250);
     return () => {
       alive = false;
       window.clearInterval(id);
@@ -635,18 +635,12 @@ export function BalloonStage({
           // official winner for this round (once published) is the crash point
           const official = curRound ? winnersRef.current.get(String(curRound)) : undefined;
           if (official && official > 0) {
+            // The history row is the authoritative burst event. Do not ease
+            // toward it after publication; the real game stops immediately.
             peak = official;
-            const goal = official;
-            // reach the official value at the same pace the real game does
-            v = Math.min(goal, v + (goal - v) * Math.min(1, dt * 14) + dt * 0.35);
-            if (goal - v < 0.01) {
-              v = goal;
-              setShown(goal);
-              burst(goal);
-            } else {
-              setShown(v);
-              setCrashAt(goal);
-            }
+            v = official;
+            setShown(official);
+            burst(official);
             raf = window.requestAnimationFrame(tick);
             return;
           }
