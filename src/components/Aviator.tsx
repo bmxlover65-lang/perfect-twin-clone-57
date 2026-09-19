@@ -394,6 +394,47 @@ function MobileBetSlot({
         {canCash ? "Cash Out" : pending ? "Cancel" : "Cash In"}
       </button>
 
+      {state.auto ? (
+        <div className="flex items-center gap-[6px]">
+          <button
+            type="button"
+            onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
+            aria-pressed={state.auto}
+            className={`relative h-[16px] w-[31px] shrink-0 rounded-full border border-[#55595F] transition-colors ${
+              state.auto ? "bg-[#16A62A]" : "bg-[#1B1D20]"
+            }`}
+          >
+            <span
+              className={`absolute top-[2px] h-[10px] w-[10px] rounded-full bg-white transition-all ${
+                state.auto ? "left-[18px]" : "left-[3px]"
+              }`}
+            />
+          </button>
+          <div className="flex min-w-0 flex-1 items-center gap-1 rounded-full bg-[#0B0C0E] px-2 py-[3px]">
+            <input
+              type="number"
+              step="0.01"
+              min="1.01"
+              value={state.autoCashout}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                setState((p) => ({ ...p, autoCashout: Number.isFinite(v) ? v : p.autoCashout }));
+              }}
+              className="min-w-0 flex-1 bg-transparent text-center text-[0.66rem] font-bold text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+            />
+            <button
+              type="button"
+              onClick={() => setState((p) => ({ ...p, autoCashout: 1.1, auto: false }))}
+              aria-label="Clear auto cashout"
+              className="shrink-0 text-[0.72rem] leading-none text-white/45 hover:text-white"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+
 
       {state.cashedAt ? (
         <p className="text-center text-[0.6rem] font-bold text-[#18B800]">
@@ -1522,7 +1563,7 @@ export function Aviator() {
 
 
           <div
-            className="flex h-[360px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-2 lg:h-0 lg:min-h-0"
+            className="flex h-[430px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-2 lg:h-0 lg:min-h-0"
             style={{
               overscrollBehavior: "contain",
               WebkitOverflowScrolling: "touch",
@@ -1640,10 +1681,10 @@ export function Aviator() {
             ) : null}
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-x-2 gap-y-[2px] border-t border-white/10 px-1 pb-[16px] pt-[10px] text-[0.64rem] text-white/45 sm:text-[0.7rem]">
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-x-2 gap-y-[2px] border-t border-white/10 px-1 pb-[26px] pt-[12px] text-[0.7rem] text-white/50 sm:text-[0.75rem]">
             <span className="flex items-center gap-1">
               This game is
-              <img src={fairIcon} alt="" className="h-[14px] w-[13px]" />
+              <img src={fairIcon} alt="" className="h-[16px] w-[15px]" />
               <span className="font-semibold text-white/80">Provably Fair</span>
             </span>
             <span>
