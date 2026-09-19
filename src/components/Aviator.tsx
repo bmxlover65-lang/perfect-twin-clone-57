@@ -933,7 +933,7 @@ function FlightStage({
 
             <image
               href={aviatorPlane}
-              x={px - planeW * 0.24}
+              x={px - planeW * 0.12}
               y={py - planeH * 0.6}
               width={planeW}
               height={planeH}
