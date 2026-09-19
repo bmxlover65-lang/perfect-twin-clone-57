@@ -971,9 +971,9 @@ export function BalloonStage({
 
         {/* The Royal game keeps the balloon visible through flight, result and countdown. */}
           <div
-            className={`absolute left-1/2 z-10 ${flying || popped ? "w-[40%] min-w-[124px] max-w-[220px] sm:w-[25%] sm:min-w-[158px]" : "w-[42%] min-w-[132px] max-w-[155px] sm:w-[25%] sm:min-w-[150px] sm:max-w-[180px]"}`}
+            className={`absolute left-1/2 z-10 ${flying || popped ? "w-[40%] min-w-[124px] max-w-[220px] sm:w-[25%] sm:min-w-[158px]" : "w-[40%] min-w-[128px] max-w-[142px] sm:w-[24%] sm:min-w-[145px] sm:max-w-[172px]"}`}
             style={{
-              top: flying || popped ? undefined : "29%",
+              top: flying || popped ? undefined : "34%",
               bottom: flying || popped ? `${31 + grow * 8}%` : undefined,
               transform: "translateX(-50%)",
               transition: "bottom 240ms linear, top 240ms linear, transform 240ms linear",
@@ -1037,18 +1037,18 @@ export function BalloonStage({
                 {(popped ? crashAt : shown).toFixed(2)}x
               </p>
             ) : (
-              <div className="absolute left-1/2 top-[32%] w-[110%] -translate-x-1/2 text-center">
-                <p className="whitespace-nowrap text-[clamp(0.67rem,2.2vw,1.2rem)] font-extrabold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
+              <div className="absolute left-1/2 top-[30%] w-[118%] -translate-x-1/2 text-center">
+                <p className="whitespace-nowrap text-[clamp(0.66rem,2vw,1.05rem)] font-extrabold leading-none text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
                   Waiting For Next Round
                 </p>
                 <span
-                  className="mt-2 inline-grid h-12 w-12 place-items-center rounded-full sm:h-14 sm:w-14"
+                  className="mt-[7px] inline-grid h-10 w-10 place-items-center rounded-full sm:h-12 sm:w-12"
                   style={{
                     background: `conic-gradient(#63F22E ${(Math.min(8, Math.max(0, wait)) / 8) * 360}deg, rgba(0,0,0,0.18) 0deg)`,
                     padding: 3,
                   }}
                 >
-                  <span className="grid h-full w-full place-items-center rounded-full bg-black/25 text-[1.15rem] font-extrabold text-white sm:text-[1.4rem]">
+                  <span className="grid h-full w-full place-items-center rounded-full bg-black/30 text-[1rem] font-extrabold text-white sm:text-[1.25rem]">
                     {wait}
                   </span>
                 </span>
@@ -1187,13 +1187,13 @@ export function BalloonStage({
               ))}
             </div>
             <div className="flex items-start gap-[8px] sm:gap-2">
-              <div className="grid grid-cols-2 gap-x-[10px] gap-y-[3px] sm:gap-x-2 sm:gap-y-1.5">
+              <div className="grid grid-cols-2 gap-x-[9px] gap-y-[3px] sm:gap-x-2 sm:gap-y-1.5">
                 {BALLOON_STAKES.map((s) => (
                   <button
                     key={s}
                     type="button"
                     onClick={() => setStake(s)}
-                    className={`balloon-stake h-[18px] w-[61px] rounded-full text-[0.6rem] font-extrabold transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
+                    className={`balloon-stake h-[19px] w-[54px] rounded-full text-[0.6rem] font-extrabold transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
                       stake === s ? "ring-2 ring-[#E01E1E]" : s < 100 ? "opacity-65" : ""
                     }`}
                   >
@@ -1201,20 +1201,20 @@ export function BalloonStage({
                   </button>
                 ))}
               </div>
-              <div className="grid w-[50px] gap-[3px] sm:w-[110px] sm:gap-1.5">
+              <div className="grid w-[52px] gap-[3px] sm:w-[110px] sm:gap-1.5">
                 {(
                   [
                     ["Edits", 100, "bg-[#E8871E] text-white"],
                     ["Clear", 0, "bg-[#E01E1E] text-white"],
-                    ["Min", 100, "border border-white bg-[#281334] text-white/70"],
-                    ["Max", 10000, "border border-white bg-[#281334] text-white/70"],
+                    ["Min", 100, "border border-white/70 bg-[#281334] text-white/80"],
+                    ["Max", 10000, "border border-white/70 bg-[#281334] text-white/80"],
                   ] as const
                 ).map(([label, val, tone]) => (
                   <button
                     key={label}
                     type="button"
                     onClick={() => setStake(val)}
-                    className={`h-[18px] rounded-full text-[0.58rem] font-extrabold shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-transform active:scale-95 sm:h-8 sm:text-[0.9rem] ${tone}`}
+                    className={`h-[19px] rounded-full text-[0.58rem] font-extrabold shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-transform active:scale-95 sm:h-8 sm:text-[0.9rem] ${tone}`}
                   >
                     {label}
                   </button>
@@ -1224,7 +1224,7 @@ export function BalloonStage({
           </div>
 
           {/* heat buttons — bet / queue for next round / cash out */}
-          <div className="ml-auto grid h-[84px] w-[29%] min-w-[96px] shrink-0 grid-rows-2 gap-[6px] sm:h-[136px] sm:w-[24%] sm:min-w-[150px] sm:gap-2">
+          <div className="ml-auto grid h-[84px] w-[92px] max-w-[100px] shrink-0 grid-rows-2 gap-[6px] sm:h-[136px] sm:w-[24%] sm:min-w-[150px] sm:max-w-none sm:gap-2">
             {([0, 1] as const).map((i) => {
               const bet = bets[i];
               const fl = flash[i];
