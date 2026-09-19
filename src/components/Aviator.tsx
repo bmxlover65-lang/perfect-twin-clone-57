@@ -345,34 +345,34 @@ function MobileBetSlot({
   };
 
   return (
-    <div className="flex min-w-0 flex-col items-center gap-[5px]">
+    <div className="flex min-w-0 flex-col items-center gap-[6px]">
       <div className="flex items-center gap-[6px]">
-        <span className="text-[0.72rem] font-bold text-white">Auto</span>
+        <span className="text-[0.62rem] font-bold leading-none text-white">Auto</span>
         <button
           type="button"
           onClick={() => setState((p) => ({ ...p, auto: !p.auto, mode: !p.auto ? "auto" : "bet" }))}
           aria-pressed={state.auto}
-          className={`relative h-[18px] w-[38px] shrink-0 rounded-full border border-[#4A4E55] transition-colors ${
-            state.auto ? "bg-[#16A62A]" : "bg-[#17191C]"
+          className={`relative h-[16px] w-[31px] shrink-0 rounded-full border border-[#55595F] transition-colors ${
+            state.auto ? "bg-[#16A62A]" : "bg-[#1B1D20]"
           }`}
         >
           <span
-            className={`absolute top-[2px] h-[12px] w-[12px] rounded-full bg-white transition-all ${
-              state.auto ? "left-[23px]" : "left-[3px]"
+            className={`absolute top-[2px] h-[10px] w-[10px] rounded-full bg-white transition-all ${
+              state.auto ? "left-[18px]" : "left-[3px]"
             }`}
           />
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-[4px]">
+      <div className="grid grid-cols-2 gap-x-[5px] gap-y-[5px]">
         {MOBILE_PRESETS.map((q) => (
           <button
             key={q}
             type="button"
             disabled={locked}
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`h-[20px] w-[57px] rounded-full border bg-[#17191C] text-[0.69rem] font-semibold leading-none disabled:opacity-40 ${
-              state.amount === q ? "border-[#F20000] text-white" : "border-[#4A4E55] text-[#D2D4D9]"
+            className={`h-[19px] w-[54px] rounded-full border bg-[linear-gradient(180deg,#26292D_0%,#1A1C1F_55%,#141618_100%)] text-[0.62rem] font-semibold leading-none disabled:opacity-40 ${
+              state.amount === q ? "border-[#F20000] text-white" : "border-[#55595F] text-[#D2D4D9]"
             }`}
           >
             {q}
@@ -383,10 +383,17 @@ function MobileBetSlot({
       <button
         type="button"
         onClick={press}
-        className={`h-[44px] w-[118px] rounded-[8px] text-[0.95rem] font-bold text-white ${tone}`}
+        className={`h-[40px] w-[105px] rounded-[8px] border text-[0.9rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.22)] ${
+          canCash
+            ? "border-[#8A5A05] bg-[linear-gradient(180deg,#FFBC4B_0%,#F59E0B_55%,#C87C05_100%)]"
+            : pending
+              ? "border-[#7C0B0B] bg-[linear-gradient(180deg,#FF5A5A_0%,#EF0000_55%,#A80000_100%)]"
+              : "border-[#0C5417] bg-[linear-gradient(180deg,#27C63E_0%,#16A62A_55%,#0B7A1B_100%)]"
+        }`}
       >
         {canCash ? "Cash Out" : pending ? "Cancel" : "Cash In"}
       </button>
+
 
       {state.cashedAt ? (
         <p className="text-center text-[0.6rem] font-bold text-[#18B800]">
