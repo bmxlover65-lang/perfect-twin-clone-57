@@ -885,10 +885,10 @@ export function BalloonStage({
           <img
             src={(flying || popped ? LOCATIONS[bgIndex] : loc2)!.url}
             alt=""
-            className="absolute inset-x-0 bottom-[92px] h-auto w-full object-contain object-bottom opacity-95 sm:bottom-[150px]"
+            className="absolute inset-x-0 bottom-0 h-auto w-full object-contain object-bottom opacity-95 sm:bottom-0"
             style={{
-              transform: `translateY(${grow * 115}%)`,
-              transition: "transform 200ms linear",
+              transform: `translateY(${grow * 72}%)`,
+              transition: "transform 800ms ease-out",
             }}
           />
           {/* high altitude: the landscape is gone and only open blue sky is left */}
@@ -902,10 +902,10 @@ export function BalloonStage({
           {/* clouds streaming past while climbing */}
           {flying
             ? [
-                { top: 12, size: 32, dur: 5.5, delay: 0 },
-                { top: 34, size: 22, dur: 7, delay: 1.4 },
-                { top: 58, size: 40, dur: 6.2, delay: 2.6 },
-                { top: 74, size: 18, dur: 8, delay: 0.8 },
+                 { top: 3, size: 11, dur: 11, delay: 0 },
+                 { top: 7, size: 8, dur: 13, delay: 2.2 },
+                 { top: 1, size: 13, dur: 12, delay: 4.4 },
+                 { top: 9, size: 7, dur: 14, delay: 1.2 },
               ].map((c, i) => (
                 <span
                   key={i}
@@ -914,8 +914,8 @@ export function BalloonStage({
                     top: `${c.top}%`,
                     left: `${i % 2 === 0 ? 8 + i * 9 : 62 - i * 6}%`,
                     width: `${c.size}%`,
-                    height: `${c.size * 0.32}%`,
-                    opacity: 0.15 + grow * 0.45,
+                     height: `${c.size * 0.3}%`,
+                     opacity: 0.12 + grow * 0.26,
                     animation: `cloudDrift ${c.dur}s linear ${c.delay}s infinite`,
                   }}
                 />
@@ -924,24 +924,24 @@ export function BalloonStage({
           {/* supplied Balloon atmosphere appears only during flight, matching the reference round */}
           {flying ? (
             <>
-              <div className="balloon-cloud-fall pointer-events-none absolute inset-x-0 top-[7%] h-[31%] opacity-0">
+              <div className="balloon-cloud-fall pointer-events-none absolute inset-x-0 top-0 h-[25%] opacity-0">
                 <img
                   src={balloonStars.url}
                   alt=""
                   aria-hidden="true"
-                  className="absolute inset-0 h-full w-full object-cover opacity-55"
+                  className="absolute inset-x-[7%] top-0 h-[60%] w-[86%] object-cover opacity-38"
                 />
                 <img
                   src={balloonClouds.url}
                   alt=""
                   aria-hidden="true"
-                  className="absolute left-[7%] top-[9%] h-[34%] w-[28%] object-cover opacity-65"
+                  className="absolute left-[8%] top-[4%] h-[26%] w-[20%] object-cover opacity-52"
                 />
                 <img
                   src={balloonClouds.url}
                   alt=""
                   aria-hidden="true"
-                  className="absolute right-[10%] bottom-[8%] h-[29%] w-[23%] object-cover opacity-58"
+                  className="absolute right-[12%] top-[16%] h-[23%] w-[18%] object-cover opacity-46"
                 />
               </div>
               <div className="balloon-plane-flight pointer-events-none absolute inset-x-0 bottom-[25%] h-[31%] overflow-visible">
@@ -971,9 +971,9 @@ export function BalloonStage({
 
         {/* The Royal game keeps the balloon visible through flight, result and countdown. */}
           <div
-            className={`absolute left-1/2 z-10 ${flying || popped ? "w-[40%] min-w-[124px] max-w-[220px] sm:w-[25%] sm:min-w-[158px]" : "w-[52%] min-w-[168px] max-w-[270px] sm:w-[30%] sm:min-w-[190px]"}`}
+            className={`absolute left-1/2 z-10 ${flying || popped ? "w-[40%] min-w-[124px] max-w-[220px] sm:w-[25%] sm:min-w-[158px]" : "w-[42%] min-w-[132px] max-w-[155px] sm:w-[25%] sm:min-w-[150px] sm:max-w-[180px]"}`}
             style={{
-              top: flying || popped ? undefined : "11%",
+              top: flying || popped ? undefined : "29%",
               bottom: flying || popped ? `${31 + grow * 8}%` : undefined,
               transform: "translateX(-50%)",
               transition: "bottom 240ms linear, top 240ms linear, transform 240ms linear",
@@ -1143,16 +1143,16 @@ export function BalloonStage({
         <div className="balloon-bet-dock absolute inset-x-0 bottom-0 z-20 flex items-end justify-between gap-[6px] rounded-t-[13px] px-[7px] pb-[5px] pt-[8px] sm:gap-4 sm:px-4 sm:pb-4">
           {/* left cluster: auto toggles + stakes + edits/clear/min/max */}
           <div className="shrink-0">
-            <div className="mb-[4px] grid w-[199px] grid-cols-[132px_67px] items-center sm:w-[370px] sm:grid-cols-[250px_120px]">
+            <div className="mb-[4px] grid w-[226px] grid-cols-[145px_81px] items-center sm:w-[370px] sm:grid-cols-[250px_120px]">
               {([0, 1] as const).map((i) => (
                 <div
                   key={i}
-                  className={`flex items-center text-white ${i === 0 ? "w-[81px] justify-between pl-[3px]" : "w-[67px] justify-between sm:w-[110px]"}`}
+                  className={`flex items-center text-white ${i === 0 ? "w-[81px] justify-between pl-[3px]" : "w-[76px] justify-between sm:w-[110px]"}`}
                 >
                   <button
                     type="button"
                     onClick={() => setAutos((a) => (i === 0 ? [!a[0], a[1]] : [a[0], !a[1]]))}
-                    className="contents text-[0.62rem] font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] sm:text-[0.82rem]"
+                    className="contents text-[0.6rem] font-extrabold leading-none text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] sm:text-[0.82rem]"
                     aria-pressed={autos[i]}
                   >
                     Auto
