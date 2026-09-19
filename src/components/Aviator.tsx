@@ -345,7 +345,7 @@ function MobileBetSlot({
   };
 
   return (
-    <div className="flex w-[112px] min-w-0 flex-col items-center gap-[3px]">
+    <div className="flex w-[113px] min-w-0 flex-col items-center gap-[3px]">
       <div className="flex h-[18px] items-center gap-[12px]">
         <span className="text-[0.6rem] font-bold leading-none text-white">Auto</span>
         <button
@@ -371,7 +371,7 @@ function MobileBetSlot({
             type="button"
             disabled={locked}
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`h-[18px] w-[50px] rounded-full border border-[#898B8E] bg-[#151719] text-[0.58rem] font-medium leading-none text-[#AEB1B5] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] disabled:opacity-40 ${
+            className={`h-[19px] w-[54px] rounded-full border border-[#898B8E] bg-[#151719] text-[0.6rem] font-medium leading-none text-[#AEB1B5] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] disabled:opacity-40 ${
               state.amount === q ? "text-white" : ""
             }`}
           >
@@ -383,7 +383,7 @@ function MobileBetSlot({
       <button
         type="button"
         onClick={press}
-        className={`mt-[5px] h-[35px] w-[85px] rounded-[6px] border text-[0.84rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.18)] ${
+        className={`mt-[5px] h-[37px] w-[85px] rounded-[6px] border text-[0.86rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.18)] ${
           canCash
             ? "border-[#8A5A05] bg-[linear-gradient(180deg,#FFBC4B_0%,#F59E0B_55%,#C87C05_100%)]"
             : pending
@@ -458,7 +458,7 @@ function MobileCenterActions({
     setSlot(1, fn);
   };
   const base =
-    "h-[21px] w-[53px] rounded-[7px] text-[0.6rem] font-semibold leading-none shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.22)]";
+    "h-[22px] w-[49px] rounded-[7px] text-[0.61rem] font-semibold leading-none shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.22)]";
   const outline = `${base} border border-[#85888B] bg-[#17191B] text-[#AEB1B5]`;
   return (
     <div className="flex flex-col items-center gap-[5px] pt-[29px]">
@@ -483,7 +483,7 @@ function MobileCenterActions({
       <button
         type="button"
         onClick={() => both((p) => ({ ...p, amount: 10000 }))}
-        className={`${outline} !w-[63px]`}
+        className={`${outline} !w-[62px]`}
       >
         Max
       </button>
@@ -536,7 +536,7 @@ function MobileBetRow({
           </button>
         </div>
       ) : null}
-      <div className="grid grid-cols-[112px_48px_112px] items-start justify-between">
+      <div className="grid grid-cols-[113px_49px_113px] items-start justify-between">
         <MobileBetSlot
           state={slots[0]!}
           setState={(fn) => setSlot(0, fn)}
