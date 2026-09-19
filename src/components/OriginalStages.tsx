@@ -956,14 +956,12 @@ export function BalloonStage({
                     strokeLinecap="round"
                   />
                 </svg>
-                <div className="balloon-plane-run absolute left-0 top-0 h-full w-full">
-                  <img
-                    src={Math.floor(shown * 10) % 2 === 0 ? balloonPlane.url : balloonPlane2.url}
-                    alt=""
-                    aria-hidden="true"
-                    className="h-auto w-[54px] drop-shadow-[0_2px_3px_rgba(0,0,0,0.2)] sm:w-[66px]"
-                  />
-                </div>
+                <img
+                  src={Math.floor(shown * 10) % 2 === 0 ? balloonPlane.url : balloonPlane2.url}
+                  alt=""
+                  aria-hidden="true"
+                  className="balloon-plane-run absolute left-0 top-0 h-auto w-[54px] drop-shadow-[0_2px_3px_rgba(0,0,0,0.2)] sm:w-[66px]"
+                />
               </div>
             </>
           ) : null}

@@ -81,6 +81,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Balloon: extend and scale the scenery through the full mobile frame so no white strip appears below the betting dock
 - [x] Balloon: match the supplied waiting reference with a top-positioned balloon, compact one-line label, green 8-second ring and undistorted scenery
 - [x] Balloon: use the matching mountain scene during countdown, enlarge the waiting balloon and hide the burner flame until flight
+- [x] Balloon: attach the plane image itself to the exact animated trail path so the line stays connected behind it
 
 ## Phase 7 — Royal444 full casino structure parity (pending reference access)
 - [ ] Audit the reference casino lobby and every casino game page at mobile width
