@@ -397,33 +397,53 @@ function MobileBetSlot({
   );
 }
 
-/** Center column actions for the mobile betting controls — just Min / Max like the original. */
+/** Center column actions for the mobile betting controls — Edit / Clear / Min / Max. */
 function MobileCenterActions({
   setSlot,
+  editing,
+  setEditing,
 }: {
   setSlot: (i: number, fn: (p: PanelState) => PanelState) => void;
+  editing: boolean;
+  setEditing: (v: boolean) => void;
 }) {
   const both = (fn: (p: PanelState) => PanelState) => {
     setSlot(0, fn);
     setSlot(1, fn);
   };
-  const btn =
-    "h-[30px] w-[64px] rounded-full border border-[#4A4E55] bg-[#17191C] text-[0.78rem] font-semibold leading-none text-[#C6C9CE]";
+  const base =
+    "h-[22px] w-[54px] rounded-full text-[0.74rem] font-bold leading-none shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.28)]";
+  const outline = `${base} border border-[#4A4E55] bg-[#17191C] text-[#C6C9CE]`;
   return (
-    <div className="flex flex-col items-center justify-center gap-[10px] self-stretch">
-      <button type="button" onClick={() => both((p) => ({ ...p, amount: 10 }))} className={btn}>
+    <div className="flex flex-col items-center gap-[7px] pt-[26px]">
+      <button
+        type="button"
+        onClick={() => setEditing(!editing)}
+        className={`${base} border border-[#8A4A05] bg-[linear-gradient(180deg,#F5A63A_0%,#E8871E_52%,#C26A0C_100%)] text-white`}
+      >
+        Edit
+      </button>
+      <button
+        type="button"
+        onClick={() => both((p) => ({ ...p, amount: 10, staged: false }))}
+        className={`${base} border border-[#7C0B0B] bg-[linear-gradient(180deg,#F04A4A_0%,#DE1C1C_52%,#A81010_100%)] text-white`}
+      >
+        Clear
+      </button>
+      <button type="button" onClick={() => both((p) => ({ ...p, amount: 10 }))} className={outline}>
         Min
       </button>
       <button
         type="button"
         onClick={() => both((p) => ({ ...p, amount: 10000 }))}
-        className={btn}
+        className={outline}
       >
         Max
       </button>
     </div>
   );
 }
+
 
 /* ---------------- desktop bet board (Bet | Auto tabs) ---------------- */
 
