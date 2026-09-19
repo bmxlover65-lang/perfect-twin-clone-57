@@ -360,8 +360,6 @@ function EventPage() {
   const fancy = data?.fancy ?? [];
   const sportsbook = data?.sportsbook ?? [];
 
-  if (!data && !error) return <AppLoader />;
-
   // Every feed tick: if the upstream marks a runner WINNER / LOSER, settle
   // the matching open bets right away — result always comes from the feed.
   useEffect(() => {
@@ -388,6 +386,8 @@ function EventPage() {
       closedSince.current = 0;
     }
   }, [data, eventId, matchOdds, bookmakers, fancy, sportsbook]);
+
+  if (!data && !error) return <AppLoader />;
 
 
   return (

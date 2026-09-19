@@ -1917,8 +1917,6 @@ function GamePage() {
   const NO_FEED = new Set(["88.0030"]);
   const feedDead = useRef(NO_FEED.has(gameId));
 
-  if (!state && !error && !NO_FEED.has(gameId)) return <AppLoader />;
-
   useEffect(() => {
     feedDead.current = NO_FEED.has(gameId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2180,6 +2178,8 @@ function GamePage() {
     if (overlayRef.current) ro.observe(overlayRef.current);
     return () => ro.disconnect();
   }, [handLayout]);
+
+  if (!state && !error && !NO_FEED.has(gameId)) return <AppLoader />;
 
 
 
