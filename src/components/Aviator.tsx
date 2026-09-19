@@ -842,18 +842,20 @@ function FlightStage({
     <div className="relative overflow-hidden rounded-[13px] border border-[#2B2D31] bg-black">
       {/* spribe-style rotating sun rays from the bottom-left */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div
-          className="absolute left-[4%] top-[96%] h-[1100px] w-[1100px] -translate-x-1/2 -translate-y-1/2 opacity-90"
-          style={{
-            background:
-              "repeating-conic-gradient(from 0deg, #14171C 0deg 6.5deg, #000000 6.5deg 13deg)",
-            borderRadius: "9999px",
-            maskImage: "radial-gradient(circle, #000 0%, #000 52%, transparent 82%)",
-            WebkitMaskImage: "radial-gradient(circle, #000 0%, #000 52%, transparent 82%)",
-          }}
-        />
+        <div className="absolute left-[4%] top-[96%] h-[1100px] w-[1100px] -translate-x-1/2 -translate-y-1/2 opacity-90">
+          <div
+            className={`h-full w-full rounded-full ${phase === "flying" ? "animate-[av-spin_18s_linear_infinite]" : ""}`}
+            style={{
+              background:
+                "repeating-conic-gradient(from 0deg, #14171C 0deg 6.5deg, #000000 6.5deg 13deg)",
+              maskImage: "radial-gradient(circle, #000 0%, #000 52%, transparent 82%)",
+              WebkitMaskImage: "radial-gradient(circle, #000 0%, #000 52%, transparent 82%)",
+            }}
+          />
+        </div>
       </div>
-      <style>{`@keyframes av-prop{to{transform:rotate(360deg)}}
+      <style>{`@keyframes av-spin{to{transform:rotate(360deg)}}
+@keyframes av-prop{to{transform:rotate(360deg)}}
 @keyframes av-row-in{from{opacity:0;transform:translateY(-10px) scale(0.98)}to{opacity:1;transform:none}}
 .av-row-in{animation:av-row-in .38s cubic-bezier(.2,.8,.3,1)}`}</style>
 
