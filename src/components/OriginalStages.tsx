@@ -16,6 +16,10 @@ import loc2 from "@/assets/balloon/locationLt2.png.asset.json";
 import loc3 from "@/assets/balloon/locationLt3.png.asset.json";
 import skyBg from "@/assets/balloon/sky-bg-1.jpg.asset.json";
 import bonusSfx from "@/assets/balloon/balloon_achieve_bonus.mp3.asset.json";
+import balloonPlane from "@/assets/vimaan/plane.png.asset.json";
+import balloonPlane2 from "@/assets/vimaan/plane-2.png.asset.json";
+import balloonStars from "@/assets/vimaan/stars.png.asset.json";
+import balloonClouds from "@/assets/vimaan/clouds.png.asset.json";
 
 const LOCATIONS = [skyBg, skyBg, loc1, loc2, loc3];
 const BALLOON_STAKES = [100, 200, 500, 1000, 10000, 25000, 50000, 100000];
@@ -917,15 +921,25 @@ export function BalloonStage({
                 />
               ))
             : null}
-          {/* a small plane crosses the sky high up, like the original */}
-          {flying && grow > 0.55 ? (
-            <span
-              className="pointer-events-none absolute text-[clamp(1.2rem,4vw,2.2rem)]"
-              style={{ top: "46%", animation: "planeCross 6s linear infinite" }}
-            >
-              ✈️
-            </span>
-          ) : null}
+          {/* supplied Balloon atmosphere: subtle stars, drifting cloud-air and a small occasional plane */}
+          <img
+            src={balloonStars.url}
+            alt=""
+            aria-hidden="true"
+            className="balloon-sky-stars pointer-events-none absolute inset-x-0 top-[7%] h-[27%] w-full object-cover opacity-0"
+          />
+          <img
+            src={balloonClouds.url}
+            alt=""
+            aria-hidden="true"
+            className="balloon-cloud-air pointer-events-none absolute left-0 top-[20%] h-[18%] w-[72%] object-fill opacity-0"
+          />
+          <img
+            src={Math.floor(shown * 10) % 2 === 0 ? balloonPlane.url : balloonPlane2.url}
+            alt=""
+            aria-hidden="true"
+            className="balloon-small-plane pointer-events-none absolute top-[24%] h-auto w-[52px] opacity-0 sm:w-[68px]"
+          />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(79,182,206,0.12)_0%,rgba(122,203,214,0.05)_38%,rgba(247,239,210,0)_70%)]" />
         </div>
 

@@ -386,6 +386,29 @@
   100% { transform: translate3d(115vw, -30%, 0) scaleX(-1); opacity: 0; }
 }
 
+@keyframes balloon-small-plane-pass {
+  0%, 12% { transform: translate3d(-72px, 8px, 0); opacity: 0; }
+  16% { opacity: 0.72; }
+  42% { opacity: 0.72; }
+  48%, 100% { transform: translate3d(calc(100vw + 84px), -12px, 0); opacity: 0; }
+}
+
+@keyframes balloon-cloud-air-pass {
+  0%, 8% { transform: translate3d(58%, 0, 0); opacity: 0; }
+  14%, 40% { opacity: 0.28; }
+  50%, 100% { transform: translate3d(-92%, 12px, 0); opacity: 0; }
+}
+
+@keyframes balloon-stars-glint {
+  0%, 48%, 100% { opacity: 0; transform: translate3d(2%, 0, 0); }
+  56%, 76% { opacity: 0.28; }
+  84% { opacity: 0; transform: translate3d(-4%, 7px, 0); }
+}
+
+.balloon-small-plane { animation: balloon-small-plane-pass 18s linear 3s infinite; }
+.balloon-cloud-air { animation: balloon-cloud-air-pass 16s linear 1s infinite; }
+.balloon-sky-stars { animation: balloon-stars-glint 20s ease-in-out infinite; }
+
 @keyframes scale-in {
   from { transform: scale(0.6); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
@@ -516,6 +539,7 @@
   .bbb-rate-plate, .bbb-rate-plate::after, .bbb-result-ball,
   .coin-toss, .coin-flip-heads, .coin-flip-tails, .coin-spin-idle, .coin-winner,
   .coin-bet-plate::after { animation: none; }
+  .balloon-small-plane, .balloon-cloud-air, .balloon-sky-stars { animation: none; }
 }
 
 /* Exchange rate change flash — original site jaisa */
