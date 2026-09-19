@@ -2,7 +2,7 @@ import { useEmbed } from "@/lib/embed";
 import { useEffect, useRef, useState } from "react";
 import { RoundTimer } from "@/components/RoundTimer";
 import { SuccessToast } from "@/components/betting";
-import { cancelBet, cashOut, placeBet, useWallet } from "@/lib/wallet";
+import { cancelBet, cashOut, placeBet } from "@/lib/wallet";
 import { playerSession } from "@/lib/player";
 import luckyBg from "@/assets/lucky-bg.gif.asset.json";
 import dreamBg from "@/assets/dream/dreambg.png.asset.json";
@@ -409,8 +409,6 @@ export function BalloonStage({
   const [autos, setAutos] = useState<[boolean, boolean]>([false, false]);
   const [autoX, setAutoX] = useState<[string, string]>(["1.10", "1.10"]);
 
-  const wallet = useWallet();
-  const balance = wallet.balance;
   const embedded = useEmbed();
   const [bets, setBets] = useState<(null | { entry: number; stake: number; pending?: boolean; ref?: string })[]>([
     null,
@@ -891,7 +889,7 @@ export function BalloonStage({
               ✈️
             </span>
           ) : null}
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(79,182,206,0.35)_0%,rgba(122,203,214,0.12)_38%,rgba(247,239,210,0)_70%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(79,182,206,0.12)_0%,rgba(122,203,214,0.05)_38%,rgba(247,239,210,0)_70%)]" />
         </div>
 
 
@@ -969,7 +967,7 @@ export function BalloonStage({
                 <span
                   className="mt-3 inline-grid h-12 w-12 place-items-center rounded-full sm:h-14 sm:w-14"
                   style={{
-                    background: `conic-gradient(#E8384F ${(Math.min(5, Math.max(0, wait)) / 5) * 360}deg, rgba(0,0,0,0.18) 0deg)`,
+                    background: `conic-gradient(#63F22E ${(Math.min(5, Math.max(0, wait)) / 5) * 360}deg, rgba(0,0,0,0.18) 0deg)`,
                     padding: 3,
                   }}
                 >
@@ -1032,7 +1030,7 @@ export function BalloonStage({
 
 
         {/* compact profile control; integration balance is intentionally hidden */}
-        <div className="absolute left-0 top-[14%] flex items-center gap-1 rounded-r-full bg-[#4E9AC5]/70 py-[3px] pl-2 pr-[3px] shadow-[0_1px_3px_rgba(0,0,0,0.18)]">
+        <div className="absolute left-0 top-[11%] flex items-center gap-1 rounded-r-full bg-[#4E9AC5]/70 py-[3px] pl-2 pr-[3px] shadow-[0_1px_3px_rgba(0,0,0,0.18)]">
           <img src={profileIcon.url} alt="" className="h-[18px] w-[18px] shrink-0" />
           <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#2C7BE5]">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
