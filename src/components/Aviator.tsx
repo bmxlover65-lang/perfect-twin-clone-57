@@ -346,33 +346,33 @@ function MobileBetSlot({
 
   return (
     <div className="flex w-[112px] min-w-0 flex-col items-center gap-[3px]">
-      <div className="flex h-[18px] items-center gap-[13px]">
-        <span className="text-[0.61rem] font-bold leading-none text-white">Auto</span>
+      <div className="flex h-[18px] items-center gap-[12px]">
+        <span className="text-[0.6rem] font-bold leading-none text-white">Auto</span>
         <button
           type="button"
           onClick={() => setState((p) => ({ ...p, auto: !p.auto, mode: !p.auto ? "auto" : "bet" }))}
           aria-pressed={state.auto}
-          className={`relative h-[16px] w-[31px] shrink-0 rounded-full border border-[#55595F] transition-colors ${
-            state.auto ? "bg-[#16A62A]" : "bg-[#1B1D20]"
+          className={`relative h-[15px] w-[31px] shrink-0 rounded-full border border-[#7B7E82] transition-colors ${
+            state.auto ? "bg-[#16A62A]" : "bg-[#25272A]"
           }`}
         >
           <span
             className={`absolute top-[2px] h-[10px] w-[10px] rounded-full bg-white transition-all ${
-              state.auto ? "left-[18px]" : "left-[3px]"
+              state.auto ? "left-[18px]" : "left-[2px]"
             }`}
           />
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-[4px] gap-y-[2px]">
+      <div className="grid grid-cols-2 gap-x-[5px] gap-y-[2px]">
         {MOBILE_PRESETS.map((q) => (
           <button
             key={q}
             type="button"
             disabled={locked}
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`h-[18px] w-[54px] rounded-full border bg-[linear-gradient(180deg,#303337_0%,#202327_48%,#151719_100%)] text-[0.59rem] font-medium leading-none shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_1px_1px_rgba(0,0,0,0.7)] disabled:opacity-40 ${
-              state.amount === q ? "border-[#F20000] text-white" : "border-[#55595F] text-[#D2D4D9]"
+            className={`h-[18px] w-[50px] rounded-full border border-[#898B8E] bg-[#151719] text-[0.58rem] font-medium leading-none text-[#AEB1B5] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] disabled:opacity-40 ${
+              state.amount === q ? "text-white" : ""
             }`}
           >
             {q}
@@ -383,7 +383,7 @@ function MobileBetSlot({
       <button
         type="button"
         onClick={press}
-        className={`mt-[4px] h-[38px] w-[92px] rounded-[7px] border text-[0.86rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.22)] ${
+        className={`mt-[5px] h-[35px] w-[85px] rounded-[6px] border text-[0.84rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.18)] ${
           canCash
             ? "border-[#8A5A05] bg-[linear-gradient(180deg,#FFBC4B_0%,#F59E0B_55%,#C87C05_100%)]"
             : pending
@@ -458,10 +458,10 @@ function MobileCenterActions({
     setSlot(1, fn);
   };
   const base =
-    "h-[21px] w-[48px] rounded-[8px] text-[0.61rem] font-semibold leading-none shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.28)]";
-  const outline = `${base} border border-[#55595F] bg-[linear-gradient(180deg,#26292D_0%,#1A1C1F_55%,#141618_100%)] text-[#9BA0A6]`;
+    "h-[21px] w-[53px] rounded-[7px] text-[0.6rem] font-semibold leading-none shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.22)]";
+  const outline = `${base} border border-[#85888B] bg-[#17191B] text-[#AEB1B5]`;
   return (
-    <div className="flex flex-col items-center gap-[7px] pt-[32px]">
+    <div className="flex flex-col items-center gap-[5px] pt-[29px]">
       <button
         type="button"
         onClick={() => setEditing(!editing)}
@@ -483,7 +483,7 @@ function MobileCenterActions({
       <button
         type="button"
         onClick={() => both((p) => ({ ...p, amount: 10000 }))}
-        className={`${outline} !w-[64px]`}
+        className={`${outline} !w-[63px]`}
       >
         Max
       </button>
@@ -510,7 +510,7 @@ function MobileBetRow({
   const [editing, setEditing] = useState(false);
   const [custom, setCustom] = useState("");
   return (
-    <div className="mx-auto w-full rounded-[14px] border border-[#2E3034] bg-[#1B1D20] px-[8px] pb-[8px] pt-[6px] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:hidden">
+    <div className="mx-auto w-full rounded-[14px] border border-[#2E3034] bg-[#1B1D20] px-[8px] pb-[7px] pt-[6px] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:hidden">
       {editing ? (
         <div className="mb-[8px] flex items-center justify-center gap-2">
           <input
