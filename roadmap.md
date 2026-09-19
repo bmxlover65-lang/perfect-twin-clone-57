@@ -67,7 +67,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [ ] Joker TP, 20-20 DT, Andar Bahar, 20-20 Poker, 32 Cards: cards + Recent Result under last market
 - [ ] Card Race: market box + Recent Result placement
 - [ ] Amar Akbar Anthony: rate box (Odd/Even, Colour, Under/Over) + cards
-- [~] VIMAAN: spelling + lobby order and 8-second betting countdown done; live flying/result parity pending
+- [x] VIMAAN: match supplied mobile history strip, radial flying graph, waiting/plane state, flew-away result and compact All Bets header
 - [x] Balloon: Royal-style mobile scene, balloon scale, live/waiting result states, compact controls, stakes and HEAT buttons
 - [x] Balloon: transparent scenic betting controls and masked live-player activity below the avatar
 - [x] Balloon: remove the white strip below betting controls and continue the scene to the frame edge
