@@ -444,6 +444,75 @@ function MobileCenterActions({
   );
 }
 
+/** Mobile betting row: two slots + center Edit/Clear/Min/Max column. */
+function MobileBetRow({
+  slots,
+  setSlot,
+  phase,
+  multiplier,
+  onWin,
+  balance,
+}: {
+  slots: PanelState[];
+  setSlot: (i: number, fn: (p: PanelState) => PanelState) => void;
+  phase: Phase;
+  multiplier: number;
+  onWin: (amount: number) => void;
+  balance: number;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [custom, setCustom] = useState("");
+  return (
+    <div className="rounded-[10px] bg-[#0D0E10] p-[8px] sm:hidden">
+      {editing ? (
+        <div className="mb-[8px] flex items-center justify-center gap-2">
+          <input
+            type="number"
+            value={custom}
+            placeholder="Custom amount"
+            onChange={(e) => setCustom(e.target.value)}
+            className="h-[28px] w-[150px] rounded-[8px] bg-[#17191C] px-3 text-center text-[0.76rem] font-semibold text-white outline-none"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              const v = Number(custom);
+              if (Number.isFinite(v) && v >= 10) {
+                setSlot(0, (p) => ({ ...p, amount: v }));
+                setSlot(1, (p) => ({ ...p, amount: v }));
+              }
+              setEditing(false);
+            }}
+            className="h-[28px] rounded-[8px] bg-[#16A62A] px-3 text-[0.74rem] font-semibold text-white"
+          >
+            Apply
+          </button>
+        </div>
+      ) : null}
+      <div className="flex items-start justify-between gap-[6px]">
+        <MobileBetSlot
+          state={slots[0]!}
+          setState={(fn) => setSlot(0, fn)}
+          phase={phase}
+          multiplier={multiplier}
+          onWin={onWin}
+          balance={balance}
+        />
+        <MobileCenterActions setSlot={setSlot} editing={editing} setEditing={setEditing} />
+        <MobileBetSlot
+          state={slots[1]!}
+          setState={(fn) => setSlot(1, fn)}
+          phase={phase}
+          multiplier={multiplier}
+          onWin={onWin}
+          balance={balance}
+        />
+      </div>
+    </div>
+  );
+}
+
+
 
 /* ---------------- desktop bet board (Bet | Auto tabs) ---------------- */
 
