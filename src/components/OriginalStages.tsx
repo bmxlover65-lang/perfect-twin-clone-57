@@ -885,9 +885,9 @@ export function BalloonStage({
           <img
             src={LOCATIONS[bgIndex]!.url}
             alt=""
-            className="absolute inset-x-0 bottom-0 h-[210%] w-full object-cover object-bottom opacity-95"
+            className="absolute inset-x-0 bottom-[92px] h-auto w-full object-contain object-bottom opacity-95 sm:bottom-[150px]"
             style={{
-              transform: `translateY(${grow * 150}%)`,
+              transform: `translateY(${grow * 115}%)`,
               transition: "transform 200ms linear",
             }}
           />
@@ -975,9 +975,10 @@ export function BalloonStage({
           <div
             className="absolute left-1/2 z-10 w-[40%] min-w-[124px] max-w-[220px] sm:w-[25%] sm:min-w-[158px]"
             style={{
-              bottom: `${31 + grow * 8}%`,
+              top: flying || popped ? undefined : "5.5%",
+              bottom: flying || popped ? `${31 + grow * 8}%` : undefined,
               transform: "translateX(-50%)",
-              transition: "bottom 240ms linear, transform 240ms linear",
+              transition: "bottom 240ms linear, top 240ms linear, transform 240ms linear",
             }}
           >
 
@@ -1039,11 +1040,11 @@ export function BalloonStage({
               </p>
             ) : (
               <div className="absolute left-1/2 top-[32%] w-[110%] -translate-x-1/2 text-center">
-                <p className="text-[clamp(0.85rem,2.2vw,1.35rem)] font-extrabold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
+                <p className="whitespace-nowrap text-[clamp(0.67rem,2.2vw,1.2rem)] font-extrabold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
                   Waiting For Next Round
                 </p>
                 <span
-                  className="mt-3 inline-grid h-12 w-12 place-items-center rounded-full sm:h-14 sm:w-14"
+                  className="mt-2 inline-grid h-12 w-12 place-items-center rounded-full sm:h-14 sm:w-14"
                   style={{
                     background: `conic-gradient(#63F22E ${(Math.min(8, Math.max(0, wait)) / 8) * 360}deg, rgba(0,0,0,0.18) 0deg)`,
                     padding: 3,
