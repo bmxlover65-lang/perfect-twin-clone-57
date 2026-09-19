@@ -510,7 +510,7 @@ function MobileBetRow({
   const [editing, setEditing] = useState(false);
   const [custom, setCustom] = useState("");
   return (
-    <div className="rounded-[14px] bg-[#0D0E10] px-[7px] pb-[8px] pt-[6px] sm:hidden">
+    <div className="mx-auto w-full max-w-[313px] rounded-[14px] bg-[#0D0E10] px-[6px] pb-[8px] pt-[6px] sm:hidden">
       {editing ? (
         <div className="mb-[8px] flex items-center justify-center gap-2">
           <input
