@@ -408,7 +408,7 @@ export function BalloonStage({
   const [phase, setPhase] = useState<"waiting" | "flying" | "crashed">("waiting");
   const [shown, setShown] = useState(1);
   const [climb, setClimb] = useState(0);
-  const [wait, setWait] = useState(5);
+  const [wait, setWait] = useState(8);
   const [crashAt, setCrashAt] = useState(2);
   const [history, setHistory] = useState<number[]>([]);
   const [autos, setAutos] = useState<[boolean, boolean]>([false, false]);
@@ -633,7 +633,7 @@ export function BalloonStage({
           setPhase("waiting");
           setShown(1);
           setClimb(0);
-          t = 5;
+          t = 8;
         }
         lastStatus = apiStatus;
         raf = window.requestAnimationFrame(tick);
@@ -660,7 +660,7 @@ export function BalloonStage({
           setPhase("waiting");
           setShown(1);
           setClimb(0);
-          t = 5;
+          t = 8;
         }
         lastStatus = apiStatus;
       }
@@ -716,7 +716,7 @@ export function BalloonStage({
           if (ph === "crashed") {
             ph = "waiting";
             setPhase("waiting");
-            t = 5;
+            t = 8;
           } else {
             // With a live round id, wait for the upstream id to advance. This
             // keeps take-off locked to the real game instead of starting an
@@ -924,23 +924,26 @@ export function BalloonStage({
           {/* supplied Balloon atmosphere appears only during flight, matching the reference round */}
           {flying ? (
             <>
-              <img
-                src={balloonStars.url}
-                alt=""
-                aria-hidden="true"
-                className="balloon-sky-stars pointer-events-none absolute inset-x-0 top-[5%] h-[31%] w-full object-cover opacity-0"
-              />
-              <img
-                src={balloonClouds.url}
-                alt=""
-                aria-hidden="true"
-                className="balloon-cloud-air pointer-events-none absolute left-0 top-[18%] h-[20%] w-[78%] object-fill opacity-0"
-              />
+              <div className="balloon-cloud-fall pointer-events-none absolute inset-x-0 top-[7%] h-[31%] opacity-0">
+                <img
+                  src={balloonStars.url}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 h-full w-full object-cover opacity-55"
+                />
+                <img
+                  src={balloonClouds.url}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-x-[8%] bottom-0 h-[62%] w-[84%] object-fill opacity-70"
+                />
+              </div>
               <div className="balloon-plane-flight pointer-events-none absolute inset-x-0 bottom-[25%] h-[31%] overflow-visible">
                 <svg viewBox="0 0 337 176" preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible" aria-hidden="true">
                   <path
                     className="balloon-air-trail"
-                    d="M -24 143 C 76 151, 151 143, 226 120 S 317 92, 378 111"
+                    d="M -24 143 C 76 151, 151 143, 226 120 S 317 92, 390 111"
+                    pathLength="100"
                     fill="none"
                     stroke="#FFD8C0"
                     strokeWidth="4"
@@ -952,7 +955,7 @@ export function BalloonStage({
                     src={Math.floor(shown * 10) % 2 === 0 ? balloonPlane.url : balloonPlane2.url}
                     alt=""
                     aria-hidden="true"
-                    className="h-auto w-[62px] drop-shadow-[0_2px_3px_rgba(0,0,0,0.2)] sm:w-[76px]"
+                    className="h-auto w-[54px] drop-shadow-[0_2px_3px_rgba(0,0,0,0.2)] sm:w-[66px]"
                   />
                 </div>
               </div>
@@ -1036,7 +1039,7 @@ export function BalloonStage({
                 <span
                   className="mt-3 inline-grid h-12 w-12 place-items-center rounded-full sm:h-14 sm:w-14"
                   style={{
-                    background: `conic-gradient(#63F22E ${(Math.min(5, Math.max(0, wait)) / 5) * 360}deg, rgba(0,0,0,0.18) 0deg)`,
+                    background: `conic-gradient(#63F22E ${(Math.min(8, Math.max(0, wait)) / 8) * 360}deg, rgba(0,0,0,0.18) 0deg)`,
                     padding: 3,
                   }}
                 >
@@ -1132,16 +1135,19 @@ export function BalloonStage({
         {betOk ? <SuccessToast message={betOk} onDone={() => setBetOk(null)} /> : null}
 
         {/* compact Royal-style betting dock */}
-        <div className="absolute inset-x-0 bottom-0 z-20 flex items-end justify-between gap-2 rounded-t-[14px] rounded-b-[7px] bg-[linear-gradient(180deg,rgba(77,184,214,0.48)_0%,rgba(245,215,116,0.32)_100%)] px-2 pb-2 pt-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-[1px] sm:gap-4 sm:px-4 sm:pb-4">
+        <div className="absolute inset-x-0 bottom-0 z-20 flex items-end justify-between gap-[5px] rounded-t-[14px] bg-[linear-gradient(180deg,rgba(77,184,214,0.48)_0%,rgba(245,215,116,0.32)_100%)] px-2 pb-2 pt-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-[1px] sm:gap-4 sm:px-4 sm:pb-4">
           {/* left cluster: auto toggles + stakes + edits/clear/min/max */}
           <div className="shrink-0">
-            <div className="mb-1 flex w-[183px] items-end justify-between sm:w-[370px]">
+            <div className="mb-1 grid w-[202px] grid-cols-[151px_51px] items-center sm:w-[370px] sm:grid-cols-[250px_120px]">
               {([0, 1] as const).map((i) => (
-                <div key={i} className="flex w-[57px] items-center gap-1 sm:w-[110px] sm:gap-2">
+                <div
+                  key={i}
+                  className={`flex items-center text-white ${i === 0 ? "w-[103px] justify-between pl-1" : "w-[88px] justify-between sm:w-[110px]"}`}
+                >
                   <button
                     type="button"
                     onClick={() => setAutos((a) => (i === 0 ? [!a[0], a[1]] : [a[0], !a[1]]))}
-                    className="flex items-center gap-1 text-[0.68rem] font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] sm:gap-2 sm:text-[0.82rem]"
+                    className="contents text-[0.68rem] font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] sm:text-[0.82rem]"
                     aria-pressed={autos[i]}
                   >
                     Auto
@@ -1175,7 +1181,7 @@ export function BalloonStage({
                 </div>
               ))}
             </div>
-            <div className="flex items-start gap-2 sm:gap-2">
+            <div className="flex items-start gap-[7px] sm:gap-2">
               <div className="grid grid-cols-2 gap-x-[7px] gap-y-[4px] sm:gap-x-2 sm:gap-y-1.5">
                 {BALLOON_STAKES.map((s) => (
                   <button
@@ -1213,7 +1219,7 @@ export function BalloonStage({
           </div>
 
           {/* heat buttons — bet / queue for next round / cash out */}
-          <div className="ml-auto grid h-full w-[30%] min-w-[96px] shrink-0 gap-[5px] sm:w-[24%] sm:min-w-[150px] sm:gap-2">
+          <div className="ml-auto grid h-[100px] w-[29%] min-w-[92px] shrink-0 grid-rows-2 gap-[5px] sm:h-[136px] sm:w-[24%] sm:min-w-[150px] sm:gap-2">
             {([0, 1] as const).map((i) => {
               const bet = bets[i];
               const fl = flash[i];
@@ -1226,7 +1232,7 @@ export function BalloonStage({
                   onClick={() => pressHeat(i)}
                   disabled={blocked}
                   aria-label={blocked ? "Betting locked" : live ? "Cash out" : "Place heat bet"}
-                  className={`relative flex h-[39px] items-center justify-center gap-1 rounded-[7px] border-2 border-[#101B16] text-[0.8rem] font-extrabold text-white ring-1 ring-inset ring-white/55 transition-transform active:translate-y-[2px] active:shadow-none sm:h-[52px] sm:gap-3 sm:text-[1.15rem] ${
+                  className={`relative flex h-full items-center justify-center gap-1 rounded-[7px] border-2 border-[#101B16] text-[0.8rem] font-extrabold text-white ring-1 ring-inset ring-white/55 transition-transform active:translate-y-[2px] active:shadow-none sm:gap-3 sm:text-[1.15rem] ${
                     blocked
                       ? "cursor-not-allowed bg-[linear-gradient(180deg,#5A6270_0%,#3D434D_100%)] opacity-60 shadow-[0_3px_0_#2A2F36]"
                       : live
@@ -1249,10 +1255,6 @@ export function BalloonStage({
                         Waiting {wait}s
                       </span>
                       <span>{bet.stake.toLocaleString("en-IN")}</span>
-                    </span>
-                  ) : blocked ? (
-                    <span className="text-[0.6rem] font-bold uppercase leading-tight sm:text-[0.8rem]">
-                      BETTING LOCK
                     </span>
                   ) : (
                     <>
