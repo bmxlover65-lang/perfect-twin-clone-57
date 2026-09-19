@@ -345,9 +345,9 @@ function MobileBetSlot({
   };
 
   return (
-    <div className="flex min-w-0 flex-col items-center gap-[6px]">
-      <div className="flex items-center gap-[6px]">
-        <span className="text-[0.62rem] font-bold leading-none text-white">Auto</span>
+    <div className="flex min-h-[174px] min-w-0 flex-col items-center gap-[3px]">
+      <div className="flex h-[18px] items-center gap-[12px]">
+        <span className="text-[0.6rem] font-bold leading-none text-white">Auto</span>
         <button
           type="button"
           onClick={() => setState((p) => ({ ...p, auto: !p.auto, mode: !p.auto ? "auto" : "bet" }))}
@@ -364,14 +364,14 @@ function MobileBetSlot({
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-[5px] gap-y-[5px]">
+      <div className="grid grid-cols-2 gap-x-[4px] gap-y-[2px]">
         {MOBILE_PRESETS.map((q) => (
           <button
             key={q}
             type="button"
             disabled={locked}
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`h-[19px] w-[54px] rounded-full border bg-[linear-gradient(180deg,#26292D_0%,#1A1C1F_55%,#141618_100%)] text-[0.62rem] font-semibold leading-none disabled:opacity-40 ${
+            className={`h-[18px] w-[54px] rounded-full border bg-[linear-gradient(180deg,#26292D_0%,#1A1C1F_55%,#141618_100%)] text-[0.58rem] font-medium leading-none disabled:opacity-40 ${
               state.amount === q ? "border-[#F20000] text-white" : "border-[#55595F] text-[#D2D4D9]"
             }`}
           >
@@ -383,7 +383,7 @@ function MobileBetSlot({
       <button
         type="button"
         onClick={press}
-        className={`h-[40px] w-[105px] rounded-[8px] border text-[0.9rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.22)] ${
+        className={`mt-[2px] h-[38px] w-[105px] rounded-[8px] border text-[0.86rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.22)] ${
           canCash
             ? "border-[#8A5A05] bg-[linear-gradient(180deg,#FFBC4B_0%,#F59E0B_55%,#C87C05_100%)]"
             : pending
@@ -395,7 +395,7 @@ function MobileBetSlot({
       </button>
 
       {/* Fixed-height slot so toggling Auto never shifts the layout above. */}
-      <div className={`flex h-[22px] w-[105px] items-center gap-[5px] ${state.auto ? "" : "invisible"}`}>
+      <div className={`mt-[2px] flex h-[25px] w-[105px] items-center gap-[5px] ${state.auto ? "" : "invisible"}`}>
         <button
           type="button"
           onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
@@ -459,10 +459,10 @@ function MobileCenterActions({
     setSlot(1, fn);
   };
   const base =
-    "h-[19px] w-[54px] rounded-[7px] text-[0.62rem] font-bold leading-none shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.28)]";
+    "h-[20px] w-[49px] rounded-[7px] text-[0.6rem] font-semibold leading-none shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.28)]";
   const outline = `${base} border border-[#55595F] bg-[linear-gradient(180deg,#26292D_0%,#1A1C1F_55%,#141618_100%)] text-[#9BA0A6]`;
   return (
-    <div className="flex flex-col items-center gap-[7px] pt-[28px]">
+    <div className="flex flex-col items-center gap-[5px] pt-[32px]">
       <button
         type="button"
         onClick={() => setEditing(!editing)}
@@ -511,7 +511,7 @@ function MobileBetRow({
   const [editing, setEditing] = useState(false);
   const [custom, setCustom] = useState("");
   return (
-    <div className="rounded-[10px] bg-[#0D0E10] p-[8px] sm:hidden">
+    <div className="rounded-[10px] bg-[#0D0E10] px-[8px] pb-[5px] pt-[4px] sm:hidden">
       {editing ? (
         <div className="mb-[8px] flex items-center justify-center gap-2">
           <input
@@ -537,7 +537,7 @@ function MobileBetRow({
           </button>
         </div>
       ) : null}
-      <div className="flex items-start justify-between gap-[6px]">
+      <div className="flex items-start justify-between gap-[5px]">
         <MobileBetSlot
           state={slots[0]!}
           setState={(fn) => setSlot(0, fn)}
