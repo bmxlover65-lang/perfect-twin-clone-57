@@ -1684,7 +1684,7 @@ export function Aviator() {
           <div className="mt-5 flex flex-wrap items-center justify-between gap-x-2 gap-y-[2px] border-t border-white/10 px-1 pb-[26px] pt-[12px] text-[0.7rem] text-white/50 sm:text-[0.75rem]">
             <span className="flex items-center gap-1">
               This game is
-              <img src={fairIcon} alt="" className="h-[14px] w-[13px]" />
+              <img src={fairIcon} alt="" className="h-[16px] w-[15px]" />
               <span className="font-semibold text-white/80">Provably Fair</span>
             </span>
             <span>
