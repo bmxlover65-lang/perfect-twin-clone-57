@@ -59,6 +59,8 @@ function HistToggle({ open, onClick }: { open: boolean; onClick: () => void }) {
   );
 }
 
+
+
 /* ---------------- live bets (real players only) ---------------- */
 
 type LiveBet = {
@@ -369,7 +371,7 @@ function MobileBetSlot({
             type="button"
             disabled={locked}
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`h-[18px] w-[52px] rounded-full border bg-[linear-gradient(180deg,#26292D_0%,#1A1C1F_55%,#141618_100%)] text-[0.58rem] font-medium leading-none disabled:opacity-40 ${
+            className={`h-[18px] w-[54px] rounded-full border bg-[linear-gradient(180deg,#26292D_0%,#1A1C1F_55%,#141618_100%)] text-[0.58rem] font-medium leading-none disabled:opacity-40 ${
               state.amount === q ? "border-[#F20000] text-white" : "border-[#55595F] text-[#D2D4D9]"
             }`}
           >
@@ -381,7 +383,7 @@ function MobileBetSlot({
       <button
         type="button"
         onClick={press}
-        className={`mt-[4px] h-[38px] w-[83px] rounded-[7px] border text-[0.78rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.22)] ${
+        className={`mt-[2px] h-[38px] w-[105px] rounded-[8px] border text-[0.86rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.22)] ${
           canCash
             ? "border-[#8A5A05] bg-[linear-gradient(180deg,#FFBC4B_0%,#F59E0B_55%,#C87C05_100%)]"
             : pending
@@ -392,7 +394,7 @@ function MobileBetSlot({
         {canCash ? "Cash Out" : pending ? "Cancel" : "Cash In"}
       </button>
 
-      {state.auto ? <div className="mt-[2px] flex h-[25px] w-[83px] items-center gap-[4px]">
+      {state.auto ? <div className="mt-[2px] flex h-[25px] w-[105px] items-center gap-[5px]">
         <button
           type="button"
           onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
@@ -459,7 +461,7 @@ function MobileCenterActions({
     "h-[20px] w-[49px] rounded-[7px] text-[0.6rem] font-semibold leading-none shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.28)]";
   const outline = `${base} border border-[#55595F] bg-[linear-gradient(180deg,#26292D_0%,#1A1C1F_55%,#141618_100%)] text-[#9BA0A6]`;
   return (
-    <div className="flex flex-col items-center gap-[5px] pt-[35px]">
+    <div className="flex flex-col items-center gap-[5px] pt-[32px]">
       <button
         type="button"
         onClick={() => setEditing(!editing)}
@@ -508,7 +510,7 @@ function MobileBetRow({
   const [editing, setEditing] = useState(false);
   const [custom, setCustom] = useState("");
   return (
-    <div className="rounded-[10px] bg-[#0D0E10] px-[8px] pb-[7px] pt-[5px] sm:hidden">
+    <div className="rounded-[10px] bg-[#0D0E10] px-[8px] pb-[6px] pt-[5px] sm:hidden">
       {editing ? (
         <div className="mb-[8px] flex items-center justify-center gap-2">
           <input
@@ -534,7 +536,7 @@ function MobileBetRow({
           </button>
         </div>
       ) : null}
-      <div className="grid grid-cols-[minmax(0,1fr)_49px_minmax(0,1fr)] items-start gap-[5px]">
+      <div className="grid grid-cols-[1fr_49px_1fr] items-start gap-[5px]">
         <MobileBetSlot
           state={slots[0]!}
           setState={(fn) => setSlot(0, fn)}
@@ -842,20 +844,23 @@ function FlightStage({
 
   return (
     <div className="relative overflow-hidden rounded-[13px] border border-[#2B2D31] bg-black">
-      {/* fixed light rays from the lower-left corner */}
+      {/* spribe-style rotating sun rays from the bottom-left */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
-          className="absolute left-0 top-full h-[1100px] w-[1100px] -translate-x-1/2 -translate-y-1/2 opacity-90"
+          className="absolute left-[3%] top-[92%] h-[1100px] w-[1100px] -translate-x-1/2 -translate-y-1/2 opacity-90"
           style={{
             background:
-              "repeating-conic-gradient(from 0deg, rgba(31,35,40,.92) 0deg 6.5deg, rgba(1,2,3,.98) 6.5deg 13deg)",
+              "repeating-conic-gradient(from 0deg, #14171C 0deg 6.5deg, #000000 6.5deg 13deg)",
             borderRadius: "9999px",
-            maskImage: "radial-gradient(circle, #000 0%, #000 58%, transparent 88%)",
-            WebkitMaskImage: "radial-gradient(circle, #000 0%, #000 58%, transparent 88%)",
+            maskImage: "radial-gradient(circle, #000 0%, #000 52%, transparent 82%)",
+            WebkitMaskImage: "radial-gradient(circle, #000 0%, #000 52%, transparent 82%)",
+            animation: "av-spin 90s linear infinite",
+            animationPlayState: phase === "flying" ? "running" : "paused",
           }}
         />
       </div>
-      <style>{`@keyframes av-prop{to{transform:rotate(360deg)}}
+      <style>{`@keyframes av-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes av-prop{to{transform:rotate(360deg)}}
 @keyframes av-row-in{from{opacity:0;transform:translateY(-10px) scale(0.98)}to{opacity:1;transform:none}}
 .av-row-in{animation:av-row-in .38s cubic-bezier(.2,.8,.3,1)}`}</style>
 
@@ -863,7 +868,7 @@ function FlightStage({
       <svg
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
-        className="relative block aspect-[1.34] h-auto w-full sm:aspect-[19/9] lg:aspect-[19/8] lg:max-h-[430px]"
+        className="relative block aspect-[4/3] h-auto w-full sm:aspect-[19/9] lg:aspect-[19/8] lg:max-h-[430px]"
       >
         <defs>
           <linearGradient id="av-area" x1="0" y1="0" x2="0" y2="1">
@@ -997,7 +1002,7 @@ function FlightStage({
             </p>
           </>
         ) : (
-          <p className="text-[3.15rem] font-extrabold leading-none text-white drop-shadow-[0_6px_26px_rgba(0,0,0,.65)] sm:text-[5rem] lg:text-[6.6rem]">
+          <p className="text-[3rem] font-extrabold leading-none text-white drop-shadow-[0_6px_26px_rgba(0,0,0,.65)] sm:text-[5rem] lg:text-[6.6rem]">
             {fmt(multiplier)}x
           </p>
         )}
@@ -1482,17 +1487,17 @@ export function Aviator() {
 
   return (
     <div className="overflow-hidden bg-[#090A0C] sm:rounded-[16px] sm:border sm:border-[#303238] sm:p-3">
-      <div className="grid items-stretch gap-[5px] lg:h-[680px] lg:grid-cols-[minmax(340px,27%)_1fr] lg:gap-2">
+      <div className="grid items-stretch gap-2 lg:h-[680px] lg:grid-cols-[minmax(340px,27%)_1fr]">
         {/* bets + chat */}
-        <div className="order-2 flex min-h-[198px] min-w-0 flex-col overflow-hidden bg-[#151618] px-[6px] pb-0 pt-[5px] lg:order-1 lg:min-h-0 sm:min-h-0 sm:rounded-[14px] sm:border sm:border-[#303238] sm:p-3">
+        <div className="order-2 flex min-w-0 flex-col overflow-hidden bg-[#151618] p-2 lg:order-1 sm:rounded-[14px] sm:border sm:border-[#303238] sm:p-3">
 
-          <div className="mx-auto flex w-[150px] rounded-full bg-[#0B0C0E] p-[2px] text-[0.54rem] font-semibold text-white/50 sm:w-[86%] sm:max-w-[300px] sm:p-[3px] sm:text-[0.78rem]">
+          <div className="mx-auto flex w-[150px] rounded-full bg-[#0B0C0E] p-[2px] text-[0.58rem] font-semibold text-white/50 sm:w-[86%] sm:max-w-[300px] sm:p-[3px] sm:text-[0.78rem]">
             {([["all", "All Bets"], ["my", "My Bets"]] as const).map(([k, l]) => (
               <button
                 key={k}
                 type="button"
                 onClick={() => setTab(k)}
-                 className={`h-[16px] flex-1 rounded-full px-2 leading-none sm:h-[20px] ${
+                className={`h-[17px] flex-1 rounded-full px-2 leading-none sm:h-[20px] ${
                   tab === k ? "bg-[#2C2D30] text-white" : ""
                 }`}
               >
@@ -1502,7 +1507,7 @@ export function Aviator() {
           </div>
 
           {tab === "all" ? (
-            <div className="mt-[6px] flex items-start justify-between px-[1px] text-[0.6rem] font-bold text-white/90 sm:mt-[10px] sm:px-0 sm:text-[0.7rem]">
+            <div className="mt-[6px] flex items-start justify-between px-[6px] text-[0.68rem] font-bold text-white/90 sm:mt-[10px] sm:px-0 sm:text-[0.7rem]">
               <span className="flex flex-col gap-[2px] leading-tight">
                 ALL BETS
                 <span className="text-[0.66rem] font-semibold text-white/60">{bets.length}</span>
@@ -1515,7 +1520,7 @@ export function Aviator() {
           ) : null}
 
           {tab === "my" ? (
-            <div className="mt-[6px] flex items-start justify-between px-[1px] text-[0.6rem] font-bold text-white/90 sm:mt-[10px] sm:px-0 sm:text-[0.7rem]">
+            <div className="mt-[6px] flex items-start justify-between px-[6px] text-[0.68rem] font-bold text-white/90 sm:mt-[10px] sm:px-0 sm:text-[0.7rem]">
               <span className="flex flex-col gap-[2px] leading-tight">
                 MY BETS
                 <span className="text-[0.66rem] font-semibold text-white/60">
@@ -1531,7 +1536,7 @@ export function Aviator() {
             </div>
           ) : null}
 
-          <div className="mt-[4px] grid h-[16px] grid-cols-[1fr_38px_44px_54px] items-center gap-x-2 border-b border-white/10 bg-[#111214] px-[2px] text-[0.48rem] font-medium text-white/35 sm:mt-[8px] sm:h-[18px] sm:px-2 sm:text-[0.58rem]">
+          <div className="mt-[5px] grid h-[18px] grid-cols-[1fr_38px_44px_54px] items-center gap-x-2 border-b border-white/10 bg-[#111214] px-[6px] text-[0.55rem] font-medium text-white/35 sm:mt-[8px] sm:px-2 sm:text-[0.58rem]">
             <span>{tab === "my" ? "Round" : "User"}</span>
             <span>Bet</span>
             <span>X</span>
@@ -1540,7 +1545,7 @@ export function Aviator() {
 
 
           <div
-            className="flex h-[106px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-[2px] lg:h-0 lg:min-h-0 sm:h-[430px] sm:pt-2"
+            className="flex h-[430px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-2 lg:h-0 lg:min-h-0"
             style={{
               overscrollBehavior: "contain",
               WebkitOverflowScrolling: "touch",
@@ -1612,7 +1617,7 @@ export function Aviator() {
                   return (
                     <div
                       key={`${b.id}-${i}`}
-                       className={`grid shrink-0 grid-cols-[1fr_38px_44px_54px] items-center gap-x-2 px-[2px] py-[2px] text-[0.56rem] sm:px-2 sm:py-[5px] sm:text-[0.8rem] ${
+                      className={`grid shrink-0 grid-cols-[1fr_38px_44px_54px] items-center gap-x-2 px-2 py-[5px] text-[0.64rem] sm:text-[0.8rem] ${
                         done
                           ? "rounded-[7px] border border-[#3B8F20] bg-[#0D4206] text-white"
                           : "border-b border-white/[0.05] bg-[#131416] text-white/70"
@@ -1625,7 +1630,7 @@ export function Aviator() {
                           loading="lazy"
                           width={96}
                           height={96}
-                           className="h-[20px] w-[20px] shrink-0 rounded-full object-cover"
+                          className="h-[21px] w-[21px] shrink-0 rounded-full object-cover"
                         />
                         <span className={`truncate ${done ? "font-semibold text-white" : "text-[#7E92B5]"}`}>
                           {maskName(b.user)}
@@ -1658,7 +1663,7 @@ export function Aviator() {
             ) : null}
           </div>
 
-          <div className="mt-5 hidden flex-wrap items-center justify-between gap-x-2 gap-y-[2px] border-t border-white/10 px-1 pb-[26px] pt-[12px] text-[0.7rem] text-white/50 sm:flex sm:text-[0.75rem]">
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-x-2 gap-y-[2px] border-t border-white/10 px-1 pb-[26px] pt-[12px] text-[0.7rem] text-white/50 sm:text-[0.75rem]">
             <span className="flex items-center gap-1">
               This game is
               <img src={fairIcon} alt="" className="h-[16px] w-[15px]" />
@@ -1672,9 +1677,9 @@ export function Aviator() {
         </div>
 
         {/* stage + panels */}
-        <div className="order-1 flex min-w-0 flex-col gap-[4px] lg:order-2 lg:min-h-0 lg:gap-2">
+        <div className="order-1 flex min-w-0 flex-col gap-2 lg:order-2 lg:min-h-0">
           {/* history strip — sits above the flying stage */}
-          <div className="bg-[#090A0C] px-[5px] py-[2px] sm:rounded-[8px] sm:border sm:border-[#34363B] sm:bg-[#202125] sm:px-3 sm:py-2">
+          <div className="bg-[#090A0C] px-[6px] py-[3px] sm:rounded-[8px] sm:border sm:border-[#34363B] sm:bg-[#202125] sm:px-3 sm:py-2">
             {histOpen ? (
               <div className="mb-2 flex items-center justify-between gap-2">
                 <span className="text-[0.72rem] font-semibold uppercase tracking-[0.03em] text-white">
@@ -1692,10 +1697,10 @@ export function Aviator() {
                     : "flex-nowrap overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                 }`}
               >
-                {(histOpen ? history : history.slice(0, 8)).map((h, i) => (
+                {(histOpen ? history : history.slice(0, 40)).map((h, i) => (
                   <span
                     key={`${h}-${i}`}
-                    className={`shrink-0 px-[2px] py-0 text-[0.52rem] font-bold leading-[15px] sm:rounded-full sm:bg-[#090B0E] sm:px-[8px] sm:py-[2px] sm:text-[0.72rem] ${chipTone(h)}`}
+                    className={`shrink-0 rounded-full bg-[#090B0E] px-[5px] py-[1px] text-[0.58rem] font-semibold leading-[16px] sm:px-[8px] sm:py-[2px] sm:text-[0.72rem] ${chipTone(h)}`}
                   >
                     {fmt(h)}x
                   </span>
@@ -1709,7 +1714,7 @@ export function Aviator() {
 
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} feedLive={feedLive} />
 
-          <div className="bg-[#111315] p-[5px] sm:rounded-[12px] sm:border sm:border-[#292D32] sm:p-4 lg:flex lg:flex-1 lg:flex-col lg:justify-start">
+          <div className="bg-[#111315] p-2 sm:rounded-[12px] sm:border sm:border-[#292D32] sm:p-4 lg:flex lg:flex-1 lg:flex-col lg:justify-start">
             {/* mobile: left presets | center actions | right presets */}
             <MobileBetRow
               slots={slots}

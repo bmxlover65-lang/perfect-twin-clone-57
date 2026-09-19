@@ -2335,17 +2335,17 @@ function GamePage() {
 
   if (gameId === "88.0030") {
     return (
-      <div className={embed ? shell("max-w-[1080px]") : "mx-auto min-h-dvh w-full max-w-[1080px] bg-[#090A0C] px-0 sm:px-4 sm:py-5"}>
+      <div className={shell("max-w-[1080px]")}>
         {embed ? null : (
 
-          <Link to="/" className="hidden text-sm text-[#2563EB] hover:underline sm:inline">
+          <Link to="/" className="text-sm text-[#2563EB] hover:underline">
 
             ← Back to lobby
 
           </Link>
 
         )}
-        <div className={embed ? "" : "sm:mt-2"}>
+        <div className={embed ? "" : "mt-2"}>
           <Aviator />
         </div>
 
