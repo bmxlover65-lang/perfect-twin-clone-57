@@ -2410,7 +2410,6 @@ function GamePage() {
             )}
             roundId={d?.roundId ? String(d.roundId) : undefined}
             suspended={suspended}
-            status={status}
             leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
           />
 
@@ -2435,6 +2434,7 @@ function GamePage() {
             })()}
             roundId={d?.roundId ? String(d.roundId) : undefined}
             suspended={suspended}
+            status={status}
             leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
           />
 
