@@ -912,8 +912,8 @@ function FlightStage({
         {phase === "betting" ? (
           <image
             href={aviatorPlane}
-            x={18}
-            y={H - 40 - planeH * 0.62}
+            x={58}
+            y={H - 40 - planeH * 0.54}
             width={planeW}
             height={planeH}
             opacity={0.95}
