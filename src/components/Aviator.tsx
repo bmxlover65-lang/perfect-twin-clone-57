@@ -510,7 +510,7 @@ function MobileBetRow({
   const [editing, setEditing] = useState(false);
   const [custom, setCustom] = useState("");
   return (
-    <div className="mx-auto w-full max-w-[313px] rounded-[14px] bg-[#0D0E10] px-[6px] pb-[8px] pt-[6px] sm:hidden">
+    <div className="mx-auto w-full rounded-[14px] bg-[#0D0E10] px-[8px] pb-[8px] pt-[6px] sm:hidden">
       {editing ? (
         <div className="mb-[8px] flex items-center justify-center gap-2">
           <input
@@ -536,7 +536,7 @@ function MobileBetRow({
           </button>
         </div>
       ) : null}
-      <div className="grid grid-cols-[110px_48px_110px] items-start justify-center gap-[16px]">
+      <div className="grid grid-cols-[110px_48px_110px] items-start justify-between">
         <MobileBetSlot
           state={slots[0]!}
           setState={(fn) => setSlot(0, fn)}
@@ -1708,7 +1708,7 @@ export function Aviator() {
 
           <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} feedLive={feedLive} />
 
-          <div className="bg-[#111315] p-2 sm:rounded-[12px] sm:border sm:border-[#292D32] sm:p-4 lg:flex lg:flex-1 lg:flex-col lg:justify-start">
+          <div className="bg-[#111315] px-[2px] pb-[2px] pt-[3px] sm:rounded-[12px] sm:border sm:border-[#292D32] sm:p-4 lg:flex lg:flex-1 lg:flex-col lg:justify-start">
             {/* mobile: left presets | center actions | right presets */}
             <MobileBetRow
               slots={slots}
