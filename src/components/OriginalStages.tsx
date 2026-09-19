@@ -858,10 +858,8 @@ export function BalloonStage({
   const seedHist = [1.81, 5.68, 2.58, 1.12, 1.15, 3.88, 2.59, 1.3, 1.25, 1.03];
   const histList = (history.length ? history : seedHist).slice(0, 12);
   const crowd = [
-    { name: "a••••••7", amount: 500, tone: "bg-[#D85C45]" },
-    { name: "p•••••g", amount: 100, tone: "bg-[#5B9B4A]" },
-    { name: "p•••••s", amount: 100, tone: "bg-[#E1AF31]" },
-    { name: "h••••••o", amount: 100, tone: "bg-[#955338]" },
+    { name: "t••••••s", amount: "100.00", tone: "bg-[#D85C45]", winning: false },
+    { name: "a••••••7", amount: "+75.50", tone: "bg-[#E1AF31]", winning: true },
   ];
 
 
@@ -869,8 +867,8 @@ export function BalloonStage({
 
 
   return (
-    <div className={`w-full bg-[linear-gradient(160deg,#2B2B2E_0%,#0A0A0B_55%,#1A1A1D_100%)] p-1.5 shadow-[0_18px_44px_-18px_rgba(0,0,0,0.9)] ring-1 ring-inset ring-white/10 ${embedded ? "min-h-dvh rounded-none" : "rounded-[16px]"}`}>
-      <div className={`relative w-full overflow-hidden bg-[linear-gradient(180deg,#4FB6CE_0%,#7ACBD6_38%,#BFE0CC_66%,#F3E4B4_88%,#F7EFD2_100%)] ${embedded ? "h-[calc(100dvh-0.75rem)] rounded-[10px]" : "aspect-[9/16] max-h-[calc(100vh-132px)] rounded-[12px] sm:aspect-[16/10] sm:max-h-none"}`}>
+    <div className={`w-full bg-[linear-gradient(160deg,#2B2B2E_0%,#0A0A0B_55%,#1A1A1D_100%)] p-1 shadow-[0_18px_44px_-18px_rgba(0,0,0,0.9)] ring-1 ring-inset ring-white/10 ${embedded ? "min-h-dvh rounded-none" : "rounded-[10px]"}`}>
+      <div className={`relative w-full overflow-hidden bg-[linear-gradient(180deg,#4FB6CE_0%,#7ACBD6_38%,#BFE0CC_66%,#F3E4B4_88%,#F7EFD2_100%)] ${embedded ? "h-[calc(100dvh-0.5rem)] rounded-[7px]" : "h-[650px] max-h-[calc(100dvh-132px)] min-h-[610px] rounded-[7px] sm:h-auto sm:min-h-0 sm:aspect-[16/10] sm:max-h-none"}`}>
         {/* premium cinematic vignette + top sheen */}
         <div
           className="pointer-events-none absolute inset-0 z-[5]"
@@ -1020,18 +1018,18 @@ export function BalloonStage({
           </div>
 
         {/* top bar: full-line results strip, mute sits below it */}
-        <div className="absolute inset-x-0 top-0 px-2 py-2">
-          <div className="flex w-full flex-nowrap items-center gap-1 overflow-x-auto">
-            {histList.map((v, i) => (
+        <div className="absolute inset-x-0 top-0 z-20 px-2.5 py-2.5">
+          <div className="flex w-full flex-nowrap items-center gap-[5px] overflow-hidden">
+            {histList.slice(0, 7).map((v, i) => (
               <span
                 key={i}
-                className={`shrink-0 rounded-full px-2 py-[3px] text-[0.7rem] font-extrabold shadow-[0_1px_3px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.28)] ring-1 ring-inset ring-white/15 sm:px-2.5 sm:text-[0.78rem] ${histColor2(v)}`}
+                className={`balloon-result-pill shrink-0 rounded-[4px] px-[7px] py-[4px] text-[0.58rem] font-extrabold leading-none shadow-[0_1px_3px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.28)] ring-1 ring-inset ring-white/15 sm:px-2.5 sm:text-[0.78rem] ${histColor2(v)}`}
               >
                 {v.toFixed(2)}x
               </span>
             ))}
-            <span className="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#E8A33D]">
-              <img src={arrowDown.url} alt="" className="h-3 w-3" />
+            <span className="ml-auto flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-[#E8A33D] shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_1px_2px_rgba(0,0,0,0.28)] sm:h-7 sm:w-7">
+              <img src={arrowDown.url} alt="" className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
             </span>
           </div>
           <button
@@ -1054,7 +1052,7 @@ export function BalloonStage({
                 return next;
               });
             }}
-            className="mt-2 shrink-0 text-[#2B2B2B]"
+            className="mt-2.5 shrink-0 text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.4)]"
             aria-label={muted ? "Unmute" : "Mute"}
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
@@ -1090,7 +1088,7 @@ export function BalloonStage({
                   <img src={profileIcon.url} alt="" className="h-[9px] w-[9px] brightness-0 invert" />
                 </span>
                 <span className="w-[44px] truncate">{person.name}</span>
-                <span className="ml-1 tabular-nums">{person.amount.toFixed(2)}</span>
+                <span className={`ml-1 tabular-nums ${person.winning ? "text-[#168D3B]" : ""}`}>{person.amount}</span>
               </div>
             ))}
           </div>
@@ -1103,7 +1101,7 @@ export function BalloonStage({
         {betOk ? <SuccessToast message={betOk} onDone={() => setBetOk(null)} /> : null}
 
         {/* compact Royal-style betting dock */}
-        <div className="absolute inset-x-0 bottom-0 z-20 flex items-end justify-between gap-2 rounded-b-[10px] bg-[linear-gradient(180deg,rgba(255,238,177,0.08)_0%,rgba(14,55,62,0.14)_100%)] px-2 pb-2 pt-2 shadow-[0_-1px_0_rgba(255,255,255,0.24)] sm:gap-4 sm:px-4 sm:pb-4">
+        <div className="absolute inset-x-0 bottom-0 z-20 flex items-end justify-between gap-2 rounded-t-[14px] rounded-b-[7px] bg-[linear-gradient(180deg,rgba(77,184,214,0.48)_0%,rgba(245,215,116,0.32)_100%)] px-2 pb-2 pt-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-[1px] sm:gap-4 sm:px-4 sm:pb-4">
           {/* left cluster: auto toggles + stakes + edits/clear/min/max */}
           <div className="shrink-0">
             <div className="mb-1 flex items-end gap-2 sm:gap-3">
@@ -1153,7 +1151,7 @@ export function BalloonStage({
                     key={s}
                     type="button"
                     onClick={() => setStake(s)}
-                    className={`h-[22px] w-[72px] rounded-full border border-white bg-[linear-gradient(180deg,#164681_0%,#082A5B_100%)] text-[0.62rem] font-extrabold text-white shadow-[0_1px_3px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.25)] transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
+                    className={`balloon-stake h-[22px] w-[72px] rounded-full border border-white bg-[linear-gradient(180deg,#164681_0%,#082A5B_100%)] text-[0.62rem] font-extrabold text-white shadow-[0_1px_3px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.25)] transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
                       stake === s ? "ring-2 ring-[#E01E1E]" : ""
                     }`}
                   >
@@ -1184,7 +1182,7 @@ export function BalloonStage({
           </div>
 
           {/* heat buttons — bet / queue for next round / cash out */}
-          <div className="ml-auto grid h-full w-[27%] min-w-[90px] shrink-0 gap-2 sm:w-[24%] sm:min-w-[150px] sm:gap-2">
+          <div className="ml-auto grid h-full w-[30%] min-w-[96px] shrink-0 gap-[5px] sm:w-[24%] sm:min-w-[150px] sm:gap-2">
             {([0, 1] as const).map((i) => {
               const bet = bets[i];
               const fl = flash[i];
@@ -1196,7 +1194,7 @@ export function BalloonStage({
                   type="button"
                   onClick={() => pressHeat(i)}
                   disabled={blocked}
-                  className={`relative flex h-[40px] items-center justify-center gap-1 rounded-[7px] border-2 border-[#101B16] text-[0.8rem] font-extrabold text-white ring-1 ring-inset ring-white/55 transition-transform active:translate-y-[2px] active:shadow-none sm:h-[52px] sm:gap-3 sm:text-[1.15rem] ${
+                  className={`relative flex h-[39px] items-center justify-center gap-1 rounded-[7px] border-2 border-[#101B16] text-[0.8rem] font-extrabold text-white ring-1 ring-inset ring-white/55 transition-transform active:translate-y-[2px] active:shadow-none sm:h-[52px] sm:gap-3 sm:text-[1.15rem] ${
                     blocked
                       ? "cursor-not-allowed bg-[linear-gradient(180deg,#5A6270_0%,#3D434D_100%)] opacity-60 shadow-[0_3px_0_#2A2F36]"
                       : live
