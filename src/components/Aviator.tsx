@@ -461,7 +461,7 @@ function MobileCenterActions({
     "h-[21px] w-[48px] rounded-[8px] text-[0.61rem] font-semibold leading-none shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.28)]";
   const outline = `${base} border border-[#55595F] bg-[linear-gradient(180deg,#26292D_0%,#1A1C1F_55%,#141618_100%)] text-[#9BA0A6]`;
   return (
-    <div className="flex flex-col items-center gap-[7px] pt-[39px]">
+    <div className="flex flex-col items-center gap-[7px] pt-[32px]">
       <button
         type="button"
         onClick={() => setEditing(!editing)}
@@ -483,7 +483,7 @@ function MobileCenterActions({
       <button
         type="button"
         onClick={() => both((p) => ({ ...p, amount: 10000 }))}
-        className={outline}
+        className={`${outline} !w-[64px]`}
       >
         Max
       </button>
@@ -510,7 +510,7 @@ function MobileBetRow({
   const [editing, setEditing] = useState(false);
   const [custom, setCustom] = useState("");
   return (
-    <div className="rounded-[10px] bg-[#0D0E10] px-[7px] pb-[8px] pt-[6px] sm:hidden">
+    <div className="mx-auto w-full max-w-[313px] rounded-[14px] bg-[#0D0E10] px-[6px] pb-[8px] pt-[6px] sm:hidden">
       {editing ? (
         <div className="mb-[8px] flex items-center justify-center gap-2">
           <input
@@ -536,7 +536,7 @@ function MobileBetRow({
           </button>
         </div>
       ) : null}
-      <div className="grid grid-cols-[110px_48px_110px] items-start justify-center gap-[8px]">
+      <div className="grid grid-cols-[110px_48px_110px] items-start justify-center gap-[16px]">
         <MobileBetSlot
           state={slots[0]!}
           setState={(fn) => setSlot(0, fn)}
