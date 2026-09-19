@@ -1623,10 +1623,10 @@ export function Aviator() {
 
 
             {tab === "all" && bets.length === 0 ? (
-              <p className="py-6 text-center text-[0.72rem] text-white/40">No bets yet</p>
+              <p className="py-10 text-center text-[0.72rem] text-white/40">No bets yet</p>
             ) : null}
             {tab === "my" && myBets.length === 0 ? (
-              <p className="py-6 text-center text-[0.72rem] text-white/40">No bets yet</p>
+              <p className="py-10 text-center text-[0.72rem] text-white/40">No bets yet</p>
             ) : null}
           </div>
 
