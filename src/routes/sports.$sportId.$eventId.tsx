@@ -15,6 +15,7 @@ import { BalanceChip, BetLayer } from "@/components/betting";
 import { createFeedState, mergeFeed } from "@/lib/feed-merge";
 import { Scoreboard } from "@/components/Scoreboard";
 import { LiveTv } from "@/components/LiveTv";
+import { AppLoader } from "@/components/AppLoader";
 import { settleFromRunners, voidOpen } from "@/lib/wallet";
 
 export const Route = createFileRoute("/sports/$sportId/$eventId")({
@@ -385,6 +386,8 @@ function EventPage() {
       closedSince.current = 0;
     }
   }, [data, eventId, matchOdds, bookmakers, fancy, sportsbook]);
+
+  if (!data && !error) return <AppLoader />;
 
 
   return (

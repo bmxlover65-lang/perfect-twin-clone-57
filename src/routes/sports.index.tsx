@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AppLoader } from "@/components/AppLoader";
 
 import {
   fetchEvents,
@@ -163,6 +164,8 @@ function SportsPage() {
   const inplay = useMemo(() => events.filter((e) => e.inPlay), [events]);
   const pre = useMemo(() => events.filter((e) => !e.inPlay), [events]);
   const list = filter === "inplay" ? inplay : filter === "pre" ? pre : events;
+
+  if (loading && events.length === 0) return <AppLoader />;
 
   const pill = (active: boolean) =>
   `rounded-full px-4 py-2 text-sm font-medium transition-colors ${

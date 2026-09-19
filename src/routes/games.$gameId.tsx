@@ -5,6 +5,7 @@ import { FitBoard } from "@/components/FitBoard";
 import { RoundTimer } from "@/components/RoundTimer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEmbed } from "@/lib/embed";
+import { AppLoader } from "@/components/AppLoader";
 
 import { applyOverride, useAdminConfig } from "@/lib/admin";
 import { logResult } from "@/lib/telemetry";
@@ -2177,6 +2178,8 @@ function GamePage() {
     if (overlayRef.current) ro.observe(overlayRef.current);
     return () => ro.disconnect();
   }, [handLayout]);
+
+  if (!state && !error && !NO_FEED.has(gameId)) return <AppLoader />;
 
 
 
