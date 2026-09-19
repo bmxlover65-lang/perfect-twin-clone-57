@@ -1614,26 +1614,15 @@ export function Aviator() {
 
           <div className="bg-[#111315] p-2 sm:rounded-[12px] sm:border sm:border-[#292D32] sm:p-4 lg:flex lg:flex-1 lg:flex-col lg:justify-start">
             {/* mobile: left presets | center actions | right presets */}
-            <div className="flex items-start justify-between gap-[6px] rounded-[10px] bg-[#0D0E10] p-[8px] sm:hidden">
+            <MobileBetRow
+              slots={slots}
+              setSlot={setSlot}
+              phase={phase}
+              multiplier={multiplier}
+              onWin={win}
+              balance={balance}
+            />
 
-              <MobileBetSlot
-                state={slots[0]!}
-                setState={(fn) => setSlot(0, fn)}
-                phase={phase}
-                multiplier={multiplier}
-                onWin={win}
-                balance={balance}
-              />
-              <MobileCenterActions setSlot={setSlot} />
-              <MobileBetSlot
-                state={slots[1]!}
-                setState={(fn) => setSlot(1, fn)}
-                phase={phase}
-                multiplier={multiplier}
-                onWin={win}
-                balance={balance}
-              />
-            </div>
 
 
             <div className="mt-2 hidden sm:mt-3 sm:block">
