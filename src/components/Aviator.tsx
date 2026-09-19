@@ -1468,13 +1468,13 @@ export function Aviator() {
         {/* bets + chat */}
         <div className="order-2 flex min-w-0 flex-col overflow-hidden bg-[#151618] p-2 lg:order-1 sm:rounded-[14px] sm:border sm:border-[#303238] sm:p-3">
 
-          <div className="mx-auto flex w-full max-w-[300px] rounded-full bg-[#0B0C0E] p-[4px] text-[0.72rem] font-bold text-white/55 sm:w-[86%] sm:text-[0.78rem]">
+          <div className="mx-auto flex w-full max-w-[300px] rounded-full bg-[#0B0C0E] p-[3px] text-[0.62rem] font-bold text-white/55 sm:w-[86%] sm:text-[0.78rem]">
             {([["all", "All Bets"], ["my", "My Bets"]] as const).map(([k, l]) => (
               <button
                 key={k}
                 type="button"
                 onClick={() => setTab(k)}
-                className={`flex-1 rounded-full px-2 py-[5px] ${
+                className={`h-[20px] flex-1 rounded-full px-2 leading-none ${
                   tab === k ? "bg-[#2C2D30] text-white" : ""
                 }`}
               >
@@ -1484,41 +1484,42 @@ export function Aviator() {
           </div>
 
           {tab === "all" ? (
-            <div className="mt-3 flex items-start justify-between text-[0.82rem] font-bold text-white/85">
-              <span className="flex flex-col leading-tight">
+            <div className="mt-[10px] flex items-start justify-between text-[0.7rem] font-bold text-white/85">
+              <span className="flex flex-col gap-[2px] leading-tight">
                 ALL BETS
-                <span className="text-[0.78rem] font-semibold text-white/60">{bets.length}</span>
+                <span className="text-[0.66rem] font-semibold text-white/60">{bets.length}</span>
               </span>
-              <span className="flex flex-col items-end leading-tight">
+              <span className="flex flex-col items-end gap-[2px] leading-tight">
                 <span>Users</span>
-                <span className="text-[0.78rem] font-semibold text-white/60">{bets.length.toLocaleString()}</span>
+                <span className="text-[0.66rem] font-semibold text-white/60">{bets.length.toLocaleString()}</span>
               </span>
             </div>
           ) : null}
 
           {tab === "my" ? (
-            <div className="mt-3 flex items-start justify-between text-[0.82rem] font-bold text-white/85">
-              <span className="flex flex-col leading-tight">
+            <div className="mt-[10px] flex items-start justify-between text-[0.7rem] font-bold text-white/85">
+              <span className="flex flex-col gap-[2px] leading-tight">
                 MY BETS
-                <span className="text-[0.78rem] font-semibold text-white/60">
+                <span className="text-[0.66rem] font-semibold text-white/60">
                   {myBets.length + slots.filter((p) => p.staged || p.active).length}
                 </span>
               </span>
               {embedded ? null : (
-                <span className="flex flex-col items-end leading-tight">
+                <span className="flex flex-col items-end gap-[2px] leading-tight">
                   <span>Balance</span>
-                  <span className="text-[0.78rem] font-semibold text-[#18C800]">{fmt(balance)}</span>
+                  <span className="text-[0.66rem] font-semibold text-[#18C800]">{fmt(balance)}</span>
                 </span>
               )}
             </div>
           ) : null}
 
-          <div className="mt-3 grid grid-cols-[1fr_38px_44px_54px] gap-x-2 border-b border-white/10 px-2 pb-1 text-[0.7rem] font-semibold text-white/40">
+          <div className="mt-[8px] grid grid-cols-[1fr_38px_44px_54px] gap-x-2 border-b border-white/10 px-2 pb-[3px] text-[0.58rem] font-semibold text-white/40">
             <span>{tab === "my" ? "Round" : "User"}</span>
             <span>Bet</span>
             <span>X</span>
             <span className="text-right">Cash out</span>
           </div>
+
 
           <div
             className="flex h-[360px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-2 lg:h-0 lg:min-h-0"
