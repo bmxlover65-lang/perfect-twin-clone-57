@@ -345,7 +345,7 @@ function MobileBetSlot({
   };
 
   return (
-    <div className="flex min-h-[174px] min-w-0 flex-col items-center gap-[3px]">
+    <div className="flex min-w-0 flex-col items-center gap-[3px]">
       <div className="flex h-[18px] items-center gap-[12px]">
         <span className="text-[0.6rem] font-bold leading-none text-white">Auto</span>
         <button
@@ -394,8 +394,7 @@ function MobileBetSlot({
         {canCash ? "Cash Out" : pending ? "Cancel" : "Cash In"}
       </button>
 
-      {/* Fixed-height slot so toggling Auto never shifts the layout above. */}
-      <div className={`mt-[2px] flex h-[25px] w-[105px] items-center gap-[5px] ${state.auto ? "" : "invisible"}`}>
+      {state.auto ? <div className="mt-[2px] flex h-[25px] w-[105px] items-center gap-[5px]">
         <button
           type="button"
           onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
@@ -431,7 +430,7 @@ function MobileBetSlot({
             ×
           </button>
         </div>
-      </div>
+      </div> : null}
 
 
 
@@ -511,7 +510,7 @@ function MobileBetRow({
   const [editing, setEditing] = useState(false);
   const [custom, setCustom] = useState("");
   return (
-    <div className="rounded-[10px] bg-[#0D0E10] px-[8px] pb-[5px] pt-[4px] sm:hidden">
+    <div className="rounded-[10px] bg-[#0D0E10] px-[8px] pb-[6px] pt-[5px] sm:hidden">
       {editing ? (
         <div className="mb-[8px] flex items-center justify-center gap-2">
           <input
@@ -537,7 +536,7 @@ function MobileBetRow({
           </button>
         </div>
       ) : null}
-      <div className="flex items-start justify-between gap-[5px]">
+      <div className="grid grid-cols-[1fr_49px_1fr] items-start gap-[5px]">
         <MobileBetSlot
           state={slots[0]!}
           setState={(fn) => setSlot(0, fn)}
