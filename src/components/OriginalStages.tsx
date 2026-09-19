@@ -883,7 +883,7 @@ export function BalloonStage({
         {/* sky artwork — parallax: the ground drops away as the balloon climbs */}
         <div className="absolute inset-0 overflow-hidden">
           <img
-            src={LOCATIONS[bgIndex]!.url}
+            src={(flying || popped ? LOCATIONS[bgIndex] : loc2)!.url}
             alt=""
             className="absolute inset-x-0 bottom-[92px] h-auto w-full object-contain object-bottom opacity-95 sm:bottom-[150px]"
             style={{
@@ -973,9 +973,9 @@ export function BalloonStage({
 
         {/* The Royal game keeps the balloon visible through flight, result and countdown. */}
           <div
-            className="absolute left-1/2 z-10 w-[40%] min-w-[124px] max-w-[220px] sm:w-[25%] sm:min-w-[158px]"
+            className={`absolute left-1/2 z-10 ${flying || popped ? "w-[40%] min-w-[124px] max-w-[220px] sm:w-[25%] sm:min-w-[158px]" : "w-[44%] min-w-[142px] max-w-[230px] sm:w-[27%] sm:min-w-[170px]"}`}
             style={{
-              top: flying || popped ? undefined : "5.5%",
+              top: flying || popped ? undefined : "4%",
               bottom: flying || popped ? `${31 + grow * 8}%` : undefined,
               transform: "translateX(-50%)",
               transition: "bottom 240ms linear, top 240ms linear, transform 240ms linear",
@@ -990,7 +990,7 @@ export function BalloonStage({
               style={{ filter: "drop-shadow(0 14px 20px rgba(0,0,0,0.28))" }}
             />
             {/* burner flame — small flame coming out of the black burner above the basket */}
-            <div
+            {flying ? <div
               className="pointer-events-none absolute left-1/2 z-20"
               style={{
                 bottom: "13%",
@@ -1027,7 +1027,7 @@ export function BalloonStage({
                   fillOpacity="0.92"
                 />
               </svg>
-            </div>
+            </div> : null}
             {flying || popped ? (
               <p
                 className="absolute left-1/2 top-[36%] w-[120%] -translate-x-1/2 text-center text-[clamp(1.65rem,5.3vw,3.3rem)] font-extrabold leading-none text-white"
