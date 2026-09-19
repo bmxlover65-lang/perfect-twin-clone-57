@@ -422,16 +422,16 @@
 .balloon-cloud-fall { animation: balloon-cloud-fall 15s ease-in-out both; }
 
 .balloon-bet-dock {
-  background: transparent;
-  box-shadow: none;
+  background: linear-gradient(180deg, color-mix(in oklab, oklch(0.25 0.06 285) 22%, transparent), color-mix(in oklab, oklch(0.2 0.05 285) 34%, transparent));
+  box-shadow: inset 0 1px 0 color-mix(in oklab, white 22%, transparent);
   backdrop-filter: none;
 }
 
 .balloon-stake {
-  border: 1px solid color-mix(in oklab, white 92%, transparent);
+  border: 1px solid color-mix(in oklab, white 82%, transparent);
   color: white;
-  background: linear-gradient(180deg, oklch(0.36 0.12 254), oklch(0.24 0.1 254));
-  box-shadow: 0 1px 2px color-mix(in oklab, black 45%, transparent), inset 0 1px 0 color-mix(in oklab, white 22%, transparent);
+  background: linear-gradient(180deg, oklch(0.42 0.12 254) 0%, oklch(0.3 0.11 254) 52%, oklch(0.21 0.09 254) 100%);
+  box-shadow: 0 1px 2px color-mix(in oklab, black 50%, transparent), inset 0 1px 0 color-mix(in oklab, white 34%, transparent);
 }
 
 @keyframes scale-in {

@@ -1193,7 +1193,7 @@ export function BalloonStage({
                     key={s}
                     type="button"
                     onClick={() => setStake(s)}
-                    className={`balloon-stake h-[19px] w-[54px] rounded-full text-[0.6rem] font-extrabold transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
+                    className={`balloon-stake h-[18px] w-[55px] rounded-full text-[0.6rem] font-extrabold transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
                       stake === s ? "ring-2 ring-[#E01E1E]" : s < 100 ? "opacity-65" : ""
                     }`}
                   >
@@ -1240,7 +1240,7 @@ export function BalloonStage({
           </div>
 
           {/* heat buttons — bet / queue for next round / cash out */}
-          <div className="ml-auto grid h-[84px] w-[92px] max-w-[100px] shrink-0 grid-rows-2 gap-[6px] sm:h-[136px] sm:w-[24%] sm:min-w-[150px] sm:max-w-none sm:gap-2">
+          <div className="ml-auto grid h-[86px] w-[97px] max-w-[100px] shrink-0 grid-rows-2 gap-[6px] sm:h-[136px] sm:w-[24%] sm:min-w-[150px] sm:max-w-none sm:gap-2">
             {([0, 1] as const).map((i) => {
               const bet = bets[i];
               const fl = flash[i];
