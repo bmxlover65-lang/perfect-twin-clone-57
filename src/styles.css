@@ -422,8 +422,8 @@
 .balloon-cloud-fall { animation: balloon-cloud-fall 15s ease-in-out both; }
 
 .balloon-bet-dock {
-  background: linear-gradient(180deg, color-mix(in oklab, oklch(0.25 0.06 285) 22%, transparent), color-mix(in oklab, oklch(0.2 0.05 285) 34%, transparent));
-  box-shadow: inset 0 1px 0 color-mix(in oklab, white 22%, transparent);
+  background: linear-gradient(180deg, color-mix(in oklab, oklch(0.31 0.055 224) 88%, transparent), color-mix(in oklab, oklch(0.26 0.05 224) 92%, transparent));
+  box-shadow: inset 0 1px 0 color-mix(in oklab, white 16%, transparent), 0 2px 5px color-mix(in oklab, black 28%, transparent);
   backdrop-filter: none;
 }
 

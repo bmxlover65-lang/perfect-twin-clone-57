@@ -83,6 +83,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Balloon: use the matching mountain scene during countdown, enlarge the waiting balloon and hide the burner flame until flight
 - [x] Balloon: attach the plane image itself to the exact animated trail path so the line stays connected behind it
 - [x] Balloon: reduce and lower the waiting balloon, slow the descending scenery, keep compact clouds at the top, delay the plane entrance, and lighten the control backdrop
+- [x] Balloon: match the supplied betting panel's exact 327px proportions, Auto positions, stake/action spacing and HEAT sizing
 
 ## Phase 7 — Royal444 full casino structure parity (pending reference access)
 - [ ] Audit the reference casino lobby and every casino game page at mobile width
