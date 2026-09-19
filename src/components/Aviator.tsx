@@ -838,6 +838,9 @@ function FlightStage({
   const area = `${path} L ${x},${y0} Z`;
   const planeW = 84;
   const planeH = planeW * (74 / 150);
+  // flying plane is noticeably bigger than the parked waiting plane
+  const flyPlaneW = 132;
+  const flyPlaneH = flyPlaneW * (74 / 150);
   return (
     <div className="relative overflow-hidden rounded-[13px] border border-[#2B2D31] bg-black">
       {/* spribe-style rotating sun rays from the bottom-left */}
