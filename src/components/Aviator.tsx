@@ -891,18 +891,19 @@ function FlightStage({
     <div className="relative overflow-hidden rounded-[13px] border border-[#2B2D31] bg-black">
       {/* spribe-style rotating sun rays from the bottom-left */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -bottom-[22%] -left-[18%] h-[76%] w-[76%] rounded-full bg-[radial-gradient(circle,rgba(75,27,110,.58)_0%,rgba(45,14,69,.3)_30%,transparent_69%)]" />
         <div
-          className="absolute left-[6%] top-[96%] h-[1100px] w-[1100px] -translate-x-1/2 -translate-y-1/2 opacity-90"
+          className="absolute left-[4%] top-[96%] h-[1100px] w-[1100px] -translate-x-1/2 -translate-y-1/2 opacity-90"
           style={{
             background:
-              "repeating-conic-gradient(from 0deg, #21102F 0deg 6.5deg, #030305 6.5deg 13deg)",
+              "repeating-conic-gradient(from 0deg, rgba(31,35,40,.92) 0deg 6.5deg, rgba(1,2,3,.98) 6.5deg 13deg)",
             borderRadius: "9999px",
-            maskImage: "radial-gradient(circle, #000 0%, #000 52%, transparent 82%)",
-            WebkitMaskImage: "radial-gradient(circle, #000 0%, #000 52%, transparent 82%)",
-            animation: "av-spin 90s linear infinite",
-            animationPlayState: phase === "flying" ? "running" : "paused",
+            maskImage: "radial-gradient(circle, #000 0%, #000 58%, transparent 88%)",
+            WebkitMaskImage: "radial-gradient(circle, #000 0%, #000 58%, transparent 88%)",
+            animation: "av-spin 36s linear infinite",
           }}
         />
+        <div className="absolute bottom-[2%] left-[1%] h-[18px] w-[18px] rounded-full bg-[radial-gradient(circle,rgba(187,118,255,.5)_0%,rgba(114,52,169,.24)_38%,transparent_72%)] blur-[1px]" />
       </div>
       <style>{`@keyframes av-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes av-prop{to{transform:rotate(360deg)}}
