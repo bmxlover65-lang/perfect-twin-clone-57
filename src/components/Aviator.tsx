@@ -838,7 +838,6 @@ function FlightStage({
   const area = `${path} L ${x},${y0} Z`;
   const planeW = 170;
   const planeH = planeW * (74 / 150);
-  const graphTick = (t / 22) % 62;
   return (
     <div className="relative overflow-hidden rounded-[13px] border border-[#2B2D31] bg-black">
       {/* spribe-style rotating sun rays from the bottom-left */}
@@ -881,11 +880,11 @@ function FlightStage({
 
         <line x1="18" y1={H - 18} x2={W - 18} y2={H - 18} stroke="#ffffff22" strokeWidth="2" />
         <line x1="18" y1="18" x2="18" y2={H - 18} stroke="#ffffff22" strokeWidth="2" />
-        {/* Plot marks move only while the round is live. */}
+        {/* Plot marks stay fixed while the plane and curve move. */}
         {Array.from({ length: 12 }).map((_, i) => (
           <circle
             key={`bx${i}`}
-            cx={42 + ((i * 62 - (phase === "flying" ? graphTick : 0) + 744) % 744)}
+            cx={42 + i * 62}
             cy={H - 18}
             r="2.5"
             fill="#ffffff35"
@@ -894,7 +893,7 @@ function FlightStage({
         {Array.from({ length: 5 }).map((_, i) => (
           <circle
             key={`by${i}`}
-            cy={H - 62 - ((i * 55 + (phase === "flying" ? graphTick : 0)) % 275)}
+            cy={H - 62 - i * 55}
             cx="18"
             r="2.5"
             fill="#20BFFF"
