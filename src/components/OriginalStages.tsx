@@ -858,10 +858,10 @@ export function BalloonStage({
   const seedHist = [1.81, 5.68, 2.58, 1.12, 1.15, 3.88, 2.59, 1.3, 1.25, 1.03];
   const histList = (history.length ? history : seedHist).slice(0, 12);
   const crowd = [
-    { icon: "🧑🏻", name: "a••••••7", amount: 500 },
-    { icon: "🧑🏽", name: "p•••••g", amount: 100 },
-    { icon: "🧑🏼", name: "p•••••s", amount: 100 },
-    { icon: "🧑🏾", name: "h••••••o", amount: 100 },
+    { name: "a••••••7", amount: 500, tone: "bg-[#D85C45]" },
+    { name: "p•••••g", amount: 100, tone: "bg-[#5B9B4A]" },
+    { name: "p•••••s", amount: 100, tone: "bg-[#E1AF31]" },
+    { name: "h••••••o", amount: 100, tone: "bg-[#955338]" },
   ];
 
 
@@ -1086,8 +1086,8 @@ export function BalloonStage({
                 className="flex h-[17px] items-center text-[0.48rem] font-extrabold text-[#17251E] drop-shadow-[0_1px_0_rgba(255,255,255,0.45)]"
                 style={{ opacity: 1 - index * 0.06 }}
               >
-                <span className="mr-0.5 grid h-[14px] w-[14px] place-items-center rounded-full bg-white/45 text-[0.58rem]">
-                  {person.icon}
+                <span className={`mr-0.5 grid h-[14px] w-[14px] place-items-center rounded-full ring-1 ring-white/60 ${person.tone}`}>
+                  <img src={profileIcon.url} alt="" className="h-[9px] w-[9px] brightness-0 invert" />
                 </span>
                 <span className="w-[44px] truncate">{person.name}</span>
                 <span className="ml-1 tabular-nums">{person.amount.toFixed(2)}</span>
