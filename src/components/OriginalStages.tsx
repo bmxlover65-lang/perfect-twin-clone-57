@@ -929,7 +929,7 @@ export function BalloonStage({
                   src={balloonStars.url}
                   alt=""
                   aria-hidden="true"
-                  className="absolute inset-x-[7%] top-0 h-[60%] w-[86%] object-cover opacity-38"
+                  className="absolute inset-x-[7%] top-0 h-[60%] w-[86%] object-cover opacity-[0.38]"
                 />
                 <img
                   src={balloonClouds.url}
