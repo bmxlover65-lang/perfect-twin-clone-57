@@ -883,11 +883,11 @@ export function BalloonStage({
         {/* sky artwork — parallax: the ground drops away as the balloon climbs */}
         <div className="absolute inset-0 overflow-hidden">
           <img
-            src={LOCATIONS[bgIndex]!.url}
+            src={(flying || popped ? LOCATIONS[bgIndex] : loc2)!.url}
             alt=""
-            className="absolute inset-x-0 bottom-0 h-[210%] w-full object-cover object-bottom opacity-95"
+            className="absolute inset-x-0 bottom-[92px] h-auto w-full object-contain object-bottom opacity-95 sm:bottom-[150px]"
             style={{
-              transform: `translateY(${grow * 150}%)`,
+              transform: `translateY(${grow * 115}%)`,
               transition: "transform 200ms linear",
             }}
           />
@@ -973,11 +973,12 @@ export function BalloonStage({
 
         {/* The Royal game keeps the balloon visible through flight, result and countdown. */}
           <div
-            className="absolute left-1/2 z-10 w-[40%] min-w-[124px] max-w-[220px] sm:w-[25%] sm:min-w-[158px]"
+            className={`absolute left-1/2 z-10 ${flying || popped ? "w-[40%] min-w-[124px] max-w-[220px] sm:w-[25%] sm:min-w-[158px]" : "w-[44%] min-w-[142px] max-w-[230px] sm:w-[27%] sm:min-w-[170px]"}`}
             style={{
-              bottom: `${31 + grow * 8}%`,
+              top: flying || popped ? undefined : "0%",
+              bottom: flying || popped ? `${31 + grow * 8}%` : undefined,
               transform: "translateX(-50%)",
-              transition: "bottom 240ms linear, transform 240ms linear",
+              transition: "bottom 240ms linear, top 240ms linear, transform 240ms linear",
             }}
           >
 
@@ -989,7 +990,7 @@ export function BalloonStage({
               style={{ filter: "drop-shadow(0 14px 20px rgba(0,0,0,0.28))" }}
             />
             {/* burner flame — small flame coming out of the black burner above the basket */}
-            <div
+            {flying ? <div
               className="pointer-events-none absolute left-1/2 z-20"
               style={{
                 bottom: "13%",
@@ -1026,7 +1027,7 @@ export function BalloonStage({
                   fillOpacity="0.92"
                 />
               </svg>
-            </div>
+            </div> : null}
             {flying || popped ? (
               <p
                 className="absolute left-1/2 top-[36%] w-[120%] -translate-x-1/2 text-center text-[clamp(1.65rem,5.3vw,3.3rem)] font-extrabold leading-none text-white"
@@ -1039,11 +1040,11 @@ export function BalloonStage({
               </p>
             ) : (
               <div className="absolute left-1/2 top-[32%] w-[110%] -translate-x-1/2 text-center">
-                <p className="text-[clamp(0.85rem,2.2vw,1.35rem)] font-extrabold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
+                <p className="whitespace-nowrap text-[clamp(0.67rem,2.2vw,1.2rem)] font-extrabold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
                   Waiting For Next Round
                 </p>
                 <span
-                  className="mt-3 inline-grid h-12 w-12 place-items-center rounded-full sm:h-14 sm:w-14"
+                  className="mt-2 inline-grid h-12 w-12 place-items-center rounded-full sm:h-14 sm:w-14"
                   style={{
                     background: `conic-gradient(#63F22E ${(Math.min(8, Math.max(0, wait)) / 8) * 360}deg, rgba(0,0,0,0.18) 0deg)`,
                     padding: 3,
