@@ -409,6 +409,7 @@
 
 .balloon-plane-run {
   offset-path: path("M -34 143 C 76 151, 151 143, 226 120 S 317 92, 390 111");
+  offset-anchor: 16% 52%;
   offset-rotate: 0deg;
   animation: balloon-plane-run 8.5s linear both;
 }

@@ -935,7 +935,13 @@ export function BalloonStage({
                   src={balloonClouds.url}
                   alt=""
                   aria-hidden="true"
-                  className="absolute inset-x-[8%] bottom-0 h-[62%] w-[84%] object-fill opacity-70"
+                  className="absolute left-[7%] top-[9%] h-[34%] w-[28%] object-cover opacity-65"
+                />
+                <img
+                  src={balloonClouds.url}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute right-[10%] bottom-[8%] h-[29%] w-[23%] object-cover opacity-58"
                 />
               </div>
               <div className="balloon-plane-flight pointer-events-none absolute inset-x-0 bottom-[25%] h-[31%] overflow-visible">
