@@ -1140,14 +1140,14 @@ export function BalloonStage({
         {betOk ? <SuccessToast message={betOk} onDone={() => setBetOk(null)} /> : null}
 
         {/* compact Royal-style betting dock */}
-        <div className="balloon-bet-dock absolute inset-x-0 bottom-[34px] z-20 mx-auto flex w-[min(327px,calc(100%-8px))] items-end gap-[24px] rounded-[13px] px-[6px] pb-[5px] pt-[7px] sm:bottom-[44px] sm:w-[min(620px,calc(100%-24px))] sm:gap-4 sm:px-4 sm:pb-4">
+        <div className="balloon-bet-dock absolute inset-x-0 bottom-[34px] z-20 mx-auto flex w-[min(327px,calc(100%-8px))] items-end gap-[10px] rounded-[13px] px-[6px] pb-[5px] pt-[7px] sm:bottom-[44px] sm:w-[min(620px,calc(100%-24px))] sm:gap-4 sm:px-4 sm:pb-4">
           {/* left cluster: auto toggles + stakes + edits/clear/min/max */}
           <div className="shrink-0">
-            <div className="mb-[4px] grid w-[218px] grid-cols-[141px_77px] items-center sm:w-[370px] sm:grid-cols-[250px_120px]">
+            <div className="mb-[4px] grid w-[181px] grid-cols-[115px_66px] items-center sm:w-[370px] sm:grid-cols-[250px_120px]">
               {([0, 1] as const).map((i) => (
                 <div
                   key={i}
-                  className={`flex w-[77px] items-center justify-between text-white ${i === 0 ? "pl-[2px]" : "sm:w-[110px]"}`}
+                  className={`flex w-[66px] items-center justify-between text-white ${i === 0 ? "pl-[2px]" : "sm:w-[110px]"}`}
                 >
                   <button
                     type="button"
