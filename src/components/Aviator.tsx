@@ -397,33 +397,122 @@ function MobileBetSlot({
   );
 }
 
-/** Center column actions for the mobile betting controls — just Min / Max like the original. */
+/** Center column actions for the mobile betting controls — Edit / Clear / Min / Max. */
 function MobileCenterActions({
   setSlot,
+  editing,
+  setEditing,
 }: {
   setSlot: (i: number, fn: (p: PanelState) => PanelState) => void;
+  editing: boolean;
+  setEditing: (v: boolean) => void;
 }) {
   const both = (fn: (p: PanelState) => PanelState) => {
     setSlot(0, fn);
     setSlot(1, fn);
   };
-  const btn =
-    "h-[30px] w-[64px] rounded-full border border-[#4A4E55] bg-[#17191C] text-[0.78rem] font-semibold leading-none text-[#C6C9CE]";
+  const base =
+    "h-[22px] w-[54px] rounded-full text-[0.74rem] font-bold leading-none shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.28)]";
+  const outline = `${base} border border-[#4A4E55] bg-[#17191C] text-[#C6C9CE]`;
   return (
-    <div className="flex flex-col items-center justify-center gap-[10px] self-stretch">
-      <button type="button" onClick={() => both((p) => ({ ...p, amount: 10 }))} className={btn}>
+    <div className="flex flex-col items-center gap-[7px] pt-[26px]">
+      <button
+        type="button"
+        onClick={() => setEditing(!editing)}
+        className={`${base} border border-[#8A4A05] bg-[linear-gradient(180deg,#F5A63A_0%,#E8871E_52%,#C26A0C_100%)] text-white`}
+      >
+        Edit
+      </button>
+      <button
+        type="button"
+        onClick={() => both((p) => ({ ...p, amount: 10, staged: false }))}
+        className={`${base} border border-[#7C0B0B] bg-[linear-gradient(180deg,#F04A4A_0%,#DE1C1C_52%,#A81010_100%)] text-white`}
+      >
+        Clear
+      </button>
+      <button type="button" onClick={() => both((p) => ({ ...p, amount: 10 }))} className={outline}>
         Min
       </button>
       <button
         type="button"
         onClick={() => both((p) => ({ ...p, amount: 10000 }))}
-        className={btn}
+        className={outline}
       >
         Max
       </button>
     </div>
   );
 }
+
+/** Mobile betting row: two slots + center Edit/Clear/Min/Max column. */
+function MobileBetRow({
+  slots,
+  setSlot,
+  phase,
+  multiplier,
+  onWin,
+  balance,
+}: {
+  slots: PanelState[];
+  setSlot: (i: number, fn: (p: PanelState) => PanelState) => void;
+  phase: Phase;
+  multiplier: number;
+  onWin: (amount: number) => void;
+  balance: number;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [custom, setCustom] = useState("");
+  return (
+    <div className="rounded-[10px] bg-[#0D0E10] p-[8px] sm:hidden">
+      {editing ? (
+        <div className="mb-[8px] flex items-center justify-center gap-2">
+          <input
+            type="number"
+            value={custom}
+            placeholder="Custom amount"
+            onChange={(e) => setCustom(e.target.value)}
+            className="h-[28px] w-[150px] rounded-[8px] bg-[#17191C] px-3 text-center text-[0.76rem] font-semibold text-white outline-none"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              const v = Number(custom);
+              if (Number.isFinite(v) && v >= 10) {
+                setSlot(0, (p) => ({ ...p, amount: v }));
+                setSlot(1, (p) => ({ ...p, amount: v }));
+              }
+              setEditing(false);
+            }}
+            className="h-[28px] rounded-[8px] bg-[#16A62A] px-3 text-[0.74rem] font-semibold text-white"
+          >
+            Apply
+          </button>
+        </div>
+      ) : null}
+      <div className="flex items-start justify-between gap-[6px]">
+        <MobileBetSlot
+          state={slots[0]!}
+          setState={(fn) => setSlot(0, fn)}
+          phase={phase}
+          multiplier={multiplier}
+          onWin={onWin}
+          balance={balance}
+        />
+        <MobileCenterActions setSlot={setSlot} editing={editing} setEditing={setEditing} />
+        <MobileBetSlot
+          state={slots[1]!}
+          setState={(fn) => setSlot(1, fn)}
+          phase={phase}
+          multiplier={multiplier}
+          onWin={onWin}
+          balance={balance}
+        />
+      </div>
+    </div>
+  );
+}
+
+
 
 /* ---------------- desktop bet board (Bet | Auto tabs) ---------------- */
 
@@ -1594,26 +1683,15 @@ export function Aviator() {
 
           <div className="bg-[#111315] p-2 sm:rounded-[12px] sm:border sm:border-[#292D32] sm:p-4 lg:flex lg:flex-1 lg:flex-col lg:justify-start">
             {/* mobile: left presets | center actions | right presets */}
-            <div className="flex items-start justify-between gap-[6px] rounded-[10px] bg-[#0D0E10] p-[8px] sm:hidden">
+            <MobileBetRow
+              slots={slots}
+              setSlot={setSlot}
+              phase={phase}
+              multiplier={multiplier}
+              onWin={win}
+              balance={balance}
+            />
 
-              <MobileBetSlot
-                state={slots[0]!}
-                setState={(fn) => setSlot(0, fn)}
-                phase={phase}
-                multiplier={multiplier}
-                onWin={win}
-                balance={balance}
-              />
-              <MobileCenterActions setSlot={setSlot} />
-              <MobileBetSlot
-                state={slots[1]!}
-                setState={(fn) => setSlot(1, fn)}
-                phase={phase}
-                multiplier={multiplier}
-                onWin={win}
-                balance={balance}
-              />
-            </div>
 
 
             <div className="mt-2 hidden sm:mt-3 sm:block">
