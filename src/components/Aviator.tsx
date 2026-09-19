@@ -836,7 +836,7 @@ function FlightStage({
   const c2y = y0 - (y0 - y) * 0.42;
   const path = `M${x0},${y0} C ${c1x},${c1y} ${c2x},${c2y} ${x},${y}`;
   const area = `${path} L ${x},${y0} Z`;
-  const planeW = 170;
+  const planeW = 145;
   const planeH = planeW * (74 / 150);
   return (
     <div className="relative overflow-hidden rounded-[13px] border border-[#2B2D31] bg-black">
@@ -910,6 +910,7 @@ function FlightStage({
             y={H - 24 - planeH}
             width={planeW}
             height={planeH}
+            transform={`rotate(8 ${-planeW * 0.1 + planeW / 2} ${H - 24 - planeH / 2})`}
             opacity={0.95}
           />
         ) : null}
@@ -932,6 +933,7 @@ function FlightStage({
               y={py - planeH * 0.6}
               width={planeW}
               height={planeH}
+              transform={`rotate(8 ${px - planeW * 0.12 + planeW / 2} ${py - planeH * 0.6 + planeH / 2})`}
             />
 
 
