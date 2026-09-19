@@ -1193,7 +1193,7 @@ export function BalloonStage({
                     key={s}
                     type="button"
                     onClick={() => setStake(s)}
-                    className={`balloon-stake h-[19px] w-[54px] rounded-full text-[0.6rem] font-extrabold transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
+                    className={`balloon-stake h-[18px] w-[55px] rounded-full text-[0.6rem] font-extrabold transition-transform active:scale-95 sm:h-8 sm:w-[150px] sm:text-[0.95rem] ${
                       stake === s ? "ring-2 ring-[#E01E1E]" : s < 100 ? "opacity-65" : ""
                     }`}
                   >
@@ -1204,17 +1204,33 @@ export function BalloonStage({
               <div className="grid w-[52px] gap-[3px] sm:w-[110px] sm:gap-1.5">
                 {(
                   [
-                    ["Edits", 100, "bg-[#E8871E] text-white"],
-                    ["Clear", 0, "bg-[#E01E1E] text-white"],
-                    ["Min", 100, "border border-white/70 bg-[#281334] text-white/80"],
-                    ["Max", 10000, "border border-white/70 bg-[#281334] text-white/80"],
+                    [
+                      "Edits",
+                      100,
+                      "border border-[#8A4A05] bg-[linear-gradient(180deg,#F5A63A_0%,#E8871E_52%,#C26A0C_100%)] text-white",
+                    ],
+                    [
+                      "Clear",
+                      0,
+                      "border border-[#7C0B0B] bg-[linear-gradient(180deg,#F04A4A_0%,#DE1C1C_52%,#A81010_100%)] text-white",
+                    ],
+                    [
+                      "Min",
+                      100,
+                      "border border-white/55 bg-[linear-gradient(180deg,#4A2A58_0%,#33193F_55%,#241029_100%)] text-white/85",
+                    ],
+                    [
+                      "Max",
+                      10000,
+                      "border border-white/55 bg-[linear-gradient(180deg,#4A2A58_0%,#33193F_55%,#241029_100%)] text-white/85",
+                    ],
                   ] as const
                 ).map(([label, val, tone]) => (
                   <button
                     key={label}
                     type="button"
                     onClick={() => setStake(val)}
-                    className={`h-[19px] rounded-full text-[0.58rem] font-extrabold shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-transform active:scale-95 sm:h-8 sm:text-[0.9rem] ${tone}`}
+                    className={`h-[19px] rounded-full text-[0.58rem] font-extrabold shadow-[0_1px_2px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.35)] transition-transform active:scale-95 sm:h-8 sm:text-[0.9rem] ${tone}`}
                   >
                     {label}
                   </button>
@@ -1224,7 +1240,7 @@ export function BalloonStage({
           </div>
 
           {/* heat buttons — bet / queue for next round / cash out */}
-          <div className="ml-auto grid h-[84px] w-[92px] max-w-[100px] shrink-0 grid-rows-2 gap-[6px] sm:h-[136px] sm:w-[24%] sm:min-w-[150px] sm:max-w-none sm:gap-2">
+          <div className="ml-auto grid h-[86px] w-[97px] max-w-[100px] shrink-0 grid-rows-2 gap-[6px] sm:h-[136px] sm:w-[24%] sm:min-w-[150px] sm:max-w-none sm:gap-2">
             {([0, 1] as const).map((i) => {
               const bet = bets[i];
               const fl = flash[i];
@@ -1237,7 +1253,7 @@ export function BalloonStage({
                   onClick={() => pressHeat(i)}
                   disabled={blocked}
                   aria-label={blocked ? "Betting locked" : live ? "Cash out" : "Place heat bet"}
-                  className={`relative flex h-full items-center justify-center gap-1 rounded-[7px] border-2 border-[#101B16] text-[0.8rem] font-extrabold text-white ring-1 ring-inset ring-white/35 transition-transform active:translate-y-[2px] active:shadow-none sm:gap-3 sm:text-[1.15rem] ${
+                  className={`relative flex h-full items-center justify-center gap-1 rounded-[7px] border-2 border-[#0C2A14] text-[0.95rem] font-extrabold text-white ring-1 ring-inset ring-white/35 transition-transform active:translate-y-[2px] active:shadow-none sm:gap-3 sm:text-[1.15rem] ${
                     blocked
                       ? "cursor-not-allowed bg-[linear-gradient(180deg,#259A42_0%,#14752C_52%,#07551B_100%)] shadow-[0_3px_0_#063B13]"
                       : live
@@ -1263,7 +1279,7 @@ export function BalloonStage({
                     </span>
                   ) : (
                     <>
-                      <img src={heatIcon.url} alt="" className="h-8 w-8 sm:h-8 sm:w-8" />
+                      <img src={heatIcon.url} alt="" className="h-[25px] w-[25px] sm:h-8 sm:w-8" />
                       HEAT
                     </>
                   )}
