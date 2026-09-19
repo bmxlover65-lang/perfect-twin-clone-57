@@ -345,34 +345,34 @@ function MobileBetSlot({
   };
 
   return (
-    <div className="flex min-w-0 flex-col items-center gap-[5px]">
+    <div className="flex min-w-0 flex-col items-center gap-[6px]">
       <div className="flex items-center gap-[6px]">
-        <span className="text-[0.72rem] font-bold text-white">Auto</span>
+        <span className="text-[0.62rem] font-bold leading-none text-white">Auto</span>
         <button
           type="button"
           onClick={() => setState((p) => ({ ...p, auto: !p.auto, mode: !p.auto ? "auto" : "bet" }))}
           aria-pressed={state.auto}
-          className={`relative h-[18px] w-[38px] shrink-0 rounded-full border border-[#4A4E55] transition-colors ${
-            state.auto ? "bg-[#16A62A]" : "bg-[#17191C]"
+          className={`relative h-[16px] w-[31px] shrink-0 rounded-full border border-[#55595F] transition-colors ${
+            state.auto ? "bg-[#16A62A]" : "bg-[#1B1D20]"
           }`}
         >
           <span
-            className={`absolute top-[2px] h-[12px] w-[12px] rounded-full bg-white transition-all ${
-              state.auto ? "left-[23px]" : "left-[3px]"
+            className={`absolute top-[2px] h-[10px] w-[10px] rounded-full bg-white transition-all ${
+              state.auto ? "left-[18px]" : "left-[3px]"
             }`}
           />
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-[4px]">
+      <div className="grid grid-cols-2 gap-x-[5px] gap-y-[5px]">
         {MOBILE_PRESETS.map((q) => (
           <button
             key={q}
             type="button"
             disabled={locked}
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`h-[20px] w-[57px] rounded-full border bg-[#17191C] text-[0.69rem] font-semibold leading-none disabled:opacity-40 ${
-              state.amount === q ? "border-[#F20000] text-white" : "border-[#4A4E55] text-[#D2D4D9]"
+            className={`h-[19px] w-[54px] rounded-full border bg-[linear-gradient(180deg,#26292D_0%,#1A1C1F_55%,#141618_100%)] text-[0.62rem] font-semibold leading-none disabled:opacity-40 ${
+              state.amount === q ? "border-[#F20000] text-white" : "border-[#55595F] text-[#D2D4D9]"
             }`}
           >
             {q}
@@ -383,10 +383,17 @@ function MobileBetSlot({
       <button
         type="button"
         onClick={press}
-        className={`h-[44px] w-[118px] rounded-[8px] text-[0.95rem] font-bold text-white ${tone}`}
+        className={`h-[40px] w-[105px] rounded-[8px] border text-[0.9rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.22)] ${
+          canCash
+            ? "border-[#8A5A05] bg-[linear-gradient(180deg,#FFBC4B_0%,#F59E0B_55%,#C87C05_100%)]"
+            : pending
+              ? "border-[#7C0B0B] bg-[linear-gradient(180deg,#FF5A5A_0%,#EF0000_55%,#A80000_100%)]"
+              : "border-[#0C5417] bg-[linear-gradient(180deg,#27C63E_0%,#16A62A_55%,#0B7A1B_100%)]"
+        }`}
       >
         {canCash ? "Cash Out" : pending ? "Cancel" : "Cash In"}
       </button>
+
 
       {state.cashedAt ? (
         <p className="text-center text-[0.6rem] font-bold text-[#18B800]">
@@ -412,15 +419,16 @@ function MobileCenterActions({
     setSlot(1, fn);
   };
   const base =
-    "h-[22px] w-[54px] rounded-full text-[0.74rem] font-bold leading-none shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.28)]";
-  const outline = `${base} border border-[#4A4E55] bg-[#17191C] text-[#C6C9CE]`;
+    "h-[19px] w-[54px] rounded-[7px] text-[0.62rem] font-bold leading-none shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.28)]";
+  const outline = `${base} border border-[#55595F] bg-[linear-gradient(180deg,#26292D_0%,#1A1C1F_55%,#141618_100%)] text-[#9BA0A6]`;
   return (
-    <div className="flex flex-col items-center gap-[7px] pt-[26px]">
+    <div className="flex flex-col items-center gap-[7px] pt-[28px]">
       <button
         type="button"
         onClick={() => setEditing(!editing)}
         className={`${base} border border-[#8A4A05] bg-[linear-gradient(180deg,#F5A63A_0%,#E8871E_52%,#C26A0C_100%)] text-white`}
       >
+
         Edit
       </button>
       <button
@@ -1460,13 +1468,13 @@ export function Aviator() {
         {/* bets + chat */}
         <div className="order-2 flex min-w-0 flex-col overflow-hidden bg-[#151618] p-2 lg:order-1 sm:rounded-[14px] sm:border sm:border-[#303238] sm:p-3">
 
-          <div className="mx-auto flex w-full max-w-[300px] rounded-full bg-[#0B0C0E] p-[4px] text-[0.72rem] font-bold text-white/55 sm:w-[86%] sm:text-[0.78rem]">
+          <div className="mx-auto flex w-full max-w-[300px] rounded-full bg-[#0B0C0E] p-[3px] text-[0.62rem] font-bold text-white/55 sm:w-[86%] sm:text-[0.78rem]">
             {([["all", "All Bets"], ["my", "My Bets"]] as const).map(([k, l]) => (
               <button
                 key={k}
                 type="button"
                 onClick={() => setTab(k)}
-                className={`flex-1 rounded-full px-2 py-[5px] ${
+                className={`h-[20px] flex-1 rounded-full px-2 leading-none ${
                   tab === k ? "bg-[#2C2D30] text-white" : ""
                 }`}
               >
@@ -1476,41 +1484,42 @@ export function Aviator() {
           </div>
 
           {tab === "all" ? (
-            <div className="mt-3 flex items-start justify-between text-[0.82rem] font-bold text-white/85">
-              <span className="flex flex-col leading-tight">
+            <div className="mt-[10px] flex items-start justify-between text-[0.7rem] font-bold text-white/85">
+              <span className="flex flex-col gap-[2px] leading-tight">
                 ALL BETS
-                <span className="text-[0.78rem] font-semibold text-white/60">{bets.length}</span>
+                <span className="text-[0.66rem] font-semibold text-white/60">{bets.length}</span>
               </span>
-              <span className="flex flex-col items-end leading-tight">
+              <span className="flex flex-col items-end gap-[2px] leading-tight">
                 <span>Users</span>
-                <span className="text-[0.78rem] font-semibold text-white/60">{bets.length.toLocaleString()}</span>
+                <span className="text-[0.66rem] font-semibold text-white/60">{bets.length.toLocaleString()}</span>
               </span>
             </div>
           ) : null}
 
           {tab === "my" ? (
-            <div className="mt-3 flex items-start justify-between text-[0.82rem] font-bold text-white/85">
-              <span className="flex flex-col leading-tight">
+            <div className="mt-[10px] flex items-start justify-between text-[0.7rem] font-bold text-white/85">
+              <span className="flex flex-col gap-[2px] leading-tight">
                 MY BETS
-                <span className="text-[0.78rem] font-semibold text-white/60">
+                <span className="text-[0.66rem] font-semibold text-white/60">
                   {myBets.length + slots.filter((p) => p.staged || p.active).length}
                 </span>
               </span>
               {embedded ? null : (
-                <span className="flex flex-col items-end leading-tight">
+                <span className="flex flex-col items-end gap-[2px] leading-tight">
                   <span>Balance</span>
-                  <span className="text-[0.78rem] font-semibold text-[#18C800]">{fmt(balance)}</span>
+                  <span className="text-[0.66rem] font-semibold text-[#18C800]">{fmt(balance)}</span>
                 </span>
               )}
             </div>
           ) : null}
 
-          <div className="mt-3 grid grid-cols-[1fr_38px_44px_54px] gap-x-2 border-b border-white/10 px-2 pb-1 text-[0.7rem] font-semibold text-white/40">
+          <div className="mt-[8px] grid grid-cols-[1fr_38px_44px_54px] gap-x-2 border-b border-white/10 px-2 pb-[3px] text-[0.58rem] font-semibold text-white/40">
             <span>{tab === "my" ? "Round" : "User"}</span>
             <span>Bet</span>
             <span>X</span>
             <span className="text-right">Cash out</span>
           </div>
+
 
           <div
             className="flex h-[360px] w-full min-w-0 flex-1 flex-col gap-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-2 lg:h-0 lg:min-h-0"
@@ -1585,20 +1594,20 @@ export function Aviator() {
                   return (
                     <div
                       key={`${b.id}-${i}`}
-                      className={`grid shrink-0 grid-cols-[1fr_38px_44px_54px] items-center gap-x-2 px-2 py-[8px] text-[0.76rem] sm:text-[0.8rem] ${
+                      className={`grid shrink-0 grid-cols-[1fr_38px_44px_54px] items-center gap-x-2 px-2 py-[5px] text-[0.64rem] sm:text-[0.8rem] ${
                         done
                           ? "rounded-[7px] border border-[#3B8F20] bg-[#0D4206] text-white"
                           : "border-b border-white/[0.05] bg-[#131416] text-white/70"
                       }`}
                     >
-                      <span className="flex min-w-0 items-center gap-2">
+                      <span className="flex min-w-0 items-center gap-[6px]">
                         <img
                           src={AVATARS[b.id % AVATARS.length]}
                           alt=""
                           loading="lazy"
                           width={96}
                           height={96}
-                          className="h-[28px] w-[28px] shrink-0 rounded-full object-cover"
+                          className="h-[21px] w-[21px] shrink-0 rounded-full object-cover"
                         />
                         <span className={`truncate ${done ? "font-semibold text-white" : "text-[#7E92B5]"}`}>
                           {maskName(b.user)}
@@ -1607,12 +1616,13 @@ export function Aviator() {
                       <span className={`font-semibold ${done ? "text-white" : "text-white/90"}`}>{b.amount}</span>
 
                       <span
-                        className={`shrink-0 justify-self-start rounded-full px-2 py-[1px] text-[0.68rem] font-bold ${
+                        className={`shrink-0 justify-self-start rounded-full px-2 py-[1px] text-[0.6rem] font-bold ${
                           done ? "border border-[#3B8F20]/60 bg-[#052208] text-[#7CFF56]" : ""
                         }`}
                       >
                         {done ? `${fmt(b.cashedAt!)}x` : ""}
                       </span>
+
                       <span className={`text-right font-bold ${done ? "text-white" : "text-white/25"}`}>
                         {done ? fmt(b.amount * b.cashedAt!) : "—"}
                       </span>
