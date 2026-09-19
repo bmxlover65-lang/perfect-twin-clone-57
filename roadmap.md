@@ -74,6 +74,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Balloon: match supplied mobile result strip, two-row live activity, full scene fit, and compact two-panel betting controls
 - [x] Balloon: remove artificial white sweep, enforce 100 minimum, one bet per panel per round, and reference Auto/control alignment
 - [x] Balloon: move supplied cloud-air, small plane and stars into the Balloon scene with subtle occasional motion; remove them from VIMAAN
+- [x] Balloon: reference flight path — small plane crosses left-to-right on a gentle curve with a drawn air trail; clouds and stars follow the flying phase
 
 ## Phase 7 — Royal444 full casino structure parity (pending reference access)
 - [ ] Audit the reference casino lobby and every casino game page at mobile width

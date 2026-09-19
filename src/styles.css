@@ -386,11 +386,18 @@
   100% { transform: translate3d(115vw, -30%, 0) scaleX(-1); opacity: 0; }
 }
 
-@keyframes balloon-small-plane-pass {
-  0%, 12% { transform: translate3d(-72px, 8px, 0); opacity: 0; }
-  16% { opacity: 0.72; }
-  42% { opacity: 0.72; }
-  48%, 100% { transform: translate3d(calc(100vw + 84px), -12px, 0); opacity: 0; }
+@keyframes balloon-plane-run {
+  0% { offset-distance: 0%; opacity: 0; }
+  5% { opacity: 1; }
+  92% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+
+@keyframes balloon-air-trail-draw {
+  0% { stroke-dashoffset: 560; opacity: 0; }
+  7% { opacity: 0.86; }
+  72% { stroke-dashoffset: 50; opacity: 0.86; }
+  100% { stroke-dashoffset: -100; opacity: 0; }
 }
 
 @keyframes balloon-cloud-air-pass {
@@ -405,9 +412,18 @@
   84% { opacity: 0; transform: translate3d(-4%, 7px, 0); }
 }
 
-.balloon-small-plane { animation: balloon-small-plane-pass 18s linear 3s infinite; }
-.balloon-cloud-air { animation: balloon-cloud-air-pass 16s linear 1s infinite; }
-.balloon-sky-stars { animation: balloon-stars-glint 20s ease-in-out infinite; }
+.balloon-plane-run {
+  offset-path: path("M -34 143 C 76 151, 151 143, 226 120 S 317 92, 390 111");
+  offset-rotate: 0deg;
+  animation: balloon-plane-run 8.5s linear both;
+}
+.balloon-air-trail {
+  stroke-dasharray: 560;
+  stroke-dashoffset: 560;
+  animation: balloon-air-trail-draw 8.5s linear both;
+}
+.balloon-cloud-air { animation: balloon-cloud-air-pass 11s linear both; }
+.balloon-sky-stars { animation: balloon-stars-glint 9s ease-in-out both; }
 
 @keyframes scale-in {
   from { transform: scale(0.6); opacity: 0; }
@@ -539,7 +555,7 @@
   .bbb-rate-plate, .bbb-rate-plate::after, .bbb-result-ball,
   .coin-toss, .coin-flip-heads, .coin-flip-tails, .coin-spin-idle, .coin-winner,
   .coin-bet-plate::after { animation: none; }
-  .balloon-small-plane, .balloon-cloud-air, .balloon-sky-stars { animation: none; }
+  .balloon-plane-run, .balloon-air-trail, .balloon-cloud-air, .balloon-sky-stars { animation: none; }
 }
 
 /* Exchange rate change flash — original site jaisa */

@@ -921,25 +921,43 @@ export function BalloonStage({
                 />
               ))
             : null}
-          {/* supplied Balloon atmosphere: subtle stars, drifting cloud-air and a small occasional plane */}
-          <img
-            src={balloonStars.url}
-            alt=""
-            aria-hidden="true"
-            className="balloon-sky-stars pointer-events-none absolute inset-x-0 top-[7%] h-[27%] w-full object-cover opacity-0"
-          />
-          <img
-            src={balloonClouds.url}
-            alt=""
-            aria-hidden="true"
-            className="balloon-cloud-air pointer-events-none absolute left-0 top-[20%] h-[18%] w-[72%] object-fill opacity-0"
-          />
-          <img
-            src={Math.floor(shown * 10) % 2 === 0 ? balloonPlane.url : balloonPlane2.url}
-            alt=""
-            aria-hidden="true"
-            className="balloon-small-plane pointer-events-none absolute top-[24%] h-auto w-[52px] opacity-0 sm:w-[68px]"
-          />
+          {/* supplied Balloon atmosphere appears only during flight, matching the reference round */}
+          {flying ? (
+            <>
+              <img
+                src={balloonStars.url}
+                alt=""
+                aria-hidden="true"
+                className="balloon-sky-stars pointer-events-none absolute inset-x-0 top-[5%] h-[31%] w-full object-cover opacity-0"
+              />
+              <img
+                src={balloonClouds.url}
+                alt=""
+                aria-hidden="true"
+                className="balloon-cloud-air pointer-events-none absolute left-0 top-[18%] h-[20%] w-[78%] object-fill opacity-0"
+              />
+              <div className="balloon-plane-flight pointer-events-none absolute inset-x-0 bottom-[25%] h-[31%] overflow-visible">
+                <svg viewBox="0 0 337 176" preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible" aria-hidden="true">
+                  <path
+                    className="balloon-air-trail"
+                    d="M -24 143 C 76 151, 151 143, 226 120 S 317 92, 378 111"
+                    fill="none"
+                    stroke="#FFD8C0"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="balloon-plane-run absolute left-0 top-0 h-full w-full">
+                  <img
+                    src={Math.floor(shown * 10) % 2 === 0 ? balloonPlane.url : balloonPlane2.url}
+                    alt=""
+                    aria-hidden="true"
+                    className="h-auto w-[62px] drop-shadow-[0_2px_3px_rgba(0,0,0,0.2)] sm:w-[76px]"
+                  />
+                </div>
+              </div>
+            </>
+          ) : null}
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(79,182,206,0.12)_0%,rgba(122,203,214,0.05)_38%,rgba(247,239,210,0)_70%)]" />
         </div>
 
