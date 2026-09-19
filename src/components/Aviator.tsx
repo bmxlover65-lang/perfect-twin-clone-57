@@ -364,14 +364,14 @@ function MobileBetSlot({
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-[4px] gap-y-[2px]">
+      <div className="grid grid-cols-2 gap-x-[4px] gap-y-[3px]">
         {MOBILE_PRESETS.map((q) => (
           <button
             key={q}
             type="button"
             disabled={locked}
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`h-[18px] w-[54px] rounded-full border bg-[linear-gradient(180deg,#26292D_0%,#1A1C1F_55%,#141618_100%)] text-[0.58rem] font-medium leading-none disabled:opacity-40 ${
+            className={`h-[19px] w-[56px] rounded-full border bg-[linear-gradient(180deg,#26292D_0%,#1A1C1F_55%,#141618_100%)] text-[0.61rem] font-semibold leading-none disabled:opacity-40 ${
               state.amount === q ? "border-[#F20000] text-white" : "border-[#55595F] text-[#D2D4D9]"
             }`}
           >
@@ -383,7 +383,7 @@ function MobileBetSlot({
       <button
         type="button"
         onClick={press}
-        className={`mt-[2px] h-[38px] w-[105px] rounded-[8px] border text-[0.86rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.22)] ${
+        className={`mt-[2px] h-[39px] w-[108px] rounded-[8px] border text-[0.88rem] font-bold text-white shadow-[0_2px_0_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.22)] ${
           canCash
             ? "border-[#8A5A05] bg-[linear-gradient(180deg,#FFBC4B_0%,#F59E0B_55%,#C87C05_100%)]"
             : pending
@@ -394,7 +394,7 @@ function MobileBetSlot({
         {canCash ? "Cash Out" : pending ? "Cancel" : "Cash In"}
       </button>
 
-      {state.auto ? <div className="mt-[2px] flex h-[25px] w-[105px] items-center gap-[5px]">
+      {state.auto ? <div className="mt-[2px] flex h-[25px] w-[108px] items-center gap-[5px]">
         <button
           type="button"
           onClick={() => setState((p) => ({ ...p, auto: !p.auto }))}
@@ -838,10 +838,6 @@ function FlightStage({
   const area = `${path} L ${x},${y0} Z`;
   const planeW = 170;
   const planeH = planeW * (74 / 150);
-  const tick = (t / 22) % 60;
-
-
-
   return (
     <div className="relative overflow-hidden rounded-[13px] border border-[#2B2D31] bg-black">
       {/* spribe-style rotating sun rays from the bottom-left */}
@@ -885,14 +881,14 @@ function FlightStage({
           </filter>
         </defs>
 
-        <line x1="40" y1={H - 40} x2={W - 20} y2={H - 40} stroke="#ffffff22" strokeWidth="2" />
-        <line x1="40" y1="20" x2="40" y2={H - 40} stroke="#ffffff22" strokeWidth="2" />
-        {/* moving axis ticks like the real game */}
+        <line x1="18" y1={H - 18} x2={W - 18} y2={H - 18} stroke="#ffffff22" strokeWidth="2" />
+        <line x1="18" y1="18" x2="18" y2={H - 18} stroke="#ffffff22" strokeWidth="2" />
+        {/* Fixed graph marks: they stay anchored inside the plot corners. */}
         {Array.from({ length: 12 }).map((_, i) => (
           <circle
             key={`bx${i}`}
-            cx={70 + ((i * 60 + (phase === "flying" ? -tick : 0) + 720) % 720)}
-            cy={H - 24}
+            cx={42 + i * 62}
+            cy={H - 18}
             r="2.5"
             fill="#ffffff35"
           />
@@ -900,8 +896,8 @@ function FlightStage({
         {Array.from({ length: 5 }).map((_, i) => (
           <circle
             key={`by${i}`}
-            cy={H - 70 - ((i * 56 + (phase === "flying" ? tick : 0)) % 240)}
-            cx="24"
+            cy={H - 62 - i * 55}
+            cx="18"
             r="2.5"
             fill="#20BFFF"
           />
