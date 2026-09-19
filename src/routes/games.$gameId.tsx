@@ -5,6 +5,7 @@ import { FitBoard } from "@/components/FitBoard";
 import { RoundTimer } from "@/components/RoundTimer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEmbed } from "@/lib/embed";
+import { AppLoader } from "@/components/AppLoader";
 
 import { applyOverride, useAdminConfig } from "@/lib/admin";
 import { logResult } from "@/lib/telemetry";
@@ -1915,6 +1916,8 @@ function GamePage() {
   // produces 404 "Unknown game" / 400 "Valid eventId required" noise.
   const NO_FEED = new Set(["88.0030"]);
   const feedDead = useRef(NO_FEED.has(gameId));
+
+  if (!state && !error && !NO_FEED.has(gameId)) return <AppLoader />;
 
   useEffect(() => {
     feedDead.current = NO_FEED.has(gameId);

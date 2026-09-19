@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Panel, dashBtn as btn, dashGhost as ghost, dashInput as input } from "@/components/dash";
 import { fetchEvents, fetchSports, type Sport, type UEvent } from "@/lib/uapi";
+import { AppLoader } from "@/components/AppLoader";
 
 const FALLBACK_SPORTS: Sport[] = [
   { sportId: "4", sportName: "Cricket" },
@@ -161,7 +162,7 @@ export function OperatorSports({ operatorId, rounds, bets, onSettleRound, onSett
               {!shown.length ? (
                 <tr>
                   <td className="p-3 text-muted-foreground" colSpan={4}>
-                    {loading ? "Loading events…" : "Koi event nahi mila."}
+                    {loading ? <AppLoader compact /> : "Koi event nahi mila."}
                   </td>
                 </tr>
               ) : null}
