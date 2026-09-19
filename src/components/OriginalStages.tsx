@@ -1204,17 +1204,33 @@ export function BalloonStage({
               <div className="grid w-[52px] gap-[3px] sm:w-[110px] sm:gap-1.5">
                 {(
                   [
-                    ["Edits", 100, "bg-[#E8871E] text-white"],
-                    ["Clear", 0, "bg-[#E01E1E] text-white"],
-                    ["Min", 100, "border border-white/70 bg-[#281334] text-white/80"],
-                    ["Max", 10000, "border border-white/70 bg-[#281334] text-white/80"],
+                    [
+                      "Edits",
+                      100,
+                      "border border-[#8A4A05] bg-[linear-gradient(180deg,#F5A63A_0%,#E8871E_52%,#C26A0C_100%)] text-white",
+                    ],
+                    [
+                      "Clear",
+                      0,
+                      "border border-[#7C0B0B] bg-[linear-gradient(180deg,#F04A4A_0%,#DE1C1C_52%,#A81010_100%)] text-white",
+                    ],
+                    [
+                      "Min",
+                      100,
+                      "border border-white/55 bg-[linear-gradient(180deg,#4A2A58_0%,#33193F_55%,#241029_100%)] text-white/85",
+                    ],
+                    [
+                      "Max",
+                      10000,
+                      "border border-white/55 bg-[linear-gradient(180deg,#4A2A58_0%,#33193F_55%,#241029_100%)] text-white/85",
+                    ],
                   ] as const
                 ).map(([label, val, tone]) => (
                   <button
                     key={label}
                     type="button"
                     onClick={() => setStake(val)}
-                    className={`h-[19px] rounded-full text-[0.58rem] font-extrabold shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-transform active:scale-95 sm:h-8 sm:text-[0.9rem] ${tone}`}
+                    className={`h-[19px] rounded-full text-[0.58rem] font-extrabold shadow-[0_1px_2px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.35)] transition-transform active:scale-95 sm:h-8 sm:text-[0.9rem] ${tone}`}
                   >
                     {label}
                   </button>
