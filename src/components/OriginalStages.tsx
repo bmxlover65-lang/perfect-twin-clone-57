@@ -1240,7 +1240,7 @@ export function BalloonStage({
           </div>
 
           {/* heat buttons — bet / queue for next round / cash out */}
-          <div className="ml-auto mr-[5px] grid h-[84px] w-[96px] shrink-0 grid-rows-2 gap-[6px] sm:mr-0 sm:h-[136px] sm:w-[24%] sm:min-w-[150px] sm:max-w-none sm:gap-2">
+          <div className="ml-auto mr-[5px] grid h-[84px] w-[96px] shrink-0 grid-rows-2 gap-[6px] self-center sm:mr-0 sm:h-[136px] sm:w-[24%] sm:min-w-[150px] sm:max-w-none sm:gap-2">
             {([0, 1] as const).map((i) => {
               const bet = bets[i];
               const fl = flash[i];
