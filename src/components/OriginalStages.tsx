@@ -541,8 +541,9 @@ export function BalloonStage({
 
     let raf = 0;
     let last = performance.now();
+    const initialStatus = statusRef.current;
     let ph: "waiting" | "flying" | "crashed" =
-      roundRef.current && (apiRef.current >= 1 || statusRef.current === "RUN")
+      roundRef.current && (initialStatus === "RUN" || (!initialStatus && apiRef.current >= 1))
         ? "flying"
         : "waiting";
     let t = 1; // seconds left in the current phase
