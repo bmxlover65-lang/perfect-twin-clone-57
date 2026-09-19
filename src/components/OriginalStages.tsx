@@ -1253,7 +1253,7 @@ export function BalloonStage({
                   onClick={() => pressHeat(i)}
                   disabled={blocked}
                   aria-label={blocked ? "Betting locked" : live ? "Cash out" : "Place heat bet"}
-                  className={`relative flex h-full items-center justify-center gap-1 rounded-[7px] border-2 border-[#101B16] text-[0.8rem] font-extrabold text-white ring-1 ring-inset ring-white/35 transition-transform active:translate-y-[2px] active:shadow-none sm:gap-3 sm:text-[1.15rem] ${
+                  className={`relative flex h-full items-center justify-center gap-1 rounded-[7px] border-2 border-[#0C2A14] text-[0.95rem] font-extrabold text-white ring-1 ring-inset ring-white/35 transition-transform active:translate-y-[2px] active:shadow-none sm:gap-3 sm:text-[1.15rem] ${
                     blocked
                       ? "cursor-not-allowed bg-[linear-gradient(180deg,#259A42_0%,#14752C_52%,#07551B_100%)] shadow-[0_3px_0_#063B13]"
                       : live
@@ -1279,7 +1279,7 @@ export function BalloonStage({
                     </span>
                   ) : (
                     <>
-                      <img src={heatIcon.url} alt="" className="h-8 w-8 sm:h-8 sm:w-8" />
+                      <img src={heatIcon.url} alt="" className="h-[25px] w-[25px] sm:h-8 sm:w-8" />
                       HEAT
                     </>
                   )}
