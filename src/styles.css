@@ -396,29 +396,6 @@
   to { opacity: 0; transform: scale(1.6); }
 }
 
-.balloon-result-pill,
-.balloon-stake {
-  position: relative;
-  overflow: hidden;
-}
-
-.balloon-result-pill::after,
-.balloon-stake::after {
-  content: "";
-  position: absolute;
-  inset: -55% auto -55% -45%;
-  width: 28%;
-  transform: skewX(-18deg);
-  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.58), transparent);
-  animation: balloon-control-shine 2.8s ease-in-out infinite;
-  pointer-events: none;
-}
-
-@keyframes balloon-control-shine {
-  0%, 28% { left: -45%; opacity: 0; }
-  45% { opacity: 0.9; }
-  68%, 100% { left: 125%; opacity: 0; }
-}
 
 
 @keyframes marquee-x {
