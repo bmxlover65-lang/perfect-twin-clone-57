@@ -933,11 +933,10 @@ function FlightStage({
 
             <image
               href={aviatorPlane}
-              x={px - planeW * 0.72}
-              y={py - planeH * 0.68}
+              x={px - planeW * 0.24}
+              y={py - planeH * 0.6}
               width={planeW}
               height={planeH}
-              transform={`rotate(${-(6 + 12 * p)} ${px - planeW * 0.22} ${py - planeH * 0.12})`}
             />
 
 
