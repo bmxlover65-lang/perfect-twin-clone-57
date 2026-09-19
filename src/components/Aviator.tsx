@@ -419,15 +419,16 @@ function MobileCenterActions({
     setSlot(1, fn);
   };
   const base =
-    "h-[22px] w-[54px] rounded-full text-[0.74rem] font-bold leading-none shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.28)]";
-  const outline = `${base} border border-[#4A4E55] bg-[#17191C] text-[#C6C9CE]`;
+    "h-[19px] w-[54px] rounded-[7px] text-[0.62rem] font-bold leading-none shadow-[0_1px_2px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.28)]";
+  const outline = `${base} border border-[#55595F] bg-[linear-gradient(180deg,#26292D_0%,#1A1C1F_55%,#141618_100%)] text-[#9BA0A6]`;
   return (
-    <div className="flex flex-col items-center gap-[7px] pt-[26px]">
+    <div className="flex flex-col items-center gap-[7px] pt-[28px]">
       <button
         type="button"
         onClick={() => setEditing(!editing)}
         className={`${base} border border-[#8A4A05] bg-[linear-gradient(180deg,#F5A63A_0%,#E8871E_52%,#C26A0C_100%)] text-white`}
       >
+
         Edit
       </button>
       <button
