@@ -1263,7 +1263,7 @@ export function BalloonStage({
                     </span>
                   ) : (
                     <>
-                      <img src={heatIcon.url} alt="" className="h-7 w-7 sm:h-7 sm:w-7" />
+                      <img src={heatIcon.url} alt="" className="h-8 w-8 sm:h-8 sm:w-8" />
                       HEAT
                     </>
                   )}
