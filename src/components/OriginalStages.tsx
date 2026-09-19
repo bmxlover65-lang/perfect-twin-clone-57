@@ -429,8 +429,6 @@ export function BalloonStage({
   apiRef.current = apiTarget;
   const roundRef = useRef<string | undefined>(roundId);
   roundRef.current = roundId;
-  const suspRef = useRef<boolean>(!!suspended);
-  suspRef.current = !!suspended;
   const statusRef = useRef((status ?? "").toUpperCase());
   statusRef.current = (status ?? "").toUpperCase();
   const stakeRef = useRef(stake);
@@ -552,6 +550,7 @@ export function BalloonStage({
     let target = 2;
     let curRound = roundRef.current;
     let lastFeedRound = roundRef.current;
+    let lastStatus = statusRef.current;
     let stale = false;
     let peak = 1;
     let stall = 0;
@@ -616,14 +615,50 @@ export function BalloonStage({
       last = now;
       const apiRound = roundRef.current;
       const api = apiRef.current;
+      const apiStatus = statusRef.current;
 
       // a genuinely new round id from the feed: sync back to live mode
       if (apiRound && apiRound !== lastFeedRound) {
         lastFeedRound = apiRound;
         stale = false;
-        startRound(apiRound);
+        curRound = apiRound;
+        if (apiStatus === "RUN") {
+          startRound(apiRound);
+        } else {
+          ph = "waiting";
+          setPhase("waiting");
+          setShown(1);
+          setClimb(0);
+          t = 5;
+        }
+        lastStatus = apiStatus;
         raf = window.requestAnimationFrame(tick);
         return;
+      }
+      // Balloon's upstream has explicit WAIT → RUN → BLAST states. Follow
+      // those transitions directly so take-off and burst happen with the real
+      // table, even though the round id may stay unchanged between frames.
+      if (apiStatus !== lastStatus) {
+        if (apiStatus === "RUN" && ph !== "flying") {
+          startRound(apiRound);
+          lastStatus = apiStatus;
+          raf = window.requestAnimationFrame(tick);
+          return;
+        }
+        if (apiStatus === "BLAST" && ph === "flying") {
+          burst(Math.max(1, api, peak));
+          lastStatus = apiStatus;
+          raf = window.requestAnimationFrame(tick);
+          return;
+        }
+        if (apiStatus === "WAIT" && ph !== "crashed") {
+          ph = "waiting";
+          setPhase("waiting");
+          setShown(1);
+          setClimb(0);
+          t = 5;
+        }
+        lastStatus = apiStatus;
       }
       // stale feed (same id, never advances) → run local rounds instead
       const live = !!apiRound && !stale;
