@@ -70,6 +70,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [~] VIMAAN: spelling + lobby order done; flying/result pending
 - [x] Balloon: Royal-style mobile scene, balloon scale, live/waiting result states, compact controls, stakes and HEAT buttons
 - [x] Balloon: transparent scenic betting controls and masked live-player activity below the avatar
+- [ ] Balloon: remove the white strip below betting controls and continue the scene to the frame edge
 
 ## Phase 7 — Royal444 full casino structure parity (pending reference access)
 - [ ] Audit the reference casino lobby and every casino game page at mobile width
