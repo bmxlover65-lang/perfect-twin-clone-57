@@ -68,6 +68,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [ ] Card Race: market box + Recent Result placement
 - [ ] Amar Akbar Anthony: rate box (Odd/Even, Colour, Under/Over) + cards
 - [x] VIMAAN: match supplied mobile history strip, radial flying graph, waiting/plane state, flew-away result and compact All Bets header
+- [x] VIMAAN: pixel-match the supplied Royal mobile frame header, graph, betting controls, dense bets table and bottom navigation
 - [x] Balloon: Royal-style mobile scene, balloon scale, live/waiting result states, compact controls, stakes and HEAT buttons
 - [x] Balloon: transparent scenic betting controls and masked live-player activity below the avatar
 - [x] Balloon: remove the white strip below betting controls and continue the scene to the frame edge
