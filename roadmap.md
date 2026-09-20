@@ -60,9 +60,11 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 
 ## Phase 6 — Pending fixes (user list, Sep 5)
 - [x] Dream Catcher + Lucky 0-9: chips 100…100k, "U" in wheel centre, bigger Dream wheel, own spin sound
-- [~] Baccarat + Muflis TP: chips done; card display pending
+- [x] Baccarat: mobile reference stage/cards, rounded betting board, per-area locks, chip rail and Recent Result
+- [~] Muflis TP: chips done; card display pending
 - [~] 20-20 TP + Lucky 7: Recent Result attached + Tie shown as "T"; card display pending
 - [x] 1Day TP: mobile reference stage ratio, live card overlay, compact Winner board, full suspend veil and real Recent Result strip
+- [x] 1Day TP: match the Royal suspended veil placement, opacity, text size and full row visibility from the side-by-side reference
 - [ ] DTL: card display; Recent Result under last market; DTL rate box
 - [ ] 1 Day Dragon Tiger: rate box + video card display
 - [x] Joker TP: mobile reference stage ratio, Joker/player cards, compact Winner board and Recent Result strip
