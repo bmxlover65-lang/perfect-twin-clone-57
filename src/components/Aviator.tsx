@@ -22,6 +22,17 @@ import { logBet, setBalance as saveBalance } from "@/lib/telemetry";
 
 const AVATARS = [av1, av2, av3, av4, av5, av6];
 
+// Preload plane + propeller so the stage never flashes black on open.
+if (typeof window !== "undefined") {
+  for (const src of [aviatorPlane, (propellerImg as { url?: string }).url ?? ""]) {
+    if (src) {
+      const img = new Image();
+      img.decoding = "async";
+      img.src = src;
+    }
+  }
+}
+
 /* ---------------- round engine ---------------- */
 
 type Phase = "betting" | "flying" | "crashed";
