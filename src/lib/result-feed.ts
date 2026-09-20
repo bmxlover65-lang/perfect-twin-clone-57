@@ -123,8 +123,12 @@ export function useResultFeed({ gameId, round, open, liveWinner, results }: Opti
       settleRound(gameId, next.round, next.winner);
     }
     // The first winner seen after mount is a leftover round — record it so bets
-    // still settle, but never flash its banner/celebration.
-    if (booted.current) setCurrent(declared.current.get(next.round) ?? next);
+    // still settle, but never flash its banner/celebration. Likewise, a result
+    // that lands after the table has already moved to the next round stays
+    // recorded but off screen.
+    const onScreenRound = celebRound.current;
+    const stillCurrent = !onScreenRound || onScreenRound === next.round;
+    if (booted.current && stillCurrent) setCurrent(declared.current.get(next.round) ?? next);
   };
 
   // 1. Live frame — the instant the dealer declares.
