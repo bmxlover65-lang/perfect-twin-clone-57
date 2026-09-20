@@ -158,6 +158,21 @@ function OneDayCards({ hand, title }: { hand: Record<string, string>; title: str
   );
 }
 
+function JokerCards({ hand, title }: { hand: Record<string, string>; title: string }) {
+  const codes = Object.values(hand);
+  if (!codes.length) return null;
+  return (
+    <div>
+      <p className="text-[0.76rem] font-extrabold uppercase leading-none text-white [text-shadow:0_1px_2px_var(--casino-market-text)]">
+        {title.replace(/_/g, " ").toUpperCase()}
+      </p>
+      <div className="mt-[2px] flex gap-[2px] [&_img]:h-[31px] [&_img]:w-[22px] [&_img]:rounded-[2px] [&_span[aria-label]]:h-[31px] [&_span[aria-label]]:w-[22px]">
+        {codes.map((code, index) => <Card key={`${code}-${index}`} code={code} />)}
+      </div>
+    </div>
+  );
+}
+
 const OPEN_STATUSES = new Set(["ONLINE", "ACTIVE", "OPEN", "IN_PLAY"]);
 function isOpenStatus(status?: string | null) {
   return OPEN_STATUSES.has((status ?? "").toUpperCase());
@@ -736,6 +751,54 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
         })}
       </div>
 
+    </div>
+  );
+}
+
+/** Joker Teen Patti reference board: compact white runner rows with one blue Back price. */
+function JokerTeenPattiBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
+  const names = market.runnersName ?? {};
+  const runners = market.runners ?? [];
+  return (
+    <div className="mt-0 overflow-hidden border border-casino-market-divider bg-ex-market-surface">
+      <header className="flex h-[23px] items-center justify-between bg-casino-market-header px-1.5">
+        <span className="text-[0.76rem] font-extrabold uppercase text-board-header-foreground">
+          {market.marketName}
+        </span>
+        <span className="flex h-[14px] w-[14px] items-center justify-center rounded-full bg-board-header-foreground text-casino-market-header">
+          <Info className="h-[10px] w-[10px]" strokeWidth={3} />
+        </span>
+      </header>
+      <div className="relative">
+        {runners.map((runner) => {
+          const back = runner.price?.back?.[0];
+          const open = !suspended && isOpenStatus(runner.status ?? "ONLINE") && Boolean(back?.price);
+          return (
+            <div
+              key={String(runner.selectionId)}
+              data-runner-row=""
+              className="grid h-[41px] grid-cols-[minmax(0,1fr)_116px] border-b border-casino-market-divider last:border-b-0"
+            >
+              <span data-runner-name="" className="flex items-start px-1.5 pt-1.5 text-[0.78rem] font-extrabold uppercase leading-none text-casino-market-text">
+                {names[String(runner.selectionId)] ?? String(runner.selectionId)}
+              </span>
+              <button
+                type="button"
+                data-market-option=""
+                data-market-plate=""
+                data-bet-label={String(names[String(runner.selectionId)] ?? runner.selectionId)}
+                data-bet-odds={String(back?.price ?? "")}
+                disabled={!open}
+                className="relative flex flex-col items-center justify-center bg-casino-market-rate text-ex-cell-foreground disabled:cursor-not-allowed"
+              >
+                <span className="text-[0.9rem] font-extrabold leading-none">{fmtOdds(back?.price)}</span>
+                <span className="mt-1 text-[0.72rem] font-medium leading-none">{back?.size == null ? "" : String(Math.round(back.size))}</span>
+              </button>
+            </div>
+          );
+        })}
+        {suspended ? <SuspendVeil /> : null}
+      </div>
     </div>
   );
 }
@@ -2701,10 +2764,10 @@ function GamePage() {
             src={stream}
             allow="autoplay; fullscreen; encrypted-media"
             allowFullScreen
-            className={`${gameId === "99.0013" ? "aspect-[1.72/1]" : "aspect-[2/1]"} w-full border-0 bg-black sm:aspect-video`}
+            className={`${gameId === "99.0013" ? "aspect-[1.72/1]" : gameId === "99.0016" ? "aspect-[1.78/1]" : "aspect-[2/1]"} w-full border-0 bg-black sm:aspect-video`}
           />
         ) : (
-          <div className={`${gameId === "99.0013" ? "aspect-[1.72/1]" : "aspect-[2/1]"} w-full bg-black sm:aspect-video`} />
+          <div className={`${gameId === "99.0013" ? "aspect-[1.72/1]" : gameId === "99.0016" ? "aspect-[1.78/1]" : "aspect-[2/1]"} w-full bg-black sm:aspect-video`} />
         )}
         {!stream ? (
           <img
@@ -2716,15 +2779,17 @@ function GamePage() {
         ) : null}
         <div
           ref={overlayRef}
-          className={`pointer-events-none absolute left-1 top-1 z-20 max-w-[calc(100%-0.5rem)] origin-top-left overflow-visible sm:left-3 sm:top-3 sm:max-w-[calc(100%-1.5rem)] ${gameId === "99.0013" ? "space-y-1.5" : "space-y-1"}`}
-          style={{ transform: gameId === "99.0013" ? undefined : `scale(${overlayScale})` }}
+          className={`pointer-events-none absolute left-1 top-1 z-20 max-w-[calc(100%-0.5rem)] origin-top-left overflow-visible sm:left-3 sm:top-3 sm:max-w-[calc(100%-1.5rem)] ${["99.0013", "99.0016"].includes(gameId) ? "space-y-1.5" : "space-y-1"}`}
+          style={{ transform: ["99.0013", "99.0016"].includes(gameId) ? undefined : `scale(${overlayScale})` }}
         >
-          <p className={`${gameId === "99.0013" ? "text-[0.68rem] font-extrabold" : "text-[0.6rem] font-bold sm:text-[0.72rem]"} uppercase text-white drop-shadow`}>
+          <p className={`${["99.0013", "99.0016"].includes(gameId) ? "text-[0.68rem] font-extrabold" : "text-[0.6rem] font-bold sm:text-[0.72rem]"} uppercase text-white drop-shadow`}>
             RID: {d?.roundId ?? "—"}
           </p>
           {handLayout.map((h) => (
             gameId === "99.0013"
               ? <OneDayCards key={h.title} title={h.title} hand={h.hand} />
+              : gameId === "99.0016"
+                ? <JokerCards key={h.title} title={h.title} hand={h.hand} />
               : <Cards key={h.title} title={h.title} hand={h.hand} />
           ))}
         </div>
@@ -2777,7 +2842,7 @@ function GamePage() {
           ))
         ) : gameId === "99.0016" && markets.length ? (
           markets.map((m, i) => (
-            <DarkRowBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
+            <JokerTeenPattiBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
           ))
         ) : (
           markets.map((m, i) => (
@@ -2786,7 +2851,7 @@ function GamePage() {
         )}
         </Fit>
         {/* Recent Result sits flush under the last market, like the original. */}
-        <RecentStrip results={results} lucky7={gameId === "99.0030"} oneDay={gameId === "99.0013"} />
+        <RecentStrip results={results} lucky7={gameId === "99.0030"} oneDay={gameId === "99.0013"} joker={gameId === "99.0016"} />
       </BetLayer>
 
 
@@ -2902,16 +2967,18 @@ function RecentStrip({
   dream,
   lucky7,
   oneDay,
+  joker,
 }: {
   results: CasinoResult[];
   dream?: boolean;
   lucky7?: boolean;
   oneDay?: boolean;
+  joker?: boolean;
 }) {
   return (
 
-      <div className={`mt-0 flex items-center overflow-x-auto bg-black ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : "gap-2 px-3 py-2.5"}`}>
-        <span className={`shrink-0 font-bold text-white ${oneDay ? "mr-0 text-[1rem]" : "mr-1 text-[0.95rem]"}`}>Recent Result</span>
+      <div className={`mt-0 flex items-center overflow-x-auto bg-black ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker ? "h-[51px] gap-2.5 px-1 py-1.5" : "gap-2 px-3 py-2.5"}`}>
+        <span className={`shrink-0 font-bold text-white ${oneDay ? "mr-0 text-[1rem]" : joker ? "mr-0 text-[1.05rem]" : "mr-1 text-[0.95rem]"}`}>Recent Result</span>
 
 
 
@@ -2986,7 +3053,7 @@ function RecentStrip({
               className={`flex shrink-0 items-center justify-center rounded-full font-bold ${
                 lucky7
                   ? "h-[22px] min-w-[22px] px-1.5 text-[0.7rem]"
-                 : oneDay
+                  : oneDay || joker
                    ? "h-7 min-w-9 px-2 text-[0.78rem]"
                    : "h-7 min-w-7 px-1.5 text-[0.75rem]"
               } ${finalTone}`}
