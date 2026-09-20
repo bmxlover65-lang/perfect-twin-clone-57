@@ -443,6 +443,21 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
 }
 
 
+/** Mini white card: rank on top, four suit glyphs below (blacks left, reds right). */
+function RankSuitMini({ rank }: { rank: string }) {
+  return (
+    <span className="flex h-[38px] w-[28px] shrink-0 flex-col items-center justify-center rounded-[3px] bg-white py-[2px] leading-none shadow-[0_1px_2px_rgba(10,40,80,0.35)] sm:h-[42px] sm:w-[31px]">
+      <span className="text-[0.72rem] font-extrabold text-[#111] sm:text-[0.8rem]">{rank}</span>
+      <span className="mt-[1px] grid grid-cols-2 gap-x-[3px] text-[0.5rem] leading-[1.1] sm:text-[0.55rem]">
+        <span className="text-[#111]">♠</span>
+        <span className="text-[#E01B24]">♥</span>
+        <span className="text-[#111]">♣</span>
+        <span className="text-[#E01B24]">♦</span>
+      </span>
+    </span>
+  );
+}
+
 /** Rank label ("A", "2" … "K") rendered as the real printed card artwork. */
 const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
 function RankCardLabel({ rank }: { rank: string }) {
@@ -526,8 +541,8 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
 
 
       </header>
-      <div className={`relative px-2 py-1 sm:px-3 sm:py-3 ${isLuckyCard ? "bg-gradient-to-b from-[#9DC3F1] to-[#7BA9DC]" : "bg-casino-market-body"}`}>
-        <div className={`grid grid-cols-2 ${isLuckyCard ? "gap-x-3 gap-y-1 sm:gap-x-5 sm:gap-y-1.5" : "gap-x-2 gap-y-1.5 sm:gap-x-4 sm:gap-y-3"}`}>
+      <div className={`relative px-2 py-1 sm:px-3 sm:py-3 ${isLuckyCard ? "bg-gradient-to-b from-[#C9DEF6] to-[#A8C7EE]" : "bg-casino-market-body"}`}>
+        <div className={`grid grid-cols-2 ${isLuckyCard ? "gap-x-3 gap-y-0.5 sm:gap-x-5 sm:gap-y-1" : "gap-x-2 gap-y-1.5 sm:gap-x-4 sm:gap-y-3"}`}>
 
           {runners.map((r, i) => {
             const p = r.price?.back?.[0];
@@ -541,24 +556,24 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                   data-market-option=""
                   className={`min-w-0 pb-2 [&:has([data-has-exposure='true'])]:pb-7 ${last ? "col-span-2 mx-auto w-[calc(50%-0.75rem)]" : ""}`}
                 >
-                  <div className="pb-[2px] text-center text-[0.66rem] font-semibold leading-none text-[#12314F] sm:text-[0.72rem]">
-                    {i + 1}
+                  <div className="pb-[2px] text-center text-[0.74rem] font-semibold leading-none text-[#16324F] sm:text-[0.8rem]">
+                    {label}
                   </div>
                   <div
                     data-market-plate=""
-                    className="relative mx-auto flex h-[46px] w-full max-w-[150px] items-center gap-1.5 rounded-[6px] bg-[#6FA3D8] px-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_5px_rgba(15,45,80,0.35)] sm:h-[54px] sm:max-w-[170px] sm:gap-2 sm:px-2"
+                    className="relative mx-auto flex h-[46px] w-full max-w-[145px] items-center justify-center gap-2 rounded-[7px] bg-[#7FAFE6] px-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_2px_4px_rgba(15,45,80,0.25)] sm:h-[52px] sm:max-w-[160px] sm:gap-2.5"
                   >
-                    <RankCardLabel rank={label} />
-                    <div className="flex min-w-0 flex-1 flex-col items-center justify-center leading-none text-[#0E2C4E]">
-                      <span className="text-[0.98rem] font-bold sm:text-[1.1rem]">
+                    <RankSuitMini rank={label} />
+                    <div className="flex flex-col items-center justify-center leading-none text-[#16324F]">
+                      <span className="text-[0.95rem] font-bold sm:text-[1.05rem]">
                         {fmtOdds(p?.price)}
                       </span>
-                      <span className="mt-[3px] text-[0.62rem] font-medium sm:text-[0.72rem]">
+                      <span className="mt-[3px] text-[0.68rem] font-medium sm:text-[0.75rem]">
                         {p?.size == null ? "" : String(Math.round(p.size))}
                       </span>
                     </div>
                     {locked ? (
-                      <span className="absolute inset-0 z-10 flex items-center justify-center rounded-[6px] bg-black/35 text-sm">
+                      <span className="absolute inset-0 z-10 flex items-center justify-center rounded-[7px] bg-black/35 text-sm">
                         🔒
                       </span>
                     ) : null}
