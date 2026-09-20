@@ -570,7 +570,7 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                 <div
                   key={String(r.selectionId)}
                   data-market-option=""
-                  className={`min-w-0 pb-2 [&:has([data-has-exposure='true'])]:pb-7 ${last ? "col-span-2 mx-auto w-[calc(50%-0.75rem)]" : ""}`}
+                  className={`min-w-0 pb-2 [&:has([data-has-exposure='true'])]:pb-7`}
                 >
                   <div className="pb-[2px] text-center text-[0.74rem] font-semibold leading-none text-casino-market-text sm:text-[0.8rem]">
                     {label}
