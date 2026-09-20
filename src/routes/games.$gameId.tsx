@@ -803,6 +803,54 @@ function JokerTeenPattiBoard({ market, suspended }: { market: CasinoMarket; susp
   );
 }
 
+/** 20-20 Dragon Tiger reference board: Dragon/Tiger above with Tie centred below. */
+function DragonTiger20Board({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
+  const names = market.runnersName ?? {};
+  const runners = market.runners ?? [];
+  const named = (label: string) => runners.find((runner) =>
+    String(names[String(runner.selectionId)] ?? "").trim().toUpperCase() === label,
+  );
+  const ordered = [named("DRAGON"), named("TIGER"), named("TIE")];
+  const plate = (runner: (typeof runners)[number] | undefined, fallback: string, last: boolean) => {
+    const back = runner?.price?.back?.[0];
+    const label = runner ? String(names[String(runner.selectionId)] ?? fallback) : fallback;
+    const open = Boolean(runner && !suspended && isOpenStatus(runner.status ?? "ONLINE") && back?.price);
+    return (
+      <div className={last ? "col-span-2 mx-auto w-1/2" : "min-w-0"}>
+        <p className="pb-1 text-center text-[0.78rem] font-bold uppercase leading-none text-casino-market-text">{label}</p>
+        <button
+          type="button"
+          data-market-option=""
+          data-market-plate=""
+          data-bet-label={label}
+          data-bet-odds={String(back?.price ?? "")}
+          disabled={!open}
+          className="relative mx-auto flex h-[39px] w-[106px] max-w-[94%] flex-col items-center justify-center rounded-[5px] bg-casino-market-rate text-ex-cell-foreground shadow-[0_3px_8px_color-mix(in_oklab,var(--casino-market-header)_28%,transparent)] disabled:cursor-not-allowed"
+        >
+          <span className="text-[0.9rem] font-extrabold leading-none">{fmtOdds(back?.price)}</span>
+          <span className="mt-1 text-[0.72rem] font-medium leading-none">{back?.size == null ? "" : String(Math.round(back.size))}</span>
+        </button>
+      </div>
+    );
+  };
+  return (
+    <div className="mt-0 overflow-hidden border border-casino-market-divider bg-casino-market-body">
+      <header className="flex h-[23px] items-center justify-between bg-casino-market-header px-1.5">
+        <span className="text-[0.76rem] font-extrabold uppercase text-board-header-foreground">{market.marketName}</span>
+        <span className="flex h-[14px] w-[14px] items-center justify-center rounded-full bg-board-header-foreground text-casino-market-header">
+          <Info className="h-[10px] w-[10px]" strokeWidth={3} />
+        </span>
+      </header>
+      <div className="relative grid grid-cols-2 gap-x-2 gap-y-4 px-4 pb-2.5 pt-1.5">
+        {ordered.map((runner, index) => (
+          <div key={runner ? String(runner.selectionId) : index}>{plate(runner, index === 0 ? "DRAGON" : index === 1 ? "TIGER" : "TIE", index === 2)}</div>
+        ))}
+        {suspended ? <SuspendVeil /> : null}
+      </div>
+    </div>
+  );
+}
+
 /** 1 Day Teen Patti mobile board — matches the compact live-table layout. */
 function OneDayTeenPattiBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
@@ -2764,10 +2812,10 @@ function GamePage() {
             src={stream}
             allow="autoplay; fullscreen; encrypted-media"
             allowFullScreen
-            className={`${gameId === "99.0013" ? "aspect-[1.72/1]" : gameId === "99.0016" ? "aspect-[1.78/1]" : "aspect-[2/1]"} w-full border-0 bg-black sm:aspect-video`}
+            className={`${gameId === "99.0013" ? "aspect-[1.72/1]" : ["99.0016", "99.0019"].includes(gameId) ? "aspect-[1.78/1]" : "aspect-[2/1]"} w-full border-0 bg-black sm:aspect-video`}
           />
         ) : (
-          <div className={`${gameId === "99.0013" ? "aspect-[1.72/1]" : gameId === "99.0016" ? "aspect-[1.78/1]" : "aspect-[2/1]"} w-full bg-black sm:aspect-video`} />
+          <div className={`${gameId === "99.0013" ? "aspect-[1.72/1]" : ["99.0016", "99.0019"].includes(gameId) ? "aspect-[1.78/1]" : "aspect-[2/1]"} w-full bg-black sm:aspect-video`} />
         )}
         {!stream ? (
           <img
@@ -2779,10 +2827,10 @@ function GamePage() {
         ) : null}
         <div
           ref={overlayRef}
-          className={`pointer-events-none absolute left-1 top-1 z-20 max-w-[calc(100%-0.5rem)] origin-top-left overflow-visible sm:left-3 sm:top-3 sm:max-w-[calc(100%-1.5rem)] ${["99.0013", "99.0016"].includes(gameId) ? "space-y-1.5" : "space-y-1"}`}
-          style={{ transform: ["99.0013", "99.0016"].includes(gameId) ? undefined : `scale(${overlayScale})` }}
+          className={`pointer-events-none absolute left-1 top-1 z-20 max-w-[calc(100%-0.5rem)] origin-top-left overflow-visible sm:left-3 sm:top-3 sm:max-w-[calc(100%-1.5rem)] ${["99.0013", "99.0016", "99.0019"].includes(gameId) ? "space-y-1.5" : "space-y-1"}`}
+          style={{ transform: ["99.0013", "99.0016", "99.0019"].includes(gameId) ? undefined : `scale(${overlayScale})` }}
         >
-          <p className={`${["99.0013", "99.0016"].includes(gameId) ? "text-[0.68rem] font-extrabold" : "text-[0.6rem] font-bold sm:text-[0.72rem]"} uppercase text-white drop-shadow`}>
+          <p className={`${["99.0013", "99.0016", "99.0019"].includes(gameId) ? "text-[0.68rem] font-extrabold" : "text-[0.6rem] font-bold sm:text-[0.72rem]"} uppercase text-white drop-shadow`}>
             RID: {d?.roundId ?? "—"}
           </p>
           {handLayout.map((h) => (
@@ -2790,6 +2838,8 @@ function GamePage() {
               ? <OneDayCards key={h.title} title={h.title} hand={h.hand} />
               : gameId === "99.0016"
                 ? <JokerCards key={h.title} title={h.title} hand={h.hand} />
+                : gameId === "99.0019"
+                  ? <JokerCards key={h.title} title={h.title} hand={h.hand} />
               : <Cards key={h.title} title={h.title} hand={h.hand} />
           ))}
         </div>
@@ -2832,7 +2882,11 @@ function GamePage() {
           <CardRacePanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0005" && markets.length ? (
           <AAAPanel markets={markets} suspended={suspended} />
-        ) : ["99.0030", "99.0010", "99.0019"].includes(gameId) && markets.length ? (
+        ) : gameId === "99.0019" && markets.length ? (
+          markets.map((m, i) => (
+            <DragonTiger20Board key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
+          ))
+        ) : ["99.0030", "99.0010"].includes(gameId) && markets.length ? (
           markets.map((m, i) => (
             <DarkGridBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
           ))
@@ -2851,7 +2905,7 @@ function GamePage() {
         )}
         </Fit>
         {/* Recent Result sits flush under the last market, like the original. */}
-        <RecentStrip results={results} lucky7={gameId === "99.0030"} oneDay={gameId === "99.0013"} joker={gameId === "99.0016"} />
+        <RecentStrip results={results} lucky7={gameId === "99.0030"} oneDay={gameId === "99.0013"} joker={gameId === "99.0016"} dragonTiger={gameId === "99.0019"} />
       </BetLayer>
 
 
@@ -2968,17 +3022,19 @@ function RecentStrip({
   lucky7,
   oneDay,
   joker,
+  dragonTiger,
 }: {
   results: CasinoResult[];
   dream?: boolean;
   lucky7?: boolean;
   oneDay?: boolean;
   joker?: boolean;
+  dragonTiger?: boolean;
 }) {
   return (
 
-      <div className={`mt-0 flex items-center overflow-x-auto bg-black ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker ? "h-[51px] gap-2.5 px-1 py-1.5" : "gap-2 px-3 py-2.5"}`}>
-        <span className={`shrink-0 font-bold text-white ${oneDay ? "mr-0 text-[1rem]" : joker ? "mr-0 text-[1.05rem]" : "mr-1 text-[0.95rem]"}`}>Recent Result</span>
+      <div className={`mt-0 flex items-center overflow-x-auto bg-black ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger ? "h-[51px] gap-2.5 px-1 py-1.5" : "gap-2 px-3 py-2.5"}`}>
+        <span className={`shrink-0 font-bold text-white ${oneDay ? "mr-0 text-[1rem]" : joker || dragonTiger ? "mr-0 text-[1.05rem]" : "mr-1 text-[0.95rem]"}`}>Recent Result</span>
 
 
 
@@ -3002,7 +3058,9 @@ function RecentStrip({
             "11": "bg-[#8E44AD] text-white",
           };
           const tone =
-            isNum && playerMatch
+            dragonTiger && isTie
+              ? "bg-result-tie text-ex-cell-foreground"
+              : isNum && playerMatch
               ? (PLAYER32_TONE[w] ?? "bg-[#E67E22] text-white")
               : isNum
                 ? w === "0"
@@ -3053,7 +3111,7 @@ function RecentStrip({
               className={`flex shrink-0 items-center justify-center rounded-full font-bold ${
                 lucky7
                   ? "h-[22px] min-w-[22px] px-1.5 text-[0.7rem]"
-                  : oneDay || joker
+                  : oneDay || joker || dragonTiger
                    ? "h-7 min-w-9 px-2 text-[0.78rem]"
                    : "h-7 min-w-7 px-1.5 text-[0.75rem]"
               } ${finalTone}`}
