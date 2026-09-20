@@ -373,7 +373,7 @@ function PokerPanel({
                   <div key={r ? String(r.selectionId) : index} className="min-w-0 text-center">
                     <Plate
                       runner={r}
-                      label={r ? names[String(r.selectionId)] : index === 0 ? "PLAYER A" : "PLAYER B"}
+                      label={r ? (names[String(r.selectionId)] ?? String(r.selectionId)) : index === 0 ? "PLAYER A" : "PLAYER B"}
                       locked={isSusp || !r}
                     />
                   </div>
