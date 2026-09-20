@@ -634,6 +634,7 @@ function DarkGridBoard({ market, suspended, defaultOpen = false }: { market: Cas
 
 
       </div>
+      ) : null}
     </div>
   );
 }
