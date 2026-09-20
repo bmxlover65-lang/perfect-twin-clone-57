@@ -923,7 +923,9 @@ function OneDayTeenPattiBoard({ market, suspended }: { market: CasinoMarket; sus
             {priceCell(runner, "lay")}
           </div>
         ))}
-        {suspended ? <SuspendVeil className="border-2 border-casino-suspend-text" /> : null}
+        {suspended ? (
+          <SuspendVeil className="top-[33px]" size="sm" />
+        ) : null}
       </div>
     </section>
   );
