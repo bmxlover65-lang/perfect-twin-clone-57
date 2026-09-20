@@ -265,11 +265,7 @@ export async function backupOdds(sportId: string, exEventId: string, eventName?:
   }
   if (!eventCode || !betfairId) return null;
 
-  const text = await sfFetch(
-    "/ApiNew/Mod",
-    new URLSearchParams({ bfair_id: betfairId, event_code: eventCode }).toString(),
-  );
-  const rows = parse<SfOddsRow>(text);
+  const rows = await oddsRows(eventCode, betfairId);
   if (!rows.length) return null;
 
   const marketStatus = (rows[0]?.match_status ?? "OPEN").toUpperCase();
