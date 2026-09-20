@@ -454,7 +454,7 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
           <span className="px-2 py-1 text-[0.75rem] font-bold text-casino-market-text">
             Min/Max{" "}
             <span className="font-semibold text-casino-market-text/65">
-              {market.min ?? 0} - {market.max ?? 0}
+              {Math.max(100, market.min ?? 0)} - {market.max ?? 0}
             </span>
           </span>
           <span className="py-1 text-center text-[0.75rem] font-bold text-casino-market-text">Back</span>
@@ -586,7 +586,7 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
             onClick={() => setShowInfo(false)}
             className="shrink-0 whitespace-nowrap rounded-[3px] bg-white px-1.5 py-[1px] text-[0.66rem] font-extrabold leading-tight text-[#16324F] sm:text-[0.74rem]"
           >
-            Min/Max: {market.min ?? 100} - {market.max ?? 100000}
+            Min/Max: {Math.max(100, market.min ?? 0)} - {market.max ?? 100000}
           </button>
         ) : (
           <button
@@ -732,7 +732,7 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
             {market.marketName}
           </span>
           <span className="shrink-0 whitespace-nowrap text-[0.56rem] font-normal text-board-header-foreground/80 sm:text-[0.68rem]">
-            Min:{market.min ?? 0} Max:{market.max ?? 0}
+            Min:{Math.max(100, market.min ?? 0)} Max:{market.max ?? 0}
           </span>
         </span>
 
@@ -907,7 +907,7 @@ function OneDayTeenPattiBoard({ market, suspended }: { market: CasinoMarket; sus
         <div className="grid h-[33px] grid-cols-[minmax(0,1fr)_78px_78px] items-stretch border-b border-casino-market-divider">
           <div className="flex items-center justify-center px-2">
             <span className="flex h-[23px] w-full max-w-[180px] items-center justify-center rounded-[3px] bg-ex-minmax text-[0.69rem] font-bold text-casino-market-text">
-              Min/Max&nbsp; {market.min ?? 100} - {market.max ?? 500000}
+              Min/Max&nbsp; {Math.max(100, market.min ?? 0)} - {market.max ?? 500000}
             </span>
           </div>
           <span className="flex items-center justify-center border-l border-casino-market-divider bg-casino-market-rate text-[0.8rem] font-extrabold text-casino-market-text">
@@ -1223,7 +1223,7 @@ function AndarBaharPanel({
 
   return (
     <div className="mt-0 bg-muted text-foreground">
-      <span className="sr-only">Min/Max: {minmax?.min ?? 0} - {minmax?.max ?? 0}</span>
+      <span className="sr-only">Min/Max: {Math.max(100, minmax?.min ?? 0)} - {minmax?.max ?? 0}</span>
       <div className="space-y-1 px-2.5 py-1">
         {group("A")}
         {group("B")}
@@ -1367,7 +1367,7 @@ function DT20Panel({
                 {m.marketName}
               </span>
               <span className="text-[0.72rem] font-bold text-board-header-foreground/85">
-                Min/Max: {m.min ?? 100} - {m.max ?? 100000}
+                Min/Max: {Math.max(100, m.min ?? 0)} - {m.max ?? 100000}
               </span>
             </div>
             <div className="relative">
@@ -1519,7 +1519,7 @@ function AAAPanel({
 
   const MinMax = ({ m }: { m: CasinoMarket }) => (
     <div className="flex h-[22px] items-center justify-center bg-[#dbe9f2] text-[0.7rem] font-bold text-[#9fb6c4]">
-      Min/Max: {m.min ?? 100} - {m.max ?? 100000}
+      Min/Max: {Math.max(100, m.min ?? 0)} - {m.max ?? 100000}
     </div>
   );
 
@@ -1567,7 +1567,7 @@ function AAAPanel({
           <div className="flex items-stretch bg-white">
             <div className="flex-1 p-1">
               <div className="flex h-[22px] items-center justify-center bg-[#dbe9f2] text-[0.7rem] font-bold text-[#9fb6c4]">
-                Min/Max: {winner.min ?? 100} - {winner.max ?? 100000}
+                Min/Max: {Math.max(100, winner.min ?? 0)} - {winner.max ?? 100000}
               </div>
             </div>
             <div className="flex w-[124px] items-center justify-center bg-casino-market-rate text-[0.85rem] font-semibold text-casino-market-text/70">
@@ -1783,7 +1783,7 @@ function MuflisPanel({
   return (
     <div className="mt-3 rounded-[14px] bg-[#2C2F33] p-3">
       <p className="mb-2 text-right text-[0.7rem] font-semibold text-white/50">
-        Min:{winner?.min ?? 100} Max:{winner?.max ?? 500000}
+        Min:{Math.max(100, winner?.min ?? 0)} Max:{winner?.max ?? 500000}
       </p>
       <div className="flex items-stretch gap-1">
         <Side letter="A" />
@@ -2039,7 +2039,7 @@ function NumberPanel({
   return (
     <div className="mt-3 rounded-[6px] bg-[#141414] p-3">
       <p className="mb-2 text-right text-[0.68rem] font-semibold text-white/50">
-        Min:{winner?.min ?? 100} Max:{winner?.max ?? 100000}
+        Min:{Math.max(100, winner?.min ?? 0)} Max:{winner?.max ?? 100000}
       </p>
       <div
         className="grid gap-2"
@@ -2196,7 +2196,7 @@ function DragonTigerPanel({
           />
         </div>
         <p className="px-3 pb-2 pt-2 text-right text-[0.7rem] font-semibold text-black/55">
-          Min:{mkt?.min ?? 100} Max:{mkt?.max ?? 100000}
+          Min:{Math.max(100, mkt?.min ?? 0)} Max:{mkt?.max ?? 100000}
         </p>
       </div>
     );
@@ -2268,7 +2268,7 @@ function DragonTigerPanel({
       ) : null}
 
       <p className="mt-1 bg-white px-3 py-1 text-right text-[0.7rem] font-semibold text-black/55">
-        Min:{winnerMkt?.min ?? 100} Max:{winnerMkt?.max ?? 100000}
+        Min:{Math.max(100, winnerMkt?.min ?? 0)} Max:{winnerMkt?.max ?? 100000}
       </p>
 
       <div className="mt-3 grid grid-cols-2 gap-3">
@@ -2737,7 +2737,7 @@ function GamePage() {
         >
           <BallByBallBoard
             runners={view.runners ?? []}
-            min={view.min ?? 20}
+            min={Math.max(100, view.min ?? 0)}
             max={view.max ?? 100000}
             news={view.news}
             recent={bbbRecent}
@@ -2865,7 +2865,7 @@ function GamePage() {
                 size: r.price?.back?.[0]?.size,
                 open: !suspended && isOpenStatus(r.status),
               }))}
-              min={markets[0]?.min ?? 100}
+              min={Math.max(100, markets[0]?.min ?? 0)}
               max={markets[0]?.max ?? 100000}
               recent={[
                 ...(suspended && coinWinner ? [coinWinner] : []),
