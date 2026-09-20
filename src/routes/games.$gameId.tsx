@@ -948,7 +948,7 @@ function Cards32Panel({ markets, suspended }: { markets: CasinoMarket[]; suspend
   });
 
   return (
-    <div className="bg-background">
+    <div className="bg-ex-market-surface">
       {ordered.map((market) => {
         const names = market.runnersName ?? {};
         const runners = market.runners ?? [];
@@ -959,7 +959,7 @@ function Cards32Panel({ markets, suspended }: { markets: CasinoMarket[]; suspend
         const marketLocked = suspended || runners.every((runner) => !isOpenStatus(runner.status ?? "ONLINE"));
 
         return (
-          <section key={String(market.marketId)} className={`border-x border-b bg-background ${marketLocked ? "border-casino-suspend-text" : "border-border"}`}>
+          <section key={String(market.marketId)} className={`border-x border-b bg-ex-market-surface ${marketLocked ? "border-casino-suspend-text" : "border-border"}`}>
             <header className="flex h-[20px] items-center justify-between border-b border-border bg-casino-market-header px-1">
               <h3 className="truncate text-[0.66rem] font-extrabold uppercase leading-none text-board-header-foreground">
                 {market.marketName}
@@ -993,7 +993,7 @@ function Cards32Panel({ markets, suspended }: { markets: CasinoMarket[]; suspend
 
                 return (
                   <div key={String(runner.selectionId)} data-runner-row="" className={`grid h-[34px] ${cols} border-b border-border last:border-b-0`}>
-                    <span data-runner-name="" className="flex min-w-0 items-center bg-background px-1 text-[0.64rem] font-bold leading-tight text-foreground">
+                    <span data-runner-name="" className="flex min-w-0 items-center bg-ex-market-surface px-1 text-[0.64rem] font-bold leading-tight text-ex-cell-foreground">
                       <span className="truncate">{label}</span>
                     </span>
                     {cell(back, "back")}
