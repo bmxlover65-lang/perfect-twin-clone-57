@@ -482,8 +482,8 @@
 .coin-toss { animation: coin-toss 700ms ease-in-out infinite; }
 .coin-flip-heads { animation: coin-flip-heads 2s ease both; }
 .coin-flip-tails { animation: coin-flip-tails 2s ease both; }
-@keyframes coin-flip-heads { from { transform: rotateX(0); } to { transform: rotateX(2160deg); } }
-@keyframes coin-flip-tails { from { transform: rotateX(0); } to { transform: rotateX(1980deg); } }
+@keyframes coin-flip-heads { from { transform: rotateX(0); } to { transform: rotateX(360deg); } }
+@keyframes coin-flip-tails { from { transform: rotateX(0); } to { transform: rotateX(540deg); } }
 @keyframes coin-toss {
   0%, 100% { transform: translateY(12px) scale(0.96); }
   50% { transform: translateY(-30px) scale(1); }
