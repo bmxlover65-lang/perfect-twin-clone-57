@@ -111,6 +111,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [ ] Match shared casino navigation, game shell and spacing
 - [ ] Apply the same structure across all casino pages on universeapi.store
 - [ ] Verify every casino page at mobile width; mobile is the required parity target
+- [x] 32 Cards: match Royal mobile video ratio, compact section headers, white rows, narrow Back/Lay columns and full-value typography
 
 - [x] Win celebration confetti on all tables (loss = no celebration)
 - [x] Strict winner matching prevents side-market losses from triggering payout/confetti
