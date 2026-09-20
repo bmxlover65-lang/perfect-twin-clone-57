@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { RoundTimer } from "@/components/RoundTimer";
 import { ErrorToast, SuccessToast } from "@/components/betting";
 import { placeBet, readWallet } from "@/lib/wallet";
-import headsCoin from "@/assets/coin/heads.png.asset.json";
-import tailsCoin from "@/assets/coin/tails.png.asset.json";
+import headsCoin from "@/assets/coin/heads-2.png.asset.json";
+import tailsCoin from "@/assets/coin/tails-2.png.asset.json";
+import headsBet from "@/assets/coin/head-bet-2.jpg.asset.json";
+import tailsBet from "@/assets/coin/tails-bet-2.jpg.asset.json";
 import coinSound from "@/assets/coin/coinsound.mp3.asset.json";
 import headWinSound from "@/assets/coin/headwin.mp3.asset.json";
 import tailWinSound from "@/assets/coin/tailwin.mp3.asset.json";
@@ -159,12 +161,7 @@ function Plate({
 }) {
   const heads = r.label.toUpperCase().startsWith("H");
   const base =
-    "coin-bet-plate relative flex h-[72px] flex-col items-center justify-center overflow-hidden rounded-[6px] border p-1.5 text-white shadow-[0_2px_7px_rgba(103,130,139,0.9)] transition-transform active:scale-[0.98]";
-  const theme = heads
-    ? "border-[#C4B5FD] bg-gradient-to-b from-[#A78BFA] to-[#7C3AED]"
-    : "border-[#93C5FD] bg-gradient-to-b from-[#60A5FA] to-[#2563EB]";
-  const innerBg = heads ? "bg-[#5B21B6]/55" : "bg-[#1E40AF]/55";
-  const barBg = heads ? "bg-[#4C1D95]/80" : "bg-[#1E3A8A]/80";
+    "coin-bet-plate relative h-[72px] overflow-hidden rounded-[4px] border border-white/20 text-white shadow-[0_2px_7px_rgba(103,130,139,0.9)] transition-transform active:scale-[0.98]";
 
   return (
     <button
@@ -175,23 +172,17 @@ function Plate({
       data-bet-odds={r.price ?? undefined}
       data-suspended={r.open ? undefined : "true"}
       onClick={onClick}
-      className={`${base} ${theme} ${selected ? "ring-2 ring-[#F2C500]" : ""}`}
+      className={`${base} ${selected ? "ring-2 ring-[#F2C500]" : ""}`}
     >
-      {/* decorative side dots */}
-      <span className="pointer-events-none absolute left-2 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-white/60" />
-      <span className="pointer-events-none absolute right-2 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-white/60" />
-
-      <div className={`grid h-[38px] w-[96px] place-items-center rounded-full ${innerBg} px-4 shadow-inner`}>
-        <span className="text-center text-[0.9rem] font-black leading-tight tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-          {r.label.toUpperCase()}
-        </span>
-      </div>
-
-      <div className={`mt-1.5 flex w-full items-center justify-center rounded py-1 ${barBg}`}>
-        <span className="text-[1rem] font-black leading-none text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-          {formatOdds(r.price)}
-        </span>
-      </div>
+      <img
+        src={heads ? headsBet.url : tailsBet.url}
+        alt={heads ? "Heads betting area" : "Tails betting area"}
+        className="absolute inset-0 h-full w-full select-none object-fill"
+        draggable={false}
+      />
+      <span className="absolute bottom-0 left-1/2 z-[3] flex h-[21px] w-[76px] -translate-x-1/2 items-center justify-center bg-[#172536] text-[1rem] font-medium leading-none text-white">
+        {formatOdds(r.price)}
+      </span>
 
       {!r.open ? (
         <span className="absolute inset-0 z-10 grid place-items-center bg-black/40">
