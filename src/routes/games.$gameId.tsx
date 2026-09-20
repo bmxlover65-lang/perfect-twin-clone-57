@@ -318,7 +318,7 @@ function PokerPanel({
   suspended: boolean;
 }) {
   const Plate = ({ runner, label, locked }: {
-    runner?: CasinoMarket["runners"] extends (infer R)[] | undefined ? R : never;
+    runner?: (CasinoMarket["runners"] extends (infer R)[] | undefined ? R : never) | undefined;
     label: string;
     locked: boolean;
   }) => {
