@@ -62,7 +62,8 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Dream Catcher + Lucky 0-9: chips 100…100k, "U" in wheel centre, bigger Dream wheel, own spin sound
 - [~] Baccarat + Muflis TP: chips done; card display pending
 - [~] 20-20 TP + Lucky 7: Recent Result attached + Tie shown as "T"; card display pending
-- [ ] 1Day TP + DTL: card display; Recent Result under last market; DTL rate box
+- [x] 1Day TP: mobile reference stage ratio, live card overlay, compact Winner board, full suspend veil and real Recent Result strip
+- [ ] DTL: card display; Recent Result under last market; DTL rate box
 - [ ] 1 Day Dragon Tiger: rate box + video card display
 - [ ] Joker TP, 20-20 DT, Andar Bahar, 20-20 Poker, 32 Cards: cards + Recent Result under last market
 - [ ] Card Race: market box + Recent Result placement
