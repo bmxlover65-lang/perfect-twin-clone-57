@@ -633,7 +633,6 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
 
 
       </div>
-      ) : null}
     </div>
   );
 }
