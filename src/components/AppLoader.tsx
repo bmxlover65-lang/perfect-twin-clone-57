@@ -15,7 +15,7 @@ export function AppLoader({ compact = false, className = "" }: AppLoaderProps) {
       <img
         src={loaderAsset.url}
         alt="Universe Casino loading"
-        className={compact ? "h-auto w-[210px] max-w-[70vw]" : "h-auto w-[320px] max-w-[85vw] sm:w-[400px]"}
+        className={compact ? "h-auto w-[280px] max-w-[80vw]" : "h-auto w-[min(92vw,640px)]"}
       />
     </div>
   );
