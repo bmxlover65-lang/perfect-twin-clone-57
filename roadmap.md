@@ -78,7 +78,8 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] 20-20 DT: mobile reference stage, Dragon/Tiger cards, centred Tie market and result colors
 - [x] Andar Bahar: Royal mobile layout, live/suspended plates, Odd/Even, suits, rank cards and Recent Result
 - [x] Lucky 7 Lucky Card: full-width two-column plates with reference row spacing and compact card/rate typography
-- [ ] 20-20 Poker, 32 Cards: cards + Recent Result under last market
+- [ ] 20-20 Poker: cards + Recent Result under last market
+- [x] 32 Cards: Royal mobile Winner, Card Color, Card Total and Lucky Number tables with section-scoped suspended overlays
 - [ ] Card Race: market box + Recent Result placement
 - [ ] Amar Akbar Anthony: rate box (Odd/Even, Colour, Under/Over) + cards
 - [x] VIMAAN: match supplied mobile history strip, radial flying graph, waiting/plane state, flew-away result and compact All Bets header
