@@ -816,7 +816,7 @@ function DragonTiger20Board({ market, suspended }: { market: CasinoMarket; suspe
     const label = runner ? String(names[String(runner.selectionId)] ?? fallback) : fallback;
     const open = Boolean(runner && !suspended && isOpenStatus(runner.status ?? "ONLINE") && back?.price);
     return (
-      <div className={last ? "col-span-2 mx-auto w-1/2" : "min-w-0"}>
+      <div key={runner ? String(runner.selectionId) : fallback} className={last ? "col-span-2 mx-auto w-1/2" : "min-w-0"}>
         <p className="pb-1 text-center text-[0.78rem] font-bold uppercase leading-none text-casino-market-text">{label}</p>
         <button
           type="button"
