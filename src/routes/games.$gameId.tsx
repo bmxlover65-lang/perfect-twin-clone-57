@@ -270,7 +270,7 @@ function BaccaratPanel({
         data-bet-label={r.label}
         data-bet-odds={String(r.price ?? "")}
         disabled={!r.open}
-        className={`relative flex h-full w-full min-w-0 flex-col items-center justify-center overflow-hidden text-board-header-foreground ${tone}`}
+        className={`relative flex h-full w-full min-w-0 flex-col items-center justify-center overflow-hidden text-board-header-foreground ${variant === "tie" ? "pointer-events-auto" : ""} ${tone}`}
       >
         <span className="text-[0.93rem] font-extrabold uppercase leading-none">{r.label}</span>
         <span className="mt-1 text-[0.94rem] font-bold leading-none">{fmtOdds(r.price)}</span>
@@ -293,7 +293,7 @@ function BaccaratPanel({
           {banker ? <BetPlate r={banker} variant="banker" /> : null}
         </div>
         {tie ? (
-          <div className="absolute inset-0 z-20 flex items-center justify-center">
+          <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
             <div className="h-[89px] w-[89px] overflow-hidden rounded-full border-2 border-baccarat-ring">
               <BetPlate r={tie} variant="tie" />
             </div>
