@@ -487,13 +487,13 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
 /** Mini white card: rank on top, four suit glyphs below (blacks left, reds right). */
 function RankSuitMini({ rank }: { rank: string }) {
   return (
-    <span className="flex h-[25px] w-[18px] shrink-0 flex-col items-center justify-center rounded-[1px] border border-foreground bg-background py-px leading-none shadow-sm">
-      <span className="text-[0.5rem] font-extrabold text-foreground">{rank}</span>
+    <span className="flex h-[25px] w-[18px] shrink-0 flex-col items-center justify-center rounded-[1px] border border-ex-cell-foreground bg-ex-market-surface py-px leading-none shadow-sm">
+      <span className="text-[0.5rem] font-extrabold text-ex-cell-foreground">{rank}</span>
       <span className="grid grid-cols-2 gap-x-px text-[0.34rem] leading-none">
-        <span className="text-[#111]">♠</span>
-        <span className="text-[#E01B24]">♥</span>
-        <span className="text-[#111]">♣</span>
-        <span className="text-[#E01B24]">♦</span>
+        <span className="text-card-black">♠</span>
+        <span className="text-card-red">♥</span>
+        <span className="text-card-black">♣</span>
+        <span className="text-card-red">♦</span>
       </span>
     </span>
   );
