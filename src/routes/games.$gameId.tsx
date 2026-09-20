@@ -577,7 +577,7 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                   </div>
                   <div
                     data-market-plate=""
-                    className="relative mx-auto flex h-[46px] w-full max-w-[145px] items-center justify-center gap-2 rounded-[7px] bg-casino-market-rate px-2 shadow-[0_3px_8px_color-mix(in_oklab,var(--casino-market-header)_25%,transparent)] sm:h-[52px] sm:max-w-[160px] sm:gap-2.5"
+                    className="relative mx-auto flex h-[40px] w-full max-w-[150px] items-center justify-center gap-2 rounded-[7px] bg-casino-market-rate px-2 shadow-[0_3px_8px_color-mix(in_oklab,var(--casino-market-header)_25%,transparent)] sm:h-[46px] sm:max-w-[165px] sm:gap-2.5"
                   >
                     <RankSuitMini rank={label} />
                     <div className="flex flex-col items-center justify-center leading-none text-casino-market-text">
