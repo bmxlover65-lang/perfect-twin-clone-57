@@ -557,7 +557,7 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
           </button>
         )}
       </header>
-      <div className={`relative px-2 py-1 sm:px-3 sm:py-3 ${isLuckyCard ? "bg-gradient-to-b from-[#C9DEF6] to-[#A8C7EE]" : "bg-casino-market-body"}`}>
+      <div className="relative bg-casino-market-body px-2 py-1 sm:px-3 sm:py-3">
         <div className={`grid grid-cols-2 ${isLuckyCard ? "gap-x-3 gap-y-0.5 sm:gap-x-5 sm:gap-y-1" : "gap-x-2 gap-y-1.5 sm:gap-x-4 sm:gap-y-3"}`}>
 
           {runners.map((r, i) => {
@@ -572,15 +572,15 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                   data-market-option=""
                   className={`min-w-0 pb-2 [&:has([data-has-exposure='true'])]:pb-7 ${last ? "col-span-2 mx-auto w-[calc(50%-0.75rem)]" : ""}`}
                 >
-                  <div className="pb-[2px] text-center text-[0.74rem] font-semibold leading-none text-[#16324F] sm:text-[0.8rem]">
+                  <div className="pb-[2px] text-center text-[0.74rem] font-semibold leading-none text-casino-market-text sm:text-[0.8rem]">
                     {label}
                   </div>
                   <div
                     data-market-plate=""
-                    className="relative mx-auto flex h-[46px] w-full max-w-[145px] items-center justify-center gap-2 rounded-[7px] bg-[#7FAFE6] px-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_2px_4px_rgba(15,45,80,0.25)] sm:h-[52px] sm:max-w-[160px] sm:gap-2.5"
+                    className="relative mx-auto flex h-[46px] w-full max-w-[145px] items-center justify-center gap-2 rounded-[7px] bg-casino-market-rate px-2 shadow-[0_3px_8px_color-mix(in_oklab,var(--casino-market-header)_25%,transparent)] sm:h-[52px] sm:max-w-[160px] sm:gap-2.5"
                   >
                     <RankSuitMini rank={label} />
-                    <div className="flex flex-col items-center justify-center leading-none text-[#16324F]">
+                    <div className="flex flex-col items-center justify-center leading-none text-casino-market-text">
                       <span className="text-[0.95rem] font-bold sm:text-[1.05rem]">
                         {fmtOdds(p?.price)}
                       </span>
