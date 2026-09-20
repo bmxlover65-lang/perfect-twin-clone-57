@@ -187,19 +187,48 @@ export async function backupEvents(
   resolveId?: (normalizedName: string) => string | undefined,
 ) {
   const list = await events(sportId);
-  return list.map((e) => ({
-    sportId,
-    exEventId:
-      resolveId?.(normalizeName(e.Runnername)) ?? `sf:${e.EventCode}:${e.BetfairId}`,
-    eventName: e.Runnername,
-    marketName: "Match Odds",
-    inPlay: e.is_live === "on",
-    status: "OPEN",
-    tv: e.LiveTv === "flex",
-    isFancy: e.is_fancy === "flex",
-    eventTime: e.match_time,
-    runners: [],
-  }));
+  // The list page shows a price preview and matched volume per event, so pull
+  // each event's match-odds row set (short-cached, so polling stays cheap).
+  const priced = await Promise.all(
+    list.slice(0, 30).map(async (e) => {
+      try {
+        return await oddsRows(e.EventCode, e.BetfairId);
+      } catch {
+        return [] as SfOddsRow[];
+      }
+    }),
+  );
+
+  return list.map((e, i) => {
+    const rows = priced[i] ?? [];
+    const runners = rows.map((r, idx) => ({
+      selectionId: `${e.EventCode}-${idx}`,
+      status: (r.status ?? "ACTIVE").toUpperCase(),
+      handicap: 0,
+      backPrice: num(r.back1),
+      backSize: num(r.back1size),
+      layPrice: num(r.lay1),
+      laySize: num(r.lay1size),
+    }));
+    const runnersData: Record<string, string> = {};
+    rows.forEach((r, idx) => {
+      runnersData[`${e.EventCode}-${idx}`] = r.Runnername;
+    });
+    return {
+      sportId,
+      exEventId: resolveId?.(normalizeName(e.Runnername)) ?? `sf:${e.EventCode}:${e.BetfairId}`,
+      eventName: e.Runnername,
+      marketName: "Match Odds",
+      inPlay: e.is_live === "on",
+      status: "OPEN",
+      tv: e.LiveTv === "flex",
+      isFancy: e.is_fancy === "flex",
+      eventTime: e.match_time,
+      totalMatched: num(rows[0]?.totalMatched),
+      runnersData,
+      runners,
+    };
+  });
 }
 
 /** Match odds for one event, keyed either by our backup id or by event name. */
