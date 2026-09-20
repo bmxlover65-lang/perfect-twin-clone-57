@@ -268,7 +268,25 @@ X-API-Key: your-api-key`}
             code={`{
   "games": [
     { "eventId": "99.0010", "eventName": "20-20 TEENPATTI" },
-    { "eventId": "99.0018", "eventName": "DRAGON TIGER" }
+    { "eventId": "99.0030", "eventName": "LUCKY 7" },
+    { "eventId": "99.0013", "eventName": "1DAY TEEN PATTI" },
+    { "eventId": "99.0016", "eventName": "JOKER TEEN PATTI" },
+    { "eventId": "99.0019", "eventName": "20-20 DRAGON TIGER" },
+    { "eventId": "99.0001", "eventName": "BACCARAT" },
+    { "eventId": "99.0025", "eventName": "ANDAR BAHAR" },
+    { "eventId": "99.0022", "eventName": "32 CARDS" },
+    { "eventId": "99.0007", "eventName": "POKER" },
+    { "eventId": "99.0041", "eventName": "DTL" },
+    { "eventId": "99.0021", "eventName": "1 DAY DRAGON TIGER" },
+    { "eventId": "99.0014", "eventName": "MUFLIS TEEN PATTI" },
+    { "eventId": "99.0046", "eventName": "CARD RACE" },
+    { "eventId": "99.0005", "eventName": "AMAR AKBAR ANTHONY" },
+    { "eventId": "99.0018", "eventName": "DRAGON TIGER" },
+    { "eventId": "88.0019", "eventName": "LUCKY 0 TO 9" },
+    { "eventId": "88.0020", "eventName": "DREAM CATCHER" },
+    { "eventId": "88.0021", "eventName": "HEADS & TAILS" },
+    { "eventId": "88.0023", "eventName": "BALLOON" },
+    { "eventId": "4.3544687543453", "eventName": "BALL BY BALL" }
   ]
 }`}
           />
@@ -288,23 +306,70 @@ X-API-Key: your-api-key`}
           <Block
             label="Response 200"
             code={`{
-  "client": "Your Company Name",
-  "clientIp": "203.0.113.10",
   "eventId": "99.0010",
+  "freshnessMs": 1354,
   "stale": false,
-  "freshnessMs": 280,
   "data": {
-    "roundId": "123456789",
-    "status": "OPEN",
-    "roundStatus": "OPEN",
-    "leftSec": 12,
-    "marketArr": [ … ],
-    "cardsArr": { … },
-    "resultsArr": [ … ],
-    "updatedAt": "2026-05-24T11:00:00.000Z"
+    "roundId": "9102009062735",
+    "eventId": "99.0010",
+    "eventName": "20-20 TEEN PATTI",
+    "status": "ONLINE",
+    "roundStatus": "PLACE_THE_BET",
+    "leftSec": 16,
+    "seconds": 16,
+    "min": 0,
+    "max": 0,
+    "betDelay": 0,
+    "sportId": "66102",
+    "sportName": "Casino",
+    "isMaintenance": false,
+    "updatedAt": "2026-09-20T06:28:33.369Z",
+    "createdAt": "2026-09-16T10:57:41.028Z",
+    "marketArr": [
+      {
+        "marketId": "9102009062736",
+        "marketName": "WINNER",
+        "min": 100,
+        "max": 500000,
+        "index": 0,
+        "runners": [
+          {
+            "selectionId": "30820190609",
+            "status": "ONLINE",
+            "price": { "back": [ { "size": 2260751, "price": 1.98 } ] }
+          },
+          {
+            "selectionId": "30820190610",
+            "status": "ONLINE",
+            "price": { "back": [ { "size": 1905882, "price": 1.98 } ] }
+          }
+        ],
+        "runnersName": { "30820190609": "PLAYER A", "30820190610": "PLAYER B" }
+      }
+    ],
+    "cardsArr": {
+      "PLAYER_A": { "card_1": "SA_", "card_2": "0", "card_3": "0" },
+      "PLAYER_B": { "card_1": "H8_", "card_2": "0", "card_3": "0" }
+    },
+    "resultsArr": [
+      {
+        "marketId": "9102009062736",
+        "marketName": "WINNER",
+        "index": 0,
+        "runners": { "30820190609": "", "30820190610": "" },
+        "runnersName": { "30820190609": "PLAYER A", "30820190610": "PLAYER B" }
+      }
+    ]
   }
 }`}
           />
+          <Note>
+            This is a real response copied from the live feed. <Code>marketArr</Code> carries every
+            market of the game (WINNER, PAIR, FLUSH, STRAIGHT, …) in the same shape shown above, and{" "}
+            <Code>resultsArr</Code> mirrors it. <Code>cardsArr</Code> card codes like{" "}
+            <Code>SA_</Code> = Spade Ace, <Code>H8_</Code> = Heart 8; <Code>"0"</Code> means the card
+            is not dealt yet.
+          </Note>
           <P>
             Prefer WebSocket push for live screens:{" "}
             <Code>wss://universalapi.store/ws?eventId=99.0010&apiKey=YOUR_KEY</Code> (frames use{" "}
@@ -355,23 +420,49 @@ X-API-Key: your-api-key`}
             code={`{
   "data": [
     {
-      "roundId": "987654321",
+      "roundId": "9102009062625",
+      "eventId": "99.0010",
+      "eventName": "20-20 TEEN PATTI",
       "winner": "A",
-      "cards": { "A": ["H7", "D9"], "B": ["C3", "S5"] },
+      "cards": {
+        "PLAYER_A": { "card_1": "HQ_", "card_2": "CJ_", "card_3": "DK_" },
+        "PLAYER_B": { "card_1": "C2_", "card_2": "D3_", "card_3": "H2_" }
+      },
       "results": [
         {
-          "marketName": "Main",
+          "marketId": "9102009062626",
+          "marketName": "WINNER",
+          "index": 0,
           "runners": [
-            { "selectionId": "1", "result": "WIN" },
-            { "selectionId": "2", "result": "LOSE" }
-          ]
+            { "selectionId": "30820190609", "result": "WINNER" },
+            { "selectionId": "30820190610", "result": "LOSER" }
+          ],
+          "runnersName": { "30820190609": "PLAYER A", "30820190610": "PLAYER B" }
+        },
+        {
+          "marketId": "9102009062627",
+          "marketName": "PAIR ( DUBBLE ) 1:4",
+          "index": 1,
+          "runners": [
+            { "selectionId": "7519370209724709", "result": "LOSER" },
+            { "selectionId": "75193702209724709", "result": "WINNER" }
+          ],
+          "runnersName": {
+            "7519370209724709": "PLAYER A ( PAIR )",
+            "75193702209724709": "PLAYER B ( PAIR )"
+          }
         }
       ]
     }
-  ],
-  "meta": { "status": true, "message": "Success" }
+  ]
 }`}
           />
+          <Note>
+            Real response shape from the live feed — every settled round lists all of its markets in{" "}
+            <Code>results</Code>, each runner marked <Code>WINNER</Code> or <Code>LOSER</Code>.{" "}
+            <Code>winner</Code> is the table winner (<Code>A</Code> / <Code>B</Code>) where the game
+            has one.
+          </Note>
           <P>
             Poll when the user opens a game or after each round ends — every 10–30 seconds is usually
             enough. Returns <Code>503</Code> if historical results are temporarily unavailable.
