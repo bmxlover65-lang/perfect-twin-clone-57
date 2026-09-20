@@ -2840,7 +2840,7 @@ function RecentStrip({
                 : isTie
                   ? "bg-[#8CD9B5] text-[#0F172A]"
                   : first === "L"
-                    ? "bg-[#8E44C7] text-white"
+                    ? (lucky7 ? "bg-[#F9A9BA] text-white" : "bg-[#8E44C7] text-white")
                     : ["B", "T"].includes(first)
                       ? "bg-ex-lay text-ex-cell-foreground"
                       : "bg-ex-back text-ex-cell-foreground";
