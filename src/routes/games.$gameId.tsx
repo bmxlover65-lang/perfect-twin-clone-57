@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { Aviator } from "@/components/Aviator";
 import { FitBoard } from "@/components/FitBoard";
 import { RoundTimer } from "@/components/RoundTimer";
@@ -504,7 +505,8 @@ function PlateSuits({ suits }: { suits: string[] }) {
 /** Light blue sectioned board with 2-column plates (Lucky 7, 20-20 TP, 20-20 DT) — original style. */
 
 
-function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
+function DarkGridBoard({ market, suspended, defaultOpen = false }: { market: CasinoMarket; suspended: boolean; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
   const names = market.runnersName ?? {};
   const raw = market.runners ?? [];
   // Lucky 7's "LUCKY CARD" market uses the dedicated card board: numbered
@@ -531,16 +533,25 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
 
   return (
     <div className="mt-0 border-b-2 border-board-header-foreground sm:border-b-0">
-      <header className="flex h-[20px] items-center justify-between gap-2 bg-casino-market-header px-1.5 sm:h-[26px] sm:px-2">
-        <h3 className="truncate whitespace-nowrap text-[0.68rem] font-extrabold uppercase tracking-[0.02em] text-board-header-foreground sm:text-[0.8rem]">
+      <header className="flex h-[24px] items-center justify-between gap-2 bg-casino-market-header px-1.5 sm:h-[28px] sm:px-2">
+        <h3 className="truncate whitespace-nowrap text-[0.72rem] font-extrabold uppercase tracking-[0.02em] text-board-header-foreground sm:text-[0.85rem]">
           {market.marketName}
         </h3>
-        <span className="flex h-3 w-3 shrink-0 items-center justify-center rounded-full bg-board-header-foreground text-[0.55rem] font-black text-casino-market-header sm:h-4 sm:w-4 sm:text-[0.65rem]">
-          i
-        </span>
-
-
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <span className="whitespace-nowrap text-[0.62rem] font-semibold text-board-header-foreground/90 sm:text-[0.74rem]">
+            Min/Max: {market.min ?? 100} - {market.max ?? 100000}
+          </span>
+          <button
+            type="button"
+            aria-label={open ? "Hide market" : "Show market"}
+            onClick={() => setOpen((v) => !v)}
+            className="flex h-4 w-4 items-center justify-center rounded-full bg-board-header-foreground text-casino-market-header sm:h-[18px] sm:w-[18px]"
+          >
+            {open ? <Eye className="h-2.5 w-2.5 sm:h-3 sm:w-3" strokeWidth={2.5} /> : <EyeOff className="h-2.5 w-2.5 sm:h-3 sm:w-3" strokeWidth={2.5} />}
+          </button>
+        </div>
       </header>
+      {open ? (
       <div className={`relative px-2 py-1 sm:px-3 sm:py-3 ${isLuckyCard ? "bg-gradient-to-b from-[#C9DEF6] to-[#A8C7EE]" : "bg-casino-market-body"}`}>
         <div className={`grid grid-cols-2 ${isLuckyCard ? "gap-x-3 gap-y-0.5 sm:gap-x-5 sm:gap-y-1" : "gap-x-2 gap-y-1.5 sm:gap-x-4 sm:gap-y-3"}`}>
 
@@ -623,6 +634,7 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
 
 
       </div>
+      ) : null}
     </div>
   );
 }
@@ -2654,7 +2666,7 @@ function GamePage() {
           <AAAPanel markets={markets} suspended={suspended} />
         ) : ["99.0030", "99.0010", "99.0019"].includes(gameId) && markets.length ? (
           markets.map((m, i) => (
-            <DarkGridBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
+            <DarkGridBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} defaultOpen={i === 0} />
           ))
         ) : ["99.0016", "99.0013"].includes(gameId) && markets.length ? (
           markets.map((m, i) => (
