@@ -954,14 +954,14 @@ function Cards32Panel({ markets, suspended }: { markets: CasinoMarket[]; suspend
         const runners = market.runners ?? [];
         const hasLay = runners.some((runner) => Boolean(runner.price?.lay?.[0]?.price));
         const cols = hasLay
-          ? "grid-cols-[minmax(0,1fr)_67px_67px]"
-          : "grid-cols-[minmax(0,1fr)_99px]";
+          ? "grid-cols-[minmax(0,1fr)_70px_70px]"
+          : "grid-cols-[minmax(0,1fr)_84px]";
         const marketLocked = suspended || runners.every((runner) => !isOpenStatus(runner.status ?? "ONLINE"));
 
         return (
-          <section key={String(market.marketId)} className="border-x border-b border-casino-suspend-text bg-background">
-            <header className="flex h-[22px] items-center justify-between border-b border-casino-suspend-text bg-casino-market-header px-1">
-              <h3 className="truncate text-[0.7rem] font-extrabold uppercase leading-none text-board-header-foreground">
+          <section key={String(market.marketId)} className={`border-x border-b bg-background ${marketLocked ? "border-casino-suspend-text" : "border-border"}`}>
+            <header className="flex h-[20px] items-center justify-between border-b border-border bg-casino-market-header px-1">
+              <h3 className="truncate text-[0.66rem] font-extrabold uppercase leading-none text-board-header-foreground">
                 {market.marketName}
               </h3>
               <span className="flex h-[12px] w-[12px] shrink-0 items-center justify-center rounded-full bg-board-header-foreground text-casino-market-header">
@@ -984,16 +984,16 @@ function Cards32Panel({ markets, suspended }: { markets: CasinoMarket[]; suspend
                     disabled={!open || !point?.price}
                     className={`flex h-full min-w-0 flex-col items-center justify-center border-l border-casino-market-divider ${side === "back" ? "bg-ex-back" : "bg-ex-lay"}`}
                   >
-                    <span className="text-[0.76rem] font-bold leading-none text-foreground/55">{fmtOdds(point?.price)}</span>
-                    <span className="mt-1 text-[0.54rem] font-medium leading-none text-foreground/45">
+                    <span className="text-[0.75rem] font-extrabold leading-none text-foreground">{fmtOdds(point?.price)}</span>
+                    <span className="mt-[3px] text-[0.5rem] font-medium leading-none text-foreground">
                       {point?.size == null ? "" : String(Math.round(point.size))}
                     </span>
                   </button>
                 );
 
                 return (
-                  <div key={String(runner.selectionId)} data-runner-row="" className={`grid h-[39px] ${cols} border-b border-border last:border-b-0`}>
-                    <span data-runner-name="" className="flex min-w-0 items-start bg-background px-1 pt-1.5 text-[0.68rem] font-bold leading-none text-foreground/50">
+                  <div key={String(runner.selectionId)} data-runner-row="" className={`grid h-[34px] ${cols} border-b border-border last:border-b-0`}>
+                    <span data-runner-name="" className="flex min-w-0 items-center bg-background px-1 text-[0.64rem] font-bold leading-tight text-foreground">
                       <span className="truncate">{label}</span>
                     </span>
                     {cell(back, "back")}
@@ -2946,10 +2946,10 @@ function GamePage() {
             src={stream}
             allow="autoplay; fullscreen; encrypted-media"
             allowFullScreen
-            className={`${gameId === "99.0013" ? "aspect-[1.72/1]" : ["99.0001", "99.0016", "99.0019"].includes(gameId) ? "aspect-[1.78/1]" : "aspect-[2/1]"} w-full border-0 bg-black sm:aspect-video`}
+            className={`${gameId === "99.0013" ? "aspect-[1.72/1]" : ["99.0001", "99.0016", "99.0019", "99.0022"].includes(gameId) ? "aspect-[1.78/1]" : "aspect-[2/1]"} w-full border-0 bg-black sm:aspect-video`}
           />
         ) : (
-          <div className={`${gameId === "99.0013" ? "aspect-[1.72/1]" : ["99.0001", "99.0016", "99.0019"].includes(gameId) ? "aspect-[1.78/1]" : "aspect-[2/1]"} w-full bg-black sm:aspect-video`} />
+          <div className={`${gameId === "99.0013" ? "aspect-[1.72/1]" : ["99.0001", "99.0016", "99.0019", "99.0022"].includes(gameId) ? "aspect-[1.78/1]" : "aspect-[2/1]"} w-full bg-black sm:aspect-video`} />
         )}
         {!stream ? (
           <img
@@ -2961,10 +2961,10 @@ function GamePage() {
         ) : null}
         <div
           ref={overlayRef}
-          className={`pointer-events-none absolute left-1 top-1 z-20 max-w-[calc(100%-0.5rem)] origin-top-left overflow-visible sm:left-3 sm:top-3 sm:max-w-[calc(100%-1.5rem)] ${["99.0001", "99.0013", "99.0016", "99.0019"].includes(gameId) ? "space-y-1.5" : "space-y-1"}`}
-          style={{ transform: ["99.0001", "99.0013", "99.0016", "99.0019"].includes(gameId) ? undefined : `scale(${overlayScale})` }}
+          className={`pointer-events-none absolute left-1 top-1 z-20 max-w-[calc(100%-0.5rem)] origin-top-left overflow-visible sm:left-3 sm:top-3 sm:max-w-[calc(100%-1.5rem)] ${["99.0001", "99.0013", "99.0016", "99.0019", "99.0022"].includes(gameId) ? "space-y-1.5" : "space-y-1"}`}
+          style={{ transform: ["99.0001", "99.0013", "99.0016", "99.0019", "99.0022"].includes(gameId) ? undefined : `scale(${overlayScale})` }}
         >
-          <p className={`${["99.0001", "99.0013", "99.0016", "99.0019"].includes(gameId) ? "text-[0.68rem] font-extrabold" : "text-[0.6rem] font-bold sm:text-[0.72rem]"} uppercase text-white drop-shadow`}>
+          <p className={`${["99.0001", "99.0013", "99.0016", "99.0019", "99.0022"].includes(gameId) ? "text-[0.68rem] font-extrabold" : "text-[0.6rem] font-bold sm:text-[0.72rem]"} uppercase text-white drop-shadow`}>
             RID: {d?.roundId ?? "—"}
           </p>
           {handLayout.map((h) => (
