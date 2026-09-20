@@ -2877,7 +2877,11 @@ function RecentStrip({
             <span
               key={`${r.roundId ?? ""}-${idx}`}
               title={`Round ${r.roundId}`}
-              className={`flex h-9 min-w-9 shrink-0 items-center justify-center rounded-full px-2 text-sm font-bold ${finalTone}`}
+              className={`flex shrink-0 items-center justify-center rounded-full font-bold ${
+                lucky7
+                  ? "h-[22px] min-w-[22px] px-1.5 text-[0.7rem]"
+                  : "h-9 min-w-9 px-2 text-sm"
+              } ${finalTone}`}
             >
               {first || "-"}
             </span>
