@@ -41,6 +41,7 @@ import {
 } from "@/components/OriginalStages";
 import ballByBallBanner from "@/assets/games/ballbyball.gif.asset.json";
 import ballByBallResult from "@/assets/ball-by-ball-result.png";
+import casinoStageMark from "@/assets/universe-casino-loader.gif.asset.json";
 import chip1k from "@/assets/chips/chips1k.svg.asset.json";
 import chip5 from "@/assets/chips/chips5.svg.asset.json";
 import chip10 from "@/assets/chips/chips10.svg.asset.json";
@@ -2612,11 +2613,17 @@ function GamePage() {
             src={stream}
             allow="autoplay; fullscreen; encrypted-media"
             allowFullScreen
-            className="aspect-video w-full border-0 bg-black"
+            className="aspect-[2/1] w-full border-0 bg-black sm:aspect-video"
           />
         ) : (
-          <div className="aspect-video w-full bg-black" />
+          <div className="aspect-[2/1] w-full bg-black sm:aspect-video" />
         )}
+        <img
+          src={casinoStageMark.url}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 z-10 h-auto w-[38%] max-w-[170px] -translate-x-1/2 -translate-y-1/2 object-contain opacity-90"
+        />
         <div
           ref={overlayRef}
           className="pointer-events-none absolute left-1 top-1 z-20 max-w-[calc(100%-0.5rem)] origin-top-left space-y-1 overflow-visible sm:left-3 sm:top-3 sm:max-w-[calc(100%-1.5rem)]"
@@ -2733,8 +2740,9 @@ function ResultBanner({
       return;
     }
     setShow(true);
-    // safety cap so the banner never sticks if no new round arrives
-    const t = setTimeout(() => setShow(false), 30000);
+    // The original result callout stays visible briefly, then clears even if
+    // the next live frame has not opened yet.
+    const t = setTimeout(() => setShow(false), 3000);
     return () => clearTimeout(t);
   }, [key, winner]);
 
@@ -2880,7 +2888,7 @@ function RecentStrip({
               className={`flex shrink-0 items-center justify-center rounded-full font-bold ${
                 lucky7
                   ? "h-[22px] min-w-[22px] px-1.5 text-[0.7rem]"
-                  : "h-9 min-w-9 px-2 text-sm"
+                  : "h-7 min-w-7 px-1.5 text-[0.75rem]"
               } ${finalTone}`}
             >
               {first || "-"}
