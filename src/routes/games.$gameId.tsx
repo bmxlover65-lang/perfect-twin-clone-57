@@ -447,9 +447,9 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
 /** Mini white card: rank on top, four suit glyphs below (blacks left, reds right). */
 function RankSuitMini({ rank }: { rank: string }) {
   return (
-    <span className="flex h-[38px] w-[28px] shrink-0 flex-col items-center justify-center rounded-[3px] bg-white py-[2px] leading-none shadow-[0_1px_2px_rgba(10,40,80,0.35)] sm:h-[42px] sm:w-[31px]">
-      <span className="text-[0.72rem] font-extrabold text-[#111] sm:text-[0.8rem]">{rank}</span>
-      <span className="mt-[1px] grid grid-cols-2 gap-x-[3px] text-[0.5rem] leading-[1.1] sm:text-[0.55rem]">
+    <span className="flex h-[17px] w-[13px] shrink-0 flex-col items-center justify-center rounded-[2px] bg-white py-[1px] leading-none shadow-[0_1px_2px_rgba(10,40,80,0.35)] sm:h-[20px] sm:w-[15px]">
+      <span className="text-[0.5rem] font-extrabold text-[#111] sm:text-[0.58rem]">{rank}</span>
+      <span className="mt-[0.5px] grid grid-cols-2 gap-x-[2px] text-[0.34rem] leading-[1.1] sm:text-[0.4rem]">
         <span className="text-[#111]">♠</span>
         <span className="text-[#E01B24]">♥</span>
         <span className="text-[#111]">♣</span>
@@ -577,14 +577,14 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                   </div>
                   <div
                     data-market-plate=""
-                    className="relative mx-auto flex h-[40px] w-full max-w-[150px] items-center justify-center gap-2 rounded-[7px] bg-casino-market-rate px-2 shadow-[0_3px_8px_color-mix(in_oklab,var(--casino-market-header)_25%,transparent)] sm:h-[46px] sm:max-w-[165px] sm:gap-2.5"
+                    className="relative mx-auto flex h-[30px] w-full max-w-[150px] items-center justify-center gap-1.5 rounded-[6px] bg-casino-market-rate px-1.5 shadow-[0_3px_8px_color-mix(in_oklab,var(--casino-market-header)_25%,transparent)] sm:h-[36px] sm:max-w-[165px] sm:gap-2 sm:px-2"
                   >
                     <RankSuitMini rank={label} />
                     <div className="flex flex-col items-center justify-center leading-none text-casino-market-text">
-                      <span className="text-[0.95rem] font-bold sm:text-[1.05rem]">
+                      <span className="text-[0.72rem] font-bold sm:text-[0.8rem]">
                         {fmtOdds(p?.price)}
                       </span>
-                      <span className="mt-[3px] text-[0.68rem] font-medium sm:text-[0.75rem]">
+                      <span className="mt-[2px] text-[0.56rem] font-medium sm:text-[0.62rem]">
                         {p?.size == null ? "" : String(Math.round(p.size))}
                       </span>
                     </div>
