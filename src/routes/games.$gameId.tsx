@@ -937,7 +937,7 @@ type ABRunner = {
   id: string;
   label: string;
   price?: number | null | undefined;
-
+  size?: number | null | undefined;
   open: boolean;
 };
 
@@ -1072,6 +1072,7 @@ function AndarBaharPanel({
       id: String(r.selectionId),
       label: (m?.runnersName ?? {})[String(r.selectionId)] ?? String(r.selectionId),
       price: r.price?.back?.[0]?.price,
+      size: r.price?.back?.[0]?.size,
       open: !suspended && isOpenStatus(r.status),
     }));
 
@@ -1082,38 +1083,43 @@ function AndarBaharPanel({
   const cards = list(byName("LUCKY CARD"));
   const minmax = byName("WINNER");
 
-  const Price = ({ r }: { r: ABRunner }) => (
-    <span className="inline-flex items-center justify-center">
-      {r.open ? fmtOdds(r.price) : <span className="text-[0.9em]">🔒</span>}
-    </span>
-  );
-
   const Chip = ({ r, kind }: { r: ABRunner; kind: "side" | "bet" }) => (
-    <div
-      className={`flex h-[52px] w-[112px] flex-col items-center justify-center rounded border-2 border-[#E3C000] text-[0.78rem] font-extrabold leading-tight ${
+    <button
+      type="button"
+      data-market-option=""
+      data-market-plate=""
+      data-bet-label={r.label}
+      data-bet-odds={String(r.price ?? "")}
+      disabled={!r.open}
+      className={`relative flex h-[51px] min-w-0 flex-col items-center justify-center overflow-hidden rounded-[7px] border-2 border-live-badge text-[0.64rem] font-normal leading-none ${
         kind === "side"
           ? r.open
-            ? "bg-white text-black"
-            : "bg-[#9A9A93] text-black/60"
+            ? "bg-background text-foreground"
+            : "bg-muted text-foreground/55"
           : r.open
-            ? "bg-[#183A5A] text-white"
-            : "bg-[#173049] text-white/45"
-
+            ? "bg-casino-market-header text-board-header-foreground"
+            : "bg-casino-market-header text-board-header-foreground/45"
       }`}
     >
-      <span className="uppercase">{r.label}</span>
-      <Price r={r} />
-    </div>
+      <span className="whitespace-nowrap uppercase">{r.label}</span>
+      <span className="mt-1 text-[0.66rem]">{fmtOdds(r.price)}</span>
+      {!r.open ? <LockKeyhole className="absolute h-5 w-5 text-board-header-foreground" strokeWidth={3} /> : null}
+    </button>
   );
 
-  const Bar = ({ r, className = "" }: { r: ABRunner; className?: string }) => (
-    <div
-      className={`flex h-9 items-center justify-center rounded text-[0.95rem] font-bold ${
-        r.open ? "bg-[#3D6480] text-white" : "bg-[#3D6480] text-black/70"
-      } ${className}`}
+  const Bar = ({ r }: { r: ABRunner }) => (
+    <button
+      type="button"
+      data-market-option=""
+      data-market-plate=""
+      data-bet-label={r.label}
+      data-bet-odds={String(r.price ?? "")}
+      disabled={!r.open}
+      className="relative flex h-[30px] w-full items-center justify-center bg-casino-market-rate text-[0.9rem] font-extrabold text-foreground"
     >
-      <Price r={r} />
-    </div>
+      {fmtOdds(r.price)}
+      {!r.open ? <LockKeyhole className="absolute h-5 w-5 text-board-header-foreground" strokeWidth={3} /> : null}
+    </button>
   );
 
   const suitGlyph: Record<string, { s: string; red: boolean }> = {
@@ -1128,76 +1134,84 @@ function AndarBaharPanel({
     const b1 = winner.find((r) => r.label.toUpperCase().startsWith("1ST") && r.label.endsWith(letter));
     const b2 = winner.find((r) => r.label.toUpperCase().startsWith("2ST") && r.label.endsWith(letter));
     return (
-      <div className="flex items-center gap-2">
-        <span className="text-lg font-extrabold text-black">{letter}</span>
+      <div className="grid grid-cols-[18px_repeat(3,minmax(0,1fr))_18px] items-center gap-1.5">
+        <span className="text-[1.05rem] font-normal text-foreground">{letter}</span>
         {s ? <Chip r={s} kind="side" /> : null}
         {b1 ? <Chip r={b1} kind="bet" /> : null}
         {b2 ? <Chip r={b2} kind="bet" /> : null}
-        <span className="text-lg font-extrabold text-black">{letter}</span>
+        <span className="text-right text-[1.05rem] font-normal text-foreground">{letter}</span>
       </div>
     );
   };
 
   return (
-    <div className="mt-1 bg-[#E4E4E4] px-3 py-3">
-      <p className="mb-1 text-right text-[0.7rem] font-bold text-black/60">
-        Min/Max: {minmax?.min ?? 0} - {minmax?.max ?? 0}
-      </p>
-      <div className="flex flex-wrap items-center justify-center gap-6">
+    <div className="mt-0 bg-muted text-foreground">
+      <span className="sr-only">Min/Max: {minmax?.min ?? 0} - {minmax?.max ?? 0}</span>
+      <div className="space-y-1 px-2.5 py-1">
         {group("A")}
         {group("B")}
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-4">
-        {["EVEN", "ODD"].map((n) => {
+      <div className="mt-1 grid grid-cols-2 gap-7 border-y-[7px] border-background px-4 py-2">
+        {["ODD", "EVEN"].map((n) => {
           const r = oddEven.find((x) => x.label.toUpperCase() === n);
           if (!r) return <div key={n} />;
           return (
             <div key={n}>
-              <p className="mb-1 text-center text-lg font-extrabold text-black">{n}</p>
+              <p className="mb-1.5 text-center text-[1.12rem] font-extrabold text-foreground">{n}</p>
               <Bar r={r} />
+              <p className="mt-1 text-center text-[0.62rem] leading-none text-foreground">0</p>
             </div>
           );
         })}
       </div>
 
-      <div className="mt-5 grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-7 border-b-[7px] border-background px-4 py-2.5">
         {suits.map((r) => {
           const g = suitGlyph[r.label.toUpperCase()] ?? { s: "?", red: false };
           return (
             <div key={r.id}>
               <p
-                className={`mb-1 text-center text-2xl leading-none ${
-                  g.red ? "text-[#E01B24]" : "text-black"
+                className={`mb-1.5 text-center text-[1.7rem] leading-none ${
+                  g.red ? "text-card-red" : "text-foreground"
                 }`}
               >
                 {g.s}
               </p>
               <Bar r={r} />
+              <p className="mt-1 text-center text-[0.62rem] leading-none text-foreground">0</p>
             </div>
           );
         })}
       </div>
 
-      <div className="mt-5 flex flex-wrap justify-center gap-1.5">
+      <div className="flex flex-wrap justify-center gap-x-1.5 gap-y-2 px-4 py-2">
+        <p className="w-full text-center text-[0.95rem] leading-none text-foreground">{fmtOdds(cards[0]?.price)}</p>
         {cards.map((r) => (
-          <div key={r.id} className="text-center">
-            <div
-              className={`flex h-[52px] w-[48px] flex-col items-center justify-center rounded border border-black/25 ${
-                r.open ? "bg-[#C9C9BE]" : "bg-[#9A9A93]"
-              }`}
+          <button
+            type="button"
+            key={r.id}
+            data-market-option=""
+            data-market-plate=""
+            data-bet-label={r.label}
+            data-bet-odds={String(r.price ?? "")}
+            disabled={!r.open}
+            className="relative flex w-[30px] flex-col items-center text-center"
+          >
+            <span
+              className={`relative flex h-[45px] w-[30px] flex-col items-center justify-center overflow-hidden rounded-[1px] border border-live-badge ${r.open ? "bg-background" : "bg-foreground/70"}`}
             >
-              <span className="text-lg font-extrabold leading-none text-black/70">
-                {r.open ? r.label : "🔒"}
+              <span className="text-[1.08rem] font-extrabold leading-none text-foreground">
+                {r.label}
               </span>
-              <span className="text-[0.6rem] leading-none">
-                <span className="text-black/70">♣</span>
-                <span className="text-[#E01B24]">♥</span>
+              <span className="mt-0.5 grid grid-cols-2 gap-x-0.5 text-[0.62rem] leading-[0.7]">
+                <span className="text-foreground">♠</span><span className="text-card-red">♥</span>
+                <span className="text-foreground">♣</span><span className="text-card-red">♦</span>
               </span>
-
-            </div>
-            <p className="mt-0.5 text-[0.72rem] font-bold text-[#E01B24]">{fmtOdds(r.price)}</p>
-          </div>
+              {!r.open ? <LockKeyhole className="absolute h-5 w-5 text-board-header-foreground" strokeWidth={3} /> : null}
+            </span>
+            <span className="mt-0.5 text-[0.58rem] font-normal leading-none text-foreground">0</span>
+          </button>
         ))}
       </div>
     </div>
