@@ -241,6 +241,12 @@ export async function backupOdds(sportId: string, exEventId: string, eventName?:
     const [, code, bf] = exEventId.split(":");
     eventCode = code ?? "";
     betfairId = bf ?? "";
+    // Keep the full "A v B" title: the odds rows only carry runner names.
+    name = nameByCode.get(eventCode) ?? "";
+    if (!name) {
+      await events(sportId);
+      name = nameByCode.get(eventCode) ?? "";
+    }
   } else {
     if (!name) return null;
     const target = normalizeName(name);
