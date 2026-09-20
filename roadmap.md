@@ -66,7 +66,8 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [ ] DTL: card display; Recent Result under last market; DTL rate box
 - [ ] 1 Day Dragon Tiger: rate box + video card display
 - [x] Joker TP: mobile reference stage ratio, Joker/player cards, compact Winner board and Recent Result strip
-- [ ] 20-20 DT, Andar Bahar, 20-20 Poker, 32 Cards: cards + Recent Result under last market
+- [x] 20-20 DT: mobile reference stage, Dragon/Tiger cards, centred Tie market and result colors
+- [ ] Andar Bahar, 20-20 Poker, 32 Cards: cards + Recent Result under last market
 - [ ] Card Race: market box + Recent Result placement
 - [ ] Amar Akbar Anthony: rate box (Odd/Even, Colour, Under/Over) + cards
 - [x] VIMAAN: match supplied mobile history strip, radial flying graph, waiting/plane state, flew-away result and compact All Bets header

@@ -19,7 +19,7 @@ import type { CasinoResult } from "@/lib/uapi";
 import { endWinCelebration } from "@/components/WinCelebration";
 import { settleLatest, settleRound } from "@/lib/wallet";
 
-export const LUCKY7_GAMES = ["99.0030", "99.0010", "99.0019"];
+export const LUCKY7_GAMES = ["99.0030"];
 
 export type AnyResult = CasinoResult & {
   _id?: string;
