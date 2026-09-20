@@ -65,6 +65,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Baccarat: mobile reference stage/cards, rounded betting board, per-area locks, chip rail and Recent Result
 - [~] Muflis TP: chips done; card display pending
 - [~] 20-20 TP + Lucky 7: Recent Result attached + Tie shown as "T"; card display pending
+- [x] Lucky 7: match supplied Lucky Card and Card Suit compact 100×37 plates, card art, typography and light-blue surfaces
 - [x] 1Day TP: mobile reference stage ratio, live card overlay, compact Winner board, full suspend veil and real Recent Result strip
 - [x] 1Day TP: match the Royal suspended veil placement, opacity, text size and full row visibility from the side-by-side reference
 - [x] 1Day TP: match supplied white PLAYER rows and dark label/odds text
