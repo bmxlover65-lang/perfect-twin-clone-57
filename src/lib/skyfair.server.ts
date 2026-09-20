@@ -200,7 +200,9 @@ export async function backupEvents(
   );
 
   return list.map((e, i) => {
-    const rows = priced[i] ?? [];
+    // Virtual (SRL) fixtures answer with a placeholder row and no prices —
+    // drop those so the list never shows an empty "—/—" selection.
+    const rows = (priced[i] ?? []).filter((r) => num(r.back1) > 0 || num(r.lay1) > 0);
     const runners = rows.map((r, idx) => ({
       selectionId: `${e.EventCode}-${idx}`,
       status: (r.status ?? "ACTIVE").toUpperCase(),
