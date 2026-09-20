@@ -143,6 +143,21 @@ function Cards({ hand, title }: { hand: Record<string, string>; title: string })
   );
 }
 
+function OneDayCards({ hand, title }: { hand: Record<string, string>; title: string }) {
+  const codes = Object.values(hand);
+  if (!codes.length) return null;
+  return (
+    <div>
+      <p className="text-[0.76rem] font-extrabold uppercase leading-none text-white [text-shadow:0_1px_2px_var(--casino-market-text)]">
+        {title.replace(/_/g, " ").toUpperCase()}
+      </p>
+      <div className="mt-[3px] flex gap-[2px] [&_img]:h-[34px] [&_img]:w-[24px] [&_img]:rounded-[2px] [&_span[aria-label]]:h-[34px] [&_span[aria-label]]:w-[24px]">
+        {codes.map((code, index) => <Card key={`${code}-${index}`} code={code} />)}
+      </div>
+    </div>
+  );
+}
+
 const OPEN_STATUSES = new Set(["ONLINE", "ACTIVE", "OPEN", "IN_PLAY"]);
 function isOpenStatus(status?: string | null) {
   return OPEN_STATUSES.has((status ?? "").toUpperCase());
@@ -2701,14 +2716,16 @@ function GamePage() {
         ) : null}
         <div
           ref={overlayRef}
-          className="pointer-events-none absolute left-1 top-1 z-20 max-w-[calc(100%-0.5rem)] origin-top-left space-y-1 overflow-visible sm:left-3 sm:top-3 sm:max-w-[calc(100%-1.5rem)]"
-          style={{ transform: `scale(${overlayScale})` }}
+          className={`pointer-events-none absolute left-1 top-1 z-20 max-w-[calc(100%-0.5rem)] origin-top-left overflow-visible sm:left-3 sm:top-3 sm:max-w-[calc(100%-1.5rem)] ${gameId === "99.0013" ? "space-y-1.5" : "space-y-1"}`}
+          style={{ transform: gameId === "99.0013" ? undefined : `scale(${overlayScale})` }}
         >
-          <p className="text-[0.6rem] font-bold uppercase tracking-wide text-white drop-shadow sm:text-[0.72rem]">
+          <p className={`${gameId === "99.0013" ? "text-[0.68rem] font-extrabold" : "text-[0.6rem] font-bold sm:text-[0.72rem]"} uppercase text-white drop-shadow`}>
             RID: {d?.roundId ?? "—"}
           </p>
           {handLayout.map((h) => (
-            <Cards key={h.title} title={h.title} hand={h.hand} />
+            gameId === "99.0013"
+              ? <OneDayCards key={h.title} title={h.title} hand={h.hand} />
+              : <Cards key={h.title} title={h.title} hand={h.hand} />
           ))}
         </div>
 
