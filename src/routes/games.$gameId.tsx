@@ -270,7 +270,7 @@ function BaccaratPanel({
         data-bet-label={r.label}
         data-bet-odds={String(r.price ?? "")}
         disabled={!r.open}
-        className={`relative flex h-full min-w-0 flex-col items-center justify-center overflow-hidden text-board-header-foreground ${tone}`}
+        className={`relative flex h-full w-full min-w-0 flex-col items-center justify-center overflow-hidden text-board-header-foreground ${tone}`}
       >
         <span className="text-[0.93rem] font-extrabold uppercase leading-none">{r.label}</span>
         <span className="mt-1 text-[0.94rem] font-bold leading-none">{fmtOdds(r.price)}</span>
