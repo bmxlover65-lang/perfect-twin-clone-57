@@ -2744,7 +2744,7 @@ function GamePage() {
             })()}
             roundId={d?.roundId ? String(d.roundId) : undefined}
             suspended={suspended}
-            leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
+            leftSec={Math.min(15, Math.max(0, (d?.leftSec ?? 0) - age))}
           />
 
         ) : (
