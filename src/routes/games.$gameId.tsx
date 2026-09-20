@@ -935,6 +935,78 @@ function OneDayTeenPattiBoard({ market, suspended }: { market: CasinoMarket; sus
   );
 }
 
+/** 32 Cards reference board: compact white rows with blue Back and pink Lay columns. */
+function Cards32Panel({ markets, suspended }: { markets: CasinoMarket[]; suspended: boolean }) {
+  const orderedNames = ["WINNER", "CARD COLOR", "CARD TOTAL", "LUCKY NUMBER"];
+  const ordered = [...markets].sort((a, b) => {
+    const ai = orderedNames.indexOf((a.marketName ?? "").trim().toUpperCase());
+    const bi = orderedNames.indexOf((b.marketName ?? "").trim().toUpperCase());
+    return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+  });
+
+  return (
+    <div className="bg-background">
+      {ordered.map((market) => {
+        const names = market.runnersName ?? {};
+        const runners = market.runners ?? [];
+        const hasLay = runners.some((runner) => Boolean(runner.price?.lay?.[0]?.price));
+        const cols = hasLay
+          ? "grid-cols-[minmax(0,1fr)_67px_67px]"
+          : "grid-cols-[minmax(0,1fr)_99px]";
+        const marketLocked = suspended || runners.every((runner) => !isOpenStatus(runner.status ?? "ONLINE"));
+
+        return (
+          <section key={String(market.marketId)} className="border-x border-b border-casino-suspend-text bg-background">
+            <header className="flex h-[22px] items-center justify-between border-b border-casino-suspend-text bg-casino-market-header px-1">
+              <h3 className="truncate text-[0.7rem] font-extrabold uppercase leading-none text-board-header-foreground">
+                {market.marketName}
+              </h3>
+              <span className="flex h-[12px] w-[12px] shrink-0 items-center justify-center rounded-full bg-board-header-foreground text-casino-market-header">
+                <Info className="h-[9px] w-[9px]" strokeWidth={3} />
+              </span>
+            </header>
+            <div className="relative">
+              {runners.map((runner) => {
+                const back = runner.price?.back?.[0];
+                const lay = runner.price?.lay?.[0];
+                const label = names[String(runner.selectionId)] ?? String(runner.selectionId);
+                const open = !suspended && isOpenStatus(runner.status ?? "ONLINE");
+                const cell = (point: typeof back, side: "back" | "lay") => (
+                  <button
+                    type="button"
+                    data-market-option=""
+                    data-market-plate=""
+                    data-bet-label={label}
+                    data-bet-odds={point?.price ?? ""}
+                    disabled={!open || !point?.price}
+                    className={`flex h-full min-w-0 flex-col items-center justify-center border-l border-casino-market-divider ${side === "back" ? "bg-ex-back" : "bg-ex-lay"}`}
+                  >
+                    <span className="text-[0.76rem] font-bold leading-none text-foreground/55">{fmtOdds(point?.price)}</span>
+                    <span className="mt-1 text-[0.54rem] font-medium leading-none text-foreground/45">
+                      {point?.size == null ? "" : String(Math.round(point.size))}
+                    </span>
+                  </button>
+                );
+
+                return (
+                  <div key={String(runner.selectionId)} data-runner-row="" className={`grid h-[39px] ${cols} border-b border-border last:border-b-0`}>
+                    <span data-runner-name="" className="flex min-w-0 items-start bg-background px-1 pt-1.5 text-[0.68rem] font-bold leading-none text-foreground/50">
+                      <span className="truncate">{label}</span>
+                    </span>
+                    {cell(back, "back")}
+                    {hasLay ? cell(lay, "lay") : null}
+                  </div>
+                );
+              })}
+              {marketLocked ? <SuspendVeil size="sm" /> : null}
+            </div>
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
 type ABRunner = {
   id: string;
   label: string;
@@ -2937,6 +3009,8 @@ function GamePage() {
           <AndarBaharPanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0001" && markets.length ? (
           <BaccaratPanel markets={markets} suspended={suspended} />
+        ) : gameId === "99.0022" && markets.length ? (
+          <Cards32Panel markets={markets} suspended={suspended} />
         ) : gameId === "99.0007" && markets.length ? (
           <PokerPanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0046" && markets.length ? (
@@ -2966,7 +3040,7 @@ function GamePage() {
         )}
         </Fit>
         {/* Recent Result sits flush under the last market, like the original. */}
-        <RecentStrip results={results} lucky7={gameId === "99.0030"} oneDay={gameId === "99.0013"} joker={gameId === "99.0016"} dragonTiger={gameId === "99.0019"} baccarat={gameId === "99.0001"} />
+        <RecentStrip results={results} lucky7={gameId === "99.0030"} oneDay={gameId === "99.0013"} joker={gameId === "99.0016"} dragonTiger={gameId === "99.0019"} baccarat={gameId === "99.0001"} cards32={gameId === "99.0022"} />
       </BetLayer>
 
 
@@ -3085,6 +3159,7 @@ function RecentStrip({
   joker,
   dragonTiger,
   baccarat,
+  cards32,
 }: {
   results: CasinoResult[];
   dream?: boolean;
@@ -3093,11 +3168,12 @@ function RecentStrip({
   joker?: boolean;
   dragonTiger?: boolean;
   baccarat?: boolean;
+  cards32?: boolean;
 }) {
   return (
 
-      <div className={`mt-0 flex items-center overflow-x-auto bg-black ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger ? "h-[40px] gap-2 px-1 py-1" : baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "gap-2 px-3 py-2.5"}`}>
-        <span className={`shrink-0 font-bold text-white ${oneDay ? "mr-0 text-[1rem]" : joker || dragonTiger ? "mr-0 font-serif text-[0.98rem]" : baccarat ? "mr-0 text-[1.05rem]" : "mr-1 text-[0.95rem]"}`}>Recent Result</span>
+      <div className={`mt-0 flex items-center overflow-x-auto bg-black ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger || cards32 ? "h-[40px] gap-2 px-1 py-1" : baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "gap-2 px-3 py-2.5"}`}>
+        <span className={`shrink-0 font-bold text-white ${oneDay ? "mr-0 text-[1rem]" : joker || dragonTiger || cards32 ? "mr-0 font-serif text-[0.98rem]" : baccarat ? "mr-0 text-[1.05rem]" : "mr-1 text-[0.95rem]"}`}>Recent Result</span>
 
 
 
@@ -3178,7 +3254,7 @@ function RecentStrip({
               className={`flex shrink-0 items-center justify-center rounded-full font-bold ${
                 lucky7
                   ? "h-[22px] min-w-[22px] px-1.5 text-[0.7rem]"
-                  : joker || dragonTiger
+                  : joker || dragonTiger || cards32
                     ? "h-6 min-w-7 px-1.5 text-[0.7rem]"
                     : oneDay || baccarat
                       ? "h-7 min-w-9 px-2 text-[0.78rem]"
