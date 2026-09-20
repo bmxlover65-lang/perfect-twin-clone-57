@@ -285,6 +285,7 @@ X-API-Key: your-api-key`}
     { "eventId": "88.0019", "eventName": "LUCKY 0 TO 9" },
     { "eventId": "88.0020", "eventName": "DREAM CATCHER" },
     { "eventId": "88.0021", "eventName": "HEADS & TAILS" },
+    { "eventId": "88.0030", "eventName": "VIMAAN" },
     { "eventId": "88.0023", "eventName": "BALLOON" },
     { "eventId": "4.3544687543453", "eventName": "BALL BY BALL" }
   ]
