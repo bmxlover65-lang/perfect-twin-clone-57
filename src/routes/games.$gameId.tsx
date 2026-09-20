@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye } from "lucide-react";
 import { Aviator } from "@/components/Aviator";
 import { FitBoard } from "@/components/FitBoard";
 import { RoundTimer } from "@/components/RoundTimer";
