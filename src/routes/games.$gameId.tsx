@@ -842,10 +842,10 @@ function DragonTiger20Board({ market, suspended }: { market: CasinoMarket; suspe
         </span>
       </header>
       <div className="relative grid grid-cols-2 gap-x-2 gap-y-4 px-4 pb-2.5 pt-1.5">
-        {ordered.map((runner, index) => (
-          <Fragment key={runner ? String(runner.selectionId) : index}>
-            {plate(runner, index === 0 ? "DRAGON" : index === 1 ? "TIGER" : "TIE", index === 2)}
-          </Fragment>
+        {ordered.map((runner, index) => plate(
+          runner,
+          index === 0 ? "DRAGON" : index === 1 ? "TIGER" : "TIE",
+          index === 2,
         ))}
         {suspended ? <SuspendVeil /> : null}
       </div>
