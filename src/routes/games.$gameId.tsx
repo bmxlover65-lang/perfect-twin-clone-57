@@ -650,7 +650,9 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
   const hasLay = runners.some((r) => Boolean(r.price?.lay?.[0]?.price));
-  const cols = hasLay ? "grid-cols-[1fr_104px_104px]" : "grid-cols-[1fr_152px]";
+  const cols = hasLay
+    ? "grid-cols-[minmax(0,1fr)_92px_92px] sm:grid-cols-[minmax(0,1fr)_104px_104px]"
+    : "grid-cols-[minmax(0,1fr)_126px] sm:grid-cols-[minmax(0,1fr)_152px]";
 
   const plate = (
     p: { price?: number | null; size?: number | null } | undefined,
@@ -658,7 +660,7 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
     locked: boolean,
   ) => (
     <div
-      className={`relative m-[3px] flex h-[58px] flex-col items-center justify-center rounded-[6px] ${
+      className={`relative m-[3px] flex h-[52px] flex-col items-center justify-center rounded-[5px] sm:h-[58px] sm:rounded-[6px] ${
         side === "back" ? "bg-casino-market-rate" : "bg-ex-lay"
       }`}
     >
@@ -682,12 +684,12 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
   return (
     <div className="mt-0 overflow-hidden bg-casino-market-body">
       <div className={`grid min-h-[34px] ${cols} items-center bg-casino-market-header px-2.5`}>
-        <span className="flex min-w-0 items-baseline gap-1.5 py-1.5">
-          <span className="truncate text-[0.9rem] font-extrabold uppercase text-board-header-foreground">
+        <span className="flex min-w-0 items-center gap-1 py-1.5">
+          <span className="truncate text-[0.78rem] font-extrabold uppercase text-board-header-foreground sm:text-[0.9rem]">
             {market.marketName}
           </span>
-          <span className="shrink-0 whitespace-nowrap text-[0.68rem] font-normal text-board-header-foreground/80">
-            Min: {market.min ?? 0} Max: {market.max ?? 0}
+          <span className="shrink-0 whitespace-nowrap text-[0.56rem] font-normal text-board-header-foreground/80 sm:text-[0.68rem]">
+            Min:{market.min ?? 0} Max:{market.max ?? 0}
           </span>
         </span>
 
@@ -703,11 +705,11 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
             <div
               key={String(r.selectionId)}
               data-runner-row=""
-              className={`grid min-h-[68px] items-center border-b border-casino-market-divider ${cols} px-2.5`}
+              className={`grid min-h-[62px] items-center border-b border-casino-market-divider ${cols} px-1.5 sm:min-h-[68px] sm:px-2.5`}
             >
               <span
                 data-runner-name=""
-                className="relative block truncate py-1 text-[0.95rem] font-medium uppercase text-casino-market-text"
+                className="relative block truncate py-1 text-[0.82rem] font-medium uppercase text-casino-market-text sm:text-[0.95rem]"
               >
                 {names[String(r.selectionId)] ?? String(r.selectionId)}
               </span>
@@ -2618,12 +2620,14 @@ function GamePage() {
         ) : (
           <div className="aspect-[2/1] w-full bg-black sm:aspect-video" />
         )}
-        <img
-          src={casinoStageMark.url}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-1/2 z-10 h-auto w-[38%] max-w-[170px] -translate-x-1/2 -translate-y-1/2 object-contain opacity-90"
-        />
+        {!stream ? (
+          <img
+            src={casinoStageMark.url}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-1/2 z-10 h-auto w-[38%] max-w-[170px] -translate-x-1/2 -translate-y-1/2 object-contain opacity-90"
+          />
+        ) : null}
         <div
           ref={overlayRef}
           className="pointer-events-none absolute left-1 top-1 z-20 max-w-[calc(100%-0.5rem)] origin-top-left space-y-1 overflow-visible sm:left-3 sm:top-3 sm:max-w-[calc(100%-1.5rem)]"
