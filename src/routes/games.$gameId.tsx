@@ -487,9 +487,9 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
 /** Mini white card: rank on top, four suit glyphs below (blacks left, reds right). */
 function RankSuitMini({ rank }: { rank: string }) {
   return (
-    <span className="flex h-[21px] w-[16px] shrink-0 flex-col items-center justify-center rounded-[1px] bg-background py-px leading-none shadow-sm">
-      <span className="text-[0.48rem] font-extrabold text-foreground">{rank}</span>
-      <span className="grid grid-cols-2 gap-x-px text-[0.32rem] leading-none">
+    <span className="flex h-[25px] w-[18px] shrink-0 flex-col items-center justify-center rounded-[1px] border border-foreground bg-background py-px leading-none shadow-sm">
+      <span className="text-[0.5rem] font-extrabold text-foreground">{rank}</span>
+      <span className="grid grid-cols-2 gap-x-px text-[0.34rem] leading-none">
         <span className="text-[#111]">♠</span>
         <span className="text-[#E01B24]">♥</span>
         <span className="text-[#111]">♣</span>
@@ -599,8 +599,8 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
           </button>
         )}
       </header>
-      <div className={`relative bg-casino-market-body ${isLuckyCard ? "px-[15px] py-1" : isLuckyCardSuit ? "px-2 py-1" : "px-2 py-1 sm:px-3 sm:py-3"}`}>
-        <div className={`grid grid-cols-2 ${isLuckyCard ? "gap-x-[26px] gap-y-2" : isLuckyCardSuit ? "gap-x-3 gap-y-1" : "gap-x-2 gap-y-1.5 sm:gap-x-4 sm:gap-y-3"}`}>
+      <div className={`relative bg-casino-market-body ${isLuckyCard ? "py-1" : isLuckyCardSuit ? "px-2 py-1" : "px-2 py-1 sm:px-3 sm:py-3"}`}>
+        <div className={`grid grid-cols-2 ${isLuckyCard ? "mx-auto max-w-[332px] justify-between gap-x-[64px] gap-y-1.5 px-[34px]" : isLuckyCardSuit ? "gap-x-3 gap-y-1" : "gap-x-2 gap-y-1.5 sm:gap-x-4 sm:gap-y-3"}`}>
 
           {runners.map((r, i) => {
             const p = r.price?.back?.[0];
@@ -614,21 +614,21 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                   data-market-option=""
                   data-bet-label={label}
                   data-bet-odds={String(p?.price ?? "")}
-                  className="min-w-0 [&:has([data-has-exposure='true'])]:pb-7"
+                  className="w-[100px] min-w-0 [&:has([data-has-exposure='true'])]:pb-7"
                 >
-                  <div className="pb-[3px] text-center text-[0.68rem] font-medium leading-none text-casino-market-text">
+                  <div className="pb-[3px] text-center text-[0.66rem] font-semibold leading-none text-casino-market-text">
                     {label}
                   </div>
                   <div
                     data-market-plate=""
-                    className="relative flex h-[28px] w-full items-center justify-start gap-2 rounded-[5px] bg-casino-market-rate px-[47px] shadow-[0_3px_8px_color-mix(in_oklab,var(--casino-market-header)_28%,transparent)]"
+                    className="relative flex h-[38px] w-[100px] items-center justify-start gap-2 rounded-[5px] bg-casino-market-rate px-2.5 shadow-[0_3px_8px_color-mix(in_oklab,var(--casino-market-header)_28%,transparent)]"
                   >
                     <RankSuitMini rank={label} />
                     <div className="flex flex-col items-start justify-center leading-none text-casino-market-text">
-                      <span className="text-[0.68rem] font-extrabold">
+                      <span className="text-[0.72rem] font-extrabold">
                         {fmtOdds(p?.price)}
                       </span>
-                      <span className="mt-px text-[0.48rem] font-medium">
+                      <span className="mt-[2px] text-[0.52rem] font-medium">
                         {p?.size == null ? "" : String(Math.round(p.size))}
                       </span>
                     </div>
