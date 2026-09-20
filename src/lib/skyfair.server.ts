@@ -140,11 +140,36 @@ export function normalizeName(name: string) {
     .trim();
 }
 
+const eventsCache = new Map<string, { at: number; list: SfEvent[] }>();
+const nameByCode = new Map<string, string>();
+const rowsCache = new Map<string, { at: number; rows: SfOddsRow[] }>();
+
 async function events(sportId: string): Promise<SfEvent[]> {
   const endpoint = SPORT_ENDPOINT[sportId];
   if (!endpoint) return [];
+  const hit = eventsCache.get(sportId);
+  if (hit && Date.now() - hit.at < 3000) return hit.list;
   const text = await sfFetch(`/FunctionData/${endpoint}?cric_ids=in_play&extra_ie=skyfairinr`);
-  return parse<SfEvent>(text);
+  const list = parse<SfEvent>(text);
+  if (list.length) {
+    eventsCache.set(sportId, { at: Date.now(), list });
+    for (const e of list) nameByCode.set(String(e.EventCode), e.Runnername);
+  }
+  return list;
+}
+
+/** Match-odds rows for one backup event, cached briefly so list + detail share. */
+async function oddsRows(eventCode: string, betfairId: string): Promise<SfOddsRow[]> {
+  const key = `${eventCode}:${betfairId}`;
+  const hit = rowsCache.get(key);
+  if (hit && Date.now() - hit.at < 2000) return hit.rows;
+  const text = await sfFetch(
+    "/ApiNew/Mod",
+    new URLSearchParams({ bfair_id: betfairId, event_code: eventCode }).toString(),
+  );
+  const rows = parse<SfOddsRow>(text);
+  if (rows.length) rowsCache.set(key, { at: Date.now(), rows });
+  return rows;
 }
 
 const num = (v: string | undefined) => {
