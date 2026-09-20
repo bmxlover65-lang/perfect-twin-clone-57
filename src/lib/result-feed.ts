@@ -162,7 +162,9 @@ export function useResultFeed({ gameId, round, open, liveWinner, results }: Opti
       // Keep the live winner text (it lands first) but attach the richer row.
       if (prev) {
         declared.current.set(rid, { ...prev, row });
-        if (booted.current && idx === 0) setCurrent(declared.current.get(rid) ?? prev);
+        if (booted.current && idx === 0 && (!celebRound.current || celebRound.current === rid)) {
+          setCurrent(declared.current.get(rid) ?? prev);
+        }
         return;
       }
       publish({ round: rid, winner, at: Date.now(), source: "history", row });
