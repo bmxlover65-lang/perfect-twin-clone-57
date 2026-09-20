@@ -792,7 +792,7 @@ function JokerTeenPattiBoard({ market, suspended }: { market: CasinoMarket; susp
                 className="relative flex flex-col items-center justify-center bg-casino-market-rate text-ex-cell-foreground disabled:cursor-not-allowed"
               >
                 <span className="text-[0.9rem] font-extrabold leading-none">{fmtOdds(back?.price)}</span>
-                <span className="mt-1 text-[0.72rem] font-medium leading-none">{fmtSize(back?.size)}</span>
+                <span className="mt-1 text-[0.72rem] font-medium leading-none">{back?.size == null ? "" : String(Math.round(back.size))}</span>
               </button>
             </div>
           );
