@@ -823,7 +823,7 @@ function DragonTiger20Board({ market, suspended }: { market: CasinoMarket; suspe
     const open = Boolean(runner && !suspended && isOpenStatus(runner.status ?? "ONLINE") && back?.price);
     return (
       <div key={runner ? String(runner.selectionId) : fallback} className={last ? "col-span-2 mx-auto w-1/2" : "min-w-0"}>
-        <p className="pb-1 text-center text-[0.78rem] font-bold uppercase leading-none text-casino-market-text">{label}</p>
+        <p className="pb-1 text-center text-[0.68rem] font-semibold uppercase leading-none text-casino-market-text">{label}</p>
         <button
           type="button"
           data-market-option=""
@@ -831,23 +831,23 @@ function DragonTiger20Board({ market, suspended }: { market: CasinoMarket; suspe
           data-bet-label={label}
           data-bet-odds={String(back?.price ?? "")}
           disabled={!open}
-          className="relative mx-auto flex h-[39px] w-[106px] max-w-[94%] flex-col items-center justify-center rounded-[5px] bg-casino-market-rate text-ex-cell-foreground shadow-[0_3px_8px_color-mix(in_oklab,var(--casino-market-header)_28%,transparent)] disabled:cursor-not-allowed"
+          className="relative mx-auto flex h-[37px] w-[98px] max-w-[94%] flex-col items-center justify-center rounded-[4px] bg-casino-market-rate text-ex-cell-foreground shadow-[0_2px_6px_color-mix(in_oklab,var(--casino-market-header)_24%,transparent)] disabled:cursor-not-allowed"
         >
-          <span className="text-[0.9rem] font-extrabold leading-none">{fmtOdds(back?.price)}</span>
-          <span className="mt-1 text-[0.72rem] font-medium leading-none">{back?.size == null ? "" : String(Math.round(back.size))}</span>
+          <span className="text-[0.82rem] font-bold leading-none">{fmtOdds(back?.price)}</span>
+          <span className="mt-1 text-[0.66rem] font-normal leading-none">{back?.size == null ? "" : String(Math.round(back.size))}</span>
         </button>
       </div>
     );
   };
   return (
     <div className="mt-0 overflow-hidden border border-casino-market-divider bg-casino-market-body">
-      <header className="flex h-[23px] items-center justify-between bg-casino-market-header px-1.5">
-        <span className="text-[0.76rem] font-extrabold uppercase text-board-header-foreground">{market.marketName}</span>
+      <header className="flex h-[22px] items-center justify-between bg-casino-market-header px-1.5">
+        <span className="text-[0.7rem] font-bold uppercase text-board-header-foreground">{market.marketName}</span>
         <span className="flex h-[14px] w-[14px] items-center justify-center rounded-full bg-board-header-foreground text-casino-market-header">
           <Info className="h-[10px] w-[10px]" strokeWidth={3} />
         </span>
       </header>
-      <div className="relative grid grid-cols-2 gap-x-2 gap-y-4 px-4 pb-2.5 pt-1.5">
+      <div className="relative grid grid-cols-2 gap-x-2 gap-y-3.5 px-4 pb-2 pt-1.5">
         {ordered.map((runner, index) => plate(
           runner,
           index === 0 ? "DRAGON" : index === 1 ? "TIGER" : "TIE",
@@ -3078,8 +3078,8 @@ function RecentStrip({
 }) {
   return (
 
-      <div className={`mt-0 flex items-center overflow-x-auto bg-black ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker ? "h-[40px] gap-2 px-1 py-1" : dragonTiger || baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "gap-2 px-3 py-2.5"}`}>
-        <span className={`shrink-0 font-bold text-white ${oneDay ? "mr-0 text-[1rem]" : joker ? "mr-0 font-serif text-[0.98rem]" : dragonTiger || baccarat ? "mr-0 text-[1.05rem]" : "mr-1 text-[0.95rem]"}`}>Recent Result</span>
+      <div className={`mt-0 flex items-center overflow-x-auto bg-black ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger ? "h-[40px] gap-2 px-1 py-1" : baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "gap-2 px-3 py-2.5"}`}>
+        <span className={`shrink-0 font-bold text-white ${oneDay ? "mr-0 text-[1rem]" : joker || dragonTiger ? "mr-0 font-serif text-[0.98rem]" : baccarat ? "mr-0 text-[1.05rem]" : "mr-1 text-[0.95rem]"}`}>Recent Result</span>
 
 
 
@@ -3160,9 +3160,9 @@ function RecentStrip({
               className={`flex shrink-0 items-center justify-center rounded-full font-bold ${
                 lucky7
                   ? "h-[22px] min-w-[22px] px-1.5 text-[0.7rem]"
-                  : joker
+                  : joker || dragonTiger
                     ? "h-6 min-w-7 px-1.5 text-[0.7rem]"
-                    : oneDay || dragonTiger || baccarat
+                    : oneDay || baccarat
                       ? "h-7 min-w-9 px-2 text-[0.78rem]"
                    : "h-7 min-w-7 px-1.5 text-[0.75rem]"
               } ${finalTone}`}
