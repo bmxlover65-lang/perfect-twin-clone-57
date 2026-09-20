@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Info } from "lucide-react";
+import { Info, LockKeyhole } from "lucide-react";
 import { Aviator } from "@/components/Aviator";
 import { FitBoard } from "@/components/FitBoard";
 import { RoundTimer } from "@/components/RoundTimer";
@@ -250,55 +250,61 @@ function BaccaratPanel({
   const pair = list(byName("PAIR"));
   const mm = byName("WINNER");
 
-  const Body = ({ r }: { r: R }) => (
-    <div className="text-center text-white">
-      <p className="text-[0.95rem] font-extrabold uppercase tracking-wide">{r.label}</p>
-      <p className="text-[0.95rem] font-bold">{fmtOdds(r.price)}</p>
-      <p className="text-[0.72rem] opacity-90">{fmtSize(r.size)}</p>
-    </div>
+  const LockOverlay = () => (
+    <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-baccarat-lock text-board-header-foreground">
+      <LockKeyhole className="h-5 w-5" strokeWidth={3} />
+    </span>
   );
 
-  const tone = (l: string) => (l.includes("BANKER") ? "bg-[#C22539]" : "bg-[#1173CE]");
-  const groupSuspended = (rs: R[]) => rs.length > 0 && rs.every((r) => !r.open);
+  const BetPlate = ({ r, variant }: { r: R; variant: "player" | "banker" | "tie" | "player-pair" | "banker-pair" }) => {
+    const tone = variant === "player" || variant === "banker-pair"
+      ? "bg-baccarat-blue"
+      : variant === "tie"
+        ? "bg-baccarat-green"
+        : "bg-baccarat-red";
+    return (
+      <button
+        type="button"
+        data-market-option=""
+        data-market-plate=""
+        data-bet-label={r.label}
+        data-bet-odds={String(r.price ?? "")}
+        disabled={!r.open}
+        className={`relative flex h-full min-w-0 flex-col items-center justify-center overflow-hidden text-board-header-foreground ${tone}`}
+      >
+        <span className="text-[0.93rem] font-extrabold uppercase leading-none">{r.label}</span>
+        <span className="mt-1 text-[0.94rem] font-bold leading-none">{fmtOdds(r.price)}</span>
+        {!r.open ? <LockOverlay /> : null}
+      </button>
+    );
+  };
 
-  const Overlay = () => <SuspendVeil />;
-
-
-  const winnerSusp = groupSuspended([...winner, ...(tie ? [tie] : [])]);
-  const pairSusp = groupSuspended(pair);
+  const player = winner.find((r) => r.label.includes("PLAYER")) ?? winner[0];
+  const banker = winner.find((r) => r.label.includes("BANKER")) ?? winner[1];
+  const playerPair = pair.find((r) => r.label.includes("PLAYER")) ?? pair[0];
+  const bankerPair = pair.find((r) => r.label.includes("BANKER")) ?? pair[1];
 
   return (
-    <div className="mt-0 space-y-2 bg-casino-market-body px-2 pb-2 pt-1">
-      <p className="text-right text-[0.72rem] font-semibold text-casino-market-text/70">
-        Min/Max: {mm?.min ?? 0} - {mm?.max ?? 0}
-      </p>
-      <div className="relative flex items-stretch overflow-hidden">
-        {winner.map((r) => (
-          <div
-            key={r.id}
-            className={`flex flex-1 items-center justify-center py-7 ${tone(r.label)}`}
-          >
-            <Body r={r} />
-          </div>
-        ))}
+    <div className="mt-0 bg-baccarat-surface pb-1.5 pt-1">
+      <div className="relative mx-1 h-[89px] overflow-hidden rounded-[14px]">
+        <span className="pointer-events-none absolute left-1 top-1 z-20 text-[0.78rem] font-light text-board-header-foreground/50">0%</span>
+        <div className="grid h-full grid-cols-2">
+          {player ? <BetPlate r={player} variant="player" /> : null}
+          {banker ? <BetPlate r={banker} variant="banker" /> : null}
+        </div>
         {tie ? (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <div className="flex h-[104px] w-[104px] items-center justify-center rounded-full border-[3px] border-black/45 bg-[#128A46]">
-              <Body r={tie} />
+          <div className="absolute inset-0 z-20 flex items-center justify-center">
+            <div className="h-[89px] w-[89px] overflow-hidden rounded-full border-2 border-baccarat-ring">
+              <BetPlate r={tie} variant="tie" />
             </div>
           </div>
         ) : null}
-        {winnerSusp ? <Overlay /> : null}
       </div>
-      <div className="relative grid grid-cols-2 gap-[6px]">
-        {pair.map((r) => (
-          <div key={r.id} className={`flex items-center justify-center py-4 ${tone(r.label)}`}>
-            <Body r={r} />
-          </div>
-        ))}
-        {pairSusp ? <Overlay /> : null}
+      <div className="mt-9 grid h-[69px] grid-cols-2 gap-2 px-1">
+        {playerPair ? <BetPlate r={playerPair} variant="player-pair" /> : null}
+        {bankerPair ? <BetPlate r={bankerPair} variant="banker-pair" /> : null}
       </div>
-      <ChipRow />
+      <BaccaratChipRow />
     </div>
 
   );
@@ -1738,6 +1744,37 @@ const PANEL_CHIPS: { v: string; src: string }[] = [
   { v: "100k", src: chip5.url },
 ];
 
+const BACCARAT_CHIPS: { v: string; src: string }[] = [
+  { v: "1k", src: chip1k.url },
+  { v: "5k", src: chip5.url },
+  { v: "10k", src: chip10.url },
+  { v: "25k", src: chip20.url },
+  { v: "50k", src: chip50.url },
+  { v: "100k", src: chip100.url },
+  { v: "200k", src: chip200.url },
+  { v: "500k", src: chip500.url },
+];
+
+function BaccaratChipRow() {
+  const [sel, setSel] = useState("1k");
+  return (
+    <div className="mt-10 flex h-[58px] flex-nowrap items-center gap-1 overflow-x-auto px-1">
+      {BACCARAT_CHIPS.map((chip) => (
+        <button
+          key={chip.v}
+          type="button"
+          aria-label={`${chip.v} chip`}
+          onClick={() => setSel(chip.v)}
+          className={`relative flex h-[49px] w-[49px] shrink-0 items-center justify-center rounded-full transition-transform ${sel === chip.v ? "scale-105" : ""}`}
+        >
+          <img src={chip.src} alt="" className="absolute inset-0 h-full w-full object-contain" draggable={false} />
+          <span className="relative z-10 text-[0.68rem] font-medium text-casino-market-text">{chip.v}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function ChipRow() {
   const [sel, setSel] = useState("100");
   return (
@@ -2814,10 +2851,10 @@ function GamePage() {
             src={stream}
             allow="autoplay; fullscreen; encrypted-media"
             allowFullScreen
-            className={`${gameId === "99.0013" ? "aspect-[1.72/1]" : ["99.0016", "99.0019"].includes(gameId) ? "aspect-[1.78/1]" : "aspect-[2/1]"} w-full border-0 bg-black sm:aspect-video`}
+            className={`${gameId === "99.0013" ? "aspect-[1.72/1]" : ["99.0001", "99.0016", "99.0019"].includes(gameId) ? "aspect-[1.78/1]" : "aspect-[2/1]"} w-full border-0 bg-black sm:aspect-video`}
           />
         ) : (
-          <div className={`${gameId === "99.0013" ? "aspect-[1.72/1]" : ["99.0016", "99.0019"].includes(gameId) ? "aspect-[1.78/1]" : "aspect-[2/1]"} w-full bg-black sm:aspect-video`} />
+          <div className={`${gameId === "99.0013" ? "aspect-[1.72/1]" : ["99.0001", "99.0016", "99.0019"].includes(gameId) ? "aspect-[1.78/1]" : "aspect-[2/1]"} w-full bg-black sm:aspect-video`} />
         )}
         {!stream ? (
           <img
@@ -2829,14 +2866,16 @@ function GamePage() {
         ) : null}
         <div
           ref={overlayRef}
-          className={`pointer-events-none absolute left-1 top-1 z-20 max-w-[calc(100%-0.5rem)] origin-top-left overflow-visible sm:left-3 sm:top-3 sm:max-w-[calc(100%-1.5rem)] ${["99.0013", "99.0016", "99.0019"].includes(gameId) ? "space-y-1.5" : "space-y-1"}`}
-          style={{ transform: ["99.0013", "99.0016", "99.0019"].includes(gameId) ? undefined : `scale(${overlayScale})` }}
+          className={`pointer-events-none absolute left-1 top-1 z-20 max-w-[calc(100%-0.5rem)] origin-top-left overflow-visible sm:left-3 sm:top-3 sm:max-w-[calc(100%-1.5rem)] ${["99.0001", "99.0013", "99.0016", "99.0019"].includes(gameId) ? "space-y-1.5" : "space-y-1"}`}
+          style={{ transform: ["99.0001", "99.0013", "99.0016", "99.0019"].includes(gameId) ? undefined : `scale(${overlayScale})` }}
         >
-          <p className={`${["99.0013", "99.0016", "99.0019"].includes(gameId) ? "text-[0.68rem] font-extrabold" : "text-[0.6rem] font-bold sm:text-[0.72rem]"} uppercase text-white drop-shadow`}>
+          <p className={`${["99.0001", "99.0013", "99.0016", "99.0019"].includes(gameId) ? "text-[0.68rem] font-extrabold" : "text-[0.6rem] font-bold sm:text-[0.72rem]"} uppercase text-white drop-shadow`}>
             RID: {d?.roundId ?? "—"}
           </p>
           {handLayout.map((h) => (
-            gameId === "99.0013"
+             gameId === "99.0001"
+               ? <JokerCards key={h.title} title={h.title} hand={h.hand} />
+               : gameId === "99.0013"
               ? <OneDayCards key={h.title} title={h.title} hand={h.hand} />
               : gameId === "99.0016"
                 ? <JokerCards key={h.title} title={h.title} hand={h.hand} />
@@ -2907,7 +2946,7 @@ function GamePage() {
         )}
         </Fit>
         {/* Recent Result sits flush under the last market, like the original. */}
-        <RecentStrip results={results} lucky7={gameId === "99.0030"} oneDay={gameId === "99.0013"} joker={gameId === "99.0016"} dragonTiger={gameId === "99.0019"} />
+        <RecentStrip results={results} lucky7={gameId === "99.0030"} oneDay={gameId === "99.0013"} joker={gameId === "99.0016"} dragonTiger={gameId === "99.0019"} baccarat={gameId === "99.0001"} />
       </BetLayer>
 
 
@@ -3025,6 +3064,7 @@ function RecentStrip({
   oneDay,
   joker,
   dragonTiger,
+  baccarat,
 }: {
   results: CasinoResult[];
   dream?: boolean;
@@ -3032,11 +3072,12 @@ function RecentStrip({
   oneDay?: boolean;
   joker?: boolean;
   dragonTiger?: boolean;
+  baccarat?: boolean;
 }) {
   return (
 
-      <div className={`mt-0 flex items-center overflow-x-auto bg-black ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger ? "h-[51px] gap-2.5 px-1 py-1.5" : "gap-2 px-3 py-2.5"}`}>
-        <span className={`shrink-0 font-bold text-white ${oneDay ? "mr-0 text-[1rem]" : joker || dragonTiger ? "mr-0 text-[1.05rem]" : "mr-1 text-[0.95rem]"}`}>Recent Result</span>
+      <div className={`mt-0 flex items-center overflow-x-auto bg-black ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger || baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "gap-2 px-3 py-2.5"}`}>
+        <span className={`shrink-0 font-bold text-white ${oneDay ? "mr-0 text-[1rem]" : joker || dragonTiger || baccarat ? "mr-0 text-[1.05rem]" : "mr-1 text-[0.95rem]"}`}>Recent Result</span>
 
 
 
@@ -3060,8 +3101,8 @@ function RecentStrip({
             "11": "bg-[#8E44AD] text-white",
           };
           const tone =
-            dragonTiger && isTie
-              ? "bg-result-tie text-ex-cell-foreground"
+            (dragonTiger || baccarat) && isTie
+              ? "bg-baccarat-green text-board-header-foreground"
               : isNum && playerMatch
               ? (PLAYER32_TONE[w] ?? "bg-[#E67E22] text-white")
               : isNum
@@ -3072,7 +3113,11 @@ function RecentStrip({
                     : "bg-[#1E1E1E] text-white"
                 : isTie
                   ? "bg-[#8CD9B5] text-[#0F172A]"
-                  : first === "L"
+                    : baccarat && first === "B"
+                      ? "bg-baccarat-red text-board-header-foreground"
+                    : baccarat && first === "P"
+                      ? "bg-baccarat-blue text-board-header-foreground"
+                    : first === "L"
                     ? (lucky7 ? "bg-[#F9A9BA] text-white" : "bg-[#8E44C7] text-white")
                     : ["B", "T"].includes(first)
                       ? "bg-ex-lay text-ex-cell-foreground"
@@ -3113,7 +3158,7 @@ function RecentStrip({
               className={`flex shrink-0 items-center justify-center rounded-full font-bold ${
                 lucky7
                   ? "h-[22px] min-w-[22px] px-1.5 text-[0.7rem]"
-                  : oneDay || joker || dragonTiger
+                  : oneDay || joker || dragonTiger || baccarat
                    ? "h-7 min-w-9 px-2 text-[0.78rem]"
                    : "h-7 min-w-7 px-1.5 text-[0.75rem]"
               } ${finalTone}`}
