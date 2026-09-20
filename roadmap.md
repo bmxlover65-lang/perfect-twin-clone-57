@@ -51,6 +51,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Ball by Ball: match the supplied 393px screenshot's plate divider, header icons, spacing and colors
 - [x] Heads & Tails: full 393px reference parity for stage, timer, shine, markets, locks, round/result and recent results
 - [x] Heads & Tails: 20-second round display with supplied Heads/Tails coin and betting images; round-matched winner result
+- [x] Heads & Tails: stage winner and first Recent Result always use the same exact round result
 - [x] Ball by Ball + Heads & Tails: reference row gaps, dark locked plates, and inline bet panel that preserves lower rows
 - [x] Remove white bottom gap in embedded game pages; Balloon artwork fills the available frame height
 - [x] Match the shared 393px mobile header height, 16px page gutters, title scale, live-TV width, and compact table scaling
