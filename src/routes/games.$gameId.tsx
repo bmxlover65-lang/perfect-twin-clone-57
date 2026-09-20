@@ -2613,10 +2613,10 @@ function GamePage() {
             src={stream}
             allow="autoplay; fullscreen; encrypted-media"
             allowFullScreen
-            className="aspect-video w-full border-0 bg-black"
+            className="aspect-[2/1] w-full border-0 bg-black sm:aspect-video"
           />
         ) : (
-          <div className="aspect-video w-full bg-black" />
+          <div className="aspect-[2/1] w-full bg-black sm:aspect-video" />
         )}
         <img
           src={casinoStageMark.url}
@@ -2888,7 +2888,7 @@ function RecentStrip({
               className={`flex shrink-0 items-center justify-center rounded-full font-bold ${
                 lucky7
                   ? "h-[22px] min-w-[22px] px-1.5 text-[0.7rem]"
-                  : "h-9 min-w-9 px-2 text-sm"
+                  : "h-7 min-w-7 px-1.5 text-[0.75rem]"
               } ${finalTone}`}
             >
               {first || "-"}
