@@ -783,7 +783,7 @@ function JokerTeenPattiBoard({ market, suspended }: { market: CasinoMarket; susp
             <div
               key={String(runner.selectionId)}
               data-runner-row=""
-              className="grid h-[41px] grid-cols-[minmax(0,1fr)_108px] border-b border-casino-market-divider last:border-b-0"
+              className="grid h-[41px] grid-cols-[minmax(0,1fr)_99px] border-b border-casino-market-divider last:border-b-0"
             >
               <span data-runner-name="" className="flex items-start px-1.5 pt-1.5 text-[0.72rem] font-semibold uppercase leading-none text-casino-market-text">
                 {names[String(runner.selectionId)] ?? String(runner.selectionId)}
