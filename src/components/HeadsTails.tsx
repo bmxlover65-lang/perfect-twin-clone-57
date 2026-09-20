@@ -100,9 +100,7 @@ export function CoinStageImage({
         </span>
       ) : null}
       <div
-        className={`relative my-8 h-[min(350px,89vw)] w-[min(350px,89vw)] ${
-          flipping || (suspended && settledRound !== roundId) ? "coin-toss" : ""
-        }`}
+        className={`relative my-8 h-[min(350px,89vw)] w-[min(350px,89vw)] ${flipping ? "coin-toss" : ""}`}
         style={{ perspective: 900 }}
       >
         <div
@@ -111,9 +109,7 @@ export function CoinStageImage({
               ? winner === "TAILS"
                 ? "coin-flip-tails"
                 : "coin-flip-heads"
-               : suspended && settledRound !== roundId
-                ? "coin-spin-idle"
-                : ""
+              : ""
           }`}
           data-face={shown.toLowerCase()}
         >
@@ -130,6 +126,11 @@ export function CoinStageImage({
             draggable={false}
           />
         </div>
+        {!flipping && suspended && settledRound === roundId && winner ? (
+          <div className="coin-winner absolute bottom-[-24px] left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/30 bg-black/80 px-5 py-1 text-[0.82rem] font-extrabold text-white shadow-lg">
+            {winner} WINS
+          </div>
+        ) : null}
       </div>
       <RoundTimer leftSec={leftSec} suspended={suspended || flipping} className="absolute right-1 top-1 z-20" size="h-[50px] w-[50px]" />
     </div>

@@ -2726,25 +2726,21 @@ function GamePage() {
         ) : gameId === "88.0021" ? (
           <CoinStageImage
             winner={(() => {
-              const w = (
-                applyOverride(
-                  cfg,
-                  admin,
-                  gameId,
-                  (d as unknown as { gameResult?: string })?.gameResult ??
-                    (liveResult?.round === roundKey ? liveResult.winner : "") ??
-                    "",
-                ) ?? (String(results[0]?.roundId ?? "") === roundKey ? String(results[0]?.winner ?? "") : "")
-              )
-                .toString()
-                .toUpperCase();
+              const directResult = String((d as unknown as { gameResult?: string })?.gameResult ?? "").trim();
+              const liveRoundResult = liveResult?.round === roundKey ? liveResult.winner.trim() : "";
+              const historyRoundResult =
+                String(results[0]?.roundId ?? "") === roundKey
+                  ? deriveWinner(results[0] as AnyResult)
+                  : "";
+              const sourceResult = directResult || liveRoundResult || historyRoundResult;
+              const w = String(applyOverride(cfg, admin, gameId, sourceResult) ?? sourceResult).toUpperCase();
               if (w.startsWith("T")) return "TAILS";
               if (w.startsWith("H")) return "HEADS";
               return null;
             })()}
             roundId={d?.roundId ? String(d.roundId) : undefined}
             suspended={suspended}
-            leftSec={Math.min(15, Math.max(0, (d?.leftSec ?? 0) - age))}
+            leftSec={Math.min(20, Math.max(0, (d?.leftSec ?? 0) - age))}
           />
 
         ) : (
