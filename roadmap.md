@@ -89,6 +89,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [ ] Audit the reference casino lobby and every casino game page at mobile width
 - [x] Match shared casino market headers, blue bodies, rate boxes and divider colors to the supplied mobile reference
 - [x] Show placed-bet liability and profit below the market odds boxes like the supplied reference
+- [x] Match the supplied table screenshots' shared black stage branding and three-second result callout
 - [ ] Match shared casino navigation, game shell and spacing
 - [ ] Apply the same structure across all casino pages on universeapi.store
 - [ ] Verify every casino page at mobile and desktop widths

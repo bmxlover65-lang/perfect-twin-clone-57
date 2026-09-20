@@ -184,16 +184,14 @@ export function useResultFeed({ gameId, round, open, liveWinner, results }: Opti
     return undefined;
   }, [round, results.length]);
 
-  // A round change clears the previous winner and celebration — but not the
-  // moment the next round id appears. Tables publish the new round id seconds
-  // before betting actually opens, which used to cut the winner banner off
-  // after ~3s. Keep the declared result on screen until the new round opens
-  // (or a safety cap), so players can actually read it.
+  // A round change clears the previous winner and celebration. Keep the feed
+  // state only for the same brief three-second result window used by the table
+  // callout, even if the next round has not opened yet.
   useEffect(() => {
     if (!round) return;
     if (celebRound.current && celebRound.current !== round) {
       const age = current ? Date.now() - current.at : Number.POSITIVE_INFINITY;
-      if (open || age > 20000) {
+      if (open || age > 3000) {
         endWinCelebration();
         setCurrent((c) => (c && c.round !== round ? null : c));
         celebRound.current = round;
