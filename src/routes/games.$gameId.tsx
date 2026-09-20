@@ -484,9 +484,9 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
 /** Mini white card: rank on top, four suit glyphs below (blacks left, reds right). */
 function RankSuitMini({ rank }: { rank: string }) {
   return (
-    <span className="flex h-[17px] w-[13px] shrink-0 flex-col items-center justify-center rounded-[2px] bg-white py-[1px] leading-none shadow-[0_1px_2px_rgba(10,40,80,0.35)] sm:h-[20px] sm:w-[15px]">
-      <span className="text-[0.5rem] font-extrabold text-[#111] sm:text-[0.58rem]">{rank}</span>
-      <span className="mt-[0.5px] grid grid-cols-2 gap-x-[2px] text-[0.34rem] leading-[1.1] sm:text-[0.4rem]">
+    <span className="flex h-[29px] w-[21px] shrink-0 flex-col items-center justify-center rounded-[2px] bg-background py-[1px] leading-none shadow-sm">
+      <span className="text-[0.62rem] font-extrabold text-foreground">{rank}</span>
+      <span className="mt-[1px] grid grid-cols-2 gap-x-[2px] text-[0.42rem] leading-none">
         <span className="text-[#111]">♠</span>
         <span className="text-[#E01B24]">♥</span>
         <span className="text-[#111]">♣</span>
@@ -549,6 +549,8 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
   // Lucky 7's "LUCKY CARD" market uses the dedicated card board: numbered
   // tiles, printed card artwork inside the blue plate, rate/max beside it.
   const isLuckyCard = /^LUCKY CARD$/i.test((market.marketName ?? "").trim());
+  const isLuckyCardSuit = /^LUCKY CARD SUIT$/i.test((market.marketName ?? "").trim());
+  const isLuckyCardMarket = isLuckyCard || isLuckyCardSuit;
   // 20-20 Dragon Tiger: TIE runner sits centered on its own row below Dragon/Tiger.
   const tieIdx = raw.findIndex(
     (r) => (names[String(r.selectionId)] ?? "").trim().toUpperCase() === "TIE",
@@ -594,8 +596,8 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
           </button>
         )}
       </header>
-      <div className="relative bg-casino-market-body px-2 py-1 sm:px-3 sm:py-3">
-        <div className={`grid grid-cols-2 ${isLuckyCard ? "gap-x-3 gap-y-0.5 sm:gap-x-5 sm:gap-y-1" : "gap-x-2 gap-y-1.5 sm:gap-x-4 sm:gap-y-3"}`}>
+      <div className={`relative bg-casino-market-body ${isLuckyCardMarket ? "px-2 py-1" : "px-2 py-1 sm:px-3 sm:py-3"}`}>
+        <div className={`grid grid-cols-2 ${isLuckyCard ? "gap-x-3 gap-y-0.5" : isLuckyCardSuit ? "gap-x-3 gap-y-1" : "gap-x-2 gap-y-1.5 sm:gap-x-4 sm:gap-y-3"}`}>
 
           {runners.map((r, i) => {
             const p = r.price?.back?.[0];
@@ -607,21 +609,21 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                 <div
                   key={String(r.selectionId)}
                   data-market-option=""
-                  className={`min-w-0 pb-2 [&:has([data-has-exposure='true'])]:pb-7`}
+                  className="min-w-0 pb-1 [&:has([data-has-exposure='true'])]:pb-7"
                 >
-                  <div className="pb-[2px] text-center text-[0.74rem] font-semibold leading-none text-casino-market-text sm:text-[0.8rem]">
+                  <div className="pb-[3px] text-center text-[0.7rem] font-medium leading-none text-casino-market-text">
                     {label}
                   </div>
                   <div
                     data-market-plate=""
-                    className="relative mx-auto flex h-[30px] w-full max-w-[150px] items-center justify-center gap-1.5 rounded-[6px] bg-casino-market-rate px-1.5 shadow-[0_3px_8px_color-mix(in_oklab,var(--casino-market-header)_25%,transparent)] sm:h-[36px] sm:max-w-[165px] sm:gap-2 sm:px-2"
+                    className="relative mx-auto flex h-[37px] w-[100px] max-w-full items-center justify-start gap-2 rounded-[5px] bg-casino-market-rate px-2 shadow-[0_3px_8px_color-mix(in_oklab,var(--casino-market-header)_28%,transparent)]"
                   >
                     <RankSuitMini rank={label} />
                     <div className="flex flex-col items-center justify-center leading-none text-casino-market-text">
-                      <span className="text-[0.72rem] font-bold sm:text-[0.8rem]">
+                      <span className="text-[0.76rem] font-extrabold">
                         {fmtOdds(p?.price)}
                       </span>
-                      <span className="mt-[2px] text-[0.56rem] font-medium sm:text-[0.62rem]">
+                      <span className="mt-[2px] text-[0.58rem] font-medium">
                         {p?.size == null ? "" : String(Math.round(p.size))}
                       </span>
                     </div>
@@ -638,9 +640,9 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
               <div
                 key={String(r.selectionId)}
                 data-market-option=""
-                className={`min-w-0 pb-3 [&:has([data-has-exposure='true'])]:pb-8 ${last ? "col-span-2 mx-auto w-[calc(50%-0.5rem)]" : ""}`}
+                className={`min-w-0 pb-1.5 [&:has([data-has-exposure='true'])]:pb-8 ${last ? "col-span-2 mx-auto w-[calc(50%-0.5rem)]" : ""}`}
               >
-                <div className="px-1 pb-[3px] text-center text-[0.66rem] font-medium uppercase text-casino-market-text sm:text-[0.8rem] sm:font-semibold">
+                <div className={`px-1 pb-[3px] text-center font-medium uppercase text-casino-market-text ${isLuckyCardSuit ? "text-[0.67rem] leading-none" : "text-[0.66rem] sm:text-[0.8rem] sm:font-semibold"}`}>
                   {(() => {
                     const label = String(names[String(r.selectionId)] ?? r.selectionId).trim();
                     return /CARD/i.test(market.marketName ?? "") && RANKS.includes(label.toUpperCase())
@@ -649,7 +651,7 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                   })()}
                 </div>
 
-                <div data-market-plate="" className="relative mx-auto flex h-[40px] w-[108px] max-w-full flex-col items-center justify-center rounded-[4px] bg-casino-market-rate text-casino-market-text shadow-[0_3px_8px_color-mix(in_oklab,var(--casino-market-header)_25%,transparent)] sm:h-[56px] sm:w-[150px] sm:rounded-[6px]">
+                <div data-market-plate="" className={`relative mx-auto flex max-w-full flex-col items-center justify-center rounded-[5px] bg-casino-market-rate text-casino-market-text shadow-[0_3px_8px_color-mix(in_oklab,var(--casino-market-header)_28%,transparent)] ${isLuckyCardSuit ? "h-[37px] w-[100px]" : "h-[40px] w-[108px] sm:h-[56px] sm:w-[150px]"}`}>
                   <PlateSuits suits={labelSuits(String(names[String(r.selectionId)] ?? ""))} />
                   {locked ? (
                     <span className="absolute inset-0 flex items-center justify-center rounded-[4px] bg-black/35 text-sm">
@@ -658,10 +660,10 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
                   ) : (
 
                     <>
-                      <span className="text-[0.95rem] font-bold leading-none sm:text-[1.1rem]">
+                      <span className={`${isLuckyCardSuit ? "text-[0.76rem]" : "text-[0.95rem] sm:text-[1.1rem]"} font-bold leading-none`}>
                         {fmtOdds(p?.price)}
                       </span>
-                      <span className="mt-[2px] text-[0.6rem] font-normal leading-none text-casino-market-text/90 sm:text-[0.7rem]">
+                      <span className={`${isLuckyCardSuit ? "text-[0.58rem]" : "text-[0.6rem] sm:text-[0.7rem]"} mt-[2px] font-normal leading-none text-casino-market-text/90`}>
                         {p?.size == null ? "" : String(Math.round(p.size))}
 
                       </span>
