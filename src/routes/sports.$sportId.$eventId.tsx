@@ -418,22 +418,24 @@ function EventPage() {
       ) : null}
 
 
-      <div className="grid gap-0 sm:mt-5 sm:gap-4 lg:grid-cols-2">
-        <LiveTv
-          sportId={sportId}
-          eventId={eventId}
-          className="overflow-hidden bg-ex-panel sm:rounded-lg"
-        />
+      {/* Backup-feed events (sf: ids) are not addressable by the primary
+          provider's TV/scoreboard services, so those panels are hidden. */}
+      {eventId.startsWith("sf:") ? null : (
+        <div className="grid gap-0 sm:mt-5 sm:gap-4 lg:grid-cols-2">
+          <LiveTv
+            sportId={sportId}
+            eventId={eventId}
+            className="overflow-hidden bg-ex-panel sm:rounded-lg"
+          />
 
-
-        <div className="overflow-hidden bg-ex-panel sm:rounded-lg sm:border sm:border-ex-line">
-          <header className="bg-ex-header px-4 py-2.5 text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-ex-text">
-            Scoreboard
-          </header>
-          <Scoreboard sportId={sportId} eventId={eventId} />
+          <div className="overflow-hidden bg-ex-panel sm:rounded-lg sm:border sm:border-ex-line">
+            <header className="bg-ex-header px-4 py-2.5 text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-ex-text">
+              Scoreboard
+            </header>
+            <Scoreboard sportId={sportId} eventId={eventId} />
+          </div>
         </div>
-
-      </div>
+      )}
 
 
       <p className="flex items-center justify-between bg-ex-market-surface px-2 py-2 text-sm font-bold text-ex-cell-foreground sm:mt-6">

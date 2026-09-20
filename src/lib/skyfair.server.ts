@@ -140,11 +140,36 @@ export function normalizeName(name: string) {
     .trim();
 }
 
+const eventsCache = new Map<string, { at: number; list: SfEvent[] }>();
+const nameByCode = new Map<string, string>();
+const rowsCache = new Map<string, { at: number; rows: SfOddsRow[] }>();
+
 async function events(sportId: string): Promise<SfEvent[]> {
   const endpoint = SPORT_ENDPOINT[sportId];
   if (!endpoint) return [];
+  const hit = eventsCache.get(sportId);
+  if (hit && Date.now() - hit.at < 3000) return hit.list;
   const text = await sfFetch(`/FunctionData/${endpoint}?cric_ids=in_play&extra_ie=skyfairinr`);
-  return parse<SfEvent>(text);
+  const list = parse<SfEvent>(text);
+  if (list.length) {
+    eventsCache.set(sportId, { at: Date.now(), list });
+    for (const e of list) nameByCode.set(String(e.EventCode), e.Runnername);
+  }
+  return list;
+}
+
+/** Match-odds rows for one backup event, cached briefly so list + detail share. */
+async function oddsRows(eventCode: string, betfairId: string): Promise<SfOddsRow[]> {
+  const key = `${eventCode}:${betfairId}`;
+  const hit = rowsCache.get(key);
+  if (hit && Date.now() - hit.at < 2000) return hit.rows;
+  const text = await sfFetch(
+    "/ApiNew/Mod",
+    new URLSearchParams({ bfair_id: betfairId, event_code: eventCode }).toString(),
+  );
+  const rows = parse<SfOddsRow>(text);
+  if (rows.length) rowsCache.set(key, { at: Date.now(), rows });
+  return rows;
 }
 
 const num = (v: string | undefined) => {
@@ -162,19 +187,50 @@ export async function backupEvents(
   resolveId?: (normalizedName: string) => string | undefined,
 ) {
   const list = await events(sportId);
-  return list.map((e) => ({
-    sportId,
-    exEventId:
-      resolveId?.(normalizeName(e.Runnername)) ?? `sf:${e.EventCode}:${e.BetfairId}`,
-    eventName: e.Runnername,
-    marketName: "Match Odds",
-    inPlay: e.is_live === "on",
-    status: "OPEN",
-    tv: e.LiveTv === "flex",
-    isFancy: e.is_fancy === "flex",
-    eventTime: e.match_time,
-    runners: [],
-  }));
+  // The list page shows a price preview and matched volume per event, so pull
+  // each event's match-odds row set (short-cached, so polling stays cheap).
+  const priced = await Promise.all(
+    list.slice(0, 30).map(async (e) => {
+      try {
+        return await oddsRows(e.EventCode, e.BetfairId);
+      } catch {
+        return [] as SfOddsRow[];
+      }
+    }),
+  );
+
+  return list.map((e, i) => {
+    // Virtual (SRL) fixtures answer with a placeholder row and no prices —
+    // drop those so the list never shows an empty "—/—" selection.
+    const rows = (priced[i] ?? []).filter((r) => num(r.back1) > 0 || num(r.lay1) > 0);
+    const runners = rows.map((r, idx) => ({
+      selectionId: `${e.EventCode}-${idx}`,
+      status: (r.status ?? "ACTIVE").toUpperCase(),
+      handicap: 0,
+      backPrice: num(r.back1),
+      backSize: num(r.back1size),
+      layPrice: num(r.lay1),
+      laySize: num(r.lay1size),
+    }));
+    const runnersData: Record<string, string> = {};
+    rows.forEach((r, idx) => {
+      runnersData[`${e.EventCode}-${idx}`] = r.Runnername;
+    });
+    return {
+      sportId,
+      exEventId: resolveId?.(normalizeName(e.Runnername)) ?? `sf:${e.EventCode}:${e.BetfairId}`,
+      eventName: e.Runnername,
+      marketName: "Match Odds",
+      inPlay: e.is_live === "on",
+      status: "OPEN",
+      tv: e.LiveTv === "flex",
+      isFancy: e.is_fancy === "flex",
+      eventTime: e.match_time,
+      totalMatched: num(rows[0]?.totalMatched),
+      runnersData,
+      runners,
+    };
+  });
 }
 
 /** Match odds for one event, keyed either by our backup id or by event name. */
@@ -187,6 +243,12 @@ export async function backupOdds(sportId: string, exEventId: string, eventName?:
     const [, code, bf] = exEventId.split(":");
     eventCode = code ?? "";
     betfairId = bf ?? "";
+    // Keep the full "A v B" title: the odds rows only carry runner names.
+    name = nameByCode.get(eventCode) ?? "";
+    if (!name) {
+      await events(sportId);
+      name = nameByCode.get(eventCode) ?? "";
+    }
   } else {
     if (!name) return null;
     const target = normalizeName(name);
@@ -205,11 +267,7 @@ export async function backupOdds(sportId: string, exEventId: string, eventName?:
   }
   if (!eventCode || !betfairId) return null;
 
-  const text = await sfFetch(
-    "/ApiNew/Mod",
-    new URLSearchParams({ bfair_id: betfairId, event_code: eventCode }).toString(),
-  );
-  const rows = parse<SfOddsRow>(text);
+  const rows = await oddsRows(eventCode, betfairId);
   if (!rows.length) return null;
 
   const marketStatus = (rows[0]?.match_status ?? "OPEN").toUpperCase();
