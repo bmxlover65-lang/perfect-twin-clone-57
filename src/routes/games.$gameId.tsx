@@ -505,7 +505,8 @@ function PlateSuits({ suits }: { suits: string[] }) {
 /** Light blue sectioned board with 2-column plates (Lucky 7, 20-20 TP, 20-20 DT) — original style. */
 
 
-function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
+function DarkGridBoard({ market, suspended, defaultOpen = false }: { market: CasinoMarket; suspended: boolean; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
   const names = market.runnersName ?? {};
   const raw = market.runners ?? [];
   // Lucky 7's "LUCKY CARD" market uses the dedicated card board: numbered
