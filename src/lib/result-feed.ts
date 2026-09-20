@@ -123,8 +123,12 @@ export function useResultFeed({ gameId, round, open, liveWinner, results }: Opti
       settleRound(gameId, next.round, next.winner);
     }
     // The first winner seen after mount is a leftover round — record it so bets
-    // still settle, but never flash its banner/celebration.
-    if (booted.current) setCurrent(declared.current.get(next.round) ?? next);
+    // still settle, but never flash its banner/celebration. Likewise, a result
+    // that lands after the table has already moved to the next round stays
+    // recorded but off screen.
+    const onScreenRound = celebRound.current;
+    const stillCurrent = !onScreenRound || onScreenRound === next.round;
+    if (booted.current && stillCurrent) setCurrent(declared.current.get(next.round) ?? next);
   };
 
   // 1. Live frame — the instant the dealer declares.
@@ -158,7 +162,9 @@ export function useResultFeed({ gameId, round, open, liveWinner, results }: Opti
       // Keep the live winner text (it lands first) but attach the richer row.
       if (prev) {
         declared.current.set(rid, { ...prev, row });
-        if (booted.current && idx === 0) setCurrent(declared.current.get(rid) ?? prev);
+        if (booted.current && idx === 0 && (!celebRound.current || celebRound.current === rid)) {
+          setCurrent(declared.current.get(rid) ?? prev);
+        }
         return;
       }
       publish({ round: rid, winner, at: Date.now(), source: "history", row });
@@ -178,17 +184,24 @@ export function useResultFeed({ gameId, round, open, liveWinner, results }: Opti
     return undefined;
   }, [round, results.length]);
 
-  // A round change always clears the previous winner and celebration. Do not
-  // wait for an OPEN frame: some feeds briefly skip it, which previously let a
-  // winning animation leak into the following losing round.
+  // A round change clears the previous winner and celebration — but not the
+  // moment the next round id appears. Tables publish the new round id seconds
+  // before betting actually opens, which used to cut the winner banner off
+  // after ~3s. Keep the declared result on screen until the new round opens
+  // (or a safety cap), so players can actually read it.
   useEffect(() => {
     if (!round) return;
     if (celebRound.current && celebRound.current !== round) {
-      endWinCelebration();
-      setCurrent((c) => (c && c.round !== round ? null : c));
+      const age = current ? Date.now() - current.at : Number.POSITIVE_INFINITY;
+      if (open || age > 20000) {
+        endWinCelebration();
+        setCurrent((c) => (c && c.round !== round ? null : c));
+        celebRound.current = round;
+      }
+      return;
     }
     celebRound.current = round;
-  }, [round]);
+  }, [round, open, current]);
 
   // Keep this dependency meaningful for callers: an open frame for the same
   // round must never clear a freshly declared result.
