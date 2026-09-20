@@ -526,13 +526,46 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
 
 
       </header>
-      <div className="relative bg-casino-market-body px-2 py-1 sm:px-3 sm:py-3">
-        <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 sm:gap-x-4 sm:gap-y-3">
+      <div className={`relative px-2 py-1 sm:px-3 sm:py-3 ${isLuckyCard ? "bg-gradient-to-b from-[#9DC3F1] to-[#7BA9DC]" : "bg-casino-market-body"}`}>
+        <div className={`grid grid-cols-2 ${isLuckyCard ? "gap-x-3 gap-y-1 sm:gap-x-5 sm:gap-y-1.5" : "gap-x-2 gap-y-1.5 sm:gap-x-4 sm:gap-y-3"}`}>
 
           {runners.map((r, i) => {
             const p = r.price?.back?.[0];
             const locked = !suspended && (!isOpenStatus(r.status ?? "ONLINE") || !p?.price);
             const last = odd && i === runners.length - 1;
+            if (isLuckyCard) {
+              const label = String(names[String(r.selectionId)] ?? r.selectionId).trim().toUpperCase();
+              return (
+                <div
+                  key={String(r.selectionId)}
+                  data-market-option=""
+                  className={`min-w-0 pb-2 [&:has([data-has-exposure='true'])]:pb-7 ${last ? "col-span-2 mx-auto w-[calc(50%-0.75rem)]" : ""}`}
+                >
+                  <div className="pb-[2px] text-center text-[0.66rem] font-semibold leading-none text-[#12314F] sm:text-[0.72rem]">
+                    {i + 1}
+                  </div>
+                  <div
+                    data-market-plate=""
+                    className="relative mx-auto flex h-[46px] w-full max-w-[150px] items-center gap-1.5 rounded-[6px] bg-[#6FA3D8] px-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_5px_rgba(15,45,80,0.35)] sm:h-[54px] sm:max-w-[170px] sm:gap-2 sm:px-2"
+                  >
+                    <RankCardLabel rank={label} />
+                    <div className="flex min-w-0 flex-1 flex-col items-center justify-center leading-none text-[#0E2C4E]">
+                      <span className="text-[0.98rem] font-bold sm:text-[1.1rem]">
+                        {fmtOdds(p?.price)}
+                      </span>
+                      <span className="mt-[3px] text-[0.62rem] font-medium sm:text-[0.72rem]">
+                        {p?.size == null ? "" : String(Math.round(p.size))}
+                      </span>
+                    </div>
+                    {locked ? (
+                      <span className="absolute inset-0 z-10 flex items-center justify-center rounded-[6px] bg-black/35 text-sm">
+                        🔒
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+              );
+            }
             return (
               <div
                 key={String(r.selectionId)}
