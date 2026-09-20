@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Eye } from "lucide-react";
+import { Info } from "lucide-react";
 import { Aviator } from "@/components/Aviator";
 import { FitBoard } from "@/components/FitBoard";
 import { RoundTimer } from "@/components/RoundTimer";
@@ -537,19 +537,25 @@ function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended:
         <h3 className="truncate whitespace-nowrap text-[0.72rem] font-extrabold uppercase tracking-[0.02em] text-board-header-foreground sm:text-[0.85rem]">
           {market.marketName}
         </h3>
-        <button
-          type="button"
-          aria-label="Min/Max info"
-          onClick={() => setShowInfo((v) => !v)}
-          className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-board-header-foreground text-casino-market-header sm:h-[18px] sm:w-[18px]"
-        >
-          <Eye className="h-2.5 w-2.5 sm:h-3 sm:w-3" strokeWidth={2.5} />
-        </button>
         {showInfo ? (
-          <div className="absolute right-1.5 top-full z-30 mt-0.5 whitespace-nowrap rounded-[4px] bg-black/90 px-2 py-1 text-[0.66rem] font-semibold text-white shadow-lg sm:text-[0.74rem]">
-            Min: {market.min ?? 100} &nbsp;|&nbsp; Max: {market.max ?? 100000}
-          </div>
-        ) : null}
+          <button
+            type="button"
+            aria-label="Hide Min/Max info"
+            onClick={() => setShowInfo(false)}
+            className="shrink-0 whitespace-nowrap rounded-[3px] bg-white px-1.5 py-[1px] text-[0.66rem] font-extrabold leading-tight text-[#16324F] sm:text-[0.74rem]"
+          >
+            Min/Max: {market.min ?? 100} - {market.max ?? 100000}
+          </button>
+        ) : (
+          <button
+            type="button"
+            aria-label="Min/Max info"
+            onClick={() => setShowInfo(true)}
+            className="shrink-0 text-board-header-foreground"
+          >
+            <Info className="h-[13px] w-[13px] sm:h-[15px] sm:w-[15px]" strokeWidth={2.4} />
+          </button>
+        )}
       </header>
       <div className={`relative px-2 py-1 sm:px-3 sm:py-3 ${isLuckyCard ? "bg-gradient-to-b from-[#C9DEF6] to-[#A8C7EE]" : "bg-casino-market-body"}`}>
         <div className={`grid grid-cols-2 ${isLuckyCard ? "gap-x-3 gap-y-0.5 sm:gap-x-5 sm:gap-y-1" : "gap-x-2 gap-y-1.5 sm:gap-x-4 sm:gap-y-3"}`}>
