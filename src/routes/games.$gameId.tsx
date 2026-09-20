@@ -2369,6 +2369,20 @@ function GamePage() {
   const status = (d?.status ?? "").toUpperCase();
   const suspended = status ? roundSuspended : false;
   const markets = d?.marketArr ?? [];
+  const coinWinner = (() => {
+    if (gameId !== "88.0021") return null;
+    const directResult = String((d as unknown as { gameResult?: string })?.gameResult ?? "").trim();
+    const liveRoundResult = liveResult?.round === roundKey ? liveResult.winner.trim() : "";
+    const historyRoundResult =
+      String(results[0]?.roundId ?? "") === roundKey
+        ? deriveWinner(results[0] as AnyResult)
+        : "";
+    const sourceResult = directResult || liveRoundResult || historyRoundResult;
+    const shownResult = String(applyOverride(cfg, admin, gameId, sourceResult) ?? sourceResult).toUpperCase();
+    if (shownResult.startsWith("T")) return "TAILS" as const;
+    if (shownResult.startsWith("H")) return "HEADS" as const;
+    return null;
+  })();
   const liveCards = (d?.cardsArr ?? {}) as Record<string, Record<string, string>>;
   // When the live feed has already cleared the table for the next round but the
   // settled round is still on screen, show the cards from the declared result so
@@ -2725,19 +2739,7 @@ function GamePage() {
 
         ) : gameId === "88.0021" ? (
           <CoinStageImage
-            winner={(() => {
-              const directResult = String((d as unknown as { gameResult?: string })?.gameResult ?? "").trim();
-              const liveRoundResult = liveResult?.round === roundKey ? liveResult.winner.trim() : "";
-              const historyRoundResult =
-                String(results[0]?.roundId ?? "") === roundKey
-                  ? deriveWinner(results[0] as AnyResult)
-                  : "";
-              const sourceResult = directResult || liveRoundResult || historyRoundResult;
-              const w = String(applyOverride(cfg, admin, gameId, sourceResult) ?? sourceResult).toUpperCase();
-              if (w.startsWith("T")) return "TAILS";
-              if (w.startsWith("H")) return "HEADS";
-              return null;
-            })()}
+            winner={coinWinner}
             roundId={d?.roundId ? String(d.roundId) : undefined}
             suspended={suspended}
             leftSec={Math.min(20, Math.max(0, (d?.leftSec ?? 0) - age))}
@@ -2772,10 +2774,12 @@ function GamePage() {
               }))}
               min={markets[0]?.min ?? 100}
               max={markets[0]?.max ?? 100000}
-              recent={results.slice(0, 10).map((r) => {
-                const rr = r as CasinoResult & { result?: string; selectionName?: string };
-                return (rr.winner ?? rr.result ?? rr.selectionName ?? "-").toString().trim();
-              })}
+              recent={[
+                ...(suspended && coinWinner ? [coinWinner] : []),
+                ...results
+                  .filter((r) => !(suspended && coinWinner && String(r.roundId ?? "") === roundKey))
+                  .map((r) => deriveWinner(r as AnyResult)),
+              ].slice(0, 10)}
             />
           </Fit>
         ) : gameId === "88.0023" ? null : (
