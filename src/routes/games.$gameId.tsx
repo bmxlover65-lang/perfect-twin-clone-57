@@ -492,6 +492,9 @@ function PlateSuits({ suits }: { suits: string[] }) {
 function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
   const raw = market.runners ?? [];
+  // Lucky 7's "LUCKY CARD" market uses the dedicated card board: numbered
+  // tiles, printed card artwork inside the blue plate, rate/max beside it.
+  const isLuckyCard = /^LUCKY CARD$/i.test((market.marketName ?? "").trim());
   // 20-20 Dragon Tiger: TIE runner sits centered on its own row below Dragon/Tiger.
   const tieIdx = raw.findIndex(
     (r) => (names[String(r.selectionId)] ?? "").trim().toUpperCase() === "TIE",
