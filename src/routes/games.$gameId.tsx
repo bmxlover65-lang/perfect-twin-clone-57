@@ -879,7 +879,7 @@ function OneDayTeenPattiBoard({ market, suspended }: { market: CasinoMarket; sus
         data-bet-label={label}
         data-bet-odds={point?.price ?? ""}
         disabled={!open}
-        className={`flex h-full min-w-0 flex-col items-center justify-center rounded-none border-l border-casino-market-divider text-casino-market-text ${
+        className={`flex h-full min-w-0 flex-col items-center justify-center rounded-none border-l border-casino-market-divider text-foreground ${
           side === "back" ? "bg-casino-market-rate" : "bg-ex-lay"
         }`}
       >
@@ -916,7 +916,7 @@ function OneDayTeenPattiBoard({ market, suspended }: { market: CasinoMarket; sus
             data-runner-row=""
             className="grid h-[41px] grid-cols-[minmax(0,1fr)_78px_78px] border-b border-casino-market-divider last:border-b-0"
           >
-            <span data-runner-name="" className="flex min-w-0 items-center px-1.5 text-[0.76rem] font-bold uppercase text-casino-market-text">
+            <span data-runner-name="" className="flex h-full min-w-0 items-center bg-background px-1.5 font-serif text-[0.76rem] font-bold uppercase text-foreground">
               <span className="truncate">{names[String(runner.selectionId)] ?? String(runner.selectionId)}</span>
             </span>
             {priceCell(runner, "back")}

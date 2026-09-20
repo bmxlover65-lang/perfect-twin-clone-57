@@ -67,6 +67,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [~] 20-20 TP + Lucky 7: Recent Result attached + Tie shown as "T"; card display pending
 - [x] 1Day TP: mobile reference stage ratio, live card overlay, compact Winner board, full suspend veil and real Recent Result strip
 - [x] 1Day TP: match the Royal suspended veil placement, opacity, text size and full row visibility from the side-by-side reference
+- [x] 1Day TP: match supplied white PLAYER rows and dark label/odds text
 - [x] Joker TP: match Royal mobile font weight, light row surface, price-column width, row height and result-strip proportions
 - [x] Joker TP: match supplied white PLAYER row surface and dark bold serif label text
 - [x] 20-20 Dragon Tiger: match Royal mobile board height, light surface, plate sizing, typography and compact result strip
