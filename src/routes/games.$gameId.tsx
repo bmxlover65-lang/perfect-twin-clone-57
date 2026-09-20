@@ -767,8 +767,8 @@ function JokerTeenPattiBoard({ market, suspended }: { market: CasinoMarket; susp
   const runners = market.runners ?? [];
   return (
     <div className="mt-0 overflow-hidden border border-casino-market-divider bg-ex-market-surface">
-      <header className="flex h-[23px] items-center justify-between bg-casino-market-header px-1.5">
-        <span className="text-[0.76rem] font-extrabold uppercase text-board-header-foreground">
+      <header className="flex h-[22px] items-center justify-between bg-casino-market-header px-1.5">
+        <span className="text-[0.7rem] font-bold uppercase text-board-header-foreground">
           {market.marketName}
         </span>
         <span className="flex h-[14px] w-[14px] items-center justify-center rounded-full bg-board-header-foreground text-casino-market-header">
@@ -783,9 +783,9 @@ function JokerTeenPattiBoard({ market, suspended }: { market: CasinoMarket; susp
             <div
               key={String(runner.selectionId)}
               data-runner-row=""
-              className="grid h-[41px] grid-cols-[minmax(0,1fr)_116px] border-b border-casino-market-divider last:border-b-0"
+              className="grid h-[41px] grid-cols-[minmax(0,1fr)_99px] border-b border-casino-market-divider last:border-b-0"
             >
-              <span data-runner-name="" className="flex items-start px-1.5 pt-1.5 text-[0.78rem] font-extrabold uppercase leading-none text-casino-market-text">
+              <span data-runner-name="" className="flex items-start px-1.5 pt-1.5 text-[0.72rem] font-semibold uppercase leading-none text-casino-market-text">
                 {names[String(runner.selectionId)] ?? String(runner.selectionId)}
               </span>
               <button
@@ -797,8 +797,8 @@ function JokerTeenPattiBoard({ market, suspended }: { market: CasinoMarket; susp
                 disabled={!open}
                 className="relative flex flex-col items-center justify-center bg-casino-market-rate text-ex-cell-foreground disabled:cursor-not-allowed"
               >
-                <span className="text-[0.9rem] font-extrabold leading-none">{fmtOdds(back?.price)}</span>
-                <span className="mt-1 text-[0.72rem] font-medium leading-none">{back?.size == null ? "" : String(Math.round(back.size))}</span>
+                <span className="text-[0.82rem] font-bold leading-none">{fmtOdds(back?.price)}</span>
+                <span className="mt-1 text-[0.67rem] font-normal leading-none">{back?.size == null ? "" : String(Math.round(back.size))}</span>
               </button>
             </div>
           );
@@ -3078,8 +3078,8 @@ function RecentStrip({
 }) {
   return (
 
-      <div className={`mt-0 flex items-center overflow-x-auto bg-black ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger || baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "gap-2 px-3 py-2.5"}`}>
-        <span className={`shrink-0 font-bold text-white ${oneDay ? "mr-0 text-[1rem]" : joker || dragonTiger || baccarat ? "mr-0 text-[1.05rem]" : "mr-1 text-[0.95rem]"}`}>Recent Result</span>
+      <div className={`mt-0 flex items-center overflow-x-auto bg-black ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker ? "h-[40px] gap-2 px-1 py-1" : dragonTiger || baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "gap-2 px-3 py-2.5"}`}>
+        <span className={`shrink-0 font-bold text-white ${oneDay ? "mr-0 text-[1rem]" : joker ? "mr-0 font-serif text-[0.98rem]" : dragonTiger || baccarat ? "mr-0 text-[1.05rem]" : "mr-1 text-[0.95rem]"}`}>Recent Result</span>
 
 
 
@@ -3160,8 +3160,10 @@ function RecentStrip({
               className={`flex shrink-0 items-center justify-center rounded-full font-bold ${
                 lucky7
                   ? "h-[22px] min-w-[22px] px-1.5 text-[0.7rem]"
-                  : oneDay || joker || dragonTiger || baccarat
-                   ? "h-7 min-w-9 px-2 text-[0.78rem]"
+                  : joker
+                    ? "h-6 min-w-7 px-1.5 text-[0.7rem]"
+                    : oneDay || dragonTiger || baccarat
+                      ? "h-7 min-w-9 px-2 text-[0.78rem]"
                    : "h-7 min-w-7 px-1.5 text-[0.75rem]"
               } ${finalTone}`}
             >
