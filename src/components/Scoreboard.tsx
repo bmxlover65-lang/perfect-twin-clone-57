@@ -44,7 +44,21 @@ export function Scoreboard({ sportId, eventId }: { sportId: string; eventId: str
       alive.current = false;
       window.clearInterval(t);
     };
-  }, [sportId, eventId]);
+  }, [sportId, eventId, useAura]);
+
+  if (useAura) {
+    const src = `${AURA_SCORE_BASE}/scoreboard/index.html?sportId=${encodeURIComponent(
+      sportId,
+    )}&eventId=${encodeURIComponent(eventId)}`;
+    return (
+      <iframe
+        title="Live scoreboard"
+        src={src}
+        loading="lazy"
+        className="h-[220px] w-full border-0 bg-black sm:h-[260px]"
+      />
+    );
+  }
 
   return (
     <div className="scoreboard-embed bg-black">
