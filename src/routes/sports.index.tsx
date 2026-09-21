@@ -241,26 +241,37 @@ function SportsPage() {
 
 
 
-  const inplay = useMemo(() => events.filter((e) => e.inPlay), [events]);
-  const today = useMemo(() => events.filter((e) => e.inPlay || dayOffset(e.eventTime) === 0), [events]);
-  const tomorrow = useMemo(() => events.filter((e) => !e.inPlay && dayOffset(e.eventTime) >= 1), [events]);
+  const sportEventsAll = useMemo(() => events.filter((e) => e.sportId === sportId), [events, sportId]);
+  const inplay = useMemo(() => sportEventsAll.filter((e) => e.inPlay), [sportEventsAll]);
+  const today = useMemo(
+    () => sportEventsAll.filter((e) => e.inPlay || dayOffset(e.eventTime) === 0),
+    [sportEventsAll],
+  );
+  const tomorrow = useMemo(
+    () => sportEventsAll.filter((e) => !e.inPlay && dayOffset(e.eventTime) >= 1),
+    [sportEventsAll],
+  );
   const list = filter === "inplay" ? inplay : filter === "today" ? today : tomorrow;
 
-  /** Royal-style grouping: one section per sport, ordered Cricket → Soccer → Tennis → Horse → Greyhound. */
+  /** Universal design grouping: one section per tournament. */
   const groups = useMemo(() => {
-    const nameOf = (id: string) =>
-      sports.find((s) => s.sportId === id)?.sportName ?? SPORT_SHORT_NAMES[id] ?? "Other";
     const map = new Map<string, UEvent[]>();
     for (const event of list) {
-      map.set(event.sportId, [...(map.get(event.sportId) ?? []), event]);
+      const key = event.tournamentName?.trim() || SPORT_SHORT_NAMES[event.sportId] || "Other";
+      map.set(key, [...(map.get(key) ?? []), event]);
     }
-    const ids = [...map.keys()].sort((a, b) => {
-      const ia = ORDER.indexOf(a);
-      const ib = ORDER.indexOf(b);
-      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
-    });
-    return ids.map((id) => [nameOf(id), map.get(id)!] as const);
-  }, [list, sports]);
+    return [...map.entries()];
+  }, [list]);
+
+  const sportTabs = useMemo(
+    () =>
+      [...sports].sort((a, b) => {
+        const ia = ORDER.indexOf(a.sportId);
+        const ib = ORDER.indexOf(b.sportId);
+        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+      }),
+    [sports],
+  );
 
 
   if (loading && events.length === 0) return <AppLoader />;
