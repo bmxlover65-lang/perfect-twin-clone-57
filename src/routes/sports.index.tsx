@@ -358,25 +358,56 @@ function SportsPage() {
       ) : null}
 
       <section aria-label="Match list">
-        {groups.map(([sportName, sportEvents]) => (
-          <div key={sportName}>
-            <h2 className="bg-ex-header py-1.5 text-center text-[0.88rem] font-medium text-ex-text">{sportName}</h2>
-            {sportEvents.map((event) => (
+        {groups.map(([groupName, groupEvents]) => (
+          <div key={groupName}>
+            <h2 className="flex items-center justify-between bg-ex-panel px-2.5 py-1.5 text-[0.7rem] font-bold uppercase tracking-wide text-ex-text">
+              <span className="truncate">{groupName}</span>
+              <span className="ml-2 shrink-0 text-[0.6rem] font-medium text-ex-muted">
+                {groupEvents.length}
+              </span>
+            </h2>
+            {groupEvents.map((event) => (
               <Link
                 key={event.exEventId}
                 to="/sports/$sportId/$eventId"
                 params={{ sportId: event.sportId, eventId: event.exEventId }}
                 data-sports-event
-                className="block border-b border-ex-market-rule/70 bg-ex-market-surface px-2.5 py-1.5 last:border-b-0"
+                className="block border-b border-ex-market-rule bg-ex-market-surface px-2.5 py-2 last:border-b-0"
               >
-                <p className="text-[0.85rem] leading-snug">
-                  <span className="font-medium text-ex-link">{event.eventName}</span>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="min-w-0 flex-1 text-[0.8rem] font-semibold leading-snug text-ex-cell-foreground">
+                    {event.eventName}
+                  </p>
+                  <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ex-muted" aria-hidden="true" />
+                </div>
+
+                <div className="mt-1 flex items-center gap-2 text-[0.6rem] text-ex-muted">
                   {event.inPlay ? (
-                    <span className="ml-2 text-[0.75rem] font-medium text-ex-inplay">In-Play</span>
-                  ) : eventDateLabel(event.eventTime) ? (
-                    <span className="ml-2 text-[0.75rem] text-ex-muted">{eventDateLabel(event.eventTime)}</span>
-                  ) : null}
-                </p>
+                    <span className="flex items-center gap-1 font-bold text-ex-inplay">
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-ex-inplay" />
+                      In-Play
+                    </span>
+                  ) : (
+                    <span>{eventDateLabel(event.eventTime)}</span>
+                  )}
+                  {event.tv ? <Tv className="h-3 w-3" aria-hidden="true" /> : null}
+                  {fmtInt(event.totalMatched) ? <span>Matched {fmtInt(event.totalMatched)}</span> : null}
+                </div>
+
+                <div className="mt-1.5 space-y-1">
+                  {[0, 1, 2].slice(0, event.runners?.length ? Math.min(event.runners.length, 3) : 2).map((i) => {
+                    const runner = event.runners?.[i];
+                    return (
+                      <div key={i} className="grid grid-cols-[1fr_52px_52px] items-center gap-1">
+                        <span className="truncate text-[0.7rem] text-ex-cell-foreground/80">
+                          {runnerName(event, i)}
+                        </span>
+                        <PriceCell price={runner?.backPrice} size={runner?.backSize} tone="back" />
+                        <PriceCell price={runner?.layPrice} size={runner?.laySize} tone="lay" />
+                      </div>
+                    );
+                  })}
+                </div>
               </Link>
             ))}
           </div>
