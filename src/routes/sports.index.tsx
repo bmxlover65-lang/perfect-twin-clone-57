@@ -264,7 +264,7 @@ function SportsPage() {
             type="button"
             onClick={() => {
               setSportId(s.sportId);
-              setFilter("all");
+              setFilter("inplay");
             }}
             className={pill(s.sportId === sportId)}
           >
