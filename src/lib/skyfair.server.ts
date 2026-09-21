@@ -199,10 +199,20 @@ export async function backupEvents(
     }),
   );
 
-  return list.map((e, i) => {
+  const now = Date.now();
+  const mapped = list.map((e, i) => {
     // Virtual (SRL) fixtures answer with a placeholder row and no prices —
     // drop those so the list never shows an empty "—/—" selection.
-    const rows = (priced[i] ?? []).filter((r) => num(r.back1) > 0 || num(r.lay1) > 0);
+    const allRows = priced[i] ?? [];
+    const rows = allRows.filter((r) => num(r.back1) > 0 || num(r.lay1) > 0);
+    const marketStatus = (allRows[0]?.match_status ?? "").toUpperCase();
+    const hasResult = allRows.some((r) => /WIN|LOSE|LOSS/.test((r.status ?? "").toUpperCase()));
+    const finished = hasResult || /CLOSED|SETTLED|RESULT|COMPLETE|FINISH/.test(marketStatus);
+    if (finished) {
+      if (!settledAt.has(e.EventCode)) settledAt.set(e.EventCode, now);
+    } else {
+      settledAt.delete(e.EventCode);
+    }
     const runners = rows.map((r, idx) => ({
       selectionId: `${e.EventCode}-${idx}`,
       status: (r.status ?? "ACTIVE").toUpperCase(),
@@ -221,8 +231,8 @@ export async function backupEvents(
       exEventId: resolveId?.(normalizeName(e.Runnername)) ?? `sf:${e.EventCode}:${e.BetfairId}`,
       eventName: e.Runnername,
       marketName: "Match Odds",
-      inPlay: e.is_live === "on",
-      status: "OPEN",
+      inPlay: e.is_live === "on" && !finished,
+      status: finished ? "CLOSED" : "OPEN",
       tv: e.LiveTv === "flex",
       isFancy: e.is_fancy === "flex",
       eventTime: e.match_time,
@@ -230,6 +240,13 @@ export async function backupEvents(
       runnersData,
       runners,
     };
+  });
+
+  // Completed matches stay visible briefly (like Royal) and then disappear.
+  return mapped.filter((ev) => {
+    const code = ev.exEventId.startsWith("sf:") ? ev.exEventId.split(":")[1] ?? "" : "";
+    const at = settledAt.get(code || String(ev.eventName));
+    return !at || now - at < COMPLETED_VISIBLE_MS;
   });
 }
 
