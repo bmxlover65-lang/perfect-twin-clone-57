@@ -101,6 +101,8 @@
   --color-ex-market-rule: var(--ex-market-rule);
   --color-ex-minmax: var(--ex-minmax);
   --color-ex-cashout: var(--ex-cashout);
+  --color-ex-link: var(--ex-link);
+  --color-ex-inplay: var(--ex-inplay);
   --color-casino-market-header: var(--casino-market-header);
   --color-casino-market-body: var(--casino-market-body);
   --color-casino-market-rate: var(--casino-market-rate);
@@ -207,6 +209,8 @@
   --ex-market-rule: oklch(0.76 0.02 235);
   --ex-minmax: oklch(0.88 0.045 205);
   --ex-cashout: oklch(0.84 0.01 250);
+  --ex-link: oklch(0.55 0.11 236);
+  --ex-inplay: oklch(0.5 0.1 132);
   --casino-market-header: oklch(0.3526 0.0289 232.97);
   --casino-market-body: oklch(0.8838 0.034 225.49);
   --casino-market-rate: oklch(0.7373 0.1042 241.82);
@@ -346,6 +350,8 @@
   --ex-market-rule: #B8C4CB;
   --ex-minmax: #C7E1DE;
   --ex-cashout: #D7D7D7;
+  --ex-link: #2E7BB3;
+  --ex-inplay: #567D2F;
 }
 
 

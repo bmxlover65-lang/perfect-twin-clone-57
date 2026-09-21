@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronRight, Radio, RefreshCw, Tv } from "lucide-react";
+import { Radio, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppLoader } from "@/components/AppLoader";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,6 @@ import {
   fetchEvents,
   fetchProxyHealth,
   fetchSports,
-  fmtInt,
-  fmtOdds,
-  runnerName,
   type ProxyHealth,
   type Sport,
   type UEvent,
@@ -69,40 +66,17 @@ const SPORT_SHORT_NAMES: Record<string, string> = {
   "4339": "Greyhound",
 };
 
-function eventClock(eventTime?: string) {
+/** Royal-style event date label: "09-22-2026 4:00". */
+function eventDateLabel(eventTime?: string) {
   if (!eventTime) return "";
-  const parsed = new Date(eventTime);
-  if (Number.isNaN(parsed.getTime())) return eventTime;
-  return parsed.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-}
-
-function PriceCell({
-  price,
-  size,
-  side,
-}: {
-  price: number | undefined;
-  size: number | undefined;
-  side: "back" | "lay";
-}) {
-  const hasPrice = Number(price) > 0;
-  return (
-    <span
-      className={`flex h-[35px] min-w-0 flex-col items-center justify-center border-l border-ex-market-surface text-ex-cell-foreground ${
-        side === "back" ? (hasPrice ? "bg-ex-back" : "bg-ex-back-dim/45") : hasPrice ? "bg-ex-lay" : "bg-ex-lay-dim/45"
-      }`}
-    >
-      <strong className="text-[0.75rem] leading-none">{fmtOdds(price)}</strong>
-      {hasPrice && Number(size) > 0 ? (
-        <small className="mt-0.5 text-[0.52rem] font-medium leading-none opacity-75">{fmtInt(size)}</small>
-      ) : null}
-    </span>
-  );
+  const d = new Date(eventTime);
+  if (Number.isNaN(d.getTime())) return eventTime;
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${p(d.getMonth() + 1)}-${p(d.getDate())}-${d.getFullYear()} ${d.getHours()}:${p(d.getMinutes())}`;
 }
 
 function SportsPage() {
   const [sports, setSports] = useState<Sport[]>(FALLBACK_SPORTS);
-  const [sportId, setSportId] = useState("4");
   const [filter, setFilter] = useState<Filter>("inplay");
   const [events, setEvents] = useState<UEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -153,16 +127,18 @@ function SportsPage() {
   const emptyStreak = useRef(0);
 
   const load = useCallback(
-    async (id: string, silent = false) => {
+    async (silent = false) => {
       if (silent && inFlight.current) return;
       inFlight.current = true;
       const currentRequest = ++requestId.current;
       if (!silent) setLoading(true);
       const started = Date.now();
       try {
-        const data = await fetchEvents(id);
+        const results = await Promise.all(ORDER.map((id) => fetchEvents(id).catch(() => null)));
         if (currentRequest !== requestId.current) return;
-        const next = data.events ?? [];
+        const next = results.flatMap((r, i) =>
+          (r?.events ?? []).map((e) => ({ ...e, sportId: e.sportId || ORDER[i] || "4" })),
+        );
         if (next.length === 0) {
           emptyStreak.current += 1;
           // keep the last good list unless the feed is consistently empty
@@ -172,7 +148,7 @@ function SportsPage() {
           setEvents(next);
         }
         setError(null);
-        setRefreshedAt(new Date(data.refreshedAt ?? Date.now()).toLocaleTimeString());
+        setRefreshedAt(new Date().toLocaleTimeString());
         setLatency(Date.now() - started);
         setLastPoll(new Date());
         setPollCount((n) => n + 1);
@@ -196,13 +172,13 @@ function SportsPage() {
 
   useEffect(() => {
     emptyStreak.current = 0;
-    void load(sportId);
+    void load();
     const t = setInterval(() => {
       if (document.visibilityState === "hidden") return;
-      void load(sportId, true);
-    }, 1000);
+      void load(true);
+    }, 3000);
     const onVisible = () => {
-      if (document.visibilityState === "visible") void load(sportId, true);
+      if (document.visibilityState === "visible") void load(true);
     };
     document.addEventListener("visibilitychange", onVisible);
     window.addEventListener("focus", onVisible);
@@ -211,30 +187,31 @@ function SportsPage() {
       document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("focus", onVisible);
     };
-  }, [sportId, load]);
+  }, [load]);
 
 
 
   const inplay = useMemo(() => events.filter((e) => e.inPlay), [events]);
-  const today = useMemo(() => events.filter((e) => dayOffset(e.eventTime) <= 0), [events]);
-  const tomorrow = useMemo(() => events.filter((e) => dayOffset(e.eventTime) >= 1), [events]);
+  const today = useMemo(() => events.filter((e) => e.inPlay || dayOffset(e.eventTime) === 0), [events]);
+  const tomorrow = useMemo(() => events.filter((e) => !e.inPlay && dayOffset(e.eventTime) >= 1), [events]);
   const list = filter === "inplay" ? inplay : filter === "today" ? today : tomorrow;
 
+  /** Royal-style grouping: one section per sport, ordered Cricket → Soccer → Tennis → Horse → Greyhound. */
   const groups = useMemo(() => {
+    const nameOf = (id: string) =>
+      sports.find((s) => s.sportId === id)?.sportName ?? SPORT_SHORT_NAMES[id] ?? "Other";
     const map = new Map<string, UEvent[]>();
     for (const event of list) {
-      const name = event.tournamentName?.trim() || (event.inPlay ? "Live Matches" : "Upcoming Matches");
-      map.set(name, [...(map.get(name) ?? []), event]);
+      map.set(event.sportId, [...(map.get(event.sportId) ?? []), event]);
     }
-    return [...map.entries()];
-  }, [list]);
+    const ids = [...map.keys()].sort((a, b) => {
+      const ia = ORDER.indexOf(a);
+      const ib = ORDER.indexOf(b);
+      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    });
+    return ids.map((id) => [nameOf(id), map.get(id)!] as const);
+  }, [list, sports]);
 
-  const pill = (active: boolean) =>
-    `h-8 shrink-0 rounded-[3px] border px-3 text-[0.72rem] font-bold shadow-none ${
-      active
-        ? "border-ex-header bg-ex-header text-ex-text hover:bg-ex-header"
-        : "border-ex-market-rule bg-ex-market-surface text-ex-cell-foreground hover:bg-ex-minmax"
-    }`;
 
   if (loading && events.length === 0) return <AppLoader />;
 
@@ -249,29 +226,12 @@ function SportsPage() {
           variant="ghost"
           size="icon"
           aria-label="Refresh matches"
-          onClick={() => void load(sportId)}
+          onClick={() => void load()}
           className="h-8 w-8 rounded-full text-ex-text hover:bg-ex-text/10 hover:text-ex-text"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
         </Button>
       </header>
-
-      <nav className="flex gap-1.5 overflow-x-auto border-b border-ex-market-rule bg-ex-market-surface px-2 py-2" aria-label="Sports">
-        {sports.map((s) => (
-          <Button
-            key={s.sportId}
-            variant="ghost"
-            type="button"
-            onClick={() => {
-              setSportId(s.sportId);
-              setFilter("inplay");
-            }}
-            className={pill(s.sportId === sportId)}
-          >
-            {SPORT_SHORT_NAMES[s.sportId] ?? s.sportName.replace(" Racing", "")}
-          </Button>
-        ))}
-      </nav>
 
       <div
         className="grid grid-cols-3 gap-[3px] border-b border-ex-market-rule bg-ex-market-surface p-2"
@@ -313,63 +273,27 @@ function SportsPage() {
       ) : null}
 
       <section aria-label="Match list">
-        {groups.map(([tournament, tournamentEvents]) => (
-          <div key={tournament} className="border-b-[5px] border-ex-market-rule">
-            <div className="grid h-7 grid-cols-[minmax(0,1fr)_64px_64px] items-center bg-ex-header text-ex-text">
-              <h2 className="truncate px-2 text-[0.7rem] font-bold uppercase">{tournament}</h2>
-              <span className="text-center text-[0.62rem] font-semibold">Back</span>
-              <span className="text-center text-[0.62rem] font-semibold">Lay</span>
-            </div>
-
-            {tournamentEvents.map((event) => {
-              const firstRunner = event.runners?.[0];
-              const hasPrices = Number(firstRunner?.backPrice) > 0 || Number(firstRunner?.layPrice) > 0;
-              return (
-                <Link
-                  key={event.exEventId}
-                  to="/sports/$sportId/$eventId"
-                  params={{ sportId: event.sportId, eventId: event.exEventId }}
-                  data-sports-event
-                  className="group block border-b border-ex-market-rule bg-ex-market-surface last:border-b-0 hover:bg-ex-minmax/45"
-                >
-                  <div className="grid min-h-[52px] grid-cols-[minmax(0,1fr)_64px_64px] items-stretch">
-                    <div className="flex min-w-0 items-center gap-2 px-2 py-1.5">
-                      <span className={`h-2 w-2 shrink-0 rounded-full ${event.inPlay ? "bg-live-lose" : "bg-ex-muted"}`} />
-                      <div className="min-w-0 flex-1">
-                        <h3 className="line-clamp-2 text-[0.74rem] font-bold leading-[1.15] text-ex-cell-foreground">
-                          {event.eventName}
-                        </h3>
-                        <p className="mt-1 flex items-center gap-1.5 text-[0.58rem] leading-none text-ex-muted">
-                          <span className={event.inPlay ? "font-bold uppercase text-live-lose" : "font-semibold uppercase"}>
-                            {event.inPlay ? "In-Play" : eventClock(event.eventTime) || "Pre-Match"}
-                          </span>
-                          {event.tv ? <Tv className="h-2.5 w-2.5" aria-label="TV available" /> : null}
-                          {Number(event.totalMatched) > 0 ? <span>Matched {fmtInt(event.totalMatched)}</span> : null}
-                        </p>
-                      </div>
-                      {!hasPrices ? <ChevronRight className="h-4 w-4 shrink-0 text-ex-muted group-hover:text-ex-cell-foreground" /> : null}
-                    </div>
-                    <PriceCell price={firstRunner?.backPrice} size={firstRunner?.backSize} side="back" />
-                    <PriceCell price={firstRunner?.layPrice} size={firstRunner?.laySize} side="lay" />
-                  </div>
-
-                  {(event.runners ?? []).slice(0, 2).map((runner, index) =>
-                    index === 0 ? null : (
-                      <div
-                        key={String(runner.selectionId)}
-                        className="grid h-[35px] grid-cols-[minmax(0,1fr)_64px_64px] border-t border-ex-market-rule/70"
-                      >
-                        <span className="truncate px-5 py-2 text-[0.62rem] font-medium text-ex-cell-foreground">
-                          {runnerName(event, runner.selectionId)}
-                        </span>
-                        <PriceCell price={runner.backPrice} size={runner.backSize} side="back" />
-                        <PriceCell price={runner.layPrice} size={runner.laySize} side="lay" />
-                      </div>
-                    ),
-                  )}
-                </Link>
-              );
-            })}
+        {groups.map(([sportName, sportEvents]) => (
+          <div key={sportName}>
+            <h2 className="bg-ex-header py-1.5 text-center text-[0.88rem] font-medium text-ex-text">{sportName}</h2>
+            {sportEvents.map((event) => (
+              <Link
+                key={event.exEventId}
+                to="/sports/$sportId/$eventId"
+                params={{ sportId: event.sportId, eventId: event.exEventId }}
+                data-sports-event
+                className="block border-b border-ex-market-rule/70 bg-ex-market-surface px-2.5 py-1.5 last:border-b-0"
+              >
+                <p className="text-[0.85rem] leading-snug">
+                  <span className="font-medium text-ex-link">{event.eventName}</span>
+                  {event.inPlay ? (
+                    <span className="ml-2 text-[0.75rem] font-medium text-ex-inplay">In-Play</span>
+                  ) : eventDateLabel(event.eventTime) ? (
+                    <span className="ml-2 text-[0.75rem] text-ex-muted">{eventDateLabel(event.eventTime)}</span>
+                  ) : null}
+                </p>
+              </Link>
+            ))}
           </div>
         ))}
 
