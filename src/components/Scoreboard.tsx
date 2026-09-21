@@ -5,10 +5,15 @@ import { AppLoader } from "@/components/AppLoader";
  * Renders the upstream live scoreboard inline (same-origin proxy fetch) so it
  * blends with the site panel instead of sitting in a black iframe box.
  */
+/** Sports the live feed's own scoreboard service covers. */
+const AURA_SCORE_SPORTS = new Set(["1", "2", "4"]);
+const AURA_SCORE_BASE = "https://ori.exchange24x7.live";
+
 export function Scoreboard({ sportId, eventId }: { sportId: string; eventId: string }) {
   const [html, setHtml] = useState<string>("");
   const [css, setCss] = useState<string>("");
   const alive = useRef(true);
+  const useAura = AURA_SCORE_SPORTS.has(sportId) && !eventId.startsWith("sf:");
 
   useEffect(() => {
     alive.current = true;
