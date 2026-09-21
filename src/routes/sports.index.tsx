@@ -227,10 +227,18 @@ function SportsPage() {
 
 
   const sportEventsAll = useMemo(() => events.filter((e) => e.sportId === sportId), [events, sportId]);
-  const inplay = useMemo(() => sportEventsAll.filter((e) => e.inPlay), [sportEventsAll]);
+  // A match is only truly in-play when the feed says so AND its start time has passed.
+  const isLive = useCallback((e: UEvent) => {
+    if (!e.inPlay) return false;
+    if (!e.eventTime) return true;
+    const t = new Date(e.eventTime).getTime();
+    if (Number.isNaN(t)) return true;
+    return t <= Date.now() + 60_000;
+  }, []);
+  const inplay = useMemo(() => sportEventsAll.filter(isLive), [sportEventsAll, isLive]);
   const today = useMemo(
-    () => sportEventsAll.filter((e) => e.inPlay || dayOffset(e.eventTime) === 0),
-    [sportEventsAll],
+    () => sportEventsAll.filter((e) => isLive(e) || dayOffset(e.eventTime) === 0),
+    [sportEventsAll, isLive],
   );
   const tomorrow = useMemo(
     () => sportEventsAll.filter((e) => !e.inPlay && dayOffset(e.eventTime) >= 1),
