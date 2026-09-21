@@ -103,7 +103,7 @@ function PriceCell({
 function SportsPage() {
   const [sports, setSports] = useState<Sport[]>(FALLBACK_SPORTS);
   const [sportId, setSportId] = useState("4");
-  const [filter, setFilter] = useState<Filter>("all");
+  const [filter, setFilter] = useState<Filter>("inplay");
   const [events, setEvents] = useState<UEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
