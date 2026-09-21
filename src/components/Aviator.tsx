@@ -142,6 +142,9 @@ function PanelModeTabs({
 
 const QUICK = [100, 200, 500, 1000];
 
+/** Highest stake a player may place in one slot. */
+export const MAX_STAKE = 500000;
+
 /** Stake stepper + quick chips, exactly like the original Aviator panel. */
 function StakeControl({
   state,
@@ -155,7 +158,10 @@ function StakeControl({
   big?: boolean;
 }) {
   const step = (d: number) =>
-    setState((p) => ({ ...p, amount: Math.max(10, Math.round((p.amount + d) * 100) / 100) }));
+    setState((p) => ({
+      ...p,
+      amount: Math.min(MAX_STAKE, Math.max(10, Math.round((p.amount + d) * 100) / 100)),
+    }));
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-[6px]">
       <div className="flex items-center justify-between rounded-full bg-[#0B0C0E] px-1 py-[3px]">
@@ -212,7 +218,7 @@ function BetPanel({
   setState: (fn: (p: PanelState) => PanelState) => void;
   phase: Phase;
   multiplier: number;
-  onWin: (amount: number) => void;
+  onWin: (amount: number, multiplier: number) => void;
   balance: number;
 }) {
   const canCash = phase === "flying" && state.active && state.cashedAt === null;
@@ -227,7 +233,7 @@ function BetPanel({
   const press = () => {
     if (canCash) {
       const win = state.amount * multiplier;
-      onWin(win);
+      onWin(win, multiplier);
       setState((p) => ({ ...p, cashedAt: multiplier }));
       return;
     }
@@ -331,7 +337,7 @@ function MobileBetSlot({
   setState: (fn: (p: PanelState) => PanelState) => void;
   phase: Phase;
   multiplier: number;
-  onWin: (amount: number) => void;
+  onWin: (amount: number, multiplier: number) => void;
   balance: number;
 }) {
   const canCash = phase === "flying" && state.active && state.cashedAt === null;
@@ -341,7 +347,7 @@ function MobileBetSlot({
 
   const press = () => {
     if (canCash) {
-      onWin(state.amount * multiplier);
+      onWin(state.amount * multiplier, multiplier);
       setState((p) => ({ ...p, cashedAt: multiplier }));
       return;
     }
@@ -493,7 +499,7 @@ function MobileCenterActions({
       </button>
       <button
         type="button"
-        onClick={() => both((p) => ({ ...p, amount: 10000 }))}
+        onClick={() => both((p) => ({ ...p, amount: MAX_STAKE }))}
         className={`${outline} !w-[72px]`}
       >
         Max
@@ -515,7 +521,7 @@ function MobileBetRow({
   setSlot: (i: number, fn: (p: PanelState) => PanelState) => void;
   phase: Phase;
   multiplier: number;
-  onWin: (amount: number) => void;
+  onWin: (amount: number, multiplier: number) => void;
   balance: number;
 }) {
   const [editing, setEditing] = useState(false);
@@ -535,7 +541,7 @@ function MobileBetRow({
             type="button"
             onClick={() => {
               const v = Number(custom);
-              if (Number.isFinite(v) && v >= 10) {
+              if (Number.isFinite(v) && v >= 10 && v <= MAX_STAKE) {
                 setSlot(0, (p) => ({ ...p, amount: v }));
                 setSlot(1, (p) => ({ ...p, amount: v }));
               }
@@ -590,7 +596,7 @@ function DesktopBetBoard({
   setAll: (fn: (p: PanelState) => PanelState) => void;
   phase: Phase;
   multiplier: number;
-  onWin: (amount: number) => void;
+  onWin: (amount: number, multiplier: number) => void;
   balance: number;
 }) {
   const mode = slots[0]?.mode ?? "bet";
@@ -606,7 +612,7 @@ function DesktopBetBoard({
     const canCash = phase === "flying" && s.active && s.cashedAt === null;
     const pending = s.staged || (s.active && s.cashedAt === null);
     if (canCash) {
-      onWin(s.amount * multiplier);
+      onWin(s.amount * multiplier, multiplier);
       setSlot(i, (p) => ({ ...p, cashedAt: multiplier }));
       return;
     }
@@ -652,7 +658,7 @@ function DesktopBetBoard({
             type="button"
             onClick={() => {
               const v = Number(custom);
-              if (Number.isFinite(v) && v >= 10) setAll((p) => ({ ...p, amount: v }));
+              if (Number.isFinite(v) && v >= 10 && v <= MAX_STAKE) setAll((p) => ({ ...p, amount: v }));
               setEditing(false);
             }}
             className="h-[34px] rounded-[10px] bg-[#16A62A] px-4 text-[0.8rem] font-semibold text-white"
@@ -678,7 +684,7 @@ function DesktopBetBoard({
         </button>
         <button
           type="button"
-          onClick={() => setAll((p) => ({ ...p, amount: 10000 }))}
+          onClick={() => setAll((p) => ({ ...p, amount: MAX_STAKE }))}
           className={cell}
         >
           Max
@@ -1047,6 +1053,7 @@ export function Aviator() {
   const embedded = useEmbed();
   const [bets, setBets] = useState<LiveBet[]>([]);
   const [muted, setMuted] = useState(true);
+  const [cashNote, setCashNote] = useState<{ mult: number; amount: number } | null>(null);
   const bgRef = useRef<HTMLAudioElement | null>(null);
   const sfx = useCallback(
     (src: string, vol = 0.6) => {
@@ -1200,8 +1207,9 @@ export function Aviator() {
     };
   }, []);
 
-  const win = useCallback((amt: number) => {
+  const win = useCallback((amt: number, mult: number) => {
     setBalance((b) => Math.round((b + amt) * 100) / 100);
+    setCashNote({ mult, amount: amt });
     sfx(winSound.url, 0.65);
   }, [sfx]);
 
@@ -1407,7 +1415,7 @@ export function Aviator() {
     if (phase !== "flying") return;
     slots.forEach((p, i) => {
       if (p.auto && p.active && p.cashedAt === null && multiplier >= p.autoCashout) {
-        win(p.amount * p.autoCashout);
+        win(p.amount * p.autoCashout, p.autoCashout);
         setSlot(i, (q) => ({ ...q, cashedAt: q.autoCashout }));
       }
     });
@@ -1722,7 +1730,34 @@ export function Aviator() {
 
 
 
-          <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} feedLive={feedLive} />
+          <div className="relative">
+            <FlightStage phase={phase} multiplier={multiplier} countdown={countdown} muted={muted} setMuted={setMuted} feedLive={feedLive} />
+            {cashNote ? (
+              <div className="pointer-events-none absolute inset-x-0 top-[14%] z-20 flex justify-center px-3">
+                <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-[#123405] px-3 py-[6px] shadow-[0_6px_18px_rgba(0,0,0,.55)]">
+                  <span className="text-center text-[0.78rem] font-semibold leading-tight text-white/85">
+                    You have cashed out!
+                    <br />
+                    <span className="text-[1.05rem] font-bold text-white">{fmt(cashNote.mult)}x</span>
+                  </span>
+                  <span className="rounded-full bg-[#4CBB17] px-4 py-[5px] text-center leading-tight text-white">
+                    <span className="block text-[0.74rem] font-semibold">Win INR</span>
+                    <span className="block text-[1.05rem] font-extrabold">
+                      {cashNote.amount.toFixed(2)}
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    aria-label="Close"
+                    onClick={() => setCashNote(null)}
+                    className="px-1 text-[1.1rem] leading-none text-white/80"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </div>
 
           <div className="bg-[#111315] px-[2px] pb-[2px] pt-[3px] sm:rounded-[12px] sm:border sm:border-[#292D32] sm:p-4 lg:flex lg:flex-1 lg:flex-col lg:justify-start">
             {/* mobile: left presets | center actions | right presets */}
