@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Radio, RefreshCw } from "lucide-react";
+import { ChevronRight, Radio, RefreshCw, Tv } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppLoader } from "@/components/AppLoader";
 import { Button } from "@/components/ui/button";
