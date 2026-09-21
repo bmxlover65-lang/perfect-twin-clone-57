@@ -38,7 +38,18 @@ export const Route = createFileRoute("/sports/")({
   component: SportsPage,
 });
 
-type Filter = "all" | "inplay" | "pre";
+type Filter = "inplay" | "today" | "tomorrow";
+
+/** Local calendar day of an event start time: 0 = today, 1 = tomorrow, -1 = past/other. */
+function dayOffset(eventTime?: string): number {
+  if (!eventTime) return 0;
+  const parsed = new Date(eventTime);
+  if (Number.isNaN(parsed.getTime())) return 0;
+  const start = new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((start.getTime() - today.getTime()) / 86_400_000);
+}
 
 const FALLBACK_SPORTS: Sport[] = [
   { sportId: "4", sportName: "Cricket" },
@@ -92,7 +103,7 @@ function PriceCell({
 function SportsPage() {
   const [sports, setSports] = useState<Sport[]>(FALLBACK_SPORTS);
   const [sportId, setSportId] = useState("4");
-  const [filter, setFilter] = useState<Filter>("all");
+  const [filter, setFilter] = useState<Filter>("inplay");
   const [events, setEvents] = useState<UEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -205,8 +216,9 @@ function SportsPage() {
 
 
   const inplay = useMemo(() => events.filter((e) => e.inPlay), [events]);
-  const pre = useMemo(() => events.filter((e) => !e.inPlay), [events]);
-  const list = filter === "inplay" ? inplay : filter === "pre" ? pre : events;
+  const today = useMemo(() => events.filter((e) => dayOffset(e.eventTime) <= 0), [events]);
+  const tomorrow = useMemo(() => events.filter((e) => dayOffset(e.eventTime) >= 1), [events]);
+  const list = filter === "inplay" ? inplay : filter === "today" ? today : tomorrow;
 
   const groups = useMemo(() => {
     const map = new Map<string, UEvent[]>();
@@ -252,7 +264,7 @@ function SportsPage() {
             type="button"
             onClick={() => {
               setSportId(s.sportId);
-              setFilter("all");
+              setFilter("inplay");
             }}
             className={pill(s.sportId === sportId)}
           >
@@ -262,19 +274,24 @@ function SportsPage() {
       </nav>
 
       <div className="flex items-center gap-1.5 border-b border-ex-market-rule bg-ex-market-surface px-2 py-2">
-        <Button variant="ghost" type="button" onClick={() => setFilter("all")} className={pill(filter === "all")}>
-          All ({events.length})
-        </Button>
         <Button
           variant="ghost"
           type="button"
           onClick={() => setFilter("inplay")}
           className={pill(filter === "inplay")}
         >
-          Live ({inplay.length})
+          Inplay ({inplay.length})
         </Button>
-        <Button variant="ghost" type="button" onClick={() => setFilter("pre")} className={pill(filter === "pre")}>
-          Upcoming ({pre.length})
+        <Button variant="ghost" type="button" onClick={() => setFilter("today")} className={pill(filter === "today")}>
+          Today ({today.length})
+        </Button>
+        <Button
+          variant="ghost"
+          type="button"
+          onClick={() => setFilter("tomorrow")}
+          className={pill(filter === "tomorrow")}
+        >
+          Tomorrow ({tomorrow.length})
         </Button>
         <span className="ml-auto whitespace-nowrap text-[0.6rem] text-ex-muted">
           {loading ? "Updating…" : refreshedAt}
