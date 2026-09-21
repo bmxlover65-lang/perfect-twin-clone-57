@@ -241,8 +241,8 @@ function BetPanel({
       setState((p) => ({ ...p, staged: false, active: false }));
       return;
     }
-    // One bet per round: the round must finish before betting again.
-    if (state.active && phase !== "betting") return;
+    // One bet per round: bets are accepted only while the round is open.
+    if (phase !== "betting") return;
     if (state.amount > balance) return;
     setState((p) => ({ ...p, staged: true, cashedAt: null }));
   };
@@ -314,7 +314,7 @@ function BetPanel({
         </p>
       ) : state.staged ? (
         <p className="text-center text-[0.62rem] font-semibold text-[#9CA3AF]">
-          Waiting for next round
+          Bet placed
         </p>
       ) : null}
     </div>
@@ -355,8 +355,8 @@ function MobileBetSlot({
       setState((p) => ({ ...p, staged: false, active: false }));
       return;
     }
-    // One bet per round: the round must finish before betting again.
-    if (state.active && phase !== "betting") return;
+    // One bet per round: bets are accepted only while the round is open.
+    if (phase !== "betting") return;
     if (state.amount > balance) return;
     setState((p) => ({ ...p, staged: true, cashedAt: null }));
   };
@@ -620,8 +620,8 @@ function DesktopBetBoard({
       setSlot(i, (p) => ({ ...p, staged: false, active: false }));
       return;
     }
-    // One bet per round: the round must finish before betting again.
-    if (s.active && phase !== "betting") return;
+    // One bet per round: bets are accepted only while the round is open.
+    if (phase !== "betting") return;
     if (s.amount > balance) return;
     setSlot(i, (p) => ({ ...p, staged: true, cashedAt: null }));
   };
