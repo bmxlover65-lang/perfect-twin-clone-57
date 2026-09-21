@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronRight, Radio, RefreshCw, Tv } from "lucide-react";
+import { Radio, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppLoader } from "@/components/AppLoader";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,6 @@ import {
   fetchEvents,
   fetchProxyHealth,
   fetchSports,
-  fmtInt,
-  fmtOdds,
-  runnerName,
   type ProxyHealth,
   type Sport,
   type UEvent,
@@ -80,7 +77,6 @@ function eventDateLabel(eventTime?: string) {
 
 function SportsPage() {
   const [sports, setSports] = useState<Sport[]>(FALLBACK_SPORTS);
-  const [sportId, setSportId] = useState("4");
   const [filter, setFilter] = useState<Filter>("inplay");
   const [events, setEvents] = useState<UEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -131,16 +127,18 @@ function SportsPage() {
   const emptyStreak = useRef(0);
 
   const load = useCallback(
-    async (id: string, silent = false) => {
+    async (silent = false) => {
       if (silent && inFlight.current) return;
       inFlight.current = true;
       const currentRequest = ++requestId.current;
       if (!silent) setLoading(true);
       const started = Date.now();
       try {
-        const data = await fetchEvents(id);
+        const results = await Promise.all(ORDER.map((id) => fetchEvents(id).catch(() => null)));
         if (currentRequest !== requestId.current) return;
-        const next = data.events ?? [];
+        const next = results.flatMap((r, i) =>
+          (r?.events ?? []).map((e) => ({ ...e, sportId: e.sportId || ORDER[i] })),
+        );
         if (next.length === 0) {
           emptyStreak.current += 1;
           // keep the last good list unless the feed is consistently empty
@@ -174,13 +172,13 @@ function SportsPage() {
 
   useEffect(() => {
     emptyStreak.current = 0;
-    void load(sportId);
+    void load();
     const t = setInterval(() => {
       if (document.visibilityState === "hidden") return;
-      void load(sportId, true);
-    }, 1000);
+      void load(true);
+    }, 3000);
     const onVisible = () => {
-      if (document.visibilityState === "visible") void load(sportId, true);
+      if (document.visibilityState === "visible") void load(true);
     };
     document.addEventListener("visibilitychange", onVisible);
     window.addEventListener("focus", onVisible);
@@ -189,23 +187,30 @@ function SportsPage() {
       document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("focus", onVisible);
     };
-  }, [sportId, load]);
+  }, [load]);
 
 
 
   const inplay = useMemo(() => events.filter((e) => e.inPlay), [events]);
-  const today = useMemo(() => events.filter((e) => dayOffset(e.eventTime) <= 0), [events]);
-  const tomorrow = useMemo(() => events.filter((e) => dayOffset(e.eventTime) >= 1), [events]);
+  const today = useMemo(() => events.filter((e) => e.inPlay || dayOffset(e.eventTime) === 0), [events]);
+  const tomorrow = useMemo(() => events.filter((e) => !e.inPlay && dayOffset(e.eventTime) >= 1), [events]);
   const list = filter === "inplay" ? inplay : filter === "today" ? today : tomorrow;
 
+  /** Royal-style grouping: one section per sport, ordered Cricket → Soccer → Tennis → Horse → Greyhound. */
   const groups = useMemo(() => {
+    const nameOf = (id: string) =>
+      sports.find((s) => s.sportId === id)?.sportName ?? SPORT_SHORT_NAMES[id] ?? "Other";
     const map = new Map<string, UEvent[]>();
     for (const event of list) {
-      const name = event.tournamentName?.trim() || (event.inPlay ? "Live Matches" : "Upcoming Matches");
-      map.set(name, [...(map.get(name) ?? []), event]);
+      map.set(event.sportId, [...(map.get(event.sportId) ?? []), event]);
     }
-    return [...map.entries()];
-  }, [list]);
+    const ids = [...map.keys()].sort((a, b) => {
+      const ia = ORDER.indexOf(a);
+      const ib = ORDER.indexOf(b);
+      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    });
+    return ids.map((id) => [nameOf(id), map.get(id)!] as const);
+  }, [list, sports]);
 
   const pill = (active: boolean) =>
     `h-8 shrink-0 rounded-[3px] border px-3 text-[0.72rem] font-bold shadow-none ${
@@ -227,29 +232,12 @@ function SportsPage() {
           variant="ghost"
           size="icon"
           aria-label="Refresh matches"
-          onClick={() => void load(sportId)}
+          onClick={() => void load()}
           className="h-8 w-8 rounded-full text-ex-text hover:bg-ex-text/10 hover:text-ex-text"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
         </Button>
       </header>
-
-      <nav className="flex gap-1.5 overflow-x-auto border-b border-ex-market-rule bg-ex-market-surface px-2 py-2" aria-label="Sports">
-        {sports.map((s) => (
-          <Button
-            key={s.sportId}
-            variant="ghost"
-            type="button"
-            onClick={() => {
-              setSportId(s.sportId);
-              setFilter("inplay");
-            }}
-            className={pill(s.sportId === sportId)}
-          >
-            {SPORT_SHORT_NAMES[s.sportId] ?? s.sportName.replace(" Racing", "")}
-          </Button>
-        ))}
-      </nav>
 
       <div
         className="grid grid-cols-3 gap-[3px] border-b border-ex-market-rule bg-ex-market-surface p-2"
