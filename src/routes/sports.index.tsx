@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Radio, RefreshCw } from "lucide-react";
+import { ChevronRight, Radio, RefreshCw, Tv } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppLoader } from "@/components/AppLoader";
 import { Button } from "@/components/ui/button";
@@ -78,8 +78,55 @@ function eventDateLabel(eventTime?: string) {
   return `${p(d.getMonth() + 1)}-${p(d.getDate())}-${d.getFullYear()} ${d.getHours()}:${p(d.getMinutes())}`;
 }
 
+function fmtOdds(v?: number) {
+  return v && v > 0 ? v.toFixed(2) : "—";
+}
+
+function fmtInt(v?: number) {
+  if (!v || v <= 0) return "";
+  if (v >= 10_000_000) return `${(v / 10_000_000).toFixed(2)}Cr`;
+  if (v >= 100_000) return `${(v / 100_000).toFixed(2)}L`;
+  if (v >= 1000) return `${Math.round(v / 1000)}K`;
+  return String(Math.round(v));
+}
+
+function runnerName(event: UEvent, index: number) {
+  const data = event.runnersData ?? {};
+  const key = event.runners?.[index]?.selectionId;
+  const byId = key != null ? data[String(key)] : undefined;
+  if (byId) return byId;
+  const values = Object.values(data);
+  if (values[index]) return values[index];
+  const parts = event.eventName.split(/\s+v\s+|\s+vs\.?\s+/i);
+  return parts[index] ?? (index === 2 ? "The Draw" : `Runner ${index + 1}`);
+}
+
+function PriceCell({
+  price,
+  size,
+  tone,
+}: {
+  price: number | undefined;
+  size: number | undefined;
+  tone: "back" | "lay";
+}) {
+  return (
+    <div
+      className={`flex h-9 w-full flex-col items-center justify-center rounded-[2px] leading-none ${
+        tone === "back" ? "bg-ex-back" : "bg-ex-lay"
+      }`}
+    >
+      <span className="text-[0.78rem] font-bold text-ex-cell-foreground">{fmtOdds(price)}</span>
+      {fmtInt(size) ? (
+        <span className="text-[0.56rem] text-ex-cell-foreground/70">{fmtInt(size)}</span>
+      ) : null}
+    </div>
+  );
+}
+
 function SportsPage() {
   const [sports, setSports] = useState<Sport[]>(FALLBACK_SPORTS);
+  const [sportId, setSportId] = useState("4");
   const [filter, setFilter] = useState<Filter>("inplay");
   const [events, setEvents] = useState<UEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -194,26 +241,37 @@ function SportsPage() {
 
 
 
-  const inplay = useMemo(() => events.filter((e) => e.inPlay), [events]);
-  const today = useMemo(() => events.filter((e) => e.inPlay || dayOffset(e.eventTime) === 0), [events]);
-  const tomorrow = useMemo(() => events.filter((e) => !e.inPlay && dayOffset(e.eventTime) >= 1), [events]);
+  const sportEventsAll = useMemo(() => events.filter((e) => e.sportId === sportId), [events, sportId]);
+  const inplay = useMemo(() => sportEventsAll.filter((e) => e.inPlay), [sportEventsAll]);
+  const today = useMemo(
+    () => sportEventsAll.filter((e) => e.inPlay || dayOffset(e.eventTime) === 0),
+    [sportEventsAll],
+  );
+  const tomorrow = useMemo(
+    () => sportEventsAll.filter((e) => !e.inPlay && dayOffset(e.eventTime) >= 1),
+    [sportEventsAll],
+  );
   const list = filter === "inplay" ? inplay : filter === "today" ? today : tomorrow;
 
-  /** Royal-style grouping: one section per sport, ordered Cricket → Soccer → Tennis → Horse → Greyhound. */
+  /** Universal design grouping: one section per tournament. */
   const groups = useMemo(() => {
-    const nameOf = (id: string) =>
-      sports.find((s) => s.sportId === id)?.sportName ?? SPORT_SHORT_NAMES[id] ?? "Other";
     const map = new Map<string, UEvent[]>();
     for (const event of list) {
-      map.set(event.sportId, [...(map.get(event.sportId) ?? []), event]);
+      const key = event.tournamentName?.trim() || SPORT_SHORT_NAMES[event.sportId] || "Other";
+      map.set(key, [...(map.get(key) ?? []), event]);
     }
-    const ids = [...map.keys()].sort((a, b) => {
-      const ia = ORDER.indexOf(a);
-      const ib = ORDER.indexOf(b);
-      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
-    });
-    return ids.map((id) => [nameOf(id), map.get(id)!] as const);
-  }, [list, sports]);
+    return [...map.entries()];
+  }, [list]);
+
+  const sportTabs = useMemo(
+    () =>
+      [...sports].sort((a, b) => {
+        const ia = ORDER.indexOf(a.sportId);
+        const ib = ORDER.indexOf(b.sportId);
+        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+      }),
+    [sports],
+  );
 
 
   if (loading && events.length === 0) return <AppLoader />;
@@ -235,6 +293,30 @@ function SportsPage() {
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
         </Button>
       </header>
+
+      <nav
+        className="flex gap-1 overflow-x-auto border-b border-ex-line bg-ex-panel px-2 py-1.5"
+        aria-label="Sports"
+      >
+        {sportTabs.map((s) => (
+          <button
+            key={s.sportId}
+            type="button"
+            onClick={() => {
+              setSportId(s.sportId);
+              setFilter("inplay");
+            }}
+            aria-current={s.sportId === sportId}
+            className={`shrink-0 rounded-full px-3 py-1 text-[0.72rem] font-semibold ${
+              s.sportId === sportId
+                ? "bg-ex-back text-ex-cell-foreground"
+                : "bg-ex-board text-ex-muted"
+            }`}
+          >
+            {SPORT_SHORT_NAMES[s.sportId] ?? s.sportName}
+          </button>
+        ))}
+      </nav>
 
       <div
         className="grid grid-cols-3 gap-[3px] border-b border-ex-market-rule bg-ex-market-surface p-2"
@@ -276,25 +358,56 @@ function SportsPage() {
       ) : null}
 
       <section aria-label="Match list">
-        {groups.map(([sportName, sportEvents]) => (
-          <div key={sportName}>
-            <h2 className="bg-ex-header py-1.5 text-center text-[0.88rem] font-medium text-ex-text">{sportName}</h2>
-            {sportEvents.map((event) => (
+        {groups.map(([groupName, groupEvents]) => (
+          <div key={groupName}>
+            <h2 className="flex items-center justify-between bg-ex-panel px-2.5 py-1.5 text-[0.7rem] font-bold uppercase tracking-wide text-ex-text">
+              <span className="truncate">{groupName}</span>
+              <span className="ml-2 shrink-0 text-[0.6rem] font-medium text-ex-muted">
+                {groupEvents.length}
+              </span>
+            </h2>
+            {groupEvents.map((event) => (
               <Link
                 key={event.exEventId}
                 to="/sports/$sportId/$eventId"
                 params={{ sportId: event.sportId, eventId: event.exEventId }}
                 data-sports-event
-                className="block border-b border-ex-market-rule/70 bg-ex-market-surface px-2.5 py-1.5 last:border-b-0"
+                className="block border-b border-ex-market-rule bg-ex-market-surface px-2.5 py-2 last:border-b-0"
               >
-                <p className="text-[0.85rem] leading-snug">
-                  <span className="font-medium text-ex-link">{event.eventName}</span>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="min-w-0 flex-1 text-[0.8rem] font-semibold leading-snug text-ex-cell-foreground">
+                    {event.eventName}
+                  </p>
+                  <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ex-muted" aria-hidden="true" />
+                </div>
+
+                <div className="mt-1 flex items-center gap-2 text-[0.6rem] text-ex-muted">
                   {event.inPlay ? (
-                    <span className="ml-2 text-[0.75rem] font-medium text-ex-inplay">In-Play</span>
-                  ) : eventDateLabel(event.eventTime) ? (
-                    <span className="ml-2 text-[0.75rem] text-ex-muted">{eventDateLabel(event.eventTime)}</span>
-                  ) : null}
-                </p>
+                    <span className="flex items-center gap-1 font-bold text-ex-inplay">
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-ex-inplay" />
+                      In-Play
+                    </span>
+                  ) : (
+                    <span>{eventDateLabel(event.eventTime)}</span>
+                  )}
+                  {event.tv ? <Tv className="h-3 w-3" aria-hidden="true" /> : null}
+                  {fmtInt(event.totalMatched) ? <span>Matched {fmtInt(event.totalMatched)}</span> : null}
+                </div>
+
+                <div className="mt-1.5 space-y-1">
+                  {[0, 1, 2].slice(0, event.runners?.length ? Math.min(event.runners.length, 3) : 2).map((i) => {
+                    const runner = event.runners?.[i];
+                    return (
+                      <div key={i} className="grid grid-cols-[1fr_52px_52px] items-center gap-1">
+                        <span className="truncate text-[0.7rem] text-ex-cell-foreground/80">
+                          {runnerName(event, i)}
+                        </span>
+                        <PriceCell price={runner?.backPrice} size={runner?.backSize} tone="back" />
+                        <PriceCell price={runner?.layPrice} size={runner?.laySize} tone="lay" />
+                      </div>
+                    );
+                  })}
+                </div>
               </Link>
             ))}
           </div>
