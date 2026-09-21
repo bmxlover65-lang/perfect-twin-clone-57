@@ -288,8 +288,37 @@ async function rememberEventNames(text: string) {
 async function backupSports(splat: string) {
   const eventsMatch = /^sports\/([^/]+)\/events$/.exec(splat);
   const oddsMatch = /^sports\/([^/]+)\/([^/]+)\/odds$/.exec(splat);
+  if (splat === "sports") {
+    const { AURA_SPORTS } = await import("@/lib/aura.server");
+    return Response.json({ sports: AURA_SPORTS }, { headers: { "cache-control": "no-store" } });
+  }
   if (!eventsMatch && !oddsMatch) return null;
+
+
+  // Preferred failover: the live exchange socket feed (real matches + odds).
   try {
+    const aura = await import("@/lib/aura.server");
+    if (eventsMatch) {
+      const events = await aura.auraEvents(decodeURIComponent(eventsMatch[1]!));
+      if (events.length) {
+        return Response.json(
+          { events, source: "aura", refreshedAt: new Date().toISOString() },
+          { status: 200, headers: { "cache-control": "no-store" } },
+        );
+      }
+    } else {
+      const odds = await aura.auraOdds(
+        decodeURIComponent(oddsMatch![1]!),
+        decodeURIComponent(oddsMatch![2]!),
+      );
+      if (odds) return Response.json(odds, { status: 200, headers: { "cache-control": "no-store" } });
+    }
+  } catch {
+    /* fall through to the secondary backup */
+  }
+
+  try {
+
     const backup = await import("@/lib/skyfair.server");
     if (eventsMatch) {
       const events = await backup.backupEvents(decodeURIComponent(eventsMatch[1]!), (n) =>
@@ -642,7 +671,14 @@ export async function proxy(splat: string, search: string, body?: string, origin
         { status: 200, headers: { "cache-control": "no-store" } },
       );
     }
+    // Non-5xx failures (404 "Event not found", 4xx) also fail over to the
+    // live exchange feed, which carries events the primary no longer knows.
+    if (isSportsPath(splat) && !res.ok) {
+      const alt = await backupSports(splat);
+      if (alt) return alt;
+    }
     if (isSportsPath(splat) && res.ok && text.startsWith("{")) {
+
       sportsSnapshot.set(snapshotKey, { at: Date.now(), text });
       if (/^sports\/[^/]+\/events$/.test(splat)) void rememberEventNames(text);
     }
