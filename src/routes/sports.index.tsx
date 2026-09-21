@@ -279,63 +279,27 @@ function SportsPage() {
       ) : null}
 
       <section aria-label="Match list">
-        {groups.map(([tournament, tournamentEvents]) => (
-          <div key={tournament} className="border-b-[5px] border-ex-market-rule">
-            <div className="grid h-7 grid-cols-[minmax(0,1fr)_64px_64px] items-center bg-ex-header text-ex-text">
-              <h2 className="truncate px-2 text-[0.7rem] font-bold uppercase">{tournament}</h2>
-              <span className="text-center text-[0.62rem] font-semibold">Back</span>
-              <span className="text-center text-[0.62rem] font-semibold">Lay</span>
-            </div>
-
-            {tournamentEvents.map((event) => {
-              const firstRunner = event.runners?.[0];
-              const hasPrices = Number(firstRunner?.backPrice) > 0 || Number(firstRunner?.layPrice) > 0;
-              return (
-                <Link
-                  key={event.exEventId}
-                  to="/sports/$sportId/$eventId"
-                  params={{ sportId: event.sportId, eventId: event.exEventId }}
-                  data-sports-event
-                  className="group block border-b border-ex-market-rule bg-ex-market-surface last:border-b-0 hover:bg-ex-minmax/45"
-                >
-                  <div className="grid min-h-[52px] grid-cols-[minmax(0,1fr)_64px_64px] items-stretch">
-                    <div className="flex min-w-0 items-center gap-2 px-2 py-1.5">
-                      <span className={`h-2 w-2 shrink-0 rounded-full ${event.inPlay ? "bg-live-lose" : "bg-ex-muted"}`} />
-                      <div className="min-w-0 flex-1">
-                        <h3 className="line-clamp-2 text-[0.74rem] font-bold leading-[1.15] text-ex-cell-foreground">
-                          {event.eventName}
-                        </h3>
-                        <p className="mt-1 flex items-center gap-1.5 text-[0.58rem] leading-none text-ex-muted">
-                          <span className={event.inPlay ? "font-bold uppercase text-live-lose" : "font-semibold uppercase"}>
-                            {event.inPlay ? "In-Play" : eventClock(event.eventTime) || "Pre-Match"}
-                          </span>
-                          {event.tv ? <Tv className="h-2.5 w-2.5" aria-label="TV available" /> : null}
-                          {Number(event.totalMatched) > 0 ? <span>Matched {fmtInt(event.totalMatched)}</span> : null}
-                        </p>
-                      </div>
-                      {!hasPrices ? <ChevronRight className="h-4 w-4 shrink-0 text-ex-muted group-hover:text-ex-cell-foreground" /> : null}
-                    </div>
-                    <PriceCell price={firstRunner?.backPrice} size={firstRunner?.backSize} side="back" />
-                    <PriceCell price={firstRunner?.layPrice} size={firstRunner?.laySize} side="lay" />
-                  </div>
-
-                  {(event.runners ?? []).slice(0, 2).map((runner, index) =>
-                    index === 0 ? null : (
-                      <div
-                        key={String(runner.selectionId)}
-                        className="grid h-[35px] grid-cols-[minmax(0,1fr)_64px_64px] border-t border-ex-market-rule/70"
-                      >
-                        <span className="truncate px-5 py-2 text-[0.62rem] font-medium text-ex-cell-foreground">
-                          {runnerName(event, runner.selectionId)}
-                        </span>
-                        <PriceCell price={runner.backPrice} size={runner.backSize} side="back" />
-                        <PriceCell price={runner.layPrice} size={runner.laySize} side="lay" />
-                      </div>
-                    ),
-                  )}
-                </Link>
-              );
-            })}
+        {groups.map(([sportName, sportEvents]) => (
+          <div key={sportName}>
+            <h2 className="bg-ex-header py-1.5 text-center text-[0.88rem] font-medium text-ex-text">{sportName}</h2>
+            {sportEvents.map((event) => (
+              <Link
+                key={event.exEventId}
+                to="/sports/$sportId/$eventId"
+                params={{ sportId: event.sportId, eventId: event.exEventId }}
+                data-sports-event
+                className="block border-b border-ex-market-rule/70 bg-ex-market-surface px-2.5 py-1.5 last:border-b-0"
+              >
+                <p className="text-[0.85rem] leading-snug">
+                  <span className="font-medium text-ex-link">{event.eventName}</span>
+                  {event.inPlay ? (
+                    <span className="ml-2 text-[0.75rem] font-medium text-ex-inplay">In-Play</span>
+                  ) : eventDateLabel(event.eventTime) ? (
+                    <span className="ml-2 text-[0.75rem] text-ex-muted">{eventDateLabel(event.eventTime)}</span>
+                  ) : null}
+                </p>
+              </Link>
+            ))}
           </div>
         ))}
 
