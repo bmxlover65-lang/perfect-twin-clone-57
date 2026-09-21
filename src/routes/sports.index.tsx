@@ -227,14 +227,22 @@ function SportsPage() {
 
 
   const sportEventsAll = useMemo(() => events.filter((e) => e.sportId === sportId), [events, sportId]);
-  const inplay = useMemo(() => sportEventsAll.filter((e) => e.inPlay), [sportEventsAll]);
+  // A match is only truly in-play when the feed says so AND its start time has passed.
+  const isLive = useCallback((e: UEvent) => {
+    if (!e.inPlay) return false;
+    if (!e.eventTime) return true;
+    const t = new Date(e.eventTime).getTime();
+    if (Number.isNaN(t)) return true;
+    return t <= Date.now() + 60_000;
+  }, []);
+  const inplay = useMemo(() => sportEventsAll.filter(isLive), [sportEventsAll, isLive]);
   const today = useMemo(
-    () => sportEventsAll.filter((e) => e.inPlay || dayOffset(e.eventTime) === 0),
-    [sportEventsAll],
+    () => sportEventsAll.filter((e) => isLive(e) || dayOffset(e.eventTime) === 0),
+    [sportEventsAll, isLive],
   );
   const tomorrow = useMemo(
-    () => sportEventsAll.filter((e) => !e.inPlay && dayOffset(e.eventTime) >= 1),
-    [sportEventsAll],
+    () => sportEventsAll.filter((e) => !isLive(e) && dayOffset(e.eventTime) >= 1),
+    [sportEventsAll, isLive],
   );
   const list = filter === "inplay" ? inplay : filter === "today" ? today : tomorrow;
 
@@ -360,9 +368,9 @@ function SportsPage() {
               <div className="min-w-0 flex-1">
                 <h3 className="truncate text-sm font-bold text-foreground">{event.eventName}</h3>
                 <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                  {event.inPlay ? <span className="h-2 w-2 shrink-0 rounded-full bg-live-lose" /> : null}
+                  {isLive(event) ? <span className="h-2 w-2 shrink-0 rounded-full bg-live-lose" /> : null}
                   <span>
-                    {event.inPlay ? "In-play" : "Pre-match"}
+                    {isLive(event) ? "In-play" : "Pre-match"}
                     {event.isScore ? " · Score" : ""}
                     {event.tv ? " · TV" : ""}
                     {fmtInt(event.totalMatched) ? ` · matched ${fmtInt(event.totalMatched)}` : ""}
