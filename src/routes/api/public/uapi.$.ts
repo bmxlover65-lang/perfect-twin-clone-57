@@ -288,7 +288,12 @@ async function rememberEventNames(text: string) {
 async function backupSports(splat: string) {
   const eventsMatch = /^sports\/([^/]+)\/events$/.exec(splat);
   const oddsMatch = /^sports\/([^/]+)\/([^/]+)\/odds$/.exec(splat);
+  if (splat === "sports") {
+    const { AURA_SPORTS } = await import("@/lib/aura.server");
+    return Response.json({ sports: AURA_SPORTS }, { headers: { "cache-control": "no-store" } });
+  }
   if (!eventsMatch && !oddsMatch) return null;
+
 
   // Preferred failover: the live exchange socket feed (real matches + odds).
   try {
