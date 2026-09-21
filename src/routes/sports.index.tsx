@@ -78,8 +78,55 @@ function eventDateLabel(eventTime?: string) {
   return `${p(d.getMonth() + 1)}-${p(d.getDate())}-${d.getFullYear()} ${d.getHours()}:${p(d.getMinutes())}`;
 }
 
+function fmtOdds(v?: number) {
+  return v && v > 0 ? v.toFixed(2) : "—";
+}
+
+function fmtInt(v?: number) {
+  if (!v || v <= 0) return "";
+  if (v >= 10_000_000) return `${(v / 10_000_000).toFixed(2)}Cr`;
+  if (v >= 100_000) return `${(v / 100_000).toFixed(2)}L`;
+  if (v >= 1000) return `${Math.round(v / 1000)}K`;
+  return String(Math.round(v));
+}
+
+function runnerName(event: UEvent, index: number) {
+  const data = event.runnersData ?? {};
+  const key = event.runners?.[index]?.selectionId;
+  const byId = key != null ? data[String(key)] : undefined;
+  if (byId) return byId;
+  const values = Object.values(data);
+  if (values[index]) return values[index];
+  const parts = event.eventName.split(/\s+v\s+|\s+vs\.?\s+/i);
+  return parts[index] ?? (index === 2 ? "The Draw" : `Runner ${index + 1}`);
+}
+
+function PriceCell({
+  price,
+  size,
+  tone,
+}: {
+  price: number | undefined;
+  size: number | undefined;
+  tone: "back" | "lay";
+}) {
+  return (
+    <div
+      className={`flex h-9 w-full flex-col items-center justify-center rounded-[2px] leading-none ${
+        tone === "back" ? "bg-ex-back" : "bg-ex-lay"
+      }`}
+    >
+      <span className="text-[0.78rem] font-bold text-ex-cell-foreground">{fmtOdds(price)}</span>
+      {fmtInt(size) ? (
+        <span className="text-[0.56rem] text-ex-cell-foreground/70">{fmtInt(size)}</span>
+      ) : null}
+    </div>
+  );
+}
+
 function SportsPage() {
   const [sports, setSports] = useState<Sport[]>(FALLBACK_SPORTS);
+  const [sportId, setSportId] = useState("4");
   const [filter, setFilter] = useState<Filter>("inplay");
   const [events, setEvents] = useState<UEvent[]>([]);
   const [loading, setLoading] = useState(true);
