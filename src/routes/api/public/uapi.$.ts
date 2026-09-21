@@ -318,6 +318,28 @@ async function backupSports(splat: string) {
     /* fall through to the secondary backup */
   }
 
+  // Third source: The Odds API (free plan, heavily cached).
+  try {
+    const oa = await import("@/lib/oddsapi.server");
+    if (eventsMatch) {
+      const events = await oa.oddsApiEvents(decodeURIComponent(eventsMatch[1]!));
+      if (events.length) {
+        return Response.json(
+          { events, source: "oddsapi", refreshedAt: new Date().toISOString() },
+          { status: 200, headers: { "cache-control": "no-store" } },
+        );
+      }
+    } else {
+      const odds = await oa.oddsApiOdds(
+        decodeURIComponent(oddsMatch![1]!),
+        decodeURIComponent(oddsMatch![2]!),
+      );
+      if (odds) return Response.json(odds, { status: 200, headers: { "cache-control": "no-store" } });
+    }
+  } catch {
+    /* fall through to the static backup */
+  }
+
   try {
 
     const backup = await import("@/lib/skyfair.server");
