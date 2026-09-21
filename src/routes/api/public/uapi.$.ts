@@ -295,31 +295,8 @@ async function backupSports(splat: string) {
   if (!eventsMatch && !oddsMatch) return null;
 
 
-  // Preferred failover: the Royal exchange event list (same source the
-  // reference site's sports page uses). Unreachable from some networks, so
-  // any failure falls through to the socket feed below.
-  try {
-    const royal = await import("@/lib/royal.server");
-    if (eventsMatch) {
-      const events = await royal.royalEvents(decodeURIComponent(eventsMatch[1]!));
-      if (events.length) {
-        return Response.json(
-          { events, source: "royal", refreshedAt: new Date().toISOString() },
-          { status: 200, headers: { "cache-control": "no-store" } },
-        );
-      }
-    } else {
-      const odds = await royal.royalOdds(
-        decodeURIComponent(oddsMatch![1]!),
-        decodeURIComponent(oddsMatch![2]!),
-      );
-      if (odds) return Response.json(odds, { status: 200, headers: { "cache-control": "no-store" } });
-    }
-  } catch {
-    /* fall through to the socket feed */
-  }
-
-  // Second failover: the live exchange socket feed (real matches + odds).
+  // Failover order: primary (universeapi) handled by the caller, then the
+  // live exchange socket feed (Dream), then the static backup.
   try {
     const aura = await import("@/lib/aura.server");
     if (eventsMatch) {
