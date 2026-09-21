@@ -243,9 +243,8 @@ export async function backupEvents(
   });
 
   // Completed matches stay visible briefly (like Royal) and then disappear.
-  return mapped.filter((ev) => {
-    const code = ev.exEventId.startsWith("sf:") ? ev.exEventId.split(":")[1] ?? "" : "";
-    const at = settledAt.get(code || String(ev.eventName));
+  return mapped.filter((_ev, i) => {
+    const at = settledAt.get(String(list[i]?.EventCode ?? ""));
     return !at || now - at < COMPLETED_VISIBLE_MS;
   });
 }
