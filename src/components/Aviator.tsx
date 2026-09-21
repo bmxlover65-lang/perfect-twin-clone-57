@@ -1213,6 +1213,11 @@ export function Aviator() {
     sfx(winSound.url, 0.65);
   }, [sfx]);
 
+  // the cash-out banner belongs to one round only
+  useEffect(() => {
+    if (phase === "betting") setCashNote(null);
+  }, [phase]);
+
   // round loop — driven by the live feed, falls back to a local sim if it dies
   useEffect(() => {
     let raf = 0;
