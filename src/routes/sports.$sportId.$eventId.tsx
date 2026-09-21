@@ -368,7 +368,11 @@ function EventPage() {
 
 
 
-  const matchOdds = data?.matchOdds ?? [];
+  const allMatchOdds = data?.matchOdds ?? [];
+  // The provider ships goal/run lines inside the match-odds list; the
+  // reference board shows them as their own Over/Under section.
+  const matchOdds = allMatchOdds.filter((m) => !isLineMarket(m));
+  const lines = allMatchOdds.filter(isLineMarket);
   const bookmakers = data?.bookmakers ?? [];
   const fancy = data?.fancy ?? [];
   const sportsbook = data?.sportsbook ?? [];
