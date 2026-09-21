@@ -143,6 +143,10 @@ export function normalizeName(name: string) {
 const eventsCache = new Map<string, { at: number; list: SfEvent[] }>();
 const nameByCode = new Map<string, string>();
 const rowsCache = new Map<string, { at: number; rows: SfOddsRow[] }>();
+/** When an event first looked finished, so the list can drop it shortly after. */
+const settledAt = new Map<string, number>();
+/** Completed matches remain listed for this long, then vanish. */
+const COMPLETED_VISIBLE_MS = 150_000;
 
 async function events(sportId: string): Promise<SfEvent[]> {
   const endpoint = SPORT_ENDPOINT[sportId];
