@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AppLoader } from "@/components/AppLoader";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -237,7 +236,6 @@ function SportsPage() {
         : "border-border bg-transparent text-foreground hover:bg-muted"
     }`;
 
-  if (loading && events.length === 0) return <AppLoader />;
 
   return (
     <main className="mx-auto min-h-[calc(100vh-76px)] max-w-[1200px] px-4 py-5 sm:py-8">
@@ -249,7 +247,7 @@ function SportsPage() {
           </p>
           {refreshedAt ? (
             <p className="mt-1.5 text-xs text-muted-foreground">
-              {loading ? "Updating live events…" : `List refreshed ${refreshedAt}`}
+              {`List refreshed ${refreshedAt}`}
             </p>
           ) : null}
         </div>
