@@ -69,35 +69,13 @@ const SPORT_SHORT_NAMES: Record<string, string> = {
   "4339": "Greyhound",
 };
 
-function eventClock(eventTime?: string) {
+/** Royal-style event date label: "09-22-2026 4:00". */
+function eventDateLabel(eventTime?: string) {
   if (!eventTime) return "";
-  const parsed = new Date(eventTime);
-  if (Number.isNaN(parsed.getTime())) return eventTime;
-  return parsed.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-}
-
-function PriceCell({
-  price,
-  size,
-  side,
-}: {
-  price: number | undefined;
-  size: number | undefined;
-  side: "back" | "lay";
-}) {
-  const hasPrice = Number(price) > 0;
-  return (
-    <span
-      className={`flex h-[35px] min-w-0 flex-col items-center justify-center border-l border-ex-market-surface text-ex-cell-foreground ${
-        side === "back" ? (hasPrice ? "bg-ex-back" : "bg-ex-back-dim/45") : hasPrice ? "bg-ex-lay" : "bg-ex-lay-dim/45"
-      }`}
-    >
-      <strong className="text-[0.75rem] leading-none">{fmtOdds(price)}</strong>
-      {hasPrice && Number(size) > 0 ? (
-        <small className="mt-0.5 text-[0.52rem] font-medium leading-none opacity-75">{fmtInt(size)}</small>
-      ) : null}
-    </span>
-  );
+  const d = new Date(eventTime);
+  if (Number.isNaN(d.getTime())) return eventTime;
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${p(d.getMonth() + 1)}-${p(d.getDate())}-${d.getFullYear()} ${d.getHours()}:${p(d.getMinutes())}`;
 }
 
 function SportsPage() {
