@@ -137,7 +137,7 @@ function SportsPage() {
         const results = await Promise.all(ORDER.map((id) => fetchEvents(id).catch(() => null)));
         if (currentRequest !== requestId.current) return;
         const next = results.flatMap((r, i) =>
-          (r?.events ?? []).map((e) => ({ ...e, sportId: e.sportId || ORDER[i] })),
+          (r?.events ?? []).map((e) => ({ ...e, sportId: e.sportId || ORDER[i] || "4" })),
         );
         if (next.length === 0) {
           emptyStreak.current += 1;
@@ -148,7 +148,7 @@ function SportsPage() {
           setEvents(next);
         }
         setError(null);
-        setRefreshedAt(new Date(data.refreshedAt ?? Date.now()).toLocaleTimeString());
+        setRefreshedAt(new Date().toLocaleTimeString());
         setLatency(Date.now() - started);
         setLastPoll(new Date());
         setPollCount((n) => n + 1);
