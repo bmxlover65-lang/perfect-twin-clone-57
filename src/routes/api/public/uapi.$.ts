@@ -289,7 +289,31 @@ async function backupSports(splat: string) {
   const eventsMatch = /^sports\/([^/]+)\/events$/.exec(splat);
   const oddsMatch = /^sports\/([^/]+)\/([^/]+)\/odds$/.exec(splat);
   if (!eventsMatch && !oddsMatch) return null;
+
+  // Preferred failover: the live exchange socket feed (real matches + odds).
   try {
+    const aura = await import("@/lib/aura.server");
+    if (eventsMatch) {
+      const events = await aura.auraEvents(decodeURIComponent(eventsMatch[1]!));
+      if (events.length) {
+        return Response.json(
+          { events, source: "aura", refreshedAt: new Date().toISOString() },
+          { status: 200, headers: { "cache-control": "no-store" } },
+        );
+      }
+    } else {
+      const odds = await aura.auraOdds(
+        decodeURIComponent(oddsMatch![1]!),
+        decodeURIComponent(oddsMatch![2]!),
+      );
+      if (odds) return Response.json(odds, { status: 200, headers: { "cache-control": "no-store" } });
+    }
+  } catch {
+    /* fall through to the secondary backup */
+  }
+
+  try {
+
     const backup = await import("@/lib/skyfair.server");
     if (eventsMatch) {
       const events = await backup.backupEvents(decodeURIComponent(eventsMatch[1]!), (n) =>
