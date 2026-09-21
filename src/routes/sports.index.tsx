@@ -38,7 +38,18 @@ export const Route = createFileRoute("/sports/")({
   component: SportsPage,
 });
 
-type Filter = "all" | "inplay" | "pre";
+type Filter = "inplay" | "today" | "tomorrow";
+
+/** Local calendar day of an event start time: 0 = today, 1 = tomorrow, -1 = past/other. */
+function dayOffset(eventTime?: string): number {
+  if (!eventTime) return 0;
+  const parsed = new Date(eventTime);
+  if (Number.isNaN(parsed.getTime())) return 0;
+  const start = new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((start.getTime() - today.getTime()) / 86_400_000);
+}
 
 const FALLBACK_SPORTS: Sport[] = [
   { sportId: "4", sportName: "Cricket" },
