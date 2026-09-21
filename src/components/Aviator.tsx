@@ -314,7 +314,7 @@ function BetPanel({
         </p>
       ) : state.staged ? (
         <p className="text-center text-[0.62rem] font-semibold text-[#9CA3AF]">
-          Waiting for next round
+          Bet placed
         </p>
       ) : null}
     </div>
