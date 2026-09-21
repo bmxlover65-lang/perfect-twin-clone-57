@@ -40,7 +40,7 @@ const matchesBySport = new Map<string, Map<string, AnyRec>>();
 const matchSeenAt = new Map<string, number>();
 const oddsByMatch = new Map<string, { at: number; data: AnyRec }>();
 const matchMeta = new Map<string, MatchMeta>();
-const wantedSports = new Set<string>();
+const wantedSports = new Set<string>(AURA_SPORTS.map((s) => s.sportId));
 const wantedMatches = new Map<string, number>();
 
 let socket: WebSocket | null = null;
