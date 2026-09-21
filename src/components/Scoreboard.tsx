@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { AppLoader } from "@/components/AppLoader";
 
 /**
  * Renders the upstream live scoreboard inline (same-origin proxy fetch) so it
@@ -126,11 +125,7 @@ export function Scoreboard({ sportId, eventId }: { sportId: string; eventId: str
         .scoreboard-embed .ball { width: 28px; height: 28px; font-size: 11px; font-weight: 800; color: #fff; }
       `}</style>
 
-      {html ? (
-        <div dangerouslySetInnerHTML={{ __html: html }} />
-      ) : (
-        <AppLoader compact />
-      )}
+      {html ? <div dangerouslySetInnerHTML={{ __html: html }} /> : null}
     </div>
   );
 }

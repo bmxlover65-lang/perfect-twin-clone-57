@@ -247,7 +247,7 @@ function SportsPage() {
           </p>
           {refreshedAt ? (
             <p className="mt-1.5 text-xs text-muted-foreground">
-              {loading ? "Updating live events…" : `List refreshed ${refreshedAt}`}
+              {`List refreshed ${refreshedAt}`}
             </p>
           ) : null}
         </div>
