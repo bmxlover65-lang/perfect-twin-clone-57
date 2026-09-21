@@ -368,9 +368,9 @@ function SportsPage() {
               <div className="min-w-0 flex-1">
                 <h3 className="truncate text-sm font-bold text-foreground">{event.eventName}</h3>
                 <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                  {event.inPlay ? <span className="h-2 w-2 shrink-0 rounded-full bg-live-lose" /> : null}
+                  {isLive(event) ? <span className="h-2 w-2 shrink-0 rounded-full bg-live-lose" /> : null}
                   <span>
-                    {event.inPlay ? "In-play" : "Pre-match"}
+                    {isLive(event) ? "In-play" : "Pre-match"}
                     {event.isScore ? " · Score" : ""}
                     {event.tv ? " · TV" : ""}
                     {fmtInt(event.totalMatched) ? ` · matched ${fmtInt(event.totalMatched)}` : ""}
