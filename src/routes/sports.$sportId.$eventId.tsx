@@ -480,15 +480,23 @@ function EventPage() {
           ) : null}
 
           {bookmakers.length ? (
-            <Section>
+            <Section title="Bookmaker">
               {bookmakers.map((m) => (
                 <Board key={m.marketId} market={m} />
               ))}
             </Section>
           ) : null}
 
+          {lines.length ? (
+            <Section title="Over / Under">
+              {lines.map((m) => (
+                <Board key={m.marketId} market={m} />
+              ))}
+            </Section>
+          ) : null}
+
           {fancy.length ? (
-            <Section>
+            <Section title="Fancy">
               {fancy.map((m) => (
                 <FancyRow key={m.marketId} market={m} />
               ))}
@@ -496,7 +504,7 @@ function EventPage() {
           ) : null}
 
           {sportsbook.length ? (
-            <Section>
+            <Section title="Sportsbook">
               {sportsbook.map((m) => (
                 <Board key={m.marketId} market={m} />
               ))}
