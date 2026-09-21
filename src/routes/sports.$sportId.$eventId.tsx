@@ -241,15 +241,28 @@ function FancyRow({ market }: { market: Market }) {
 }
 
 function Section({
+  title,
   children,
 }: {
+  title?: string;
   children: React.ReactNode;
 }) {
   return (
     <section className="overflow-hidden bg-ex-market-surface">
+      {title ? (
+        <h2 className="bg-ex-header px-2 py-1.5 text-[0.75rem] font-extrabold uppercase tracking-[0.08em] text-ex-text">
+          {title}
+        </h2>
+      ) : null}
       <div>{children}</div>
     </section>
   );
+}
+
+/** Goal / run line markets ("Over/Under 2.5 Goals", totals, handicaps). */
+function isLineMarket(m: Market) {
+  const name = `${m.marketName ?? ""} ${m.marketType ?? ""}`.toUpperCase();
+  return /OVER|UNDER|TOTAL|HANDICAP|LINE/.test(name);
 }
 
 function EventPage() {
