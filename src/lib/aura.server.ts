@@ -287,9 +287,9 @@ export async function auraOdds(sportId: string, exEventId: string): Promise<AnyR
   const hit = oddsByMatch.get(exEventId);
   if (!hit) return null;
   const o = hit.data;
-  const runnersData =
-    ((matchesBySport.get(meta.sportId)?.get(exEventId)?.["runnersData"] ??
-      null) as Record<string, string> | null) ?? null;
+  const runnersData = (matchesBySport.get(meta.sportId)?.get(exEventId)?.["runnersData"] ??
+    null) as Record<string, string> | null;
+
   const pick = (key: string) =>
     (Array.isArray(o[key]) ? (o[key] as AnyRec[]) : []).map((m) => toMarket(m, runnersData));
   const sportsbook = [...pick("sportsbook"), ...pick("sportsBook")];
