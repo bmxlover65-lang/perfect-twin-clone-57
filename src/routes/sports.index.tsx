@@ -150,10 +150,29 @@ function SportsPage() {
       if (!silent) setLoading(true);
       const started = Date.now();
       try {
-        const results = await Promise.all(ORDER.map((id) => fetchEvents(id).catch(() => null)));
+        const bySport = new Map<string, UEvent[]>();
+        // Paint each sport the moment it arrives instead of waiting for the slowest one.
+        const results = await Promise.all(
+          ORDER.map((id) =>
+            fetchEvents(id)
+              .then((r) => {
+                const list = (r?.events ?? []).map((e) => ({ ...e, sportId: e.sportId || id }));
+                if (currentRequest !== requestId.current) return list;
+                bySport.set(id, list);
+                const partial = ORDER.flatMap((sid) => bySport.get(sid) ?? []);
+                if (partial.length > 0) {
+                  emptyStreak.current = 0;
+                  setEvents(partial);
+                  setError(null);
+                }
+                return list;
+              })
+              .catch(() => null),
+          ),
+        );
         if (currentRequest !== requestId.current) return;
         const next = results.flatMap((r, i) =>
-          (r?.events ?? []).map((e) => ({ ...e, sportId: e.sportId || ORDER[i] || "4" })),
+          (r ?? []).map((e) => ({ ...e, sportId: e.sportId || ORDER[i] || "4" })),
         );
         if (next.length === 0) {
           emptyStreak.current += 1;
