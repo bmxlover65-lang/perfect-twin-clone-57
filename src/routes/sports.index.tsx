@@ -56,15 +56,18 @@ const FALLBACK_SPORTS: Sport[] = [
   { sportId: "4339", sportName: "Greyhound Racing" },
 ];
 
-const ORDER = ["4", "1", "2", "7", "4339"];
+const ORDER = ["4", "1", "2", "7", "4339", "7522", "2378961"];
 
 const SPORT_SHORT_NAMES: Record<string, string> = {
   "4": "Cricket",
   "1": "Soccer",
   "2": "Tennis",
-  "7": "Horse",
-  "4339": "Greyhound",
+  "7": "Horse Racing",
+  "4339": "Greyhound Racing",
+  "7522": "Basketball",
+  "2378961": "Politics",
 };
+
 
 /** Royal-style event date label: "09-22-2026 4:00". */
 function eventDateLabel(eventTime?: string) {
