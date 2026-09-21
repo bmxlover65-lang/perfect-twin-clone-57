@@ -219,6 +219,14 @@ function SportsPage() {
   );
   const list = filter === "inplay" ? inplay : filter === "today" ? today : tomorrow;
 
+  // If the selected tab has nothing, show the first tab that does.
+  useEffect(() => {
+    if (list.length > 0) return;
+    if (inplay.length > 0) setFilter("inplay");
+    else if (today.length > 0) setFilter("today");
+    else if (tomorrow.length > 0) setFilter("tomorrow");
+  }, [list.length, inplay.length, today.length, tomorrow.length]);
+
   const sportTabs = useMemo(
     () =>
       [...sports].sort((a, b) => {
