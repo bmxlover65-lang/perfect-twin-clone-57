@@ -101,6 +101,8 @@
   --color-ex-market-rule: var(--ex-market-rule);
   --color-ex-minmax: var(--ex-minmax);
   --color-ex-cashout: var(--ex-cashout);
+  --color-ex-link: var(--ex-link);
+  --color-ex-inplay: var(--ex-inplay);
   --color-casino-market-header: var(--casino-market-header);
   --color-casino-market-body: var(--casino-market-body);
   --color-casino-market-rate: var(--casino-market-rate);
@@ -346,6 +348,8 @@
   --ex-market-rule: #B8C4CB;
   --ex-minmax: #C7E1DE;
   --ex-cashout: #D7D7D7;
+  --ex-link: #2E7BB3;
+  --ex-inplay: #567D2F;
 }
 
 
