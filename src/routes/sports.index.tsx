@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { ChevronRight, Radio, RefreshCw, Tv } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppLoader } from "@/components/AppLoader";
+import { Button } from "@/components/ui/button";
 
 import {
   fetchEvents,
@@ -29,6 +31,8 @@ export const Route = createFileRoute("/sports/")({
         property: "og:description",
         content: "In-play and pre-match cricket, soccer, tennis, horse and greyhound markets.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: SportsPage,
@@ -45,6 +49,37 @@ const FALLBACK_SPORTS: Sport[] = [
 ];
 
 const ORDER = ["4", "1", "2", "7", "4339"];
+
+const SPORT_SHORT_NAMES: Record<string, string> = {
+  "4": "Cricket",
+  "1": "Soccer",
+  "2": "Tennis",
+  "7": "Horse",
+  "4339": "Greyhound",
+};
+
+function eventClock(eventTime?: string) {
+  if (!eventTime) return "";
+  const parsed = new Date(eventTime);
+  if (Number.isNaN(parsed.getTime())) return eventTime;
+  return parsed.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+function PriceCell({ price, size, side }: { price?: number; size?: number; side: "back" | "lay" }) {
+  const hasPrice = Number(price) > 0;
+  return (
+    <span
+      className={`flex h-[35px] min-w-0 flex-col items-center justify-center border-l border-ex-market-surface text-ex-cell-foreground ${
+        side === "back" ? (hasPrice ? "bg-ex-back" : "bg-ex-back-dim/45") : hasPrice ? "bg-ex-lay" : "bg-ex-lay-dim/45"
+      }`}
+    >
+      <strong className="text-[0.75rem] leading-none">{fmtOdds(price)}</strong>
+      {hasPrice && Number(size) > 0 ? (
+        <small className="mt-0.5 text-[0.52rem] font-medium leading-none opacity-75">{fmtInt(size)}</small>
+      ) : null}
+    </span>
+  );
+}
 
 function SportsPage() {
   const [sports, setSports] = useState<Sport[]>(FALLBACK_SPORTS);
@@ -167,40 +202,45 @@ function SportsPage() {
 
   if (loading && events.length === 0) return <AppLoader />;
 
+  const groups = useMemo(() => {
+    const map = new Map<string, UEvent[]>();
+    for (const event of list) {
+      const name = event.tournamentName?.trim() || (event.inPlay ? "Live Matches" : "Upcoming Matches");
+      map.set(name, [...(map.get(name) ?? []), event]);
+    }
+    return [...map.entries()];
+  }, [list]);
+
   const pill = (active: boolean) =>
-  `rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-      active ? "bg-nav-active text-background" : "bg-muted text-foreground hover:opacity-80"
+    `h-8 shrink-0 rounded-[3px] border px-3 text-[0.72rem] font-bold shadow-none ${
+      active
+        ? "border-ex-header bg-ex-header text-ex-text hover:bg-ex-header"
+        : "border-ex-market-rule bg-ex-market-surface text-ex-cell-foreground hover:bg-ex-minmax"
     }`;
 
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-8">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Live Sports Events &amp; Odds</h1>
-          <p className="mt-2 max-w-[620px] text-muted-foreground">
-            All events for each sport (in-play + pre-match). Open one to verify odds, TV, and
-            scoreboard.
-          </p>
-
-          <p className="mt-2 text-sm text-muted-foreground">
-            {loading
-              ? "Loading live events…"
-              : `List refreshed ${refreshedAt} · ${inplay.length} in-play · ${pre.length} pre-match`}
-          </p>
+    <main className="sports-theme mx-auto min-h-[calc(100vh-76px)] max-w-[1200px] bg-ex-market-surface pb-5 sm:min-h-0 sm:bg-transparent sm:px-4 sm:py-6">
+      <header className="flex h-10 items-center justify-between bg-ex-header px-3 text-ex-text sm:rounded-t-[4px]">
+        <div className="flex min-w-0 items-center gap-2">
+          <Radio className="h-4 w-4 text-live-badge" aria-hidden="true" />
+          <h1 className="truncate text-[0.86rem] font-extrabold uppercase">Sports Exchange</h1>
         </div>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Refresh matches"
           onClick={() => void load(sportId)}
-          className="rounded-full bg-muted px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:opacity-80"
+          className="h-8 w-8 rounded-full text-ex-text hover:bg-ex-text/10 hover:text-ex-text"
         >
-          Refresh
-        </button>
-      </div>
+          <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+        </Button>
+      </header>
 
-      <div className="mt-6 flex flex-wrap gap-3">
+      <nav className="flex gap-1.5 overflow-x-auto border-b border-ex-market-rule bg-ex-market-surface px-2 py-2" aria-label="Sports">
         {sports.map((s) => (
-          <button
+          <Button
             key={s.sportId}
+            variant="ghost"
             type="button"
             onClick={() => {
               setSportId(s.sportId);
@@ -208,86 +248,109 @@ function SportsPage() {
             }}
             className={pill(s.sportId === sportId)}
           >
-            {s.sportName.replace(" Racing", "")}
-          </button>
+            {SPORT_SHORT_NAMES[s.sportId] ?? s.sportName.replace(" Racing", "")}
+          </Button>
         ))}
-      </div>
+      </nav>
 
-      <div className="mt-3 flex flex-wrap gap-3">
-        <button type="button" onClick={() => setFilter("all")} className={pill(filter === "all")}>
+      <div className="flex items-center gap-1.5 border-b border-ex-market-rule bg-ex-market-surface px-2 py-2">
+        <Button variant="ghost" type="button" onClick={() => setFilter("all")} className={pill(filter === "all")}>
           All ({events.length})
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
           type="button"
           onClick={() => setFilter("inplay")}
           className={pill(filter === "inplay")}
         >
-          In-play ({inplay.length})
-        </button>
-        <button type="button" onClick={() => setFilter("pre")} className={pill(filter === "pre")}>
-          Pre-match ({pre.length})
-        </button>
+          Live ({inplay.length})
+        </Button>
+        <Button variant="ghost" type="button" onClick={() => setFilter("pre")} className={pill(filter === "pre")}>
+          Upcoming ({pre.length})
+        </Button>
+        <span className="ml-auto whitespace-nowrap text-[0.6rem] text-ex-muted">
+          {loading ? "Updating…" : refreshedAt}
+        </span>
       </div>
 
       {error ? (
-        <p className="mt-6 rounded-xl border border-border/60 bg-card p-4 text-sm text-live-lose">
-          {error}
+        <p className="border-b border-ex-market-rule bg-ex-market-surface px-3 py-2 text-xs text-ex-suspend">
+          Feed reconnecting · {error}
         </p>
       ) : null}
 
+      <section aria-label="Match list">
+        {groups.map(([tournament, tournamentEvents]) => (
+          <div key={tournament} className="border-b-[5px] border-ex-market-rule">
+            <div className="grid h-7 grid-cols-[minmax(0,1fr)_64px_64px] items-center bg-ex-header text-ex-text">
+              <h2 className="truncate px-2 text-[0.7rem] font-bold uppercase">{tournament}</h2>
+              <span className="text-center text-[0.62rem] font-semibold">Back</span>
+              <span className="text-center text-[0.62rem] font-semibold">Lay</span>
+            </div>
 
-      <section className="mt-6 rounded-2xl border border-border/60 bg-card p-4">
-        <header className="flex items-center justify-between px-1 pb-3">
-          <h2 className="text-sm font-bold text-foreground">
-            {filter === "inplay"
-              ? "In-play events"
-              : filter === "pre"
-                ? "Pre-match events"
-                : "All events"}
-          </h2>
-          <span className="text-sm text-muted-foreground">{list.length}</span>
-        </header>
+            {tournamentEvents.map((event) => {
+              const firstRunner = event.runners?.[0];
+              const hasPrices = Number(firstRunner?.backPrice) > 0 || Number(firstRunner?.layPrice) > 0;
+              return (
+                <Link
+                  key={event.exEventId}
+                  to="/sports/$sportId/$eventId"
+                  params={{ sportId: event.sportId, eventId: event.exEventId }}
+                  data-sports-event
+                  className="group block border-b border-ex-market-rule bg-ex-market-surface last:border-b-0 hover:bg-ex-minmax/45"
+                >
+                  <div className="grid min-h-[52px] grid-cols-[minmax(0,1fr)_64px_64px] items-stretch">
+                    <div className="flex min-w-0 items-center gap-2 px-2 py-1.5">
+                      <span className={`h-2 w-2 shrink-0 rounded-full ${event.inPlay ? "bg-live-lose" : "bg-ex-muted"}`} />
+                      <div className="min-w-0 flex-1">
+                        <h3 className="line-clamp-2 text-[0.74rem] font-bold leading-[1.15] text-ex-cell-foreground">
+                          {event.eventName}
+                        </h3>
+                        <p className="mt-1 flex items-center gap-1.5 text-[0.58rem] leading-none text-ex-muted">
+                          <span className={event.inPlay ? "font-bold uppercase text-live-lose" : "font-semibold uppercase"}>
+                            {event.inPlay ? "In-Play" : eventClock(event.eventTime) || "Pre-Match"}
+                          </span>
+                          {event.tv ? <Tv className="h-2.5 w-2.5" aria-label="TV available" /> : null}
+                          {Number(event.totalMatched) > 0 ? <span>Matched {fmtInt(event.totalMatched)}</span> : null}
+                        </p>
+                      </div>
+                      {!hasPrices ? <ChevronRight className="h-4 w-4 shrink-0 text-ex-muted group-hover:text-ex-cell-foreground" /> : null}
+                    </div>
+                    <PriceCell price={firstRunner?.backPrice} size={firstRunner?.backSize} side="back" />
+                    <PriceCell price={firstRunner?.layPrice} size={firstRunner?.laySize} side="lay" />
+                  </div>
 
-        <div className="space-y-3">
-          {list.map((e) => (
-            <Link
-              key={e.exEventId}
-              to="/sports/$sportId/$eventId"
-              params={{ sportId: e.sportId, eventId: e.exEventId }}
-              className="flex items-center justify-between gap-4 rounded-xl border border-transparent bg-muted px-4 py-3 transition-colors hover:border-border/60"
-            >
-              <div className="min-w-0">
-                <h3 className="truncate text-base font-bold text-foreground">{e.eventName}</h3>
-                <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-                  {e.inPlay ? <span className="h-2 w-2 shrink-0 rounded-full bg-live-lose" /> : null}
-                  <span>
-                    {e.inPlay ? "In-play" : "Pre-match"}
-                    {e.isScore ? " · Score" : ""}
-                    {e.tv ? " · TV" : ""} · matched {fmtInt(e.totalMatched)}
-                  </span>
-                </p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {(e.runners ?? []).slice(0, 4).map((r) => (
-                    <span
-                      key={String(r.selectionId)}
-                      className="rounded-md bg-card px-2 py-1 text-xs text-muted-foreground"
-                    >
-                      {runnerName(e, r.selectionId)}{" "}
-                      <span className="font-bold text-foreground">
-                        {fmtOdds(r.backPrice)}/{fmtOdds(r.layPrice)}
-                      </span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <span className="shrink-0 text-sm text-muted-foreground">Odds →</span>
-            </Link>
-          ))}
-          {!loading && !list.length ? (
-            <p className="px-1 py-6 text-sm text-muted-foreground">No events right now.</p>
-          ) : null}
-        </div>
+                  {(event.runners ?? []).slice(0, 2).map((runner, index) =>
+                    index === 0 ? null : (
+                      <div
+                        key={String(runner.selectionId)}
+                        className="grid h-[35px] grid-cols-[minmax(0,1fr)_64px_64px] border-t border-ex-market-rule/70"
+                      >
+                        <span className="truncate px-5 py-2 text-[0.62rem] font-medium text-ex-cell-foreground">
+                          {runnerName(event, runner.selectionId)}
+                        </span>
+                        <PriceCell price={runner.backPrice} size={runner.backSize} side="back" />
+                        <PriceCell price={runner.layPrice} size={runner.laySize} side="lay" />
+                      </div>
+                    ),
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
+
+        {!loading && !list.length ? (
+          <p className="bg-ex-market-surface px-3 py-10 text-center text-xs text-ex-muted">No matches available right now.</p>
+        ) : null}
       </section>
-    </div>
+
+      {isAdmin ? (
+        <div className="mx-2 mt-3 border border-ex-market-rule bg-ex-market-surface p-2 text-[0.62rem] text-ex-muted">
+          Polls {pollCount} · {latency}ms · {lastPoll?.toLocaleTimeString() ?? "—"} · {health?.ok ? "Feed OK" : "Feed checking"}
+          {errorLog[0] ? ` · ${errorLog[0].message}` : ""}
+        </div>
+      ) : null}
+    </main>
   );
 }

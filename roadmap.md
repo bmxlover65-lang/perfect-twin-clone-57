@@ -102,6 +102,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Balloon: match the supplied betting panel's exact 327px proportions, Auto positions, stake/action spacing and HEAT sizing
 
 ## Phase 7 — Royal444 full casino structure parity (pending reference access)
+- [x] Sports match list: compact mobile exchange layout with grouped events and aligned live Back/Lay prices
 - [ ] Audit the reference casino lobby and every casino game page at mobile width only
 - [x] Match shared casino market headers, blue bodies, rate boxes and divider colors to the supplied mobile reference
 - [x] Show placed-bet liability and profit below the market odds boxes like the supplied reference
