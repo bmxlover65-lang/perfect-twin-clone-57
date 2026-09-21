@@ -216,8 +216,9 @@ function SportsPage() {
 
 
   const inplay = useMemo(() => events.filter((e) => e.inPlay), [events]);
-  const pre = useMemo(() => events.filter((e) => !e.inPlay), [events]);
-  const list = filter === "inplay" ? inplay : filter === "pre" ? pre : events;
+  const today = useMemo(() => events.filter((e) => dayOffset(e.eventTime) <= 0), [events]);
+  const tomorrow = useMemo(() => events.filter((e) => dayOffset(e.eventTime) >= 1), [events]);
+  const list = filter === "inplay" ? inplay : filter === "today" ? today : tomorrow;
 
   const groups = useMemo(() => {
     const map = new Map<string, UEvent[]>();
