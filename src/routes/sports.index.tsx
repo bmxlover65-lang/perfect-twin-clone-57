@@ -241,8 +241,8 @@ function SportsPage() {
     [sportEventsAll, isLive],
   );
   const tomorrow = useMemo(
-    () => sportEventsAll.filter((e) => !e.inPlay && dayOffset(e.eventTime) >= 1),
-    [sportEventsAll],
+    () => sportEventsAll.filter((e) => !isLive(e) && dayOffset(e.eventTime) >= 1),
+    [sportEventsAll, isLive],
   );
   const list = filter === "inplay" ? inplay : filter === "today" ? today : tomorrow;
 
