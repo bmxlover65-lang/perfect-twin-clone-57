@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronRight, Radio, RefreshCw, Tv } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppLoader } from "@/components/AppLoader";
 import { Button } from "@/components/ui/button";
@@ -69,15 +68,6 @@ const SPORT_SHORT_NAMES: Record<string, string> = {
 };
 
 
-/** Royal-style event date label: "09-22-2026 4:00". */
-function eventDateLabel(eventTime?: string) {
-  if (!eventTime) return "";
-  const d = new Date(eventTime);
-  if (Number.isNaN(d.getTime())) return eventTime;
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${p(d.getMonth() + 1)}-${p(d.getDate())}-${d.getFullYear()} ${d.getHours()}:${p(d.getMinutes())}`;
-}
-
 function fmtOdds(v?: number) {
   return v && v > 0 ? v.toFixed(2) : "—";
 }
@@ -99,29 +89,6 @@ function runnerName(event: UEvent, index: number) {
   if (values[index]) return values[index];
   const parts = event.eventName.split(/\s+v\s+|\s+vs\.?\s+/i);
   return parts[index] ?? (index === 2 ? "The Draw" : `Runner ${index + 1}`);
-}
-
-function PriceCell({
-  price,
-  size,
-  tone,
-}: {
-  price: number | undefined;
-  size: number | undefined;
-  tone: "back" | "lay";
-}) {
-  return (
-    <div
-      className={`flex h-9 w-full flex-col items-center justify-center rounded-[2px] leading-none ${
-        tone === "back" ? "bg-ex-back" : "bg-ex-lay"
-      }`}
-    >
-      <span className="text-[0.78rem] font-bold text-ex-cell-foreground">{fmtOdds(price)}</span>
-      {fmtInt(size) ? (
-        <span className="text-[0.56rem] text-ex-cell-foreground/70">{fmtInt(size)}</span>
-      ) : null}
-    </div>
-  );
 }
 
 function SportsPage() {
@@ -253,16 +220,6 @@ function SportsPage() {
   );
   const list = filter === "inplay" ? inplay : filter === "today" ? today : tomorrow;
 
-  /** Universal design grouping: one section per tournament. */
-  const groups = useMemo(() => {
-    const map = new Map<string, UEvent[]>();
-    for (const event of list) {
-      const key = event.tournamentName?.trim() || SPORT_SHORT_NAMES[event.sportId] || "Other";
-      map.set(key, [...(map.get(key) ?? []), event]);
-    }
-    return [...map.entries()];
-  }, [list]);
-
   const sportTabs = useMemo(
     () =>
       [...sports].sort((a, b) => {
@@ -273,53 +230,61 @@ function SportsPage() {
     [sports],
   );
 
+  const pill = (active: boolean) =>
+    `h-auto shrink-0 rounded-full border px-4 py-2 text-sm font-semibold shadow-none transition-colors ${
+      active
+        ? "border-primary bg-primary text-primary-foreground hover:bg-primary"
+        : "border-border bg-transparent text-foreground hover:bg-muted"
+    }`;
 
   if (loading && events.length === 0) return <AppLoader />;
 
   return (
-    <main className="sports-theme mx-auto min-h-[calc(100vh-76px)] max-w-[1200px] bg-ex-market-surface pb-5 sm:min-h-0 sm:bg-transparent sm:px-4 sm:py-6">
-      <header className="flex h-10 items-center justify-between bg-ex-header px-3 text-ex-text sm:rounded-t-[4px]">
-        <div className="flex min-w-0 items-center gap-2">
-          <Radio className="h-4 w-4 text-live-badge" aria-hidden="true" />
-          <h1 className="truncate text-[0.86rem] font-extrabold uppercase">Sports Exchange</h1>
+    <main className="mx-auto min-h-[calc(100vh-76px)] max-w-[1200px] px-4 py-5 sm:py-8">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-[2rem] font-bold leading-tight text-foreground">Sports</h1>
+          <p className="mt-1.5 max-w-[620px] text-[0.95rem] font-medium leading-relaxed text-muted-foreground">
+            All events for each sport (in-play + pre-match). Open one to verify odds, TV, and scoreboard.
+          </p>
+          {refreshedAt ? (
+            <p className="mt-1.5 text-xs text-muted-foreground">
+              {loading ? "Updating live events…" : `List refreshed ${refreshedAt}`}
+            </p>
+          ) : null}
         </div>
         <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Refresh matches"
+          variant="secondary"
           onClick={() => void load()}
-          className="h-8 w-8 rounded-full text-ex-text hover:bg-ex-text/10 hover:text-ex-text"
+          className="mt-1 h-auto shrink-0 rounded-full border border-border bg-muted px-5 py-2.5 text-sm font-semibold text-foreground shadow-none hover:bg-accent"
         >
-          <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+          Refresh
         </Button>
-      </header>
+      </div>
 
       <nav
-        className="flex gap-1 overflow-x-auto border-b border-ex-line bg-ex-panel px-2 py-1.5"
+        className="mt-5 flex flex-wrap gap-2"
         aria-label="Sports"
       >
         {sportTabs.map((s) => (
-          <button
+          <Button
             key={s.sportId}
+            variant="ghost"
             type="button"
             onClick={() => {
               setSportId(s.sportId);
               setFilter("inplay");
             }}
             aria-current={s.sportId === sportId}
-            className={`shrink-0 rounded-full px-3 py-1 text-[0.72rem] font-semibold ${
-              s.sportId === sportId
-                ? "bg-ex-back text-ex-cell-foreground"
-                : "bg-ex-board text-ex-muted"
-            }`}
+            className={pill(s.sportId === sportId)}
           >
             {SPORT_SHORT_NAMES[s.sportId] ?? s.sportName}
-          </button>
+          </Button>
         ))}
       </nav>
 
       <div
-        className="grid grid-cols-3 gap-[3px] border-b border-ex-market-rule bg-ex-market-surface p-2"
+        className="mt-4 flex flex-wrap gap-2"
         role="tablist"
         aria-label="Match time filter"
       >
@@ -337,91 +302,71 @@ function SportsPage() {
             role="tab"
             aria-selected={filter === key}
             onClick={() => setFilter(key)}
-            className={`h-10 w-full rounded-[3px] border text-[0.82rem] font-medium shadow-none ${
-              filter === key
-                ? "border-ex-header bg-ex-header text-ex-text hover:bg-ex-header"
-                : "border-ex-market-rule bg-ex-market-surface text-ex-cell-foreground hover:bg-ex-minmax"
-            }`}
+            className={pill(filter === key)}
           >
             {label}
           </Button>
         ))}
-        <span className="col-span-3 text-right text-[0.6rem] text-ex-muted">
-          {loading ? "Updating…" : refreshedAt}
-        </span>
       </div>
 
       {error ? (
-        <p className="border-b border-ex-market-rule bg-ex-market-surface px-3 py-2 text-xs text-ex-suspend">
-          Feed reconnecting · {error}
+        <p className="mt-5 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-destructive">
+          {error}
         </p>
       ) : null}
 
-      <section aria-label="Match list">
-        {groups.map(([groupName, groupEvents]) => (
-          <div key={groupName}>
-            <h2 className="flex items-center justify-between bg-ex-panel px-2.5 py-1.5 text-[0.7rem] font-bold uppercase tracking-wide text-ex-text">
-              <span className="truncate">{groupName}</span>
-              <span className="ml-2 shrink-0 text-[0.6rem] font-medium text-ex-muted">
-                {groupEvents.length}
-              </span>
-            </h2>
-            {groupEvents.map((event) => (
-              <Link
-                key={event.exEventId}
-                to="/sports/$sportId/$eventId"
-                params={{ sportId: event.sportId, eventId: event.exEventId }}
-                data-sports-event
-                className="block border-b border-ex-market-rule bg-ex-market-surface px-2.5 py-2 last:border-b-0"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <p className="min-w-0 flex-1 text-[0.8rem] font-semibold leading-snug text-ex-cell-foreground">
-                    {event.eventName}
-                  </p>
-                  <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ex-muted" aria-hidden="true" />
-                </div>
+      <section className="mt-5 rounded-2xl border border-border bg-card p-3.5" aria-label="Match list">
+        <header className="flex items-center justify-between px-1 pb-3">
+          <h2 className="text-sm font-bold text-foreground">
+            {filter === "inplay" ? "In-play events" : filter === "today" ? "Today events" : "Tomorrow events"}
+          </h2>
+          <span className="text-sm text-muted-foreground">{list.length}</span>
+        </header>
 
-                <div className="mt-1 flex items-center gap-2 text-[0.6rem] text-ex-muted">
-                  {event.inPlay ? (
-                    <span className="flex items-center gap-1 font-bold text-ex-inplay">
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-ex-inplay" />
-                      In-Play
+        <div className="space-y-2.5">
+          {list.map((event) => (
+            <Link
+              key={event.exEventId}
+              to="/sports/$sportId/$eventId"
+              params={{ sportId: event.sportId, eventId: event.exEventId }}
+              data-sports-event
+              className="flex items-center justify-between gap-3 rounded-xl bg-muted px-3.5 py-3 transition-colors hover:bg-accent"
+            >
+              <div className="min-w-0 flex-1">
+                <h3 className="truncate text-sm font-bold text-foreground">{event.eventName}</h3>
+                <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                  {event.inPlay ? <span className="h-2 w-2 shrink-0 rounded-full bg-live-lose" /> : null}
+                  <span>
+                    {event.inPlay ? "In-play" : "Pre-match"}
+                    {event.isScore ? " · Score" : ""}
+                    {event.tv ? " · TV" : ""}
+                    {fmtInt(event.totalMatched) ? ` · matched ${fmtInt(event.totalMatched)}` : ""}
+                  </span>
+                </p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {(event.runners ?? []).slice(0, 3).map((runner, index) => (
+                    <span key={String(runner.selectionId)} className="rounded-md bg-card px-2 py-1 text-[0.68rem] text-muted-foreground">
+                      {runnerName(event, index)}{" "}
+                      <strong className="text-foreground">
+                        {fmtOdds(runner.backPrice)}/{fmtOdds(runner.layPrice)}
+                      </strong>
                     </span>
-                  ) : (
-                    <span>{eventDateLabel(event.eventTime)}</span>
-                  )}
-                  {event.tv ? <Tv className="h-3 w-3" aria-hidden="true" /> : null}
-                  {fmtInt(event.totalMatched) ? <span>Matched {fmtInt(event.totalMatched)}</span> : null}
+                  ))}
                 </div>
-
-                <div className="mt-1.5 space-y-1">
-                  {[0, 1, 2].slice(0, event.runners?.length ? Math.min(event.runners.length, 3) : 2).map((i) => {
-                    const runner = event.runners?.[i];
-                    return (
-                      <div key={i} className="grid grid-cols-[1fr_52px_52px] items-center gap-1">
-                        <span className="truncate text-[0.7rem] text-ex-cell-foreground/80">
-                          {runnerName(event, i)}
-                        </span>
-                        <PriceCell price={runner?.backPrice} size={runner?.backSize} tone="back" />
-                        <PriceCell price={runner?.layPrice} size={runner?.laySize} tone="lay" />
-                      </div>
-                    );
-                  })}
-                </div>
-              </Link>
-            ))}
-          </div>
-        ))}
-
+              </div>
+              <span className="shrink-0 text-xs text-muted-foreground">Odds →</span>
+            </Link>
+          ))}
+        </div>
         {!loading && !list.length ? (
-          <p className="bg-ex-market-surface px-3 py-10 text-center text-[0.95rem] text-ex-cell-foreground">
+          <p className="px-1 py-7 text-sm text-muted-foreground">
             There are no events to be displayed.
           </p>
         ) : null}
       </section>
 
       {isAdmin ? (
-        <div className="mx-2 mt-3 border border-ex-market-rule bg-ex-market-surface p-2 text-[0.62rem] text-ex-muted">
+        <div className="mt-3 rounded-lg border border-border bg-card p-2 text-[0.62rem] text-muted-foreground">
           Polls {pollCount} · {latency}ms · {lastPoll?.toLocaleTimeString() ?? "—"} · {health?.ok ? "Feed OK" : "Feed checking"}
           {errorLog[0] ? ` · ${errorLog[0].message}` : ""}
         </div>
