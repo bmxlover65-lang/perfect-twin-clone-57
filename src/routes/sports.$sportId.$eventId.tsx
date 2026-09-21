@@ -241,15 +241,28 @@ function FancyRow({ market }: { market: Market }) {
 }
 
 function Section({
+  title,
   children,
 }: {
+  title?: string;
   children: React.ReactNode;
 }) {
   return (
     <section className="overflow-hidden bg-ex-market-surface">
+      {title ? (
+        <h2 className="bg-ex-header px-2 py-1.5 text-[0.75rem] font-extrabold uppercase tracking-[0.08em] text-ex-text">
+          {title}
+        </h2>
+      ) : null}
       <div>{children}</div>
     </section>
   );
+}
+
+/** Goal / run line markets ("Over/Under 2.5 Goals", totals, handicaps). */
+function isLineMarket(m: Market) {
+  const name = `${m.marketName ?? ""} ${m.marketType ?? ""}`.toUpperCase();
+  return /OVER|UNDER|TOTAL|HANDICAP|LINE/.test(name);
 }
 
 function EventPage() {
@@ -355,7 +368,11 @@ function EventPage() {
 
 
 
-  const matchOdds = data?.matchOdds ?? [];
+  const allMatchOdds = data?.matchOdds ?? [];
+  // The provider ships goal/run lines inside the match-odds list; the
+  // reference board shows them as their own Over/Under section.
+  const matchOdds = allMatchOdds.filter((m) => !isLineMarket(m));
+  const lines = allMatchOdds.filter(isLineMarket);
   const bookmakers = data?.bookmakers ?? [];
   const fancy = data?.fancy ?? [];
   const sportsbook = data?.sportsbook ?? [];
@@ -365,7 +382,7 @@ function EventPage() {
   useEffect(() => {
     if (!data) return;
     const results: { label: string; won: boolean }[] = [];
-    for (const m of [...matchOdds, ...bookmakers, ...fancy, ...sportsbook]) {
+    for (const m of [...matchOdds, ...lines, ...bookmakers, ...fancy, ...sportsbook]) {
       const names = m.runnersData ?? {};
       for (const r of m.oddsData?.runners ?? []) {
         const st = String(r.status ?? "").toUpperCase();
@@ -378,14 +395,15 @@ function EventPage() {
 
     // Feed no longer serves any market for this event (match over / removed):
     // after 30s of an empty feed, refund whatever is still open.
-    const live = matchOdds.length + bookmakers.length + fancy.length + sportsbook.length;
+    const live =
+      matchOdds.length + lines.length + bookmakers.length + fancy.length + sportsbook.length;
     if (live === 0) {
       if (!closedSince.current) closedSince.current = Date.now();
       else if (Date.now() - closedSince.current > 30_000) voidOpen(`sports-${eventId}`);
     } else {
       closedSince.current = 0;
     }
-  }, [data, eventId, matchOdds, bookmakers, fancy, sportsbook]);
+  }, [data, eventId, matchOdds, lines, bookmakers, fancy, sportsbook]);
 
   if (!data && !error) return <AppLoader />;
 
@@ -462,15 +480,23 @@ function EventPage() {
           ) : null}
 
           {bookmakers.length ? (
-            <Section>
+            <Section title="Bookmaker">
               {bookmakers.map((m) => (
                 <Board key={m.marketId} market={m} />
               ))}
             </Section>
           ) : null}
 
+          {lines.length ? (
+            <Section title="Over / Under">
+              {lines.map((m) => (
+                <Board key={m.marketId} market={m} />
+              ))}
+            </Section>
+          ) : null}
+
           {fancy.length ? (
-            <Section>
+            <Section title="Fancy">
               {fancy.map((m) => (
                 <FancyRow key={m.marketId} market={m} />
               ))}
@@ -478,7 +504,7 @@ function EventPage() {
           ) : null}
 
           {sportsbook.length ? (
-            <Section>
+            <Section title="Sportsbook">
               {sportsbook.map((m) => (
                 <Board key={m.marketId} market={m} />
               ))}

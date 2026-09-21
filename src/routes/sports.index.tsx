@@ -226,7 +226,17 @@ function SportsPage() {
 
 
 
-  const sportEventsAll = useMemo(() => events.filter((e) => e.sportId === sportId), [events, sportId]);
+  // Races and matches the feed has already settled (every runner WINNER/LOSER
+  // or REMOVED) carry no prices any more, so they must not stay in the list.
+  const isSettled = (e: UEvent) => {
+    const runners = e.runners ?? [];
+    if (!runners.length) return false;
+    return runners.every((r) => /WIN|LOSE|LOSS|REMOVED|CLOSED|SETTLED/i.test(String(r.status ?? "")));
+  };
+  const sportEventsAll = useMemo(
+    () => events.filter((e) => e.sportId === sportId && !isSettled(e)),
+    [events, sportId],
+  );
   // A match is only truly in-play when the feed says so AND its start time has passed.
   const isLive = useCallback((e: UEvent) => {
     if (!e.inPlay) return false;
