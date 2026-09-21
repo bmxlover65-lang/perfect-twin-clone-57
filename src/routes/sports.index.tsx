@@ -65,7 +65,15 @@ function eventClock(eventTime?: string) {
   return parsed.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
-function PriceCell({ price, size, side }: { price?: number; size?: number; side: "back" | "lay" }) {
+function PriceCell({
+  price,
+  size,
+  side,
+}: {
+  price: number | undefined;
+  size: number | undefined;
+  side: "back" | "lay";
+}) {
   const hasPrice = Number(price) > 0;
   return (
     <span
@@ -200,8 +208,6 @@ function SportsPage() {
   const pre = useMemo(() => events.filter((e) => !e.inPlay), [events]);
   const list = filter === "inplay" ? inplay : filter === "pre" ? pre : events;
 
-  if (loading && events.length === 0) return <AppLoader />;
-
   const groups = useMemo(() => {
     const map = new Map<string, UEvent[]>();
     for (const event of list) {
@@ -217,6 +223,8 @@ function SportsPage() {
         ? "border-ex-header bg-ex-header text-ex-text hover:bg-ex-header"
         : "border-ex-market-rule bg-ex-market-surface text-ex-cell-foreground hover:bg-ex-minmax"
     }`;
+
+  if (loading && events.length === 0) return <AppLoader />;
 
   return (
     <main className="sports-theme mx-auto min-h-[calc(100vh-76px)] max-w-[1200px] bg-ex-market-surface pb-5 sm:min-h-0 sm:bg-transparent sm:px-4 sm:py-6">
