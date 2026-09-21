@@ -294,6 +294,30 @@ function SportsPage() {
         </Button>
       </header>
 
+      <nav
+        className="flex gap-1 overflow-x-auto border-b border-ex-line bg-ex-panel px-2 py-1.5"
+        aria-label="Sports"
+      >
+        {sportTabs.map((s) => (
+          <button
+            key={s.sportId}
+            type="button"
+            onClick={() => {
+              setSportId(s.sportId);
+              setFilter("inplay");
+            }}
+            aria-current={s.sportId === sportId}
+            className={`shrink-0 rounded-full px-3 py-1 text-[0.72rem] font-semibold ${
+              s.sportId === sportId
+                ? "bg-ex-back text-ex-cell-foreground"
+                : "bg-ex-board text-ex-muted"
+            }`}
+          >
+            {SPORT_SHORT_NAMES[s.sportId] ?? s.sportName}
+          </button>
+        ))}
+      </nav>
+
       <div
         className="grid grid-cols-3 gap-[3px] border-b border-ex-market-rule bg-ex-market-surface p-2"
         role="tablist"
