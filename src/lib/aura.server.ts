@@ -40,7 +40,7 @@ const matchesBySport = new Map<string, Map<string, AnyRec>>();
 const matchSeenAt = new Map<string, number>();
 const oddsByMatch = new Map<string, { at: number; data: AnyRec }>();
 const matchMeta = new Map<string, MatchMeta>();
-const wantedSports = new Set<string>();
+const wantedSports = new Set<string>(AURA_SPORTS.map((s) => s.sportId));
 const wantedMatches = new Map<string, number>();
 
 let socket: WebSocket | null = null;
@@ -309,3 +309,7 @@ export async function auraOdds(sportId: string, exEventId: string): Promise<AnyR
     sportsbook,
   };
 }
+
+// Warm the socket + match subscriptions as soon as the server module loads so
+// the first page view already has matches instead of waiting for a cold start.
+void connect().catch(() => undefined);
