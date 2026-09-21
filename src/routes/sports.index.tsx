@@ -273,27 +273,35 @@ function SportsPage() {
         ))}
       </nav>
 
-      <div className="flex items-center gap-1.5 border-b border-ex-market-rule bg-ex-market-surface px-2 py-2">
-        <Button
-          variant="ghost"
-          type="button"
-          onClick={() => setFilter("inplay")}
-          className={pill(filter === "inplay")}
-        >
-          Inplay ({inplay.length})
-        </Button>
-        <Button variant="ghost" type="button" onClick={() => setFilter("today")} className={pill(filter === "today")}>
-          Today ({today.length})
-        </Button>
-        <Button
-          variant="ghost"
-          type="button"
-          onClick={() => setFilter("tomorrow")}
-          className={pill(filter === "tomorrow")}
-        >
-          Tomorrow ({tomorrow.length})
-        </Button>
-        <span className="ml-auto whitespace-nowrap text-[0.6rem] text-ex-muted">
+      <div
+        className="grid grid-cols-3 gap-[3px] border-b border-ex-market-rule bg-ex-market-surface p-2"
+        role="tablist"
+        aria-label="Match time filter"
+      >
+        {(
+          [
+            ["inplay", `In-Play (${inplay.length})`],
+            ["today", `Today (${today.length})`],
+            ["tomorrow", `Tomorrow (${tomorrow.length})`],
+          ] as const
+        ).map(([key, label]) => (
+          <Button
+            key={key}
+            variant="ghost"
+            type="button"
+            role="tab"
+            aria-selected={filter === key}
+            onClick={() => setFilter(key)}
+            className={`h-10 w-full rounded-[3px] border text-[0.82rem] font-medium shadow-none ${
+              filter === key
+                ? "border-ex-header bg-ex-header text-ex-text hover:bg-ex-header"
+                : "border-ex-market-rule bg-ex-market-surface text-ex-cell-foreground hover:bg-ex-minmax"
+            }`}
+          >
+            {label}
+          </Button>
+        ))}
+        <span className="col-span-3 text-right text-[0.6rem] text-ex-muted">
           {loading ? "Updating…" : refreshedAt}
         </span>
       </div>
@@ -366,7 +374,9 @@ function SportsPage() {
         ))}
 
         {!loading && !list.length ? (
-          <p className="bg-ex-market-surface px-3 py-10 text-center text-xs text-ex-muted">No matches available right now.</p>
+          <p className="bg-ex-market-surface px-3 py-10 text-center text-[0.95rem] text-ex-cell-foreground">
+            There are no events to be displayed.
+          </p>
         ) : null}
       </section>
 
