@@ -209,6 +209,8 @@
   --ex-market-rule: oklch(0.76 0.02 235);
   --ex-minmax: oklch(0.88 0.045 205);
   --ex-cashout: oklch(0.84 0.01 250);
+  --ex-link: oklch(0.55 0.11 236);
+  --ex-inplay: oklch(0.5 0.1 132);
   --casino-market-header: oklch(0.3526 0.0289 232.97);
   --casino-market-body: oklch(0.8838 0.034 225.49);
   --casino-market-rate: oklch(0.7373 0.1042 241.82);
