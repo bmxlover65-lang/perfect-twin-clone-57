@@ -382,7 +382,7 @@ function EventPage() {
   useEffect(() => {
     if (!data) return;
     const results: { label: string; won: boolean }[] = [];
-    for (const m of [...matchOdds, ...bookmakers, ...fancy, ...sportsbook]) {
+    for (const m of [...matchOdds, ...lines, ...bookmakers, ...fancy, ...sportsbook]) {
       const names = m.runnersData ?? {};
       for (const r of m.oddsData?.runners ?? []) {
         const st = String(r.status ?? "").toUpperCase();
