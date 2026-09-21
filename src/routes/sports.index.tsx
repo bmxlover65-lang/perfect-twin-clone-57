@@ -212,12 +212,6 @@ function SportsPage() {
     return ids.map((id) => [nameOf(id), map.get(id)!] as const);
   }, [list, sports]);
 
-  const pill = (active: boolean) =>
-    `h-8 shrink-0 rounded-[3px] border px-3 text-[0.72rem] font-bold shadow-none ${
-      active
-        ? "border-ex-header bg-ex-header text-ex-text hover:bg-ex-header"
-        : "border-ex-market-rule bg-ex-market-surface text-ex-cell-foreground hover:bg-ex-minmax"
-    }`;
 
   if (loading && events.length === 0) return <AppLoader />;
 
