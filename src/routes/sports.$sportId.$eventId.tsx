@@ -395,14 +395,15 @@ function EventPage() {
 
     // Feed no longer serves any market for this event (match over / removed):
     // after 30s of an empty feed, refund whatever is still open.
-    const live = matchOdds.length + bookmakers.length + fancy.length + sportsbook.length;
+    const live =
+      matchOdds.length + lines.length + bookmakers.length + fancy.length + sportsbook.length;
     if (live === 0) {
       if (!closedSince.current) closedSince.current = Date.now();
       else if (Date.now() - closedSince.current > 30_000) voidOpen(`sports-${eventId}`);
     } else {
       closedSince.current = 0;
     }
-  }, [data, eventId, matchOdds, bookmakers, fancy, sportsbook]);
+  }, [data, eventId, matchOdds, lines, bookmakers, fancy, sportsbook]);
 
   if (!data && !error) return <AppLoader />;
 
