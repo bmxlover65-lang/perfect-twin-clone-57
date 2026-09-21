@@ -671,7 +671,14 @@ export async function proxy(splat: string, search: string, body?: string, origin
         { status: 200, headers: { "cache-control": "no-store" } },
       );
     }
+    // Non-5xx failures (404 "Event not found", 4xx) also fail over to the
+    // live exchange feed, which carries events the primary no longer knows.
+    if (isSportsPath(splat) && !res.ok) {
+      const alt = await backupSports(splat);
+      if (alt) return alt;
+    }
     if (isSportsPath(splat) && res.ok && text.startsWith("{")) {
+
       sportsSnapshot.set(snapshotKey, { at: Date.now(), text });
       if (/^sports\/[^/]+\/events$/.test(splat)) void rememberEventNames(text);
     }
