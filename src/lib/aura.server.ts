@@ -309,3 +309,7 @@ export async function auraOdds(sportId: string, exEventId: string): Promise<AnyR
     sportsbook,
   };
 }
+
+// Warm the socket + match subscriptions as soon as the server module loads so
+// the first page view already has matches instead of waiting for a cold start.
+void connect().catch(() => undefined);
