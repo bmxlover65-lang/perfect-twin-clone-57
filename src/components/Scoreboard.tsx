@@ -16,6 +16,7 @@ export function Scoreboard({ sportId, eventId }: { sportId: string; eventId: str
   const useAura = AURA_SCORE_SPORTS.has(sportId) && !eventId.startsWith("sf:");
 
   useEffect(() => {
+    if (useAura) return;
     alive.current = true;
     const url = `/api/public/uapi/tv/sports/scoreboard?sportId=${sportId}&exEventId=${eventId}&tv=true`;
 
