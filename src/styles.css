@@ -117,6 +117,10 @@
   --color-l7-high: var(--l7-high);
   --color-l7-low: var(--l7-low);
   --color-l7-tie: var(--l7-tie);
+  --color-l7-topbar: var(--l7-topbar);
+  --color-l7-topbar-foreground: var(--l7-topbar-foreground);
+  --color-l7-toolbar-border: var(--l7-toolbar-border);
+  --color-l7-lobby: var(--l7-lobby);
   --color-casino-suspend-veil: var(--casino-suspend-veil);
   --color-casino-suspend-text: var(--casino-suspend-text);
   --color-bbb-field: var(--bbb-field);
@@ -234,6 +238,10 @@
   --l7-high: #72bbef;
   --l7-low: #f9a9ba;
   --l7-tie: #ffff33;
+  --l7-topbar: #000000;
+  --l7-topbar-foreground: #ffffff;
+  --l7-toolbar-border: #3a4a63;
+  --l7-lobby: #f0a92c;
   --casino-suspend-veil: oklch(0.9 0.03 226 / 0.62);
   --casino-suspend-text: oklch(0.58 0.15 15);
   --poker-gold: oklch(0.83 0.17 85);
@@ -343,6 +351,10 @@
   --l7-high: #72bbef;
   --l7-low: #f9a9ba;
   --l7-tie: #ffff33;
+  --l7-topbar: #000000;
+  --l7-topbar-foreground: #ffffff;
+  --l7-toolbar-border: #3a4a63;
+  --l7-lobby: #f0a92c;
   --casino-suspend-veil: oklch(0.9 0.03 226 / 0.62);
   --casino-suspend-text: oklch(0.58 0.15 15);
   --bbb-field: oklch(0.9 0.065 156);
