@@ -1,13 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Info, LockKeyhole, RotateCcw, Undo2 } from "lucide-react";
+import { Info, LockKeyhole } from "lucide-react";
 import { Aviator } from "@/components/Aviator";
 import { FitBoard } from "@/components/FitBoard";
 import { RoundTimer } from "@/components/RoundTimer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEmbed } from "@/lib/embed";
 import { AppLoader } from "@/components/AppLoader";
-import { Button } from "@/components/ui/button";
 
 import { applyOverride, useAdminConfig } from "@/lib/admin";
 import { logResult } from "@/lib/telemetry";
@@ -678,62 +677,6 @@ function Lucky7Recent({ results }: { results: CasinoResult[] }) {
         })}
       </div>
     </div>
-  );
-}
-
-function Lucky7Toolbar() {
-  const [rulesOpen, setRulesOpen] = useState(false);
-  return (
-    <>
-      <div className="grid h-[52px] grid-cols-[70px_78px_minmax(0,1fr)_34px_34px] items-center gap-[8px] bg-l7-topbar px-[8px] text-l7-topbar-foreground">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => setRulesOpen(true)}
-          className="h-[39px] rounded-[8px] border-l7-toolbar-border bg-l7-topbar px-0 text-[15px] font-bold text-l7-topbar-foreground shadow-none hover:bg-l7-topbar hover:text-l7-topbar-foreground"
-        >
-          Rules
-        </Button>
-        <Button asChild className="h-[39px] rounded-[8px] bg-l7-lobby px-1 text-center text-[13px] font-black leading-[13px] text-l7-text shadow-none hover:bg-l7-lobby">
-          <Link to="/">GAMING<br />LOBBY</Link>
-        </Button>
-        <div className="min-w-0 text-center text-[14px] font-bold leading-[20px]">
-          <p className="truncate">Main PTI —</p>
-          <p>Exp (0.00)</p>
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          aria-label="Go back"
-          onClick={() => window.history.back()}
-          className="h-[39px] w-[34px] rounded-[8px] border-l7-toolbar-border bg-l7-topbar text-l7-topbar-foreground shadow-none hover:bg-l7-topbar hover:text-l7-topbar-foreground"
-        >
-          <Undo2 className="h-[22px] w-[22px]" />
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          aria-label="Refresh game"
-          onClick={() => window.location.reload()}
-          className="h-[39px] w-[34px] rounded-[8px] border-l7-toolbar-border bg-l7-topbar text-l7-topbar-foreground shadow-none hover:bg-l7-topbar hover:text-l7-topbar-foreground"
-        >
-          <RotateCcw className="h-[22px] w-[22px]" />
-        </Button>
-      </div>
-      {rulesOpen ? (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-l7-topbar/70 px-5" onClick={() => setRulesOpen(false)}>
-          <div className="w-full max-w-[360px] rounded-[6px] bg-l7-card p-4 text-l7-text shadow-xl" onClick={(event) => event.stopPropagation()}>
-            <div className="flex items-center justify-between">
-              <h2 className="text-[16px] font-bold">Lucky 7 Rules</h2>
-              <Button type="button" variant="ghost" size="icon" aria-label="Close rules" onClick={() => setRulesOpen(false)} className="h-8 w-8 text-l7-text">×</Button>
-            </div>
-            <p className="mt-2 text-[13px] leading-5">Choose the winning range, odd or even, color, suit, or exact card before betting closes.</p>
-          </div>
-        </div>
-      ) : null}
-    </>
   );
 }
 
@@ -2650,6 +2593,10 @@ function GamePage() {
 
 
   useEffect(() => {
+    if (gameId === "99.0030") {
+      setStream("https://player.universestudio.games/index.html?appName=PLATINGE7&streamingName=GAME30&url=livecdnplatin.com&token=178610215242255360831371");
+      return;
+    }
     fetchCasinoStream(gameId)
       .then((r) => setStream(r.upstreamIframeUrl ?? null))
       .catch(() => undefined);
@@ -3106,8 +3053,8 @@ function GamePage() {
   }
 
   return (
-    <div className={gameId === "99.0030" ? "mx-auto min-h-dvh w-full max-w-[430px] bg-l7-page px-0 py-0" : shell("max-w-[900px]")}>
-      {gameId === "99.0030" ? <Lucky7Toolbar /> : embed ? null : (
+    <div className={shell(gameId === "99.0030" ? "max-w-[430px]" : "max-w-[900px]")}>
+      {embed ? null : (
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
           <div className="min-w-0">
             <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
