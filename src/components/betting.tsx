@@ -448,9 +448,8 @@ export function BetLayer({
         if (!latched.current.includes(market)) latched.current.push(market);
       }
 
-      const cellEl = cellPos.current?.cell;
+      const cellEl = liveCell();
       if (cellEl && (inLatchedMarket(cellEl) || isBlockedByOverlay(cellEl, root))) {
-        console.debug("[bet] clear pick", inLatchedMarket(cellEl) ? "latched" : "overlay");
         setPick(null);
       }
     }, 120);
