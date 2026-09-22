@@ -642,6 +642,39 @@ async function mergeBackupPrices(splat: string, text: string) {
  * the same one the reference book renders, so for an event it knows we take
  * those groups from it verbatim.
  */
+/**
+ * Union the primary event list with the live socket feed, so a match that only
+ * one of the two providers knows still shows on the board.
+ */
+async function withAuraEvents(splat: string, text: string): Promise<string> {
+  const m = /^sports\/([^/]+)\/events$/.exec(splat);
+  if (!m) return text;
+  let payload: { events?: { exEventId?: string; eventName?: string }[] };
+  try {
+    payload = JSON.parse(text) as typeof payload;
+  } catch {
+    return text;
+  }
+  if (!Array.isArray(payload.events)) return text;
+  try {
+    const aura = await import("@/lib/aura.server");
+    const { normalizeName } = await import("@/lib/skyfair.server");
+    const live = await aura.auraEvents(decodeURIComponent(m[1]!));
+    if (!live.length) return text;
+    const seen = new Set(
+      payload.events.map((e) => normalizeName(String(e?.eventName ?? ""))).filter(Boolean),
+    );
+    const extra = live.filter(
+      (e) => !seen.has(normalizeName(String((e as { eventName?: string }).eventName ?? ""))),
+    );
+    if (!extra.length) return text;
+    payload.events = [...payload.events, ...(extra as typeof payload.events)];
+    return JSON.stringify(payload);
+  } catch {
+    return text;
+  }
+}
+
 async function withAuraMarkets(splat: string, text: string): Promise<string> {
   if (!/^sports\/[^/]+\/[^/]+\/odds$/.test(splat)) return text;
   const m = /^sports\/([^/]+)\/([^/]+)\/odds$/.exec(splat)!;
