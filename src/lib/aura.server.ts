@@ -292,7 +292,14 @@ export async function auraOdds(sportId: string, exEventId: string): Promise<AnyR
 
   const pick = (key: string) =>
     (Array.isArray(o[key]) ? (o[key] as AnyRec[]) : []).map((m) => toMarket(m, runnersData));
-  const sportsbook = [...pick("sportsbook"), ...pick("sportsBook")];
+  const sportsbookAll = [...pick("sportsbook"), ...pick("sportsBook")];
+  const seen = new Set<string>();
+  const sportsbook = sportsbookAll.filter((m) => {
+    const key = m.marketId || m.marketName;
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
   return {
     exEventId,
     eventName: meta.eventName,

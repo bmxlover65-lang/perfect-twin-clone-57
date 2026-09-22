@@ -563,7 +563,8 @@ function normalizeStatuses(splat: string, text: string): string {
       });
       const closed = /CLOSE|SETTLE|RESULT/.test(raw);
       const suspended =
-        /SUSPEND|INACTIVE/.test(raw) || (!closed && runners.length > 0 && !hasPrice);
+        /SUSPEND|INACTIVE|BALL/.test(raw) || (!closed && runners.length > 0 && !hasPrice);
+
       const next = closed ? "CLOSED" : suspended ? "SUSPENDED" : raw;
       if (od.status !== next || od.suspended !== (closed || suspended)) {
         od.status = next;
