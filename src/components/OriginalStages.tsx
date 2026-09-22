@@ -425,6 +425,10 @@ export function BalloonStage({
   const [betOk, setBetOk] = useState<string | null>(null);
   const usedRef = useRef(used);
   usedRef.current = used;
+  // Mirror of the bet slots: money moves outside the state updater, otherwise
+  // a re-invoked updater would place the same bet twice.
+  const betsRef = useRef(bets);
+  betsRef.current = bets;
 
   const airRef = useRef<HTMLAudioElement | null>(null);
   const apiTarget = Number(multiplier) || 0;
@@ -767,58 +771,57 @@ export function BalloonStage({
 
   // HEAT button: bet only before the round starts, one bet per round per panel
   const pressHeat = (i: 0 | 1) => {
-    setBets((prev) => {
-      const next = [...prev];
-      const b = next[i];
-      if (b?.pending) {
-        // cancel a queued bet (only allowed while the round has not started)
-        if (phase === "flying") return prev;
-        cancelBet(b.ref, b.stake);
-        next[i] = null;
-        setUsed((u) => {
-          const n = [...u] as [boolean, boolean];
-          n[i] = false;
-          return n;
-        });
-        return next;
-      }
-      if (b) {
-        if (phase !== "flying") return prev;
-        const payout = cashOut(b.ref, b.stake, shown);
-        setFlash((f) => {
-          const n = [...f];
-          n[i] = { text: `+${payout.toLocaleString("en-IN")}`, win: true };
-          return n;
-        });
-        next[i] = null;
-      } else {
-        // no new bets once the round has started, and only one bet per round
-        if (phase === "flying" || usedRef.current[i]) return prev;
-        if (stake < 100) return prev;
-        const ref = placeBet({
-          gameId: "balloon",
-          gameName: "Balloon",
-          round: String(roundRef.current ?? "live"),
-          label: "Cash out",
-          odds: 1,
-          stake,
-        });
-        if (!ref) return prev;
-        next[i] = { entry: 1, stake, pending: true, ref };
-        setBetOk("Casino BetPlace Successful.");
-        setUsed((u) => {
-          const n = [...u] as [boolean, boolean];
-          n[i] = true;
-          return n;
-        });
-        setFlash((f) => {
-          const n = [...f];
-          n[i] = null;
-          return n;
-        });
-      }
-      return next;
+    const b = betsRef.current[i];
+    const setSlot = (value: (typeof betsRef.current)[number]) => {
+      const next = [...betsRef.current];
+      next[i] = value;
+      betsRef.current = next;
+      setBets(next);
+    };
+    const markUsed = (value: boolean) =>
+      setUsed((u) => {
+        const n = [...u] as [boolean, boolean];
+        n[i] = value;
+        return n;
+      });
+    const setFlashAt = (value: { text: string; win: boolean } | null) =>
+      setFlash((f) => {
+        const n = [...f];
+        n[i] = value;
+        return n;
+      });
+
+    if (b?.pending) {
+      // cancel a queued bet (only allowed while the round has not started)
+      if (phase === "flying") return;
+      cancelBet(b.ref, b.stake);
+      setSlot(null);
+      markUsed(false);
+      return;
+    }
+    if (b) {
+      if (phase !== "flying") return;
+      const payout = cashOut(b.ref, b.stake, shown);
+      setFlashAt({ text: `+${payout.toLocaleString("en-IN")}`, win: true });
+      setSlot(null);
+      return;
+    }
+    // no new bets once the round has started, and only one bet per round
+    if (phase === "flying" || usedRef.current[i]) return;
+    if (stake < 100) return;
+    const ref = placeBet({
+      gameId: "balloon",
+      gameName: "Balloon",
+      round: String(roundRef.current ?? "live"),
+      label: "Cash out",
+      odds: 1,
+      stake,
     });
+    if (!ref) return;
+    setSlot({ entry: 1, stake, pending: true, ref });
+    setBetOk("Casino BetPlace Successful.");
+    markUsed(true);
+    setFlashAt(null);
   };
 
 

@@ -1054,6 +1054,12 @@ export function Aviator() {
   const [bets, setBets] = useState<LiveBet[]>([]);
   const [muted, setMuted] = useState(true);
   const [cashNote, setCashNote] = useState<{ mult: number; amount: number } | null>(null);
+  // Original hides the cash-out banner on its own after about three seconds.
+  useEffect(() => {
+    if (!cashNote) return;
+    const t = window.setTimeout(() => setCashNote(null), 3000);
+    return () => window.clearTimeout(t);
+  }, [cashNote]);
   const bgRef = useRef<HTMLAudioElement | null>(null);
   const sfx = useCallback(
     (src: string, vol = 0.6) => {
@@ -1122,6 +1128,7 @@ export function Aviator() {
   const officialRef = useRef(false);
   const bootedRef = useRef(false);
   const [feedLive, setFeedLive] = useState<boolean | null>(null);
+  const officialByRid = useRef<Map<string, number>>(new Map());
 
 
   useEffect(() => {
@@ -1148,6 +1155,13 @@ export function Aviator() {
           const id = String(r?.roundId ?? "");
           const w = Number(r?.winner);
           if (!id || !(w > 0)) continue;
+          // Official crash value of that round — the board must show exactly
+          // this number, not the last multiplier seen while polling.
+          officialByRid.current.set(id, w);
+          if (officialByRid.current.size > 60) {
+            const first = officialByRid.current.keys().next().value;
+            if (first) officialByRid.current.delete(first);
+          }
           if (seenRef.current.has(id)) continue;
           seenRef.current.add(id);
           fresh.push(w);
@@ -1338,7 +1352,10 @@ export function Aviator() {
           setMultiplier(shown);
           botCashouts(shown);
         } else if (live.status === "BLAST") {
-          const crash = Math.min(Math.max(fPeak, live.mult), cap);
+          // Prefer the published result of this round so the board's crash
+          // value always equals the official one.
+          const official = officialByRid.current.get(live.rid);
+          const crash = Math.min(official && official > 0 ? official : Math.max(fPeak, live.mult), cap);
           if (fPhase !== "crashed") {
             fPhase = "crashed";
             crashRef.current = crash;

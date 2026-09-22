@@ -349,7 +349,22 @@ export function BetLayer({
     cell: HTMLElement;
     opposite?: HTMLElement | undefined;
     group: HTMLElement;
+    key?: string;
   } | null>(null);
+
+  /**
+   * The live feed re-renders plates a few times per second, which can replace
+   * the clicked node. Re-resolve it by position so the slip survives that.
+   */
+  const liveCell = (): HTMLElement | null => {
+    const pos = cellPos.current;
+    const root = rootRef.current;
+    if (!pos || !root) return null;
+    if (pos.cell.isConnected) return pos.cell;
+    const again = pos.key ? nodeFromKey(pos.key, root) : null;
+    if (again) cellPos.current = { ...pos, cell: again };
+    return again;
+  };
 
   // Positions are re-measured from the live DOM so the figures stay glued to
   // their plates when the board reflows after a bet.
@@ -433,7 +448,7 @@ export function BetLayer({
         if (!latched.current.includes(market)) latched.current.push(market);
       }
 
-      const cellEl = cellPos.current?.cell;
+      const cellEl = liveCell();
       if (cellEl && (inLatchedMarket(cellEl) || isBlockedByOverlay(cellEl, root))) {
         setPick(null);
       }
@@ -475,9 +490,9 @@ export function BetLayer({
     if (!pick) return;
     const id = window.setInterval(() => {
       const rootEl = rootRef.current;
-      const cellEl = cellPos.current?.cell;
-      if (!rootEl || !cellEl) return;
-      if (!cellEl.isConnected || isBlockedByOverlay(cellEl, rootEl)) {
+      const cellEl = liveCell();
+      if (!rootEl) return;
+      if (!cellEl || isBlockedByOverlay(cellEl, rootEl)) {
         setPick(null);
       }
     }, 120);
@@ -501,13 +516,12 @@ export function BetLayer({
       close();
       return;
     }
-    if (cellPos.current?.cell && inLatchedMarket(cellPos.current.cell)) {
+    const rootEl = rootRef.current;
+    const cellEl = liveCell();
+    if (cellEl && inLatchedMarket(cellEl)) {
       close();
       return;
     }
-
-    const rootEl = rootRef.current;
-    const cellEl = cellPos.current?.cell;
     if (rootEl && cellEl && isBlockedByOverlay(cellEl, rootEl)) {
       close();
       return;
@@ -676,7 +690,12 @@ export function BetLayer({
           // Exposure only nets inside the market the bet belongs to, never
           // across the whole table (that produced wrong figures on the plates).
           const groupEl = marketGroup(cellEl, oppositeEl, root);
-          cellPos.current = { cell: cellEl, opposite: oppositeEl, group: groupEl };
+          cellPos.current = {
+            cell: cellEl,
+            opposite: oppositeEl,
+            group: groupEl,
+            key: nodeKey(cellEl, root),
+          };
 
 
           // Open directly below the clicked rate box. Previously this climbed
@@ -690,7 +709,7 @@ export function BetLayer({
           pickRound.current = round;
           setPick({ label: p.label, odds: p.odds });
           setOdds(p.odds);
-          setStake(0);
+          setStake(readLastStake());
           setErr(null);
         }
       }}
