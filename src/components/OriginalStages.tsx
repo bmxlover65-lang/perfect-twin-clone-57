@@ -425,6 +425,10 @@ export function BalloonStage({
   const [betOk, setBetOk] = useState<string | null>(null);
   const usedRef = useRef(used);
   usedRef.current = used;
+  // Mirror of the bet slots: money moves outside the state updater, otherwise
+  // a re-invoked updater would place the same bet twice.
+  const betsRef = useRef(bets);
+  betsRef.current = bets;
 
   const airRef = useRef<HTMLAudioElement | null>(null);
   const apiTarget = Number(multiplier) || 0;
