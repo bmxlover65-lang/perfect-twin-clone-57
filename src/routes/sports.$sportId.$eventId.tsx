@@ -533,7 +533,7 @@ function EventPage() {
   useEffect(() => {
     if (!data) return;
     const results: { label: string; won: boolean }[] = [];
-    for (const m of [...matchOdds, ...lines, ...bookmakers, ...fancy, ...sportsbook]) {
+    for (const m of [...matchOdds, ...overUnder, ...bookmakers, ...fancy, ...sportsbook]) {
       const names = m.runnersData ?? {};
       for (const r of m.oddsData?.runners ?? []) {
         const st = String(r.status ?? "").toUpperCase();
@@ -547,7 +547,7 @@ function EventPage() {
     // A single session market can vanish without a published winner (the over
     // finished, the book removed it). Refund its open bets after 45s instead of
     // leaving the stake stuck forever.
-    const all = [...matchOdds, ...lines, ...bookmakers, ...fancy, ...sportsbook];
+    const all = [...matchOdds, ...overUnder, ...bookmakers, ...fancy, ...sportsbook];
     const now = Date.now();
     for (const m of all) {
       const name = (m.marketName ?? "").trim();
@@ -568,7 +568,7 @@ function EventPage() {
     } else {
       closedSince.current = 0;
     }
-  }, [data, eventId, matchOdds, lines, bookmakers, fancy, sportsbook]);
+  }, [data, eventId, matchOdds, overUnder, bookmakers, fancy, sportsbook]);
 
 
   if (!data && !error) return <AppLoader />;
