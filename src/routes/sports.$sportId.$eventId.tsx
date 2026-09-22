@@ -16,7 +16,7 @@ import { createFeedState, mergeFeed } from "@/lib/feed-merge";
 import { Scoreboard } from "@/components/Scoreboard";
 import { LiveTv } from "@/components/LiveTv";
 import { AppLoader } from "@/components/AppLoader";
-import { settleFromRunners, voidOpen } from "@/lib/wallet";
+import { settleFromRunners, voidOpen, voidOpenWhere } from "@/lib/wallet";
 
 export const Route = createFileRoute("/sports/$sportId/$eventId")({
   head: ({ params }) => {
@@ -338,6 +338,7 @@ function EventPage() {
   const [data, setData] = useState<OddsResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const closedSince = useRef<number>(0);
+  const marketSeen = useRef<Map<string, number>>(new Map());
   const requestId = useRef(0);
   const inFlight = useRef(false);
   const inFlightSince = useRef(0);
