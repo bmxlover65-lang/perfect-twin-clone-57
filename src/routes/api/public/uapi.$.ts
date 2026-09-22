@@ -821,7 +821,10 @@ export async function proxy(splat: string, search: string, body?: string, origin
       splat,
       await withAuraEvents(
         splat,
-        await withAuraMarkets(splat, freshestMarkets(splat, await res.text())),
+        await withEx247Markets(
+          splat,
+          await withAuraMarkets(splat, freshestMarkets(splat, await res.text())),
+        ),
       ),
     );
 
