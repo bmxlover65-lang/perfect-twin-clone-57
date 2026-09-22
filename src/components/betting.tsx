@@ -349,7 +349,22 @@ export function BetLayer({
     cell: HTMLElement;
     opposite?: HTMLElement | undefined;
     group: HTMLElement;
+    key?: string;
   } | null>(null);
+
+  /**
+   * The live feed re-renders plates a few times per second, which can replace
+   * the clicked node. Re-resolve it by position so the slip survives that.
+   */
+  const liveCell = (): HTMLElement | null => {
+    const pos = cellPos.current;
+    const root = rootRef.current;
+    if (!pos || !root) return null;
+    if (pos.cell.isConnected) return pos.cell;
+    const again = pos.key ? nodeFromKey(pos.key, root) : null;
+    if (again) cellPos.current = { ...pos, cell: again };
+    return again;
+  };
 
   // Positions are re-measured from the live DOM so the figures stay glued to
   // their plates when the board reflows after a bet.
