@@ -138,91 +138,184 @@
 
 /* Lucky 7 board: values copied directly from the supplied original stylesheet. */
 .lucky7-board {
-  --market-name-bg: linear-gradient(-180deg, #2e4b5e, #243a48 82%);
-  --market-name-text: #ffffff;
-  --runner-text: #23282c;
-  --back-1: #72bbef;
-  --row-bg: linear-gradient(90deg, #99c7f1, rgba(138, 189, 216, 0.5) 49%, #92c6f6);
-  --card-bg: #ffffff;
-  --card-border: rgba(0, 0, 0, 0.176);
-  --red-suit: #d0021b;
-  box-sizing: border-box;
+  background: #ededed;
   font-family: Tahoma, Helvetica, sans-serif;
+  box-sizing: border-box;
 }
 
 .lucky7-market {
-  position: relative;
-  margin-bottom: 5px;
-  overflow: hidden;
-  border: 1px solid var(--card-border);
-  border-radius: 6px;
-  background: var(--card-bg);
+  margin-bottom: 3px;
+  box-sizing: border-box;
 }
 
 .lucky7-market-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 2px 5px;
-  border-radius: 5px 5px 0 0;
-  background: var(--market-name-bg);
-  color: var(--market-name-text);
+  gap: 8px;
+  padding: 4px 8px;
+  background: #000;
+  color: #fff;
   font-size: 12px;
   font-weight: 700;
-  line-height: 18px;
-  text-align: center;
+}
+
+.lucky7-market-header > strong {
+  flex: 1 1 0%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lucky7-market-minmax {
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+.lucky7-market-body {
+  position: relative;
+  background: #fff;
+  border-bottom-left-radius: 6px;
+}
+
+.lucky7-suspended {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.65);
+  border: 2px solid #666;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .lucky7-market-row {
   display: flex;
+  gap: 4px;
+  padding: 6px 4px 10px;
+  background: linear-gradient(
+    90deg,
+    rgb(153 199 241) 0%,
+    rgb(138 189 216 / 50%) 49%,
+    rgb(146 198 246) 100%
+  );
+}
+
+.lucky7-market-row.is-wrap {
   flex-wrap: wrap;
-  padding: 1.6px 0 11.2px;
-  background: var(--row-bg);
+  justify-content: center;
 }
 
 .lucky7-runner {
-  width: 50%;
+  flex: 1 1 50%;
+  max-width: 50%;
   min-width: 0;
-  padding: 0 0 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 2px;
+}
+
+.lucky7-market-row.is-wrap .lucky7-runner {
+  flex: 1 1 calc(50% - 4px);
+  max-width: calc(50% - 4px);
+  min-width: 105px;
+}
+
+@media (min-width: 768px) {
+  .lucky7-market-row.is-wrap .lucky7-runner {
+    flex: 1 1 calc(33.333% - 4px);
+    max-width: calc(50% - 4px);
+    min-width: 96px;
+  }
 }
 
 .lucky7-runner-title {
-  display: block;
-  padding-bottom: 4px;
-  color: var(--runner-text);
-  font-size: 12px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 26px;
+  margin-bottom: 4px;
+  color: #243a48;
+  font-size: 11px;
   font-weight: 700;
-  line-height: normal;
+  line-height: 1.15;
   text-align: center;
+  word-break: break-word;
 }
 
 .lucky7-runner-box {
-  position: relative;
-  display: flex;
-  width: 105px;
-  height: 38.5px;
-  margin: 0 auto;
-  padding: 2px 0;
-  align-items: center;
-  justify-content: center;
-  border: 0;
+  width: 100%;
+  max-width: 150px;
+  min-width: 72px;
+  padding: 4px 2px;
+  border: none;
   border-radius: 5px;
-  background: var(--back-1);
-  box-shadow: 0 2px 7px 1px rgba(103, 130, 139, 0.9);
-  color: #212529;
-  font-family: inherit;
-  font-size: 12px;
-  text-align: start;
+  background: rgba(114, 187, 239, 0.5);
+  box-shadow: 0 2px 7px 1px #67828be6;
+  color: #111;
+  text-align: center;
+  font-weight: 600;
 }
 
-.lucky7-card-art {
-  position: absolute;
-  left: 10px;
-  display: block;
-  width: 20px;
-  height: 25px;
-  object-fit: fill;
+.lucky7-runner-odds {
+  font-size: 13px;
+  line-height: 1.2;
 }
+
+.lucky7-runner-size {
+  font-size: 11px;
+  font-weight: 400;
+  opacity: 0.85;
+  line-height: 1.2;
+}
+
+.lucky7-results {
+  flex: 0 0 auto;
+  background: #000;
+  padding: 5px;
+  color: #fff;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.lucky7-results::-webkit-scrollbar {
+  display: none;
+}
+
+.lucky7-results-title {
+  display: inline-block;
+  margin: 0 8px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.lucky7-results-list {
+  display: inline-flex;
+  gap: 10px;
+  vertical-align: middle;
+}
+
+.lucky7-result-chip {
+  width: 35px;
+  padding: 5px;
+  text-align: center;
+  font-weight: 700;
+  border-radius: 15px;
+  border: none;
+  color: #000;
+  background: #72bbef;
+}
+
 
 
 :root {
