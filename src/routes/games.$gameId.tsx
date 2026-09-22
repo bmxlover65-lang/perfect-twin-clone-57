@@ -570,6 +570,9 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
             const label = String(names[String(r.selectionId)] ?? r.selectionId).trim();
             const p = r.price?.back?.[0];
             const locked = !suspended && (!isOpenStatus(r.status ?? "ONLINE") || !p?.price);
+            const rank = label.toUpperCase().replace(/^CARD\s+/, "").trim();
+            const cardSrc = LUCKY7_CARD_IMAGES[rank];
+            const suits = labelSuits(label);
             return (
               <div
                 key={String(r.selectionId)}
@@ -581,17 +584,31 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
                 <span className="lucky7-runner-title">{label}</span>
                 <div
                   data-market-plate=""
-                  className={`lucky7-runner-box ${locked ? "opacity-45 grayscale-[0.5]" : ""}`}
+                  className={`lucky7-runner-box ${cardSrc || suits.length ? "has-art" : ""} ${locked ? "opacity-45 grayscale-[0.5]" : ""}`}
                 >
-                  <div className="lucky7-runner-odds">{fmtOdds(p?.price)}</div>
-                  <div className="lucky7-runner-size">
-                    {p?.size == null ? "" : String(Math.round(p.size))}
-                  </div>
+                  {cardSrc ? (
+                    <img src={cardSrc} alt={label} loading="lazy" className="lucky7-card-art" />
+                  ) : suits.length ? (
+                    <span className="lucky7-plate-suits">
+                      {suits.map((s) => (
+                        <span key={s} style={{ color: s === "♥" || s === "♦" ? "var(--red-suit)" : "#111" }}>
+                          {s}
+                        </span>
+                      ))}
+                    </span>
+                  ) : null}
+                  <span className="lucky7-runner-values">
+                    <span className="lucky7-runner-odds">{fmtOdds(p?.price)}</span>
+                    <span className="lucky7-runner-size">
+                      {p?.size == null ? "" : String(Math.round(p.size))}
+                    </span>
+                  </span>
                 </div>
               </div>
             );
           })}
         </div>
+
       </div>
     </section>
   );
