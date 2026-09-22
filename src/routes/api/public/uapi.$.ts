@@ -658,17 +658,14 @@ async function withAuraMarkets(splat: string, text: string): Promise<string> {
       decodeURIComponent(m[2]!),
     )) as Record<string, unknown> | null;
     if (!live) return text;
-    for (const group of ["bookmakers", "fancy", "sportsbook"] as const) {
+    for (const group of ["matchOdds", "bookmakers", "fancy", "sportsbook"] as const) {
       const rows = live[group];
-      payload[group] = Array.isArray(rows) ? rows : [];
-    }
-    const liveMatch = live["matchOdds"];
-    if (
-      Array.isArray(liveMatch) &&
-      liveMatch.length &&
-      !(payload["matchOdds"] as unknown[] | undefined)?.length
-    ) {
-      payload["matchOdds"] = liveMatch;
+      // An empty live auxiliary group is meaningful: the provider has removed
+      // the completed session. Match Odds is retained only during a brief
+      // reconnect where that core group is absent.
+      if (group !== "matchOdds" || (Array.isArray(rows) && rows.length)) {
+        payload[group] = Array.isArray(rows) ? rows : [];
+      }
     }
     return JSON.stringify(payload);
   } catch {
