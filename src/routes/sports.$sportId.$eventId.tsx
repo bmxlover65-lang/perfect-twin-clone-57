@@ -147,54 +147,109 @@ function marketState(market: Market): { status: string; dim: boolean; label: str
 
 }
 
-function Board({ market }: { market: Market }) {
+function Board({
+  market,
+  levels = 3,
+  backOnly = false,
+}: {
+  market: Market;
+  /** Reference exchange boards show three back and three lay depth levels. */
+  levels?: 1 | 3;
+  /** Premium / sportsbook markets only publish a back price. */
+  backOnly?: boolean;
+}) {
   const odds = market.oddsData;
   const { dim, label } = marketState(market);
   const runners = odds?.runners ?? [];
+  const cols = backOnly ? 1 : levels * 2;
+  const grid =
+    cols === 6
+      ? "grid-cols-[minmax(0,1.25fr)_repeat(6,minmax(0,1fr))] sm:grid-cols-[minmax(0,1.6fr)_repeat(6,minmax(0,1fr))]"
+      : cols === 2
+        ? "grid-cols-[minmax(0,1fr)_100px_100px] sm:grid-cols-[minmax(0,1fr)_120px_120px]"
+        : "grid-cols-[minmax(0,1fr)_120px] sm:grid-cols-[minmax(0,1fr)_140px]";
+  const headGrid =
+    cols === 6
+      ? "grid-cols-[minmax(0,1.25fr)_repeat(6,minmax(0,1fr))] sm:grid-cols-[minmax(0,1.6fr)_repeat(6,minmax(0,1fr))]"
+      : grid;
+  // Back levels render best-price-last (3,2,1) so the two best prices meet in
+  // the middle of the row, like the reference ladder.
+  const backOrder = levels === 3 ? [2, 1, 0] : [0];
+  const layOrder = levels === 3 ? [0, 1, 2] : [0];
 
   return (
     <article className="overflow-hidden border-b-[5px] border-ex-market-rule bg-ex-market-surface">
-      <header className="grid h-8 grid-cols-[minmax(0,1fr)_100px_100px] items-center bg-ex-market-surface text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_120px_120px]">
+      <header className={`grid h-8 items-center bg-ex-market-surface text-ex-cell-foreground ${headGrid}`}>
         <span className="flex h-full min-w-0 items-center gap-1.5 bg-ex-header px-2 text-ex-text">
           <span className="truncate text-[0.78rem] font-semibold">{market.marketName.trim()}</span>
           <InfoIcon />
         </span>
-        <span className="flex h-full items-center justify-center gap-1.5 px-2 text-[0.68rem]">
+        <span
+          className="flex h-full items-center justify-center gap-1.5 px-2 text-[0.68rem]"
+          style={{ gridColumn: `span ${Math.max(1, Math.ceil(cols / 2))}` }}
+        >
           <span className="h-4 w-4 rounded-[2px] bg-live-badge" />
           Cash Out
         </span>
-        <span className="truncate pr-2 text-right text-[0.68rem]">
+        <span
+          className="truncate pr-2 text-right text-[0.68rem]"
+          style={{ gridColumn: `span ${Math.max(1, Math.floor(cols / 2))}` }}
+        >
           Matched {fmtInt(odds?.totalMatched)}
         </span>
       </header>
-      <div className="grid h-7 grid-cols-[minmax(0,1fr)_100px_100px] border-b border-ex-market-rule text-[0.7rem] text-ex-cell-foreground sm:grid-cols-[minmax(0,1fr)_120px_120px]">
+      <div className={`grid h-7 border-b border-ex-market-rule text-[0.7rem] text-ex-cell-foreground ${headGrid}`}>
         <div className="m-1 flex items-center justify-center rounded-[3px] bg-ex-minmax text-[0.64rem] text-ex-muted">
           Min/Max&nbsp;&nbsp; {market.min && market.min > 0 ? market.min : 1}-
           {market.max && market.max > 0 ? market.max : 50000}
         </div>
-        <div className="flex items-center justify-center bg-ex-back/55 font-medium">Back</div>
-        <div className="flex items-center justify-center bg-ex-lay/55 font-medium">Lay</div>
+        <div
+          className="flex items-center justify-center bg-ex-back/55 font-medium"
+          style={{ gridColumn: `span ${backOnly ? 1 : levels}` }}
+        >
+          Back
+        </div>
+        {backOnly ? null : (
+          <div
+            className="flex items-center justify-center bg-ex-lay/55 font-medium"
+            style={{ gridColumn: `span ${levels}` }}
+          >
+            Lay
+          </div>
+        )}
       </div>
       <div className="relative">
-        {runners.map((r) => {
-          const back = r.price?.back?.[0];
-          const lay = r.price?.lay?.[0];
-          return (
-            <div
-              key={String(r.selectionId)}
-              data-runner-row
-              className="relative grid min-h-[74px] grid-cols-[minmax(0,1fr)_100px_100px] items-stretch border-b border-ex-market-rule bg-ex-market-row last:border-b-0 sm:grid-cols-[minmax(0,1fr)_120px_120px]"
+        {runners.map((r) => (
+          <div
+            key={String(r.selectionId)}
+            data-runner-row
+            className={`relative grid min-h-[74px] items-stretch border-b border-ex-market-rule bg-ex-market-row last:border-b-0 ${grid}`}
+          >
+            <span
+              className={`flex min-w-0 items-center truncate px-2 text-[0.83rem] font-medium ${dim ? "text-ex-muted" : "text-ex-cell-foreground"}`}
             >
-              <span
-                className={`flex min-w-0 items-center truncate px-2 text-[0.83rem] font-medium ${dim ? "text-ex-muted" : "text-ex-cell-foreground"}`}
-              >
-                {runnerName(market, r.selectionId)}
-              </span>
-              <div className="p-[3px]"><Cell price={back?.price} size={back?.size} side="back" dim={dim} /></div>
-              <div className="p-[3px]"><Cell price={lay?.price} size={lay?.size} side="lay" dim={dim} /></div>
-            </div>
-          );
-        })}
+              {runnerName(market, r.selectionId)}
+            </span>
+            {backOrder.map((i) => {
+              const p = r.price?.back?.[i];
+              return (
+                <div key={`b${i}`} className="p-[3px]">
+                  <Cell price={p?.price} size={p?.size} side="back" dim={dim} depth={i} />
+                </div>
+              );
+            })}
+            {backOnly
+              ? null
+              : layOrder.map((i) => {
+                  const p = r.price?.lay?.[i];
+                  return (
+                    <div key={`l${i}`} className="p-[3px]">
+                      <Cell price={p?.price} size={p?.size} side="lay" dim={dim} depth={i} />
+                    </div>
+                  );
+                })}
+          </div>
+        ))}
 
         {dim ? <Suspended label={label} /> : null}
       </div>
