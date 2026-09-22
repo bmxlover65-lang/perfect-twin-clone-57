@@ -2351,7 +2351,7 @@ function DragonTigerPanel({
           {cards.map((r) => (
             <div key={r.id} className="w-[40px] text-center">
               <div className="relative h-[56px] w-[40px] overflow-hidden rounded-[3px]">
-                <img src={LUCKY7_CARD_IMAGES[r.label.replace(`${side} `, "").trim()] ?? LUCKY7_CARD_IMAGES.A} alt={r.label} className="h-full w-full object-cover" />
+                <img src={LUCKY7_CARD_IMAGES[r.label.replace(`${side} `, "").trim()] ?? LUCKY7_CARD_IMAGES["A"]} alt={r.label} className="h-full w-full object-cover" />
                 {!r.open ? (
                   <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2">
                     <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-white" fill="currentColor" aria-hidden="true">
