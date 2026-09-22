@@ -74,6 +74,9 @@ async function upstream(path: string, search: string, token: string, body?: stri
       const res = await fetch(`${base}/${path}${search}`, {
         method: body === undefined ? "GET" : "POST",
         cache: "no-store",
+        // A stalled primary must never hold the live board hostage; the socket
+        // feed takes over as soon as this aborts.
+        signal: AbortSignal.timeout(5000),
         headers: {
           "x-session-token": token,
           accept: "application/json",
