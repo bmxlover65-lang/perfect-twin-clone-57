@@ -1128,6 +1128,7 @@ export function Aviator() {
   const officialRef = useRef(false);
   const bootedRef = useRef(false);
   const [feedLive, setFeedLive] = useState<boolean | null>(null);
+  const officialByRid = useRef<Map<string, number>>(new Map());
 
 
   useEffect(() => {
