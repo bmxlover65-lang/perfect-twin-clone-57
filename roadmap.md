@@ -126,3 +126,9 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Casino suspension is stable per round and clears only when the next round starts
 - [x] Heads & Tails: chip-first betting — chip select karo, phir Heads/Tails par ek click = bet (no bet slip)
 - [x] Ball by Ball: locked plates par chhota lock, rate/label dikhte rahein
+
+## Phase 8 — Animated games parity (new)
+- [ ] VIMAAN: result original jaisa
+- [ ] HEADS & TAILS: ek round me do baar flip ho raha hai — ek hi flip
+- [ ] BALLOON: betting original se match karke verify
+- [ ] Cashout banner 2-3 second baad apne aap gayab ho (original jaisa)
