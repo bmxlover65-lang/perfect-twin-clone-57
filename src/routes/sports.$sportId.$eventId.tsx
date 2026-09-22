@@ -474,7 +474,7 @@ function EventPage() {
       <p className="flex items-center justify-between bg-ex-market-surface px-2 py-2 text-sm font-bold text-ex-cell-foreground sm:mt-6">
         <span>
           Live odds{" "}
-          <span className="text-sm font-normal text-muted-foreground">· live via WebSocket</span>
+          <span className="text-sm font-normal text-muted-foreground">· live feed</span>
         </span>
         <BalanceChip />
       </p>
