@@ -730,7 +730,7 @@ async function withEx247Markets(splat: string, text: string): Promise<string> {
   type Mk = {
     oddsData?: { runners?: { price?: { back?: Lvl[]; lay?: Lvl[] } }[] };
   };
-  const current = Array.isArray(payload.matchOdds) ? (payload.matchOdds as Mk[]) : [];
+  const current = Array.isArray(payload['matchOdds']) ? (payload['matchOdds'] as Mk[]) : [];
   const depth = current.reduce(
     (n, mk) =>
       Math.max(
@@ -752,7 +752,7 @@ async function withEx247Markets(splat: string, text: string): Promise<string> {
     const { ex247MatchOdds } = await import("@/lib/ex247.server");
     const rows = await ex247MatchOdds(decodeURIComponent(m[1]!), eventName);
     if (!rows?.length) return text;
-    payload.matchOdds = rows;
+    payload['matchOdds'] = rows;
     return JSON.stringify(payload);
   } catch {
     return text;

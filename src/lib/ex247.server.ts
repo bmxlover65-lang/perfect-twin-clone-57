@@ -236,7 +236,7 @@ export async function ex247Events(sportId: string): Promise<Ex247Event[]> {
       exEventId: `ex:${m.eventId}`,
       eventName: String(m.eventName),
       competitionName: String(m.competitionName ?? ""),
-      openDate: m.openDate,
+      openDate: m.openDate ?? "",
       inPlay: (m.matchOdds ?? []).some((o) => o?.inplay),
     }));
 }
