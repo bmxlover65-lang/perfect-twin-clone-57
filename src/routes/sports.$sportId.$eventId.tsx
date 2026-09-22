@@ -525,6 +525,8 @@ function EventPage() {
   const allSportsbook = data?.sportsbook ?? [];
   const sportsbook = allSportsbook.filter((m) => !isLineMarket(m));
   const sportsbookLines = allSportsbook.filter(isLineMarket);
+  const overUnder = [...lines, ...sportsbookLines];
+
 
   // Every feed tick: if the upstream marks a runner WINNER / LOSER, settle
   // the matching open bets right away — result always comes from the feed.
