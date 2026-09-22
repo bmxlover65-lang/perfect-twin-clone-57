@@ -342,3 +342,27 @@ export function voidOpen(gameId: string, olderThanMs = 0) {
   write({ balance: session ? w.balance : w.balance + refund, bets });
   pushSettle(settled);
 }
+
+/**
+ * Refund the open bets of one game whose label matches — used when a single
+ * session market (fancy over, bookmaker line) disappears from the live feed
+ * without a published result, so its stake is never left stuck.
+ */
+export function voidOpenWhere(gameId: string, matches: (label: string) => boolean) {
+  const w = readWallet();
+  let refund = 0;
+  let touched = false;
+  const settled: { ref: string; outcome: "won" | "lost" | "void"; multiplier?: number }[] = [];
+  const bets = w.bets.map((b) => {
+    if (b.status !== "open" || b.gameId !== gameId || !matches(b.label)) return b;
+    touched = true;
+    refund += b.stake;
+    settled.push({ ref: b.id, outcome: "void" });
+    return { ...b, status: "void" as const, payout: b.stake };
+  });
+  if (!touched) return;
+  const session = playerSession();
+  write({ balance: session ? w.balance : w.balance + refund, bets });
+  pushSettle(settled);
+}
+
