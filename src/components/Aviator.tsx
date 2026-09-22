@@ -1154,6 +1154,13 @@ export function Aviator() {
           const id = String(r?.roundId ?? "");
           const w = Number(r?.winner);
           if (!id || !(w > 0)) continue;
+          // Official crash value of that round — the board must show exactly
+          // this number, not the last multiplier seen while polling.
+          officialByRid.current.set(id, w);
+          if (officialByRid.current.size > 60) {
+            const first = officialByRid.current.keys().next().value;
+            if (first) officialByRid.current.delete(first);
+          }
           if (seenRef.current.has(id)) continue;
           seenRef.current.add(id);
           fresh.push(w);
