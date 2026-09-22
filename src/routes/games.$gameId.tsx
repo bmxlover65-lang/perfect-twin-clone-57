@@ -1182,34 +1182,34 @@ function DTLPanel({
 
   const PriceBox = ({ r }: { r?: Row | undefined }) =>
     r ? (
-      <div className="relative flex h-[52px] w-[112px] items-center justify-center border border-[#4A7FB5] bg-[#1F2B3A] text-[0.95rem] font-bold text-white">
+      <div className="relative flex h-[42px] w-[112px] items-center justify-center bg-casino-market-rate text-[0.9rem] font-bold text-casino-market-text">
         {r.open ? <span>{fmtOdds(r.price)}</span> : <span className="text-base">🔒</span>}
       </div>
     ) : (
-      <div className="h-[52px] w-[112px]" />
+      <div className="h-[42px] w-[112px]" />
     );
 
   const RowLine = ({ label, r }: { label: ReactNode; r?: Row | undefined }) => (
-    <div className="flex items-center justify-between border-b border-[#2B2F35] bg-[#33383F] px-4 py-2">
-      <span className="text-[0.95rem] font-semibold text-white/85">{label}</span>
-      <div className="pr-[110px]">
+    <div className="flex min-h-[44px] items-center justify-between border-b border-casino-market-divider bg-casino-market-body px-3">
+      <span className="text-[0.78rem] font-semibold text-casino-market-text">{label}</span>
+      <div>
         <PriceBox r={r} />
       </div>
     </div>
   );
 
   return (
-    <div className="mt-1 bg-[#2A2E33]">
-      <div className="grid grid-cols-3 bg-[#3B4149]">
+    <div className="mt-1 bg-casino-market-body font-[Tahoma,Helvetica,sans-serif]">
+      <div className="grid grid-cols-3 bg-l7-card">
         {(["DRAGON", "TIGER", "LION"] as const).map((t) => (
           <button
             key={t}
             type="button"
             onClick={() => setTab(t)}
-            className={`py-3 text-[0.95rem] font-bold capitalize ${
+            className={`py-2 text-[0.78rem] font-bold capitalize ${
               tab === t
-                ? "border-b-[3px] border-[#E8C33A] text-white"
-                : "border-b-[3px] border-transparent text-white/75"
+                ? "border-b-2 border-l7-suspend text-casino-market-text"
+                : "border-b-2 border-transparent text-casino-market-text"
             }`}
           >
             {t.toLowerCase()}
@@ -1218,12 +1218,12 @@ function DTLPanel({
       </div>
 
       {resultDeclared ? (
-        <div className="mx-2 mt-2 bg-[#3B4149] px-3 py-1.5 text-[0.82rem] font-extrabold uppercase tracking-wide text-[#E8C33A]">
+        <div className="mx-1 mt-1 bg-casino-market-header px-2 py-1 text-[0.72rem] font-extrabold uppercase text-board-header-foreground">
           Result Declared
         </div>
       ) : null}
 
-      <div className="mt-2">
+      <div className="relative mt-1">
         <RowLine label="Winner" r={winner} />
         <RowLine
           label={
@@ -1245,19 +1245,20 @@ function DTLPanel({
         />
         <RowLine label="Odd" r={odd} />
         <RowLine label="Even" r={even} />
+        {suspended ? <SuspendVeil /> : null}
       </div>
 
-      <div className="flex flex-wrap justify-center gap-1 px-3 py-5">
+      <div className="relative flex flex-wrap justify-center gap-1 bg-l7-card px-2 py-2">
         {cards.map((r) => {
           const rank = r.label.replace(`${tab} `, "");
           return (
-            <div key={r.id} className="w-[44px] text-center">
-              <div className="relative flex h-[56px] flex-col items-center justify-center rounded-[3px] border border-[#4A5058] bg-gradient-to-b from-[#3A4048] to-[#22272D] text-[1.05rem] font-extrabold text-white/90">
+            <div key={r.id} className="w-[38px] text-center">
+              <div className="relative flex h-[48px] flex-col items-center justify-center rounded-[3px] border border-l7-card-border bg-l7-card text-[1rem] font-extrabold text-casino-market-text">
                 {r.open ? rank : <span className="text-base">🔒</span>}
-                <span className="absolute bottom-0.5 left-0.5 text-[0.55rem] text-white/70">♣ ♠</span>
+                <span className="absolute bottom-0.5 left-0.5 text-[0.55rem] text-casino-market-text">♣ ♠</span>
                 <span className="absolute bottom-0.5 right-0.5 text-[0.55rem] text-[#E0393B]">♥ ♦</span>
               </div>
-              <p className="bg-[#2A2E33] py-0.5 text-[0.72rem] font-bold text-[#3FA36B]">
+              <p className="py-0.5 text-[0.65rem] font-bold text-casino-market-text">
                 {fmtOdds(r.price)}
               </p>
             </div>
@@ -1748,7 +1749,7 @@ function AAAPanel({
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+      <div className="grid grid-cols-3 gap-1">
         {sides.map((m, mi) => {
           const runners = m.runners ?? [];
           const closed = runners.every((r) => suspended || !isOpenStatus(r.status));
