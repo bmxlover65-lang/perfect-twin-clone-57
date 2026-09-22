@@ -108,6 +108,15 @@
   --color-casino-market-rate: var(--casino-market-rate);
   --color-casino-market-text: var(--casino-market-text);
   --color-casino-market-divider: var(--casino-market-divider);
+  --color-l7-page: var(--l7-page);
+  --color-l7-card: var(--l7-card);
+  --color-l7-card-border: var(--l7-card-border);
+  --color-l7-back: var(--l7-back);
+  --color-l7-text: var(--l7-text);
+  --color-l7-suspend: var(--l7-suspend);
+  --color-l7-high: var(--l7-high);
+  --color-l7-low: var(--l7-low);
+  --color-l7-tie: var(--l7-tie);
   --color-casino-suspend-veil: var(--casino-suspend-veil);
   --color-casino-suspend-text: var(--casino-suspend-text);
   --color-bbb-field: var(--bbb-field);
