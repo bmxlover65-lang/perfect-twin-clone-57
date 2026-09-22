@@ -766,7 +766,10 @@ export async function proxy(splat: string, search: string, body?: string, origin
     }
     const text = normalizeStatuses(
       splat,
-      await withAuraMarkets(splat, freshestMarkets(splat, await res.text())),
+      await withAuraEvents(
+        splat,
+        await withAuraMarkets(splat, freshestMarkets(splat, await res.text())),
+      ),
     );
 
 
