@@ -3164,7 +3164,16 @@ function GamePage() {
           markets.map((m, i) => (
             <DragonTiger20Board key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
           ))
-        ) : ["99.0030", "99.0010"].includes(gameId) && markets.length ? (
+        ) : gameId === "99.0030" && markets.length ? (
+          <div
+            className="bg-l7-page px-0 pt-[5px]"
+            style={{ fontFamily: "Tahoma, Helvetica, sans-serif" }}
+          >
+            {markets.map((m, i) => (
+              <Lucky7Board key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
+            ))}
+          </div>
+        ) : gameId === "99.0010" && markets.length ? (
           markets.map((m, i) => (
             <DarkGridBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
           ))
