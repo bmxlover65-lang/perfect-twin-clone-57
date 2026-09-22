@@ -469,10 +469,24 @@ function EventPage() {
     }
     settleFromRunners(`sports-${eventId}`, results);
 
+    // A single session market can vanish without a published winner (the over
+    // finished, the book removed it). Refund its open bets after 45s instead of
+    // leaving the stake stuck forever.
+    const all = [...matchOdds, ...lines, ...bookmakers, ...fancy, ...sportsbook];
+    const now = Date.now();
+    for (const m of all) {
+      const name = (m.marketName ?? "").trim();
+      if (name) marketSeen.current.set(name.toUpperCase(), now);
+    }
+    for (const [name, at] of marketSeen.current) {
+      if (now - at < 45_000) continue;
+      marketSeen.current.delete(name);
+      voidOpenWhere(`sports-${eventId}`, (label) => label.toUpperCase().startsWith(name));
+    }
+
     // Feed no longer serves any market for this event (match over / removed):
     // after 30s of an empty feed, refund whatever is still open.
-    const live =
-      matchOdds.length + lines.length + bookmakers.length + fancy.length + sportsbook.length;
+    const live = all.length;
     if (live === 0) {
       if (!closedSince.current) closedSince.current = Date.now();
       else if (Date.now() - closedSince.current > 30_000) voidOpen(`sports-${eventId}`);
@@ -480,6 +494,7 @@ function EventPage() {
       closedSince.current = 0;
     }
   }, [data, eventId, matchOdds, lines, bookmakers, fancy, sportsbook]);
+
 
   if (!data && !error) return <AppLoader />;
 
