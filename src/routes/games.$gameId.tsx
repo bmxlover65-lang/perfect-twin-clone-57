@@ -1182,34 +1182,34 @@ function DTLPanel({
 
   const PriceBox = ({ r }: { r?: Row | undefined }) =>
     r ? (
-      <div className="relative flex h-[52px] w-[112px] items-center justify-center border border-[#4A7FB5] bg-[#1F2B3A] text-[0.95rem] font-bold text-white">
+      <div className="relative flex h-[42px] w-[112px] items-center justify-center bg-casino-market-rate text-[0.9rem] font-bold text-casino-market-text">
         {r.open ? <span>{fmtOdds(r.price)}</span> : <span className="text-base">🔒</span>}
       </div>
     ) : (
-      <div className="h-[52px] w-[112px]" />
+      <div className="h-[42px] w-[112px]" />
     );
 
   const RowLine = ({ label, r }: { label: ReactNode; r?: Row | undefined }) => (
-    <div className="flex items-center justify-between border-b border-[#2B2F35] bg-[#33383F] px-4 py-2">
-      <span className="text-[0.95rem] font-semibold text-white/85">{label}</span>
-      <div className="pr-[110px]">
+    <div className="flex min-h-[44px] items-center justify-between border-b border-casino-market-divider bg-casino-market-body px-3">
+      <span className="text-[0.78rem] font-semibold text-casino-market-text">{label}</span>
+      <div>
         <PriceBox r={r} />
       </div>
     </div>
   );
 
   return (
-    <div className="mt-1 bg-[#2A2E33]">
-      <div className="grid grid-cols-3 bg-[#3B4149]">
+    <div className="mt-1 bg-casino-market-body font-[Tahoma,Helvetica,sans-serif]">
+      <div className="grid grid-cols-3 bg-l7-card">
         {(["DRAGON", "TIGER", "LION"] as const).map((t) => (
           <button
             key={t}
             type="button"
             onClick={() => setTab(t)}
-            className={`py-3 text-[0.95rem] font-bold capitalize ${
+            className={`py-2 text-[0.78rem] font-bold capitalize ${
               tab === t
-                ? "border-b-[3px] border-[#E8C33A] text-white"
-                : "border-b-[3px] border-transparent text-white/75"
+                ? "border-b-2 border-l7-suspend text-casino-market-text"
+                : "border-b-2 border-transparent text-casino-market-text"
             }`}
           >
             {t.toLowerCase()}
@@ -1218,12 +1218,12 @@ function DTLPanel({
       </div>
 
       {resultDeclared ? (
-        <div className="mx-2 mt-2 bg-[#3B4149] px-3 py-1.5 text-[0.82rem] font-extrabold uppercase tracking-wide text-[#E8C33A]">
+        <div className="mx-1 mt-1 bg-casino-market-header px-2 py-1 text-[0.72rem] font-extrabold uppercase text-board-header-foreground">
           Result Declared
         </div>
       ) : null}
 
-      <div className="mt-2">
+      <div className="relative mt-1">
         <RowLine label="Winner" r={winner} />
         <RowLine
           label={
@@ -1245,19 +1245,20 @@ function DTLPanel({
         />
         <RowLine label="Odd" r={odd} />
         <RowLine label="Even" r={even} />
+        {suspended ? <SuspendVeil /> : null}
       </div>
 
-      <div className="flex flex-wrap justify-center gap-1 px-3 py-5">
+      <div className="relative flex flex-wrap justify-center gap-1 bg-l7-card px-2 py-2">
         {cards.map((r) => {
           const rank = r.label.replace(`${tab} `, "");
           return (
-            <div key={r.id} className="w-[44px] text-center">
-              <div className="relative flex h-[56px] flex-col items-center justify-center rounded-[3px] border border-[#4A5058] bg-gradient-to-b from-[#3A4048] to-[#22272D] text-[1.05rem] font-extrabold text-white/90">
+            <div key={r.id} className="w-[38px] text-center">
+              <div className="relative flex h-[48px] flex-col items-center justify-center rounded-[3px] border border-l7-card-border bg-l7-card text-[1rem] font-extrabold text-casino-market-text">
                 {r.open ? rank : <span className="text-base">🔒</span>}
-                <span className="absolute bottom-0.5 left-0.5 text-[0.55rem] text-white/70">♣ ♠</span>
+                <span className="absolute bottom-0.5 left-0.5 text-[0.55rem] text-casino-market-text">♣ ♠</span>
                 <span className="absolute bottom-0.5 right-0.5 text-[0.55rem] text-[#E0393B]">♥ ♦</span>
               </div>
-              <p className="bg-[#2A2E33] py-0.5 text-[0.72rem] font-bold text-[#3FA36B]">
+              <p className="py-0.5 text-[0.65rem] font-bold text-casino-market-text">
                 {fmtOdds(r.price)}
               </p>
             </div>
@@ -1748,7 +1749,7 @@ function AAAPanel({
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+      <div className="grid grid-cols-3 gap-1">
         {sides.map((m, mi) => {
           const runners = m.runners ?? [];
           const closed = runners.every((r) => suspended || !isOpenStatus(r.status));
@@ -2206,6 +2207,7 @@ function DragonTigerPanel({
   markets: CasinoMarket[];
   suspended: boolean;
 }) {
+  const [tab, setTab] = useState<"DRAGON" | "TIGER">("DRAGON");
   type Row = {
     id: string;
     label: string;
@@ -2252,20 +2254,20 @@ function DragonTigerPanel({
     rounded: "l" | "r";
   }) => {
     const open = Boolean(r?.open);
-    const bg = side === "back" ? (open ? "#72BBEF" : "#3F5468") : open ? "#F9C9D4" : "#7B5661";
+    const bg = side === "back" ? (open ? "rgb(167,216,253)" : "#d8e5ec") : open ? "rgb(249,201,212)" : "#eadde0";
     return (
       <div
-        className={`relative flex h-[62px] w-[80px] flex-col items-center justify-center ${
-          rounded === "l" ? "rounded-l-full" : "rounded-r-full"
+        className={`relative flex h-[60px] flex-1 flex-col items-center justify-center ${
+          rounded === "l" ? "rounded-l-full" : "rounded-r-full border-l border-white"
         }`}
         style={{ background: bg }}
       >
         {open ? (
           <>
-            <span className="text-[1.05rem] font-extrabold leading-none text-[#111]">
+            <span className="text-[0.82rem] font-bold leading-none text-[#111]">
               {fmtOdds(side === "back" ? r?.back : r?.lay)}
             </span>
-            <span className="mt-1 text-[0.7rem] font-semibold text-[#111]/70">
+            <span className="mt-1 text-[0.62rem] font-semibold text-[#111]/70">
               {fmtSize(side === "back" ? r?.backSize : r?.laySize)}
             </span>
           </>
@@ -2286,14 +2288,14 @@ function DragonTigerPanel({
     price?: number | null | undefined;
   }) => (
     <div className="text-center">
-      <p className="mb-1 text-[1.05rem] font-extrabold text-[#111]">
+      <p className="mb-1 text-[0.78rem] font-bold text-[#212529]">
         {r && !r.open ? "" : fmtOdds(price)}
       </p>
-      <div className="relative flex h-[62px] items-center justify-center rounded-xl bg-[#0D3B2B] px-4">
+      <div className="relative flex h-[58px] items-center justify-center rounded-[16px] bg-[#F6A21E] px-3">
         {r && !r.open ? (
           <Lock />
         ) : (
-          <span className="text-[1rem] font-bold uppercase text-white/55">{label}</span>
+          <span className="text-[0.78rem] font-bold uppercase text-black">{label}</span>
         )}
       </div>
     </div>
@@ -2308,15 +2310,12 @@ function DragonTigerPanel({
     const black = color.find((r) => r.label.includes("BLACK"));
     const mkt = byName(`${side} ODD/EVEN`);
     return (
-      <div className="bg-white">
-        <div className="bg-gradient-to-r from-[#0F5F44] to-[#1B8A5F] py-2 text-center text-[1.05rem] font-extrabold text-white">
-          {side}
-        </div>
-        <div className="grid grid-cols-2 gap-3 px-3 pt-3">
+      <div className="rounded-[6px] border border-l7-card-border bg-white p-[6px]">
+        <div className="grid grid-cols-2 gap-2">
           <GreenBox r={even} label="Even" price={even?.back} />
           <GreenBox r={odd} label="Odd" price={odd?.back} />
         </div>
-        <div className="grid grid-cols-2 gap-3 px-3 pt-3">
+        <div className="mt-2 grid grid-cols-2 gap-2">
           <GreenBox
             r={red}
             price={red?.back}
@@ -2328,7 +2327,7 @@ function DragonTigerPanel({
             label={<span className="text-black/70">♠ ♣</span>}
           />
         </div>
-        <p className="px-3 pb-2 pt-2 text-right text-[0.7rem] font-semibold text-black/55">
+        <p className="pt-1 text-right text-[0.58rem] font-semibold text-black/55">
           Min:{Math.max(100, mkt?.min ?? 0)} Max:{mkt?.max ?? 100000}
         </p>
       </div>
@@ -2339,22 +2338,20 @@ function DragonTigerPanel({
     const cards = list(byName(`${side} CARD`));
     if (!cards.length) return null;
     return (
-      <div className="mt-3 bg-white">
-        <div className="flex items-center justify-between border-b border-[#e2e2e2] px-3 py-2">
-          <p className="text-[1rem] font-extrabold uppercase text-[#111]">
+      <div className="mt-[6px] rounded-[6px] border border-l7-card-border bg-white p-[6px_4px]">
+        <div className="flex items-center justify-between px-[6px] pb-[6px]">
+          <p className="text-[0.8rem] font-bold uppercase text-[#23282c]">
             {side} Card <span className="ml-2">{fmtOdds(cards[0]?.back)}</span>
           </p>
           <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#2c6f9e] text-[0.62rem] font-bold text-white">
             i
           </span>
         </div>
-        <div className="flex flex-wrap justify-center gap-1.5 px-3 py-4">
+        <div className="flex flex-wrap justify-center gap-x-[10px] gap-y-2">
           {cards.map((r) => (
-            <div key={r.id} className="w-[54px] text-center">
-              <div className="relative flex h-[62px] flex-col items-center justify-center rounded-[3px] bg-gradient-to-b from-[#d9d9d9] to-[#9f9f9f] text-[1.1rem] font-extrabold text-[#111]">
-                {r.label}
-                <span className="absolute bottom-1 left-1 text-[0.58rem] text-black/80">♣ ♠</span>
-                <span className="absolute bottom-1 right-1 text-[0.58rem] text-[#E0393B]">♥ ♦</span>
+            <div key={r.id} className="w-[40px] text-center">
+              <div className="relative h-[56px] w-[40px] overflow-hidden rounded-[3px]">
+                <img src={LUCKY7_CARD_IMAGES[r.label.replace(`${side} `, "").trim()] ?? LUCKY7_CARD_IMAGES["A"]} alt={r.label} className="h-full w-full object-cover" />
                 {!r.open ? (
                   <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2">
                     <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-white" fill="currentColor" aria-hidden="true">
@@ -2364,11 +2361,11 @@ function DragonTigerPanel({
                 ) : null}
 
               </div>
-              <p className="mt-0.5 text-[0.72rem] font-bold text-[#1B8A5F]">{fmtOdds(r.back)}</p>
+              <p className="mt-0.5 text-[0.68rem] font-bold text-[#23282c]">{fmtOdds(r.back)}</p>
             </div>
           ))}
         </div>
-        <p className="px-3 pb-2 text-right text-[0.7rem] font-semibold text-black/55">
+        <p className="px-2 pt-1 text-right text-[0.58rem] font-semibold text-black/55">
           Min:100 Max:{cardMax}
         </p>
       </div>
@@ -2376,41 +2373,46 @@ function DragonTigerPanel({
   };
 
   return (
-    <div className="mt-1">
-      <div className="flex items-end justify-between px-1">
-        <span className="text-[1.05rem] font-extrabold uppercase text-white/45">Dragon</span>
-        <span className="text-[1.05rem] font-extrabold uppercase text-white/45">Tiger</span>
-      </div>
-      <div className="mt-1 flex items-center justify-between rounded-full bg-[#F1F1F1] pr-0">
-        <div className="flex">
+    <div className="mt-1 space-y-[6px] bg-l7-page py-[5px] font-[Tahoma,Helvetica,sans-serif]">
+      <div className="rounded-[6px] border border-l7-card-border bg-white px-2 py-[10px]">
+        <div className="grid grid-cols-2 gap-[6px]">
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-[0.8rem] font-bold text-[#23282c]">DRAGON</span>
+          <div className="flex h-[60px] w-full max-w-[160px]">
           <WinCell r={dragon} side="back" rounded="l" />
           <WinCell r={dragon} side="lay" rounded="r" />
+          </div>
         </div>
-        <div className="flex">
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-[0.8rem] font-bold text-[#23282c]">TIGER</span>
+          <div className="flex h-[60px] w-full max-w-[160px]">
           <WinCell r={tiger} side="back" rounded="l" />
           <WinCell r={tiger} side="lay" rounded="r" />
+          </div>
+        </div>
         </div>
       </div>
 
       {pair ? (
-        <div className="relative mt-3 flex h-[62px] items-center justify-between rounded-2xl bg-[#0D3B2B] px-5">
-          <span className="text-[1rem] font-bold uppercase text-white/55">{pair.label}</span>
-          <span className="text-[1rem] font-bold text-white/55">{fmtOdds(pair.back)}</span>
+        <div className="relative mx-[6px] flex h-[60px] items-center justify-between rounded-[22px] bg-[#F6A21E] px-5">
+          <span className="text-[0.78rem] font-bold uppercase text-black">{pair.label}</span>
+          <span className="text-[0.8rem] font-bold text-black">{fmtOdds(pair.back)}</span>
           {!pair.open ? <Lock /> : null}
         </div>
       ) : null}
 
-      <p className="mt-1 bg-white px-3 py-1 text-right text-[0.7rem] font-semibold text-black/55">
+      <p className="bg-white px-3 py-1 text-right text-[0.58rem] font-semibold text-black/55">
         Min:{Math.max(100, winnerMkt?.min ?? 0)} Max:{winnerMkt?.max ?? 100000}
       </p>
 
-      <div className="mt-3 grid grid-cols-2 gap-3">
-        <SideBlock side="DRAGON" />
-        <SideBlock side="TIGER" />
+      <div className="rounded-[6px] border border-l7-card-border bg-white">
+        <div className="grid grid-cols-2">
+          {(["DRAGON", "TIGER"] as const).map((side) => <button key={side} type="button" onClick={() => setTab(side)} className={`h-9 border-b-2 text-[0.8rem] font-bold ${tab === side ? "border-[#2e4b5e]" : "border-transparent"}`}>{side[0] + side.slice(1).toLowerCase()}</button>)}
+        </div>
       </div>
+      <SideBlock side={tab} />
 
-      <CardBlock side="DRAGON" />
-      <CardBlock side="TIGER" />
+      <CardBlock side={tab} />
     </div>
   );
 }
