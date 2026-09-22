@@ -1169,7 +1169,19 @@ function DTLPanel({
 
   const PriceBox = ({ r }: { r?: Row | undefined }) =>
     r ? (
-      <div className="relative flex h-[42px] w-[112px] items-center justify-center bg-casino-market-rate text-[0.9rem] font-bold text-casino-market-text">
+      <div
+        {...(r.open && r.price
+          ? {
+              "data-market-plate": "",
+              "data-market-option": "",
+              "data-bet-label": r.label,
+              "data-bet-odds": String(r.price),
+            }
+          : {})}
+        className={`relative flex h-[42px] w-[112px] items-center justify-center bg-casino-market-rate text-[0.9rem] font-bold text-casino-market-text ${
+          r.open && r.price ? "cursor-pointer" : ""
+        }`}
+      >
         {r.open ? <span>{fmtOdds(r.price)}</span> : <span className="text-base">🔒</span>}
       </div>
     ) : (
@@ -1239,7 +1251,18 @@ function DTLPanel({
         {cards.map((r) => {
           const rank = r.label.replace(`${tab} `, "");
           return (
-            <div key={r.id} className="w-[38px] text-center">
+            <div
+              key={r.id}
+              {...(r.open && r.price
+                ? {
+                    "data-market-plate": "",
+                    "data-market-option": "",
+                    "data-bet-label": r.label,
+                    "data-bet-odds": String(r.price),
+                  }
+                : {})}
+              className={`w-[38px] text-center ${r.open && r.price ? "cursor-pointer" : ""}`}
+            >
               <div className="relative flex h-[48px] flex-col items-center justify-center rounded-[3px] border border-l7-card-border bg-l7-card text-[1rem] font-extrabold text-casino-market-text">
                 {r.open ? rank : <span className="text-base">🔒</span>}
                 <span className="absolute bottom-0.5 left-0.5 text-[0.55rem] text-casino-market-text">♣ ♠</span>
@@ -1492,25 +1515,40 @@ function DT20Panel({
               </span>
             </div>
             <div className="relative">
-              {runners.map((r, i) => (
+              {runners.map((r, i) => {
+                const label = names[String(r.selectionId)] ?? String(r.selectionId);
+                const price = r.price?.back?.[0]?.price;
+                const open = !suspended && isOpenStatus(r.status) && Boolean(price);
+                return (
                 <div
                   key={`${r.selectionId}-${i}`}
                   className={`flex items-stretch ${i ? "border-t border-casino-market-divider" : ""}`}
                 >
                   <div className="flex min-h-[44px] flex-1 items-center px-2 py-1">
-                    <Label text={names[String(r.selectionId)] ?? String(r.selectionId)} />
+                    <Label text={label} />
                   </div>
-                  <div className="m-1 flex w-[105px] flex-col items-center justify-center rounded-[5px] bg-casino-market-rate leading-tight">
-                    <span className="text-[0.85rem] text-[#111]">
-                      {fmtOdds(r.price?.back?.[0]?.price)}
-                    </span>
+                  <div
+                    {...(open
+                      ? {
+                          "data-market-plate": "",
+                          "data-market-option": "",
+                          "data-bet-label": String(label).toUpperCase(),
+                          "data-bet-odds": String(price),
+                        }
+                      : {})}
+                    className={`m-1 flex w-[105px] flex-col items-center justify-center rounded-[5px] bg-casino-market-rate leading-tight ${
+                      open ? "cursor-pointer" : ""
+                    }`}
+                  >
+                    <span className="text-[0.85rem] text-[#111]">{fmtOdds(price)}</span>
                     <span className="text-[0.75rem] text-[#111]">
                       {fmtSize(r.price?.back?.[0]?.size)}
                     </span>
                   </div>
                   <div className="w-[105px] border-l border-casino-market-divider bg-casino-market-body" />
                 </div>
-              ))}
+                );
+              })}
               {allClosed ? <SuspendVeil className="pr-[210px]" /> : null}
 
             </div>
@@ -1597,7 +1635,17 @@ function CardRacePanel({
                       <Label text={label} />
                     </div>
                     <div className="flex w-[134px] items-center justify-center p-1">
-                      <div className={`flex h-[38px] w-full flex-col items-center justify-center rounded-[5px] leading-none ${open ? "bg-casino-market-rate" : "bg-casino-market-rate/55"}`}>
+                      <div
+                        {...(open && r.price?.back?.[0]?.price
+                          ? {
+                              "data-market-plate": "",
+                              "data-market-option": "",
+                              "data-bet-label": String(label).toUpperCase(),
+                              "data-bet-odds": String(r.price.back[0]!.price),
+                            }
+                          : {})}
+                        className={`flex h-[38px] w-full flex-col items-center justify-center rounded-[5px] leading-none ${open ? "cursor-pointer bg-casino-market-rate" : "bg-casino-market-rate/55"}`}
+                      >
                         <span className="text-[0.95rem] font-bold text-[#12314e]">
                           {fmtOdds(r.price?.back?.[0]?.price)}
                         </span>
@@ -2242,17 +2290,27 @@ function DragonTigerPanel({
   }) => {
     const open = Boolean(r?.open);
     const bg = side === "back" ? (open ? "rgb(167,216,253)" : "#d8e5ec") : open ? "rgb(249,201,212)" : "#eadde0";
+    const price = side === "back" ? r?.back : r?.lay;
+    const bettable = open && side === "back" && Boolean(price);
     return (
       <div
+        {...(bettable
+          ? {
+              "data-market-plate": "",
+              "data-market-option": "",
+              "data-bet-label": r?.label ?? "",
+              "data-bet-odds": String(price ?? ""),
+            }
+          : {})}
         className={`relative flex h-[60px] flex-1 flex-col items-center justify-center ${
-          rounded === "l" ? "rounded-l-full" : "rounded-r-full border-l border-white"
-        }`}
+          bettable ? "cursor-pointer" : ""
+        } ${rounded === "l" ? "rounded-l-full" : "rounded-r-full border-l border-white"}`}
         style={{ background: bg }}
       >
         {open ? (
           <>
             <span className="text-[0.82rem] font-bold leading-none text-[#111]">
-              {fmtOdds(side === "back" ? r?.back : r?.lay)}
+              {fmtOdds(price)}
             </span>
             <span className="mt-1 text-[0.62rem] font-semibold text-[#111]/70">
               {fmtSize(side === "back" ? r?.backSize : r?.laySize)}
@@ -2273,20 +2331,35 @@ function DragonTigerPanel({
     r?: Row | undefined;
     label: ReactNode;
     price?: number | null | undefined;
-  }) => (
-    <div className="text-center">
-      <p className="mb-1 text-[0.78rem] font-bold text-[#212529]">
-        {r && !r.open ? "" : fmtOdds(price)}
-      </p>
-      <div className="relative flex h-[58px] items-center justify-center rounded-[16px] bg-[#F6A21E] px-3">
-        {r && !r.open ? (
-          <Lock />
-        ) : (
-          <span className="text-[0.78rem] font-bold uppercase text-black">{label}</span>
-        )}
+  }) => {
+    const bettable = Boolean(r?.open && price);
+    return (
+      <div className="text-center">
+        <p className="mb-1 text-[0.78rem] font-bold text-[#212529]">
+          {r && !r.open ? "" : fmtOdds(price)}
+        </p>
+        <div
+          {...(bettable
+            ? {
+                "data-market-plate": "",
+                "data-market-option": "",
+                "data-bet-label": r?.label ?? "",
+                "data-bet-odds": String(price ?? ""),
+              }
+            : {})}
+          className={`relative flex h-[58px] items-center justify-center rounded-[16px] bg-[#F6A21E] px-3 ${
+            bettable ? "cursor-pointer" : ""
+          }`}
+        >
+          {r && !r.open ? (
+            <Lock />
+          ) : (
+            <span className="text-[0.78rem] font-bold uppercase text-black">{label}</span>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const SideBlock = ({ side }: { side: "DRAGON" | "TIGER" }) => {
     const oe = list(byName(`${side} ODD/EVEN`));
@@ -2336,7 +2409,18 @@ function DragonTigerPanel({
         </div>
         <div className="flex flex-wrap justify-center gap-x-[10px] gap-y-2">
           {cards.map((r) => (
-            <div key={r.id} className="w-[40px] text-center">
+            <div
+              key={r.id}
+              {...(r.open && r.back
+                ? {
+                    "data-market-plate": "",
+                    "data-market-option": "",
+                    "data-bet-label": r.label,
+                    "data-bet-odds": String(r.back),
+                  }
+                : {})}
+              className={`w-[40px] text-center ${r.open && r.back ? "cursor-pointer" : ""}`}
+            >
               <div className="relative h-[56px] w-[40px] overflow-hidden rounded-[3px]">
                 <img src={LUCKY7_CARD_IMAGES[r.label.replace(`${side} `, "").trim()] ?? LUCKY7_CARD_IMAGES["A"]} alt={r.label} className="h-full w-full object-cover" />
                 {!r.open ? (
@@ -2381,7 +2465,19 @@ function DragonTigerPanel({
       </div>
 
       {pair ? (
-        <div className="relative mx-[6px] flex h-[60px] items-center justify-between rounded-[22px] bg-[#F6A21E] px-5">
+        <div
+          {...(pair.open && pair.back
+            ? {
+                "data-market-plate": "",
+                "data-market-option": "",
+                "data-bet-label": pair.label,
+                "data-bet-odds": String(pair.back),
+              }
+            : {})}
+          className={`relative mx-[6px] flex h-[60px] items-center justify-between rounded-[22px] bg-[#F6A21E] px-5 ${
+            pair.open && pair.back ? "cursor-pointer" : ""
+          }`}
+        >
           <span className="text-[0.78rem] font-bold uppercase text-black">{pair.label}</span>
           <span className="text-[0.8rem] font-bold text-black">{fmtOdds(pair.back)}</span>
           {!pair.open ? <Lock /> : null}

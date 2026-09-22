@@ -435,6 +435,7 @@ export function BetLayer({
 
       const cellEl = cellPos.current?.cell;
       if (cellEl && (inLatchedMarket(cellEl) || isBlockedByOverlay(cellEl, root))) {
+        console.debug("[bet] clear pick", inLatchedMarket(cellEl) ? "latched" : "overlay");
         setPick(null);
       }
     }, 120);
@@ -598,18 +599,20 @@ export function BetLayer({
       data-bet-root=""
       className="relative"
       onClickCapture={(e) => {
-        if (disabled) return;
+        if (disabled) { console.debug("[bet] blocked: disabled"); return; }
         // Only a real pointer click on a price cell may open the slip.
         if (e.detail === 0) return;
         const root = e.currentTarget as HTMLElement;
         // This market was suspended — no new bets on it until the next round.
         if (inLatchedMarket(e.target as HTMLElement)) {
+          console.debug("[bet] blocked: latched");
           return;
         }
 
 
         const target = e.target as HTMLElement;
         const p = extractPick(target, root);
+        console.debug("[bet] pick", p ? p.label : "none");
         if (p) {
           const rootBox = root.getBoundingClientRect();
           // Mobile boards are scaled down with a transform: rect coords are visual
@@ -690,7 +693,7 @@ export function BetLayer({
           pickRound.current = round;
           setPick({ label: p.label, odds: p.odds });
           setOdds(p.odds);
-          setStake(0);
+          setStake(readLastStake());
           setErr(null);
         }
       }}
