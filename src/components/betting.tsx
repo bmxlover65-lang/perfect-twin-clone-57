@@ -690,7 +690,12 @@ export function BetLayer({
           // Exposure only nets inside the market the bet belongs to, never
           // across the whole table (that produced wrong figures on the plates).
           const groupEl = marketGroup(cellEl, oppositeEl, root);
-          cellPos.current = { cell: cellEl, opposite: oppositeEl, group: groupEl };
+          cellPos.current = {
+            cell: cellEl,
+            opposite: oppositeEl,
+            group: groupEl,
+            key: nodeKey(cellEl, root),
+          };
 
 
           // Open directly below the clicked rate box. Previously this climbed
