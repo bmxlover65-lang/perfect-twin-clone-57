@@ -58,10 +58,19 @@ export function CoinStageImage({
     }
   };
 
+  // A round must have been seen OPEN before its result may flip. Without this
+  // the stale winner of the previous round flips the coin a second time as
+  // soon as a new round id arrives already suspended.
+  const openedRound = useRef<string | null>(null);
+  useEffect(() => {
+    if (!suspended && roundId) openedRound.current = roundId;
+  }, [suspended, roundId]);
+
   useEffect(() => {
     // A stale winner can remain in the upstream frame while the next round is
     // open. Only start the result flip after that round has actually locked.
     if (!suspended || !winner || !roundId) return;
+    if (openedRound.current !== roundId) return;
     if (flipKey.current === roundId) return;
     flipKey.current = roundId;
     const thisRound = roundId;
