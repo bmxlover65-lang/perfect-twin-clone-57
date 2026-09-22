@@ -571,13 +571,8 @@ function EventPage() {
             </Section>
           ) : null}
 
-          {fancy.length ? (
-            <Section title="Fancy">
-              {fancy.map((m) => (
-                <FancyRow key={m.marketId} market={m} />
-              ))}
-            </Section>
-          ) : null}
+          {fancy.length ? <FancySection markets={fancy} /> : null}
+
 
           {sportsbook.length ? (
             <Section title="Sportsbook">
