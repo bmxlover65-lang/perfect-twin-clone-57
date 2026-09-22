@@ -544,61 +544,28 @@ function PlateSuits({ suits }: { suits: string[] }) {
 }
 
 /* ---------------------------------------------------------------- Lucky 7 */
-/* Pixel parity with the original Lucky 7 board: white market cards on a grey
-   page, dark gradient headers, light-blue gradient rows and 105x38.5 plates. */
-function L7Icon({ label, isCard }: { label: string; isCard: boolean }) {
-  if (isCard) {
-    const src = LUCKY7_CARD_IMAGES[label];
-    if (!src) return null;
-    return (
-      <img src={src} alt={label} loading="lazy" className="lucky7-card-art" />
-    );
-  }
-  const suits = labelSuits(label);
-  if (!suits.length) return null;
-  return (
-    <span className="absolute left-[10px] flex flex-col items-center text-[12px] leading-[1.1]">
-      {suits.map((s) => (
-        <span key={s} style={{ color: s === "♥" || s === "♦" ? "#d0021b" : "#111" }}>
-          {s}
-        </span>
-      ))}
-    </span>
-  );
-}
-
+/* Markup + classes map 1:1 onto the original Lucky 7 stylesheet. */
 function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
-  const [showInfo, setShowInfo] = useState(false);
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
   const name = (market.marketName ?? "").trim();
-  const isCardMarket = /^LUCKY CARD$/i.test(name);
+  const wrap = runners.length > 2;
 
   return (
     <section className="lucky7-market">
       <header className="lucky7-market-header">
-        <span className="truncate">{name}</span>
-        {showInfo ? (
-          <button
-            type="button"
-            onClick={() => setShowInfo(false)}
-            className="shrink-0 whitespace-nowrap rounded-[4px] border border-[#ccc] bg-white px-[8px] py-[2px] text-[11px] font-bold text-[#111]"
-          >
-            Min:{Math.max(100, market.min ?? 0)} Max:{market.max ?? 100000}
-          </button>
-        ) : (
-          <button
-            type="button"
-            aria-label="Min/Max info"
-            onClick={() => setShowInfo(true)}
-            className="inline-flex h-[14px] w-[14px] shrink-0 items-center justify-center rounded-full bg-white text-[10px] font-bold not-italic text-[#243a48]"
-          >
-            i
-          </button>
-        )}
+        <strong>{name}</strong>
+        <span className="lucky7-market-minmax">
+          Min/Max: {Math.max(100, market.min ?? 0)} - {market.max ?? 100000}
+        </span>
       </header>
-      <div className="relative">
-        <div className="lucky7-market-row">
+      <div className="lucky7-market-body">
+        {suspended ? (
+          <div className="lucky7-suspended" aria-hidden="true">
+            <span>Suspended</span>
+          </div>
+        ) : null}
+        <div className={`lucky7-market-row${wrap ? " is-wrap" : ""}`}>
           {runners.map((r) => {
             const label = String(names[String(r.selectionId)] ?? r.selectionId).trim();
             const p = r.price?.back?.[0];
@@ -611,67 +578,49 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
                 data-bet-odds={String(p?.price ?? "")}
                 className="lucky7-runner [&:has([data-has-exposure='true'])]:pb-7"
               >
-                <span className="lucky7-runner-title">
-                  {label}
-                </span>
+                <span className="lucky7-runner-title">{label}</span>
                 <div
                   data-market-plate=""
-                  className={`lucky7-runner-box ${
-                    locked ? "opacity-45 grayscale-[0.5]" : ""
-                  }`}
+                  className={`lucky7-runner-box ${locked ? "opacity-45 grayscale-[0.5]" : ""}`}
                 >
-                  <L7Icon label={label.toUpperCase()} isCard={isCardMarket} />
-                  <span className="flex flex-col items-center text-[12px] font-semibold leading-[1.15]">
-                    <span>{fmtOdds(p?.price)}</span>
-                    <span className="text-[11px] font-normal">
-                      {p?.size == null ? "" : String(Math.round(p.size))}
-                    </span>
-                  </span>
-                  {locked ? (
-                    <span className="absolute right-[6px] text-[11px] leading-none text-[#4a5a63]">
-                      🔒
-                    </span>
-                  ) : null}
+                  <div className="lucky7-runner-odds">{fmtOdds(p?.price)}</div>
+                  <div className="lucky7-runner-size">
+                    {p?.size == null ? "" : String(Math.round(p.size))}
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
-        {suspended ? (
-          <div className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center rounded-b-[5px] border-2 border-l7-suspend bg-white text-[25px] font-bold text-l7-suspend opacity-50">
-            Suspended
-          </div>
-        ) : null}
       </div>
     </section>
   );
 }
 
+
 function Lucky7Recent({ results }: { results: CasinoResult[] }) {
   return (
-    <div className="my-[5px] flex items-center overflow-x-auto bg-black p-[5px] text-white">
-      <span className="shrink-0 whitespace-nowrap text-[17.18px] font-bold text-white">
-        Recent Result
-      </span>
-      <div className="flex">
+    <section className="lucky7-results">
+      <h5 className="lucky7-results-title">Recent Result</h5>
+      <ul className="lucky7-results-list">
         {results.slice(0, 10).map((r, idx) => {
           const raw = (deriveWinner(r as AnyResult, true) || "-").trim().toUpperCase();
           const first = raw.startsWith("H") ? "H" : raw.startsWith("L") ? "L" : "T";
           const tone =
-            first === "H" ? "bg-l7-high" : first === "L" ? "bg-l7-low" : "bg-l7-tie";
+            first === "H" ? "" : first === "L" ? "bg-l7-low!" : "bg-l7-tie!";
           return (
-            <span
-              key={`${String((r as AnyResult).roundId ?? idx)}-${idx}`}
-              className={`ml-[10px] inline-flex h-[28px] w-[35px] shrink-0 items-center justify-center rounded-[15px] p-[5px] text-[12px] font-bold text-[#333] ${tone}`}
-            >
-              {first}
-            </span>
+            <li key={`${String((r as AnyResult).roundId ?? idx)}-${idx}`}>
+              <button type="button" className={`lucky7-result-chip ${tone}`}>
+                {first}
+              </button>
+            </li>
           );
         })}
-      </div>
-    </div>
+      </ul>
+    </section>
   );
 }
+
 
 /** Light blue sectioned board with 2-column plates (20-20 TP, 20-20 DT) — original style. */
 
@@ -3164,9 +3113,8 @@ function GamePage() {
             <DragonTiger20Board key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
           ))
         ) : gameId === "99.0030" && markets.length ? (
-          <div
-            className="lucky7-board bg-l7-page px-0 pt-[5px]"
-          >
+          <div className="lucky7-board">
+
             {markets.map((m, i) => (
               <Lucky7Board key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
             ))}
