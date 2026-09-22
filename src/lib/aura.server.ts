@@ -257,17 +257,43 @@ export async function auraEvents(sportId: string): Promise<AnyRec[]> {
   return events;
 }
 
+function flag(v: unknown): boolean {
+  return v === true || Number(v) === 1;
+}
+
 function toMarket(m: AnyRec, fallbackRunners: Record<string, string> | null) {
   return {
     marketId: String(m["exMarketId"] ?? m["marketId"] ?? ""),
     marketName: String(m["marketName"] ?? ""),
     marketType: String(m["marketType"] ?? ""),
+    oddsType: String(m["oddsType"] ?? ""),
     min: num(m["min"]) || undefined,
     max: num(m["max"]) || undefined,
+    sequence: num(m["sequence"]),
+    // Session-type flags the reference book uses to tab fancy markets and to
+    // remove finished sessions the moment they settle.
+    isSettlement: flag(m["isSettlement"]) ? 1 : 0,
+    isVoid: flag(m["isVoid"]) ? 1 : 0,
+    isClosed: flag(m["isClosed"]) ? 1 : 0,
+    isLineMarket: flag(m["isLineMarket"]),
+    isKhadoMarket: flag(m["isKhadoMarket"]),
+    isMeterMarket: flag(m["isMeterMarket"]),
+    isBallbyball: flag(m["isBallbyball"]),
+    isSuperFancy: flag(m["isSuperFancy"]),
     runnersData: (m["runnersData"] as Record<string, string> | undefined) ?? fallbackRunners,
     oddsData: (m["oddsData"] as AnyRec | undefined) ?? {},
   };
 }
+
+type AuraMarket = ReturnType<typeof toMarket>;
+
+/** A finished / voided / closed session must disappear from the board at once. */
+function isFinished(m: AuraMarket): boolean {
+  if (m.isSettlement || m.isVoid || m.isClosed) return true;
+  const status = String((m.oddsData as AnyRec)["status"] ?? "").toUpperCase();
+  return /CLOSE|SETTLE|RESULT|REMOVED|FINISH/.test(status);
+}
+
 
 /** Full odds payload for one match, shaped like the app's OddsResponse. */
 export async function auraOdds(sportId: string, exEventId: string): Promise<AnyRec | null> {
@@ -296,10 +322,15 @@ export async function auraOdds(sportId: string, exEventId: string): Promise<AnyR
   const seen = new Set<string>();
   const sportsbook = sportsbookAll.filter((m) => {
     const key = m.marketId || m.marketName;
-    if (!key || seen.has(key)) return false;
+    if (!key || seen.has(key) || isFinished(m)) return false;
     seen.add(key);
     return true;
   });
+  // Finished sessions (over already bowled, market settled or voided) are
+  // dropped here so they can never linger on the board.
+  const fancy = pick("fancy")
+    .filter((m) => !isFinished(m))
+    .sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
   return {
     exEventId,
     eventName: meta.eventName,
@@ -311,10 +342,11 @@ export async function auraOdds(sportId: string, exEventId: string): Promise<AnyR
     totalMatched: num(o["totalMatched"]),
     updatedAt: new Date(num(o["updatedAt"]) || Date.now()).toISOString(),
     matchOdds: pick("betfair"),
-    bookmakers: pick("bookmakers"),
-    fancy: pick("fancy"),
+    bookmakers: pick("bookmakers").filter((m) => !isFinished(m)),
+    fancy,
     sportsbook,
   };
+
 }
 
 // Warm the socket + match subscriptions as soon as the server module loads so

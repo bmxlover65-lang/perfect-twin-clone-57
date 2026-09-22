@@ -16,7 +16,7 @@ import { createFeedState, mergeFeed } from "@/lib/feed-merge";
 import { Scoreboard } from "@/components/Scoreboard";
 import { LiveTv } from "@/components/LiveTv";
 import { AppLoader } from "@/components/AppLoader";
-import { settleFromRunners, voidOpen } from "@/lib/wallet";
+import { settleFromRunners, voidOpen, voidOpenWhere } from "@/lib/wallet";
 
 export const Route = createFileRoute("/sports/$sportId/$eventId")({
   head: ({ params }) => {
@@ -247,7 +247,68 @@ function FancyRow({ market }: { market: Market }) {
   );
 }
 
+type FancyFlags = {
+  isKhadoMarket?: boolean;
+  isMeterMarket?: boolean;
+  isBallbyball?: boolean;
+  isSuperFancy?: boolean;
+  isLineMarket?: boolean;
+};
+
+/** Reference book groups session markets into tabs; derive each one's tab. */
+function fancyTab(m: Market): string {
+  const f = m as unknown as FancyFlags;
+  const name = `${m.marketName ?? ""}`.toUpperCase();
+  if (f.isKhadoMarket) return "Khado";
+  if (f.isMeterMarket) return "Meter";
+  if (f.isBallbyball) return "Ball by Ball";
+  if (f.isSuperFancy) return "Super Fancy";
+  if (/ODD\s*\/?\s*EVEN/.test(name)) return "Odd/Even";
+  return "Fancy";
+}
+
+const FANCY_TAB_ORDER = ["Fancy", "Khado", "Meter", "Odd/Even", "Ball by Ball", "Super Fancy"];
+
+function FancySection({ markets }: { markets: Market[] }) {
+  const tabs = FANCY_TAB_ORDER.filter((t) => markets.some((m) => fancyTab(m) === t));
+  const [tab, setTab] = useState("All");
+  const active = tab !== "All" && tabs.includes(tab) ? tab : "All";
+  const shown = active === "All" ? markets : markets.filter((m) => fancyTab(m) === active);
+
+  return (
+    <section className="overflow-hidden bg-ex-market-surface">
+      <h2 className="bg-ex-header px-2 py-1.5 text-[0.75rem] font-extrabold uppercase tracking-[0.08em] text-ex-text">
+        Fancy Bet
+      </h2>
+      {tabs.length > 1 ? (
+        <div className="flex gap-1 overflow-x-auto bg-ex-market-surface px-2 py-1.5">
+          {["All", ...tabs].map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTab(t)}
+              className={`whitespace-nowrap rounded-[3px] px-2.5 py-1 text-[0.7rem] font-semibold ${
+                active === t
+                  ? "bg-ex-header text-ex-text"
+                  : "bg-ex-minmax text-ex-muted"
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      ) : null}
+      <div>
+        {shown.map((m) => (
+          <FancyRow key={m.marketId} market={m} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function Section({
+
   title,
   children,
 }: {
@@ -277,6 +338,7 @@ function EventPage() {
   const [data, setData] = useState<OddsResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const closedSince = useRef<number>(0);
+  const marketSeen = useRef<Map<string, number>>(new Map());
   const requestId = useRef(0);
   const inFlight = useRef(false);
   const inFlightSince = useRef(0);
@@ -408,10 +470,24 @@ function EventPage() {
     }
     settleFromRunners(`sports-${eventId}`, results);
 
+    // A single session market can vanish without a published winner (the over
+    // finished, the book removed it). Refund its open bets after 45s instead of
+    // leaving the stake stuck forever.
+    const all = [...matchOdds, ...lines, ...bookmakers, ...fancy, ...sportsbook];
+    const now = Date.now();
+    for (const m of all) {
+      const name = (m.marketName ?? "").trim();
+      if (name) marketSeen.current.set(name.toUpperCase(), now);
+    }
+    for (const [name, at] of marketSeen.current) {
+      if (now - at < 45_000) continue;
+      marketSeen.current.delete(name);
+      voidOpenWhere(`sports-${eventId}`, (label) => label.toUpperCase().startsWith(name));
+    }
+
     // Feed no longer serves any market for this event (match over / removed):
     // after 30s of an empty feed, refund whatever is still open.
-    const live =
-      matchOdds.length + lines.length + bookmakers.length + fancy.length + sportsbook.length;
+    const live = all.length;
     if (live === 0) {
       if (!closedSince.current) closedSince.current = Date.now();
       else if (Date.now() - closedSince.current > 30_000) voidOpen(`sports-${eventId}`);
@@ -419,6 +495,7 @@ function EventPage() {
       closedSince.current = 0;
     }
   }, [data, eventId, matchOdds, lines, bookmakers, fancy, sportsbook]);
+
 
   if (!data && !error) return <AppLoader />;
 
@@ -510,13 +587,8 @@ function EventPage() {
             </Section>
           ) : null}
 
-          {fancy.length ? (
-            <Section title="Fancy">
-              {fancy.map((m) => (
-                <FancyRow key={m.marketId} market={m} />
-              ))}
-            </Section>
-          ) : null}
+          {fancy.length ? <FancySection markets={fancy} /> : null}
+
 
           {sportsbook.length ? (
             <Section title="Sportsbook">
