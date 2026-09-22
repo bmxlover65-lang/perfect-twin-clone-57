@@ -22,6 +22,7 @@ import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
 
 import { CardFace } from "@/components/CardFace";
 import { cardImage } from "@/lib/card-assets";
+import { LUCKY7_CARD_IMAGES } from "@/lib/lucky7-card-assets";
 
 
 
@@ -545,17 +546,12 @@ function PlateSuits({ suits }: { suits: string[] }) {
 /* ---------------------------------------------------------------- Lucky 7 */
 /* Pixel parity with the original Lucky 7 board: white market cards on a grey
    page, dark gradient headers, light-blue gradient rows and 105x38.5 plates. */
-const L7_HEADER_BG = "linear-gradient(-180deg,#2e4b5e,#243a48 82%)";
-const L7_ROW_BG = "linear-gradient(90deg,#99c7f1,rgba(138,189,216,0.5) 49%,#92c6f6)";
-
 function L7Icon({ label, isCard }: { label: string; isCard: boolean }) {
   if (isCard) {
-    const src = cardImage(`S${label}`);
+    const src = LUCKY7_CARD_IMAGES[label];
     if (!src) return null;
     return (
-      <span className="absolute left-[10px] flex items-center">
-        <img src={src} alt={label} loading="lazy" className="block w-[20px] rounded-[2px]" />
-      </span>
+      <img src={src} alt={label} loading="lazy" className="lucky7-card-art" />
     );
   }
   const suits = labelSuits(label);
@@ -579,11 +575,8 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
   const isCardMarket = /^LUCKY CARD$/i.test(name);
 
   return (
-    <section className="mb-[5px] rounded-[6px] border border-l7-card-border bg-l7-card">
-      <header
-        className="flex items-center justify-between rounded-t-[5px] px-[5px] py-[2px] text-[12px] font-black uppercase leading-[18px] text-white"
-        style={{ background: L7_HEADER_BG }}
-      >
+    <section className="lucky7-market">
+      <header className="lucky7-market-header">
         <span className="truncate">{name}</span>
         {showInfo ? (
           <button
@@ -605,7 +598,7 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
         )}
       </header>
       <div className="relative">
-        <div className="flex flex-wrap pb-[11.2px] pt-[1.6px]" style={{ background: L7_ROW_BG }}>
+        <div className="lucky7-market-row">
           {runners.map((r) => {
             const label = String(names[String(r.selectionId)] ?? r.selectionId).trim();
             const p = r.price?.back?.[0];
@@ -616,14 +609,14 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
                 data-market-option=""
                 data-bet-label={label.toUpperCase()}
                 data-bet-odds={String(p?.price ?? "")}
-                className="w-1/2 min-w-0 pb-[4px] [&:has([data-has-exposure='true'])]:pb-7"
+                className="lucky7-runner [&:has([data-has-exposure='true'])]:pb-7"
               >
-                <span className="block pb-[4px] text-center text-[12px] font-bold text-l7-text">
+                <span className="lucky7-runner-title">
                   {label}
                 </span>
                 <div
                   data-market-plate=""
-                  className={`relative mx-auto flex h-[38.5px] w-[105px] items-center justify-center rounded-[5px] bg-l7-back text-[12px] text-[#212529] shadow-[0_2px_7px_1px_rgba(103,130,139,0.9)] ${
+                  className={`lucky7-runner-box ${
                     locked ? "opacity-45 grayscale-[0.5]" : ""
                   }`}
                 >
@@ -3170,8 +3163,7 @@ function GamePage() {
           ))
         ) : gameId === "99.0030" && markets.length ? (
           <div
-            className="bg-l7-page px-0 pt-[5px]"
-            style={{ fontFamily: "Tahoma, Helvetica, sans-serif" }}
+            className="lucky7-board bg-l7-page px-0 pt-[5px]"
           >
             {markets.map((m, i) => (
               <Lucky7Board key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
