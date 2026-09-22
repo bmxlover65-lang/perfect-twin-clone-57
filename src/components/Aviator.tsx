@@ -1352,7 +1352,10 @@ export function Aviator() {
           setMultiplier(shown);
           botCashouts(shown);
         } else if (live.status === "BLAST") {
-          const crash = Math.min(Math.max(fPeak, live.mult), cap);
+          // Prefer the published result of this round so the board's crash
+          // value always equals the official one.
+          const official = officialByRid.current.get(live.rid);
+          const crash = Math.min(official && official > 0 ? official : Math.max(fPeak, live.mult), cap);
           if (fPhase !== "crashed") {
             fPhase = "crashed";
             crashRef.current = crash;
