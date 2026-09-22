@@ -709,6 +709,56 @@ async function withAuraMarkets(splat: string, text: string): Promise<string> {
   }
 }
 
+/**
+ * Match Odds from the public exchange REST feed, which ships the full three
+ * back / three lay ladder. Used whenever our own feed has no usable Match Odds
+ * prices for the event, and to deepen a single-level ladder.
+ */
+async function withEx247Markets(splat: string, text: string): Promise<string> {
+  const m = /^sports\/([^/]+)\/([^/]+)\/odds$/.exec(splat);
+  if (!m) return text;
+  let payload: Record<string, unknown>;
+  try {
+    payload = JSON.parse(text) as Record<string, unknown>;
+  } catch {
+    return text;
+  }
+  const eventName = String((payload as { eventName?: string }).eventName ?? "");
+  if (!eventName) return text;
+
+  type Lvl = { price?: number };
+  type Mk = {
+    oddsData?: { runners?: { price?: { back?: Lvl[]; lay?: Lvl[] } }[] };
+  };
+  const current = Array.isArray(payload['matchOdds']) ? (payload['matchOdds'] as Mk[]) : [];
+  const depth = current.reduce(
+    (n, mk) =>
+      Math.max(
+        n,
+        ...(mk.oddsData?.runners ?? []).map((r) =>
+          Math.max(
+            (r.price?.back ?? []).filter((p) => (p?.price ?? 0) > 0).length,
+            (r.price?.lay ?? []).filter((p) => (p?.price ?? 0) > 0).length,
+          ),
+        ),
+        0,
+      ),
+    0,
+  );
+  // Our own ladder already has real depth — leave it alone.
+  if (depth >= 2) return text;
+
+  try {
+    const { ex247MatchOdds } = await import("@/lib/ex247.server");
+    const rows = await ex247MatchOdds(decodeURIComponent(m[1]!), eventName);
+    if (!rows?.length) return text;
+    payload['matchOdds'] = rows;
+    return JSON.stringify(payload);
+  } catch {
+    return text;
+  }
+}
+
 export async function proxy(splat: string, search: string, body?: string, origin = "") {
 
   const snapshotKey = sportsSnapshotKey(splat, search);
@@ -771,7 +821,10 @@ export async function proxy(splat: string, search: string, body?: string, origin
       splat,
       await withAuraEvents(
         splat,
-        await withAuraMarkets(splat, freshestMarkets(splat, await res.text())),
+        await withEx247Markets(
+          splat,
+          await withAuraMarkets(splat, freshestMarkets(splat, await res.text())),
+        ),
       ),
     );
 
