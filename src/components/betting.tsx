@@ -490,9 +490,9 @@ export function BetLayer({
     if (!pick) return;
     const id = window.setInterval(() => {
       const rootEl = rootRef.current;
-      const cellEl = cellPos.current?.cell;
-      if (!rootEl || !cellEl) return;
-      if (!cellEl.isConnected || isBlockedByOverlay(cellEl, rootEl)) {
+      const cellEl = liveCell();
+      if (!rootEl) return;
+      if (!cellEl || isBlockedByOverlay(cellEl, rootEl)) {
         setPick(null);
       }
     }, 120);
