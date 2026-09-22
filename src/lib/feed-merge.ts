@@ -31,6 +31,20 @@ const GEN_MS = 15_000;
 const matchedOf = (m: Market) => Number(m.oddsData?.totalMatched ?? 0) || 0;
 const keyOf = (g: Group, m: Market) => `${g}|${m.marketId ?? m.marketName ?? ""}`;
 
+/** Suspended / closed / all-zero frame: always let it through immediately. */
+function isDead(m: Market): boolean {
+  const raw = String(m.oddsData?.status ?? "").toUpperCase();
+  if (/SUSPEND|CLOSE|INACTIVE|SETTLE|RESULT|BALL/.test(raw)) return true;
+  const runners = m.oddsData?.runners ?? [];
+  if (!runners.length) return false;
+  return !runners.some((r) => {
+    const rs = String(r.status ?? "").toUpperCase();
+    if (/SUSPEND|CLOSE|INACTIVE|REMOVED/.test(rs)) return false;
+    return [...(r.price?.back ?? []), ...(r.price?.lay ?? [])].some((p) => Number(p?.price) > 0);
+  });
+}
+
+
 export function mergeFeed(state: FeedState, payload: OddsResponse): OddsResponse {
   const now = Date.now();
 
@@ -45,21 +59,30 @@ export function mergeFeed(state: FeedState, payload: OddsResponse): OddsResponse
     state.bestAt = now;
   }
 
+  // Markets the feed no longer serves (finished fancy sessions, closed
+  // bookmakers) must disappear at once — the reference book drops them the
+  // moment the over/market is over.
+  const present = new Set<string>();
+
   for (const g of GROUPS) {
     const list = payload[g] ?? [];
     list.forEach((market, i) => {
       const key = keyOf(g, market);
       if (!key.endsWith("|")) {
+        present.add(key);
         const prev = state.markets.get(key);
         const matched = matchedOf(market);
-        const older = prev && (stale ? matched <= prev.matched : matched < prev.matched);
+        const dim = isDead(market);
+        const older = prev && !dim && (stale ? matched <= prev.matched : matched < prev.matched);
         if (older) return;
         state.markets.set(key, { at: now, matched, order: i, market });
       }
     });
   }
 
-  for (const [k, v] of state.markets) if (now - v.at > KEEP_MS) state.markets.delete(k);
+  for (const [k, v] of state.markets) {
+    if (!present.has(k) || now - v.at > KEEP_MS) state.markets.delete(k);
+  }
 
   const out: OddsResponse = { ...payload };
   for (const g of GROUPS) {
@@ -71,3 +94,4 @@ export function mergeFeed(state: FeedState, payload: OddsResponse): OddsResponse
   }
   return out;
 }
+
