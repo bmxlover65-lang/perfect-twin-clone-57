@@ -241,31 +241,30 @@
 .lucky7-suspended {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 3;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   padding: 0;
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid var(--card-border);
+  background: rgba(0, 0, 0, 0.65);
+  border: 2px solid #666666;
+  border-radius: 4px;
   color: var(--suspended);
-  font-size: 15px;
+  font-family: var(--l7-font, Tahoma, Helvetica, sans-serif);
+  font-size: 22px;
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+  text-shadow: none;
   pointer-events: none;
+  cursor: not-allowed;
 }
 
-/* Keep the label readable and shown once, even on tall markets (Lucky Card). */
 .lucky7-suspended > span {
-  position: sticky;
-  top: 50%;
   display: block;
-  padding: 2px 10px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.8);
+  line-height: 1;
 }
+
 
 .lucky7-winner {
   background: var(--winner-bg);
