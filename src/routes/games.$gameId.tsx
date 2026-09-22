@@ -542,7 +542,147 @@ function PlateSuits({ suits }: { suits: string[] }) {
   );
 }
 
-/** Light blue sectioned board with 2-column plates (Lucky 7, 20-20 TP, 20-20 DT) — original style. */
+/* ---------------------------------------------------------------- Lucky 7 */
+/* Pixel parity with the original Lucky 7 board: white market cards on a grey
+   page, dark gradient headers, light-blue gradient rows and 105x38.5 plates. */
+const L7_HEADER_BG = "linear-gradient(-180deg,#2e4b5e,#243a48 82%)";
+const L7_ROW_BG = "linear-gradient(90deg,#99c7f1,rgba(138,189,216,0.5) 49%,#92c6f6)";
+
+function L7Icon({ label, isCard }: { label: string; isCard: boolean }) {
+  if (isCard) {
+    const src = cardImage(`S${label}`);
+    if (!src) return null;
+    return (
+      <span className="absolute left-[10px] flex items-center">
+        <img src={src} alt={label} loading="lazy" className="block w-[20px] rounded-[2px]" />
+      </span>
+    );
+  }
+  const suits = labelSuits(label);
+  if (!suits.length) return null;
+  return (
+    <span className="absolute left-[10px] flex flex-col items-center text-[12px] leading-[1.1]">
+      {suits.map((s) => (
+        <span key={s} style={{ color: s === "♥" || s === "♦" ? "#d0021b" : "#111" }}>
+          {s}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
+  const [showInfo, setShowInfo] = useState(false);
+  const names = market.runnersName ?? {};
+  const runners = market.runners ?? [];
+  const name = (market.marketName ?? "").trim();
+  const isCardMarket = /^LUCKY CARD$/i.test(name);
+
+  return (
+    <section className="mb-[5px] rounded-[6px] border border-l7-card-border bg-l7-card">
+      <header
+        className="flex items-center justify-between rounded-t-[5px] px-[5px] py-[2px] text-[12px] font-black uppercase leading-[18px] text-white"
+        style={{ background: L7_HEADER_BG }}
+      >
+        <span className="truncate">{name}</span>
+        {showInfo ? (
+          <button
+            type="button"
+            onClick={() => setShowInfo(false)}
+            className="shrink-0 whitespace-nowrap rounded-[4px] border border-[#ccc] bg-white px-[8px] py-[2px] text-[11px] font-bold text-[#111]"
+          >
+            Min:{Math.max(100, market.min ?? 0)} Max:{market.max ?? 100000}
+          </button>
+        ) : (
+          <button
+            type="button"
+            aria-label="Min/Max info"
+            onClick={() => setShowInfo(true)}
+            className="inline-flex h-[14px] w-[14px] shrink-0 items-center justify-center rounded-full bg-white text-[10px] font-bold not-italic text-[#243a48]"
+          >
+            i
+          </button>
+        )}
+      </header>
+      <div className="relative">
+        <div className="flex flex-wrap pb-[11.2px] pt-[1.6px]" style={{ background: L7_ROW_BG }}>
+          {runners.map((r) => {
+            const label = String(names[String(r.selectionId)] ?? r.selectionId).trim();
+            const p = r.price?.back?.[0];
+            const locked = !suspended && (!isOpenStatus(r.status ?? "ONLINE") || !p?.price);
+            return (
+              <div
+                key={String(r.selectionId)}
+                data-market-option=""
+                data-bet-label={label.toUpperCase()}
+                data-bet-odds={String(p?.price ?? "")}
+                className="w-1/2 min-w-0 pb-[4px] [&:has([data-has-exposure='true'])]:pb-7"
+              >
+                <span className="block pb-[4px] text-center text-[12px] font-bold text-l7-text">
+                  {label}
+                </span>
+                <div
+                  data-market-plate=""
+                  className={`relative mx-auto flex h-[38.5px] w-[105px] items-center justify-center rounded-[5px] bg-l7-back text-[12px] text-[#212529] shadow-[0_2px_7px_1px_rgba(103,130,139,0.9)] ${
+                    locked ? "opacity-45 grayscale-[0.5]" : ""
+                  }`}
+                >
+                  <L7Icon label={label.toUpperCase()} isCard={isCardMarket} />
+                  <span className="flex flex-col items-center text-[12px] font-semibold leading-[1.15]">
+                    <span>{fmtOdds(p?.price)}</span>
+                    <span className="text-[11px] font-normal">
+                      {p?.size == null ? "" : String(Math.round(p.size))}
+                    </span>
+                  </span>
+                  {locked ? (
+                    <span className="absolute right-[6px] text-[11px] leading-none text-[#4a5a63]">
+                      🔒
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {suspended ? (
+          <div className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center rounded-b-[5px] border-2 border-l7-suspend bg-white text-[25px] font-bold text-l7-suspend opacity-50">
+            Suspended
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
+function Lucky7Recent({ results }: { results: CasinoResult[] }) {
+  return (
+    <div className="my-[5px] flex items-center overflow-x-auto bg-black p-[5px] text-white">
+      <span className="shrink-0 whitespace-nowrap text-[17.18px] font-bold text-white">
+        Recent Result
+      </span>
+      <div className="flex">
+        {results.slice(0, 10).map((r, idx) => {
+          const raw = (deriveWinner(r as AnyResult, true) || "-").trim().toUpperCase();
+          const first = raw.startsWith("H") ? "H" : raw.startsWith("L") ? "L" : "T";
+          const tone =
+            first === "H" ? "bg-l7-high" : first === "L" ? "bg-l7-low" : "bg-l7-tie";
+          return (
+            <span
+              key={`${String((r as AnyResult).roundId ?? idx)}-${idx}`}
+              className={`ml-[10px] inline-flex h-[28px] w-[35px] shrink-0 items-center justify-center rounded-[15px] p-[5px] text-[12px] font-bold text-[#333] ${tone}`}
+            >
+              {first}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/** Light blue sectioned board with 2-column plates (20-20 TP, 20-20 DT) — original style. */
+
+
 
 
 function DarkGridBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
@@ -3024,7 +3164,16 @@ function GamePage() {
           markets.map((m, i) => (
             <DragonTiger20Board key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
           ))
-        ) : ["99.0030", "99.0010"].includes(gameId) && markets.length ? (
+        ) : gameId === "99.0030" && markets.length ? (
+          <div
+            className="bg-l7-page px-0 pt-[5px]"
+            style={{ fontFamily: "Tahoma, Helvetica, sans-serif" }}
+          >
+            {markets.map((m, i) => (
+              <Lucky7Board key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
+            ))}
+          </div>
+        ) : gameId === "99.0010" && markets.length ? (
           markets.map((m, i) => (
             <DarkGridBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
           ))
@@ -3043,7 +3192,11 @@ function GamePage() {
         )}
         </Fit>
         {/* Recent Result sits flush under the last market, like the original. */}
-        <RecentStrip results={results} lucky7={gameId === "99.0030"} oneDay={gameId === "99.0013"} joker={gameId === "99.0016"} dragonTiger={gameId === "99.0019"} baccarat={gameId === "99.0001"} cards32={gameId === "99.0022"} />
+        {gameId === "99.0030" ? (
+          <Lucky7Recent results={results} />
+        ) : (
+          <RecentStrip results={results} oneDay={gameId === "99.0013"} joker={gameId === "99.0016"} dragonTiger={gameId === "99.0019"} baccarat={gameId === "99.0001"} cards32={gameId === "99.0022"} />
+        )}
       </BetLayer>
 
 
