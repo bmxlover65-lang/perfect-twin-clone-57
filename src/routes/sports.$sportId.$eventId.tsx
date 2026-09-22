@@ -121,10 +121,17 @@ function marketState(market: Market): { status: string; dim: boolean; label: str
     return all.some((p) => Number(p?.price) > 0);
   });
   const closed = /CLOSE|SETTLE|RESULT/.test(raw);
-  const suspended = /SUSPEND|INACTIVE/.test(raw) || (!closed && runners.length > 0 && !hasPrice);
+  const ballRunning = /BALL/.test(raw);
+  const suspended =
+    ballRunning || /SUSPEND|INACTIVE/.test(raw) || (!closed && runners.length > 0 && !hasPrice);
   const dim = closed || suspended;
   const status = closed ? "CLOSED" : suspended ? "SUSPENDED" : raw;
-  return { status, dim, label: closed ? "Closed" : "Suspended" };
+  return {
+    status,
+    dim,
+    label: closed ? "Closed" : ballRunning ? "Ball Running" : "Suspended",
+  };
+
 }
 
 function Board({ market }: { market: Market }) {
