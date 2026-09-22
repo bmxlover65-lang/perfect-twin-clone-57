@@ -322,10 +322,15 @@ export async function auraOdds(sportId: string, exEventId: string): Promise<AnyR
   const seen = new Set<string>();
   const sportsbook = sportsbookAll.filter((m) => {
     const key = m.marketId || m.marketName;
-    if (!key || seen.has(key)) return false;
+    if (!key || seen.has(key) || isFinished(m)) return false;
     seen.add(key);
     return true;
   });
+  // Finished sessions (over already bowled, market settled or voided) are
+  // dropped here so they can never linger on the board.
+  const fancy = pick("fancy")
+    .filter((m) => !isFinished(m))
+    .sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
   return {
     exEventId,
     eventName: meta.eventName,
@@ -337,10 +342,11 @@ export async function auraOdds(sportId: string, exEventId: string): Promise<AnyR
     totalMatched: num(o["totalMatched"]),
     updatedAt: new Date(num(o["updatedAt"]) || Date.now()).toISOString(),
     matchOdds: pick("betfair"),
-    bookmakers: pick("bookmakers"),
-    fancy: pick("fancy"),
+    bookmakers: pick("bookmakers").filter((m) => !isFinished(m)),
+    fancy,
     sportsbook,
   };
+
 }
 
 // Warm the socket + match subscriptions as soon as the server module loads so
