@@ -458,6 +458,22 @@ type GenPayload = Record<string, unknown> & {
 
 const marketGenerations = new Map<string, { at: number; matched: number; market: GenMarket }>();
 
+/** Suspended / closed / all-zero market — must always reach the board at once. */
+function marketIsDead(market: unknown): boolean {
+  const od = (market as { oddsData?: { status?: string; runners?: PricedRunner[] } })?.oddsData;
+  if (!od) return false;
+  const raw = String(od.status ?? "").toUpperCase();
+  if (/SUSPEND|CLOSE|INACTIVE|SETTLE|RESULT|BALL/.test(raw)) return true;
+  const runners = od.runners ?? [];
+  if (!runners.length) return false;
+  return !runners.some((r) => {
+    const rs = String(r.status ?? "").toUpperCase();
+    if (/SUSPEND|CLOSE|INACTIVE|REMOVED/.test(rs)) return false;
+    return [...(r.price?.back ?? []), ...(r.price?.lay ?? [])].some((p) => Number(p?.price) > 0);
+  });
+}
+
+
 function freshestMarkets(splat: string, text: string): string {
   if (!/^sports\/[^/]+\/[^/]+\/odds$/.test(splat)) return text;
   let payload: GenPayload;
@@ -494,13 +510,16 @@ function freshestMarkets(splat: string, text: string): string {
       const matched = Number(market?.oddsData?.totalMatched ?? 0);
       const prev = marketGenerations.get(key);
       const older = prev && (olderGeneration ? matched <= prev.matched : matched < prev.matched);
-      if (older && now - prev.at < 25_000) {
+      // A suspension (ball running / market closed) must never be held back by
+      // the generation filter — the reference board suspends instantly.
+      if (older && !marketIsDead(market) && now - prev.at < 25_000) {
         list[i] = prev.market;
         changed = true;
         return;
       }
       marketGenerations.set(key, { at: now, matched, market });
     });
+
   }
   if (marketGenerations.size > 4000) {
     for (const [k, v] of marketGenerations) if (now - v.at > 120_000) marketGenerations.delete(k);
