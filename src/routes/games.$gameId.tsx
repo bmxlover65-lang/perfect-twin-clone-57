@@ -7,6 +7,7 @@ import { RoundTimer } from "@/components/RoundTimer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEmbed } from "@/lib/embed";
 import { AppLoader } from "@/components/AppLoader";
+import { Button } from "@/components/ui/button";
 
 import { applyOverride, useAdminConfig } from "@/lib/admin";
 import { logResult } from "@/lib/telemetry";
@@ -555,9 +556,7 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
     <section className="lucky7-market">
       <header className="lucky7-market-header">
         <strong>{name}</strong>
-        <span className="lucky7-market-minmax">
-          Min/Max: {Math.max(100, market.min ?? 0)} - {market.max ?? 100000}
-        </span>
+        <Info className="lucky7-market-info" aria-label={`${name} information`} />
       </header>
       <div className="lucky7-market-body">
         {suspended ? (
@@ -582,8 +581,14 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
                 className="lucky7-runner [&:has([data-has-exposure='true'])]:pb-7"
               >
                 <span className="lucky7-runner-title">{label}</span>
-                <div
+                <Button
+                  type="button"
                   data-market-plate=""
+                  data-market-option=""
+                  data-bet-label={label.toUpperCase()}
+                  data-bet-odds={String(p?.price ?? "")}
+                  disabled={locked || suspended}
+                  variant="ghost"
                   className={`lucky7-runner-box ${cardSrc || suits.length ? "has-art" : ""} ${locked ? "opacity-45 grayscale-[0.5]" : ""}`}
                 >
                   {cardSrc ? (
@@ -603,7 +608,7 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
                       {p?.size == null ? "" : String(Math.round(p.size))}
                     </span>
                   </span>
-                </div>
+                </Button>
               </div>
             );
           })}
@@ -627,9 +632,9 @@ function Lucky7Recent({ results }: { results: CasinoResult[] }) {
             first === "H" ? "" : first === "L" ? "bg-l7-low!" : "bg-l7-tie!";
           return (
             <li key={`${String((r as AnyResult).roundId ?? idx)}-${idx}`}>
-              <button type="button" className={`lucky7-result-chip ${tone}`}>
+              <Button type="button" variant="ghost" className={`lucky7-result-chip ${tone}`}>
                 {first}
-              </button>
+              </Button>
             </li>
           );
         })}

@@ -138,13 +138,13 @@
 
 /* Lucky 7 board: tokens copied verbatim from the supplied original stylesheet. */
 .lucky7-board {
-  --market-name-bg: linear-gradient(-180deg, #2e4b5e, #243a48 82%);
+  --market-name-bg: #1e293b;
   --market-name-text: #ffffff;
   --runner-text: #23282c;
-  --back-1: #72bbef;
+  --back-1: #8fc4f8;
   --back-1-active: #1a8ee1;
   --back-1-active-text: #ffffff;
-  --row-bg: linear-gradient(90deg, #99c7f1, rgba(138, 189, 216, 0.5) 49%, #92c6f6);
+  --row-bg: linear-gradient(180deg, #c8e0f4, #9fc5ea);
   --list-row-bg: #ffffff;
   --list-row-divider: rgba(0, 0, 0, 0.12);
   --suspended: #ca1010;
@@ -155,13 +155,17 @@
   --topbar-bg: #243a48;
   --red-suit: #d0021b;
   --l7-font: Tahoma, Helvetica, sans-serif;
-  background: var(--page-bg);
+  width: 100%;
+  max-width: 393px;
+  margin-inline: auto;
+  padding-bottom: 50px;
+  background: var(--row-bg);
   font-family: var(--l7-font);
   box-sizing: border-box;
 }
 
 .lucky7-market {
-  margin-bottom: 5px;
+  margin-bottom: 4px;
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 6px;
@@ -174,12 +178,23 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 2px 5px;
+  min-height: 24px;
+  padding: 3px 6px;
   background: var(--market-name-bg);
   color: var(--market-name-text);
   font-size: 12px;
   font-weight: 700;
   border-radius: 5px 5px 0 0;
+}
+
+.lucky7-market-info {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  color: var(--market-name-text);
+  fill: var(--market-name-text);
+  stroke: var(--market-name-bg);
+  stroke-width: 3px;
 }
 
 .lucky7-market-header > strong {
@@ -200,7 +215,7 @@
 
 .lucky7-market-body {
   position: relative;
-  background: var(--card-bg);
+  background: var(--row-bg);
 }
 
 .lucky7-suspended {
@@ -227,7 +242,7 @@
 .lucky7-market-row {
   display: flex;
   gap: 4px;
-  padding: 6px 4px 10px;
+  padding: 4px 4px 11px;
   background: var(--row-bg);
 }
 
@@ -264,8 +279,8 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  min-height: 26px;
-  margin-bottom: 4px;
+  min-height: 18px;
+  margin-bottom: 3px;
   color: var(--runner-text);
   font-size: 12px;
   font-weight: 700;
@@ -276,22 +291,31 @@
 
 .lucky7-runner-box {
   width: 100%;
-  max-width: 150px;
+  max-width: 105px;
   min-width: 72px;
-  padding: 4px 2px;
+  min-height: 38.5px;
+  height: 38.5px;
+  padding: 3px 4px;
   border: none;
   border-radius: 5px;
   background: var(--back-1);
-  box-shadow: 0 2px 7px 1px rgba(103, 130, 139, 0.9);
+  box-shadow: 0 2px 7px 1px rgba(103, 130, 139, 0.48);
   color: var(--runner-text);
   text-align: center;
   font-weight: 700;
+  cursor: pointer;
+  transition: filter 120ms ease, transform 120ms ease, background 120ms ease;
+}
+
+.lucky7-runner-box:hover:not(:disabled) {
+  filter: brightness(1.04);
 }
 
 .lucky7-runner-box:active,
 .lucky7-runner-box.is-active {
   background: var(--back-1-active);
   color: var(--back-1-active-text);
+  transform: translateY(1px);
 }
 
 .lucky7-runner-box.has-art {
@@ -310,6 +334,7 @@
   border-radius: 2px;
   object-fit: cover;
   background: #fff;
+  pointer-events: none;
 }
 
 .lucky7-plate-suits {
@@ -344,9 +369,16 @@
 
 
 .lucky7-results {
-  flex: 0 0 auto;
+  position: fixed;
+  z-index: 45;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: min(100%, 393px);
+  min-height: 46px;
+  margin-inline: auto;
   background: #000;
-  padding: 5px;
+  padding: 6px 7px;
   color: #fff;
   white-space: nowrap;
   overflow-x: auto;
@@ -359,7 +391,7 @@
 .lucky7-results-title {
   display: inline-block;
   margin: 0 8px 0 0;
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 700;
   vertical-align: middle;
 }
@@ -371,11 +403,13 @@
 }
 
 .lucky7-result-chip {
-  width: 35px;
-  padding: 5px;
+  width: 34px;
+  min-width: 34px;
+  height: 30px;
+  padding: 0;
   text-align: center;
   font-weight: 700;
-  border-radius: 15px;
+  border-radius: 999px;
   border: none;
   color: #000;
   background: #72bbef;
