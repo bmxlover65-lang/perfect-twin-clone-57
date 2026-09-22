@@ -136,15 +136,36 @@
 
 }
 
-/* Lucky 7 board: values copied directly from the supplied original stylesheet. */
+/* Lucky 7 board: tokens copied verbatim from the supplied original stylesheet. */
 .lucky7-board {
-  background: #ededed;
-  font-family: Tahoma, Helvetica, sans-serif;
+  --market-name-bg: linear-gradient(-180deg, #2e4b5e, #243a48 82%);
+  --market-name-text: #ffffff;
+  --runner-text: #23282c;
+  --back-1: #72bbef;
+  --back-1-active: #1a8ee1;
+  --back-1-active-text: #ffffff;
+  --row-bg: linear-gradient(90deg, #99c7f1, rgba(138, 189, 216, 0.5) 49%, #92c6f6);
+  --list-row-bg: #ffffff;
+  --list-row-divider: rgba(0, 0, 0, 0.12);
+  --suspended: #ca1010;
+  --winner-bg: linear-gradient(-180deg, #fd8f3b, #fd3523);
+  --card-bg: #ffffff;
+  --card-border: rgba(0, 0, 0, 0.176);
+  --page-bg: #ededed;
+  --topbar-bg: #243a48;
+  --red-suit: #d0021b;
+  --l7-font: Tahoma, Helvetica, sans-serif;
+  background: var(--page-bg);
+  font-family: var(--l7-font);
   box-sizing: border-box;
 }
 
 .lucky7-market {
-  margin-bottom: 3px;
+  margin-bottom: 5px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  overflow: hidden;
   box-sizing: border-box;
 }
 
@@ -153,11 +174,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 4px 8px;
-  background: #000;
-  color: #fff;
+  padding: 2px 5px;
+  background: var(--market-name-bg);
+  color: var(--market-name-text);
   font-size: 12px;
   font-weight: 700;
+  border-radius: 5px 5px 0 0;
 }
 
 .lucky7-market-header > strong {
@@ -178,8 +200,7 @@
 
 .lucky7-market-body {
   position: relative;
-  background: #fff;
-  border-bottom-left-radius: 6px;
+  background: var(--card-bg);
 }
 
 .lucky7-suspended {
@@ -189,13 +210,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.65);
-  border: 2px solid #666;
-  color: #fff;
-  font-size: 22px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid var(--card-border);
+  color: var(--suspended);
+  font-size: 18px;
   font-weight: 700;
   text-transform: uppercase;
 }
+
+.lucky7-winner {
+  background: var(--winner-bg);
+  color: #fff;
+}
+
 
 .lucky7-market-row {
   display: flex;
