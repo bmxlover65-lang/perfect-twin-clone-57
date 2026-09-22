@@ -600,29 +600,27 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
 
 function Lucky7Recent({ results }: { results: CasinoResult[] }) {
   return (
-    <div className="my-[5px] flex items-center overflow-x-auto bg-black p-[5px] text-white">
-      <span className="shrink-0 whitespace-nowrap text-[17.18px] font-bold text-white">
-        Recent Result
-      </span>
-      <div className="flex">
+    <section className="lucky7-results">
+      <h5 className="lucky7-results-title">Recent Result</h5>
+      <ul className="lucky7-results-list">
         {results.slice(0, 10).map((r, idx) => {
           const raw = (deriveWinner(r as AnyResult, true) || "-").trim().toUpperCase();
           const first = raw.startsWith("H") ? "H" : raw.startsWith("L") ? "L" : "T";
           const tone =
-            first === "H" ? "bg-l7-high" : first === "L" ? "bg-l7-low" : "bg-l7-tie";
+            first === "H" ? "" : first === "L" ? "bg-l7-low!" : "bg-l7-tie!";
           return (
-            <span
-              key={`${String((r as AnyResult).roundId ?? idx)}-${idx}`}
-              className={`ml-[10px] inline-flex h-[28px] w-[35px] shrink-0 items-center justify-center rounded-[15px] p-[5px] text-[12px] font-bold text-[#333] ${tone}`}
-            >
-              {first}
-            </span>
+            <li key={`${String((r as AnyResult).roundId ?? idx)}-${idx}`}>
+              <button type="button" className={`lucky7-result-chip ${tone}`}>
+                {first}
+              </button>
+            </li>
           );
         })}
-      </div>
-    </div>
+      </ul>
+    </section>
   );
 }
+
 
 /** Light blue sectioned board with 2-column plates (20-20 TP, 20-20 DT) — original style. */
 
