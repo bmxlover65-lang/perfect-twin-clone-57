@@ -565,7 +565,7 @@ function normalizeStatuses(splat: string, text: string): string {
       const suspended =
         /SUSPEND|INACTIVE|BALL/.test(raw) || (!closed && runners.length > 0 && !hasPrice);
 
-      const next = closed ? "CLOSED" : suspended ? "SUSPENDED" : raw;
+      const next = closed ? "CLOSED" : /BALL/.test(raw) ? "BALLRUN" : suspended ? "SUSPENDED" : raw;
       if (od.status !== next || od.suspended !== (closed || suspended)) {
         od.status = next;
         od.suspended = closed || suspended;
