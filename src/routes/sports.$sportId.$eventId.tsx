@@ -653,9 +653,9 @@ function EventPage() {
             </Section>
           ) : null}
 
-          {lines.length ? (
+          {overUnder.length ? (
             <Section title="Over / Under">
-              {lines.map((m) => (
+              {overUnder.map((m) => (
                 <Board key={m.marketId} market={m} />
               ))}
             </Section>
@@ -665,9 +665,9 @@ function EventPage() {
 
 
           {sportsbook.length ? (
-            <Section title="Sportsbook">
+            <Section title="Premium Sportsbook">
               {sportsbook.map((m) => (
-                <Board key={m.marketId} market={m} />
+                <Board key={m.marketId} market={m} levels={1} backOnly />
               ))}
             </Section>
           ) : null}
