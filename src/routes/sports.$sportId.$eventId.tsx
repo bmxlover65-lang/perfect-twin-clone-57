@@ -50,11 +50,14 @@ function Cell({
   size,
   side,
   dim,
+  depth = 0,
 }: {
   price?: number | undefined;
   size?: number | undefined;
   side: "back" | "lay";
   dim?: boolean;
+  /** 0 = best price (full colour), 1 and 2 = the faded outer levels. */
+  depth?: number;
 }) {
   const has = Boolean(price);
   const prev = useRef<number | undefined>(price);
