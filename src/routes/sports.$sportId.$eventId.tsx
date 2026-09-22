@@ -74,15 +74,25 @@ function Cell({
 
   const tone =
     side === "back" ? (has ? "bg-ex-back" : "bg-ex-back-dim") : has ? "bg-ex-lay" : "bg-ex-lay-dim";
+  // The reference book fades the two outer depth levels, exactly like an
+  // exchange ladder: best price is solid, level 2 and 3 progressively lighter.
+  const fade = depth === 1 ? "opacity-70" : depth === 2 ? "opacity-50" : "";
+  const best = depth === 0;
   return (
     <div
-      className={`relative flex h-[66px] flex-col items-center justify-center overflow-hidden rounded-[5px] border border-ex-market-surface/80 ${tone} ${
+      className={`relative flex h-[66px] flex-col items-center justify-center overflow-hidden rounded-[5px] border border-ex-market-surface/80 ${tone} ${fade} ${
         dim ? "opacity-40" : ""
       } ${flash} text-ex-cell-foreground`}
     >
-      <span className="relative z-10 text-[1.1rem] font-bold leading-none">{fmtOdds(price)}</span>
+      <span
+        className={`relative z-10 font-bold leading-none ${best ? "text-[1.1rem]" : "text-[0.92rem]"}`}
+      >
+        {fmtOdds(price)}
+      </span>
       {has && size ? (
-        <span className="relative z-10 mt-1 text-[0.78rem] leading-none opacity-80">
+        <span
+          className={`relative z-10 mt-1 leading-none opacity-80 ${best ? "text-[0.78rem]" : "text-[0.66rem]"}`}
+        >
           {fmtSize(size)}
         </span>
       ) : null}
