@@ -101,6 +101,13 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Balloon: reduce and lower the waiting balloon, slow the descending scenery, keep compact clouds at the top, delay the plane entrance, and lighten the control backdrop
 - [x] Balloon: match the supplied betting panel's exact 327px proportions, Auto positions, stake/action spacing and HEAT sizing
 
+## Phase 7 — Dreamx444 live-casino betting-board parity
+- [ ] Audit Dreamx444 live-video casino lobby and every live game at 393px
+- [ ] Map each reference game to the corresponding Universal game ID
+- [ ] Match each betting board: typography, cards, colors, shine, dimensions, order and result strip
+- [ ] Keep the existing Universal site header unchanged
+- [ ] Verify all matched live-video games at 393px with working betting and no runtime errors
+
 ## Phase 7 — Royal444 full casino structure parity (pending reference access)
 - [x] Sports match list: compact mobile exchange layout with grouped events and aligned live Back/Lay prices
 - [ ] Audit the reference casino lobby and every casino game page at mobile width only
