@@ -5,7 +5,6 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  useLocation,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -232,13 +231,11 @@ function SiteHeader() {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const embed = useEmbed();
-  const pathname = useLocation({ select: (location) => location.pathname });
-  const isLucky7Table = pathname === "/games/99.0030";
 
   return (
     <QueryClientProvider client={queryClient}>
       <div className={embed ? "min-h-dvh bg-table-felt" : "min-h-screen bg-background"}>
-        {embed || isLucky7Table ? null : <SiteHeader />}
+        {embed ? null : <SiteHeader />}
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
         <WinCelebration />
