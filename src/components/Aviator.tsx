@@ -196,7 +196,11 @@ function StakeControl({
             onClick={() => setState((p) => ({ ...p, amount: q }))}
             className={`rounded-full border bg-[#151618] text-center font-semibold disabled:opacity-40 ${
               big ? "py-[7px] text-[0.8rem]" : "py-[5px] text-[0.72rem]"
-            } ${state.amount === q ? "border-[#16C800] text-white" : "border-[#44474D] text-[#C9CBD1]"}`}
+            } ${
+              state.amount === q
+                ? "border-[#C41E1E] font-bold text-white ring-1 ring-[#C41E1E]"
+                : "border-[#44474D] text-[#C9CBD1]"
+            }`}
           >
             {q.toFixed(2)}
           </button>
@@ -388,8 +392,10 @@ function MobileBetSlot({
             type="button"
             disabled={locked}
             onClick={() => setState((p) => ({ ...p, amount: q }))}
-            className={`h-[22px] w-[62px] rounded-full border border-[#B8BABD] bg-[#151719] text-[0.72rem] font-medium leading-none text-[#979A9E] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] disabled:opacity-40 ${
-              state.amount === q ? "text-white" : ""
+            className={`h-[22px] w-[62px] rounded-full border bg-[#151719] leading-none shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] disabled:opacity-40 ${
+              state.amount === q
+                ? "border-[#C41E1E] font-bold text-white ring-1 ring-[#C41E1E]"
+                : "border-[#B8BABD] font-medium text-[#979A9E]"
             }`}
           >
             {q}
@@ -674,7 +680,11 @@ function DesktopBetBoard({
             key={q}
             type="button"
             onClick={() => setAll((p) => ({ ...p, amount: q }))}
-            className={`${cell} ${slots[0]?.amount === q ? "border-[#F20000] text-white" : "border-transparent"}`}
+            className={`${cell} ${
+              slots[0]?.amount === q
+                ? "border-[#C41E1E] font-bold text-white ring-1 ring-[#C41E1E]"
+                : "border-transparent"
+            }`}
           >
             {q}
           </button>
