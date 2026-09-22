@@ -3113,9 +3113,8 @@ function GamePage() {
             <DragonTiger20Board key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
           ))
         ) : gameId === "99.0030" && markets.length ? (
-          <div
-            className="lucky7-board bg-l7-page px-0 pt-[5px]"
-          >
+          <div className="lucky7-board">
+
             {markets.map((m, i) => (
               <Lucky7Board key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
             ))}
