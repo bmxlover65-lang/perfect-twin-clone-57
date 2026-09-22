@@ -136,15 +136,16 @@
 
 }
 
-/* Lucky 7 board: tokens copied verbatim from the supplied original stylesheet. */
+/* Lucky 7 board: rules copied verbatim from the original stylesheet
+   (page_frame / MarketPanel / RunnerBox / RecentResults). */
 .lucky7-board {
-  --market-name-bg: #1e293b;
+  --market-name-bg: linear-gradient(-180deg, #2e4b5e, #243a48 82%);
   --market-name-text: #ffffff;
   --runner-text: #23282c;
-  --back-1: #8fc4f8;
+  --back-1: #72bbef;
   --back-1-active: #1a8ee1;
   --back-1-active-text: #ffffff;
-  --row-bg: linear-gradient(180deg, #c8e0f4, #9fc5ea);
+  --row-bg: linear-gradient(90deg, #99c7f1, rgba(138, 189, 216, 0.5) 49%, #92c6f6);
   --list-row-bg: #ffffff;
   --list-row-divider: rgba(0, 0, 0, 0.12);
   --suspended: #ca1010;
@@ -156,264 +157,212 @@
   --red-suit: #d0021b;
   --l7-font: Tahoma, Helvetica, sans-serif;
   width: 100%;
-  max-width: 393px;
+  max-width: 430px;
   margin-inline: auto;
-  padding-bottom: 50px;
-  background: var(--row-bg);
+  background: var(--page-bg);
   font-family: var(--l7-font);
   box-sizing: border-box;
 }
 
-.lucky7-market {
-  margin-bottom: 4px;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 6px;
-  overflow: hidden;
+.lucky7-board *,
+.lucky7-board *::before,
+.lucky7-board *::after {
   box-sizing: border-box;
 }
 
+/* MarketPanel_card */
+.lucky7-market {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  position: relative;
+}
+
+/* MarketPanel_header */
 .lucky7-market-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  min-height: 24px;
-  padding: 3px 6px;
+  padding: 2px 5px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
   background: var(--market-name-bg);
   color: var(--market-name-text);
-  font-size: 12px;
-  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
   border-radius: 5px 5px 0 0;
 }
 
-.lucky7-market-info {
-  width: 15px;
-  height: 15px;
-  flex: 0 0 auto;
-  color: var(--market-name-text);
-  fill: var(--market-name-text);
-  stroke: var(--market-name-bg);
-  stroke-width: 3px;
-}
-
-.lucky7-market-header > strong {
-  flex: 1 1 0%;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
+/* MarketPanel_minMax */
 .lucky7-market-minmax {
-  flex-shrink: 0;
-  white-space: nowrap;
-  font-size: 11px;
-  font-weight: 400;
-  opacity: 0.85;
+  position: relative;
 }
 
-.lucky7-market-info-panel {
-  display: flex;
+/* MarketPanel_info */
+.lucky7-market-info {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 4px 8px;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
   background: #ffffff;
-  border-bottom: 1px solid var(--card-border);
-  color: var(--runner-text);
-  font-size: 11px;
+  color: #243a48;
+  font-size: 10px;
   font-weight: 700;
+  font-style: normal;
+  cursor: pointer;
 }
 
-.lucky7-market-info-panel > button {
-  font-size: 12px;
-  line-height: 1;
-  color: var(--runner-text);
-  opacity: 0.7;
+/* MarketPanel_tooltip */
+.lucky7-market-info-panel {
+  position: absolute;
+  right: 0;
+  top: 18px;
+  background: #ffffff;
+  color: #111111;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  white-space: nowrap;
+  z-index: 20;
 }
 
+/* MarketPanel_body */
 .lucky7-market-body {
   position: relative;
-  background: var(--row-bg);
 }
 
+/* MarketPanel_suspended */
 .lucky7-suspended {
   position: absolute;
-  inset: 0;
-  z-index: 3;
+  width: 100%;
+  height: 100%;
+  font-size: 25px;
+  font-weight: 700;
+  top: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
-  background: rgba(0, 0, 0, 0.65);
-  border: 2px solid #666666;
-  border-radius: 4px;
+  text-align: center;
+  z-index: 1;
+  border-radius: 0 0 5px 5px;
   color: var(--suspended);
-  font-family: var(--l7-font, Tahoma, Helvetica, sans-serif);
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  text-shadow: none;
+  background: #ffffff;
+  border: 2px solid var(--suspended);
+  opacity: 0.5;
   pointer-events: none;
-  cursor: not-allowed;
 }
-
-.lucky7-suspended > span {
-  display: block;
-  line-height: 1;
-}
-
 
 .lucky7-winner {
   background: var(--winner-bg);
   color: #fff;
 }
 
-
+/* MarketPanel_row */
 .lucky7-market-row {
   display: flex;
-  gap: 4px;
-  padding: 4px 4px 11px;
-  background: var(--row-bg);
-}
-
-.lucky7-market-row.is-wrap {
   flex-wrap: wrap;
-  justify-content: center;
+  background: var(--row-bg);
+  padding: 1.6px 0 11.2px;
 }
 
+/* RunnerBox_cell */
 .lucky7-runner {
-  flex: 1 1 50%;
-  max-width: 50%;
+  width: 50%;
+  padding: 0 0 4px;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 2px;
 }
 
-.lucky7-market-row.is-wrap .lucky7-runner {
-  flex: 1 1 calc(50% - 4px);
-  max-width: calc(50% - 4px);
-  min-width: 105px;
-}
-
-@media (min-width: 768px) {
-  .lucky7-market-row.is-wrap .lucky7-runner {
-    flex: 1 1 calc(33.333% - 4px);
-    max-width: calc(50% - 4px);
-    min-width: 96px;
-  }
-}
-
+/* RunnerBox_title */
 .lucky7-runner-title {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  min-height: 18px;
-  margin-bottom: 3px;
-  color: var(--runner-text);
+  display: block;
   font-size: 12px;
   font-weight: 700;
-  line-height: 1.15;
-  text-align: center;
-  word-break: break-word;
-}
-
-.lucky7-runner-box {
-  width: 100%;
-  max-width: 105px;
-  min-width: 72px;
-  min-height: 38.5px;
-  height: 38.5px;
-  padding: 3px 4px;
-  border: none;
-  border-radius: 5px;
-  background: var(--back-1);
-  box-shadow: 0 2px 7px 1px rgba(103, 130, 139, 0.48);
   color: var(--runner-text);
   text-align: center;
-  font-weight: 700;
-  cursor: pointer;
-  transition: filter 120ms ease, transform 120ms ease, background 120ms ease;
+  padding-bottom: 4px;
 }
 
-.lucky7-runner-box:hover:not(:disabled) {
-  filter: brightness(1.04);
+/* RunnerBox_box */
+.lucky7-runner-box {
+  background: var(--back-1);
+  border-radius: 5px;
+  padding: 2px 0;
+  width: 105px;
+  height: 38.5px;
+  margin: 0 auto;
+  box-shadow: rgba(103, 130, 139, 0.9) 0 2px 7px 1px;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(33, 37, 41);
+  border: 0;
+  font-family: inherit;
+  font-size: 12px;
+  text-align: start;
 }
 
 .lucky7-runner-box:active,
 .lucky7-runner-box.is-active {
   background: var(--back-1-active);
   color: var(--back-1-active-text);
-  transform: translateY(1px);
 }
 
-.lucky7-runner-box.has-art {
+/* RunnerBox_locked */
+.lucky7-runner-box.is-locked {
+  opacity: 0.45;
+  cursor: default;
+  filter: grayscale(0.5);
+}
+
+/* RunnerBox_icon */
+.lucky7-plate-suits {
+  position: absolute;
+  left: 10px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
-  padding: 4px 6px;
-  min-height: 38.5px;
+  font-size: 12px;
+  line-height: 1.1;
 }
 
 .lucky7-card-art {
   width: 20px;
-  height: 27px;
-  flex: 0 0 auto;
-  border-radius: 2px;
-  object-fit: cover;
-  background: #fff;
+  display: block;
   pointer-events: none;
 }
 
-.lucky7-plate-suits {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  flex: 0 0 auto;
-  font-size: 11px;
-  line-height: 1.05;
-}
-
+/* RunnerBox_stack */
 .lucky7-runner-values {
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex: 1 1 auto;
+  font-weight: 600;
+  font-size: 12px;
 }
 
 .lucky7-runner-odds {
-  font-size: 13px;
-  line-height: 1.2;
+  font-size: 12px;
 }
 
+/* RunnerBox_vol */
 .lucky7-runner-size {
   font-size: 11px;
   font-weight: 400;
-  opacity: 0.85;
-  line-height: 1.2;
 }
 
-
+/* RecentResults_wrap */
 .lucky7-results {
-  position: fixed;
-  z-index: 45;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  width: min(100%, 393px);
-  min-height: 46px;
-  margin-inline: auto;
-  background: #000;
-  padding: 6px 7px;
-  color: #fff;
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  background: #000000;
+  color: #ffffff;
+  padding: 5px;
+  margin: 5px 0;
   overflow-x: auto;
 }
 
@@ -421,31 +370,45 @@
   display: none;
 }
 
+/* RecentResults_label */
 .lucky7-results-title {
-  display: inline-block;
-  margin: 0 8px 0 0;
-  font-size: 17px;
+  font-size: 17.18px;
+  white-space: nowrap;
+  color: #ffffff;
   font-weight: 700;
-  vertical-align: middle;
 }
 
+/* RecentResults_list */
 .lucky7-results-list {
-  display: inline-flex;
-  gap: 10px;
-  vertical-align: middle;
+  display: flex;
 }
 
+/* RecentResults_badge */
 .lucky7-result-chip {
-  width: 34px;
-  min-width: 34px;
-  height: 30px;
-  padding: 0;
-  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 28px;
+  border-radius: 15px;
+  font-size: 12px;
   font-weight: 700;
-  border-radius: 999px;
-  border: none;
-  color: #000;
+  color: #333333;
+  padding: 5px;
+  margin-left: 10px;
+  flex: 0 0 auto;
+  border: 0;
   background: #72bbef;
+}
+
+/* RecentResults_low */
+.lucky7-result-chip.is-low {
+  background: #f9a9ba;
+}
+
+/* RecentResults_tie */
+.lucky7-result-chip.is-tie {
+  background: #ffff33;
 }
 
 

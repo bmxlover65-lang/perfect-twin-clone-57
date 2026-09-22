@@ -551,41 +551,33 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
   const name = (market.marketName ?? "").trim();
-  const wrap = runners.length > 2;
   const minBet = Math.max(100, market.min ?? 0);
   const maxBet = market.max ?? 100000;
 
   return (
     <section className="lucky7-market">
-      <header className="lucky7-market-header">
+      <span className="lucky7-market-header">
         <strong>{name}</strong>
-        <button
-          type="button"
-          data-nobet=""
-          aria-label={`${name} information`}
-          onClick={() => setShowInfo((v) => !v)}
-          className="flex shrink-0 items-center"
-        >
-          <Info className="lucky7-market-info" />
-        </button>
-      </header>
-      {showInfo ? (
-        <div className="lucky7-market-info-panel" data-nobet="">
-          <span>
-            Min: {minBet} &nbsp;|&nbsp; Max: {maxBet}
-          </span>
-          <button type="button" data-nobet="" onClick={() => setShowInfo(false)} aria-label="Close info">
-            ✕
-          </button>
-        </div>
-      ) : null}
+        <span className="lucky7-market-minmax">
+          <i
+            className="lucky7-market-info"
+            role="button"
+            tabIndex={0}
+            data-nobet=""
+            aria-label={`${name} information`}
+            onClick={() => setShowInfo((v) => !v)}
+          >
+            i
+          </i>
+          {showInfo ? (
+            <span className="lucky7-market-info-panel" data-nobet="">
+              Min: {minBet} | Max: {maxBet}
+            </span>
+          ) : null}
+        </span>
+      </span>
       <div className="lucky7-market-body">
-        {suspended ? (
-          <div className="lucky7-suspended" aria-hidden="true">
-            <span>Suspended</span>
-          </div>
-        ) : null}
-        <div className={`lucky7-market-row${wrap ? " is-wrap" : ""}`}>
+        <div className="lucky7-market-row">
           {runners.map((r) => {
             const label = String(names[String(r.selectionId)] ?? r.selectionId).trim();
             const p = r.price?.back?.[0];
@@ -602,22 +594,23 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
                 className="lucky7-runner [&:has([data-has-exposure='true'])]:pb-7"
               >
                 <span className="lucky7-runner-title">{label}</span>
-                <Button
+                <button
                   type="button"
                   data-market-plate=""
                   data-market-option=""
                   data-bet-label={label.toUpperCase()}
                   data-bet-odds={String(p?.price ?? "")}
                   disabled={locked || suspended}
-                  variant="ghost"
-                  className={`lucky7-runner-box ${cardSrc || suits.length ? "has-art" : ""} ${locked ? "opacity-45 grayscale-[0.5]" : ""}`}
+                  className={`lucky7-runner-box${locked ? " is-locked" : ""}`}
                 >
                   {cardSrc ? (
-                    <img src={cardSrc} alt={label} loading="lazy" className="lucky7-card-art" />
+                    <span className="lucky7-plate-suits">
+                      <img src={cardSrc} alt="" loading="lazy" className="lucky7-card-art" />
+                    </span>
                   ) : suits.length ? (
                     <span className="lucky7-plate-suits">
                       {suits.map((s) => (
-                        <span key={s} style={{ color: s === "♥" || s === "♦" ? "var(--red-suit)" : "#111" }}>
+                        <span key={s} style={{ color: s === "♥" || s === "♦" ? "var(--red-suit)" : "inherit" }}>
                           {s}
                         </span>
                       ))}
@@ -629,12 +622,16 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
                       {p?.size == null ? "" : String(Math.round(p.size))}
                     </span>
                   </span>
-                </Button>
+                </button>
               </div>
             );
           })}
         </div>
-
+        {suspended ? (
+          <div className="lucky7-suspended" aria-hidden="true">
+            SUSPENDED
+          </div>
+        ) : null}
       </div>
     </section>
   );
@@ -649,12 +646,11 @@ function Lucky7Recent({ results }: { results: CasinoResult[] }) {
         {results.slice(0, 10).map((r, idx) => {
           const raw = (deriveWinner(r as AnyResult, true) || "-").trim().toUpperCase();
           const first = raw.startsWith("H") ? "H" : "L";
-          const tone = first === "H" ? "" : "bg-l7-low!";
           return (
             <li key={`${String((r as AnyResult).roundId ?? idx)}-${idx}`}>
-              <Button type="button" variant="ghost" className={`lucky7-result-chip ${tone}`}>
+              <button type="button" data-nobet="" className={`lucky7-result-chip${first === "L" ? " is-low" : ""}`}>
                 {first}
-              </Button>
+              </button>
             </li>
           );
         })}
