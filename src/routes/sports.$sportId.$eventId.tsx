@@ -121,10 +121,17 @@ function marketState(market: Market): { status: string; dim: boolean; label: str
     return all.some((p) => Number(p?.price) > 0);
   });
   const closed = /CLOSE|SETTLE|RESULT/.test(raw);
-  const suspended = /SUSPEND|INACTIVE/.test(raw) || (!closed && runners.length > 0 && !hasPrice);
+  const ballRunning = /BALL/.test(raw);
+  const suspended =
+    ballRunning || /SUSPEND|INACTIVE/.test(raw) || (!closed && runners.length > 0 && !hasPrice);
   const dim = closed || suspended;
   const status = closed ? "CLOSED" : suspended ? "SUSPENDED" : raw;
-  return { status, dim, label: closed ? "Closed" : "Suspended" };
+  return {
+    status,
+    dim,
+    label: closed ? "Closed" : ballRunning ? "Ball Running" : "Suspended",
+  };
+
 }
 
 function Board({ market }: { market: Market }) {
@@ -374,7 +381,15 @@ function EventPage() {
   const matchOdds = allMatchOdds.filter((m) => !isLineMarket(m));
   const lines = allMatchOdds.filter(isLineMarket);
   const bookmakers = data?.bookmakers ?? [];
-  const fancy = data?.fancy ?? [];
+  // Finished sessions (the over already bowled, market settled/void) are
+  // removed from the board, exactly like the reference book does.
+  const fancy = (data?.fancy ?? []).filter((m) => {
+    const raw = String(m.oddsData?.status ?? "").toUpperCase();
+    if (/CLOSE|SETTLE|RESULT|REMOVED/.test(raw)) return false;
+    const extra = m as unknown as { isSettlement?: number; isVoid?: number; isClosed?: number };
+    return !extra.isSettlement && !extra.isVoid && !extra.isClosed;
+  });
+
   const sportsbook = data?.sportsbook ?? [];
 
   // Every feed tick: if the upstream marks a runner WINNER / LOSER, settle

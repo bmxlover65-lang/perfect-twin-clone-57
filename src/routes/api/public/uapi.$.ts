@@ -458,6 +458,22 @@ type GenPayload = Record<string, unknown> & {
 
 const marketGenerations = new Map<string, { at: number; matched: number; market: GenMarket }>();
 
+/** Suspended / closed / all-zero market — must always reach the board at once. */
+function marketIsDead(market: unknown): boolean {
+  const od = (market as { oddsData?: { status?: string; runners?: PricedRunner[] } })?.oddsData;
+  if (!od) return false;
+  const raw = String(od.status ?? "").toUpperCase();
+  if (/SUSPEND|CLOSE|INACTIVE|SETTLE|RESULT|BALL/.test(raw)) return true;
+  const runners = od.runners ?? [];
+  if (!runners.length) return false;
+  return !runners.some((r) => {
+    const rs = String(r.status ?? "").toUpperCase();
+    if (/SUSPEND|CLOSE|INACTIVE|REMOVED/.test(rs)) return false;
+    return [...(r.price?.back ?? []), ...(r.price?.lay ?? [])].some((p) => Number(p?.price) > 0);
+  });
+}
+
+
 function freshestMarkets(splat: string, text: string): string {
   if (!/^sports\/[^/]+\/[^/]+\/odds$/.test(splat)) return text;
   let payload: GenPayload;
@@ -494,13 +510,16 @@ function freshestMarkets(splat: string, text: string): string {
       const matched = Number(market?.oddsData?.totalMatched ?? 0);
       const prev = marketGenerations.get(key);
       const older = prev && (olderGeneration ? matched <= prev.matched : matched < prev.matched);
-      if (older && now - prev.at < 25_000) {
+      // A suspension (ball running / market closed) must never be held back by
+      // the generation filter — the reference board suspends instantly.
+      if (older && !marketIsDead(market) && now - prev.at < 25_000) {
         list[i] = prev.market;
         changed = true;
         return;
       }
       marketGenerations.set(key, { at: now, matched, market });
     });
+
   }
   if (marketGenerations.size > 4000) {
     for (const [k, v] of marketGenerations) if (now - v.at > 120_000) marketGenerations.delete(k);
@@ -544,8 +563,9 @@ function normalizeStatuses(splat: string, text: string): string {
       });
       const closed = /CLOSE|SETTLE|RESULT/.test(raw);
       const suspended =
-        /SUSPEND|INACTIVE/.test(raw) || (!closed && runners.length > 0 && !hasPrice);
-      const next = closed ? "CLOSED" : suspended ? "SUSPENDED" : raw;
+        /SUSPEND|INACTIVE|BALL/.test(raw) || (!closed && runners.length > 0 && !hasPrice);
+
+      const next = closed ? "CLOSED" : /BALL/.test(raw) ? "BALLRUN" : suspended ? "SUSPENDED" : raw;
       if (od.status !== next || od.suspended !== (closed || suspended)) {
         od.status = next;
         od.suspended = closed || suspended;
@@ -613,7 +633,51 @@ async function mergeBackupPrices(splat: string, text: string) {
 }
 
 
+/**
+ * Bookmaker / fancy / sportsbook straight from the live exchange socket.
+ *
+ * The primary provider republishes those markets from a slow cache: expired
+ * fancy sessions (e.g. "19 Over Runs" after the over finished) keep hanging
+ * around and ball-running suspensions arrive seconds late. The socket feed is
+ * the same one the reference book renders, so for an event it knows we take
+ * those groups from it verbatim.
+ */
+async function withAuraMarkets(splat: string, text: string): Promise<string> {
+  if (!/^sports\/[^/]+\/[^/]+\/odds$/.test(splat)) return text;
+  const m = /^sports\/([^/]+)\/([^/]+)\/odds$/.exec(splat)!;
+  let payload: Record<string, unknown>;
+  try {
+    payload = JSON.parse(text) as Record<string, unknown>;
+  } catch {
+    return text;
+  }
+  try {
+    const aura = await import("@/lib/aura.server");
+    const live = (await aura.auraOdds(
+      decodeURIComponent(m[1]!),
+      decodeURIComponent(m[2]!),
+    )) as Record<string, unknown> | null;
+    if (!live) return text;
+    for (const group of ["bookmakers", "fancy", "sportsbook"] as const) {
+      const rows = live[group];
+      payload[group] = Array.isArray(rows) ? rows : [];
+    }
+    const liveMatch = live["matchOdds"];
+    if (
+      Array.isArray(liveMatch) &&
+      liveMatch.length &&
+      !(payload["matchOdds"] as unknown[] | undefined)?.length
+    ) {
+      payload["matchOdds"] = liveMatch;
+    }
+    return JSON.stringify(payload);
+  } catch {
+    return text;
+  }
+}
+
 export async function proxy(splat: string, search: string, body?: string, origin = "") {
+
   const snapshotKey = sportsSnapshotKey(splat, search);
   try {
     if (splat === "stream") {
@@ -670,7 +734,11 @@ export async function proxy(splat: string, search: string, body?: string, origin
       token = await getToken(true);
       res = await upstream(splat, search, token, body);
     }
-    const text = normalizeStatuses(splat, freshestMarkets(splat, await res.text()));
+    const text = normalizeStatuses(
+      splat,
+      await withAuraMarkets(splat, freshestMarkets(splat, await res.text())),
+    );
+
 
     const resultsMatch = /^games\/([^/]+)\/results$/.exec(splat);
     // Upstream currently 502s on some casino endpoints (e.g. /results).
