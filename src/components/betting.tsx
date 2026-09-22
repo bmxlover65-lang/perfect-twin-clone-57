@@ -516,13 +516,12 @@ export function BetLayer({
       close();
       return;
     }
-    if (cellPos.current?.cell && inLatchedMarket(cellPos.current.cell)) {
+    const rootEl = rootRef.current;
+    const cellEl = liveCell();
+    if (cellEl && inLatchedMarket(cellEl)) {
       close();
       return;
     }
-
-    const rootEl = rootRef.current;
-    const cellEl = cellPos.current?.cell;
     if (rootEl && cellEl && isBlockedByOverlay(cellEl, rootEl)) {
       close();
       return;
