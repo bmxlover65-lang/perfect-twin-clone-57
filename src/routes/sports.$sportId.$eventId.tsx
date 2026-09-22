@@ -520,7 +520,11 @@ function EventPage() {
     return !extra.isSettlement && !extra.isVoid && !extra.isClosed;
   });
 
-  const sportsbook = data?.sportsbook ?? [];
+  // Totals / handicap markets arrive inside the sportsbook list too; the
+  // reference board shows every one of them in the Over/Under section.
+  const allSportsbook = data?.sportsbook ?? [];
+  const sportsbook = allSportsbook.filter((m) => !isLineMarket(m));
+  const sportsbookLines = allSportsbook.filter(isLineMarket);
 
   // Every feed tick: if the upstream marks a runner WINNER / LOSER, settle
   // the matching open bets right away — result always comes from the feed.
