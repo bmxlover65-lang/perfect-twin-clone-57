@@ -547,17 +547,38 @@ function PlateSuits({ suits }: { suits: string[] }) {
 /* ---------------------------------------------------------------- Lucky 7 */
 /* Markup + classes map 1:1 onto the original Lucky 7 stylesheet. */
 function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
+  const [showInfo, setShowInfo] = useState(false);
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
   const name = (market.marketName ?? "").trim();
   const wrap = runners.length > 2;
+  const minBet = Math.max(100, market.min ?? 0);
+  const maxBet = market.max ?? 100000;
 
   return (
     <section className="lucky7-market">
       <header className="lucky7-market-header">
         <strong>{name}</strong>
-        <Info className="lucky7-market-info" aria-label={`${name} information`} />
+        <button
+          type="button"
+          data-nobet=""
+          aria-label={`${name} information`}
+          onClick={() => setShowInfo((v) => !v)}
+          className="flex shrink-0 items-center"
+        >
+          <Info className="lucky7-market-info" />
+        </button>
       </header>
+      {showInfo ? (
+        <div className="lucky7-market-info-panel" data-nobet="">
+          <span>
+            Min: {minBet} &nbsp;|&nbsp; Max: {maxBet}
+          </span>
+          <button type="button" data-nobet="" onClick={() => setShowInfo(false)} aria-label="Close info">
+            ✕
+          </button>
+        </div>
+      ) : null}
       <div className="lucky7-market-body">
         {suspended ? (
           <div className="lucky7-suspended" aria-hidden="true">
