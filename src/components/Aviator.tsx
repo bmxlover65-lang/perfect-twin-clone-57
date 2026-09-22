@@ -1054,6 +1054,12 @@ export function Aviator() {
   const [bets, setBets] = useState<LiveBet[]>([]);
   const [muted, setMuted] = useState(true);
   const [cashNote, setCashNote] = useState<{ mult: number; amount: number } | null>(null);
+  // Original hides the cash-out banner on its own after about three seconds.
+  useEffect(() => {
+    if (!cashNote) return;
+    const t = window.setTimeout(() => setCashNote(null), 3000);
+    return () => window.clearTimeout(t);
+  }, [cashNote]);
   const bgRef = useRef<HTMLAudioElement | null>(null);
   const sfx = useCallback(
     (src: string, vol = 0.6) => {
