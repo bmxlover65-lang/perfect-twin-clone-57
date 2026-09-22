@@ -164,13 +164,13 @@ function Board({
   const cols = backOnly ? 1 : levels * 2;
   const grid =
     cols === 6
-      ? "grid-cols-[minmax(0,1.25fr)_repeat(6,minmax(0,1fr))] sm:grid-cols-[minmax(0,1.6fr)_repeat(6,minmax(0,1fr))]"
+      ? "grid-cols-[minmax(0,1.7fr)_repeat(6,minmax(0,1fr))] sm:grid-cols-[minmax(0,1.6fr)_repeat(6,minmax(0,1fr))]"
       : cols === 2
         ? "grid-cols-[minmax(0,1fr)_100px_100px] sm:grid-cols-[minmax(0,1fr)_120px_120px]"
         : "grid-cols-[minmax(0,1fr)_120px] sm:grid-cols-[minmax(0,1fr)_140px]";
   const headGrid =
     cols === 6
-      ? "grid-cols-[minmax(0,1.25fr)_repeat(6,minmax(0,1fr))] sm:grid-cols-[minmax(0,1.6fr)_repeat(6,minmax(0,1fr))]"
+      ? "grid-cols-[minmax(0,1.7fr)_repeat(6,minmax(0,1fr))] sm:grid-cols-[minmax(0,1.6fr)_repeat(6,minmax(0,1fr))]"
       : grid;
   // Back levels render best-price-last (3,2,1) so the two best prices meet in
   // the middle of the row, like the reference ladder.
