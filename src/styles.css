@@ -228,12 +228,7 @@
   display: flex;
   gap: 4px;
   padding: 6px 4px 10px;
-  background: linear-gradient(
-    90deg,
-    rgb(153 199 241) 0%,
-    rgb(138 189 216 / 50%) 49%,
-    rgb(146 198 246) 100%
-  );
+  background: var(--row-bg);
 }
 
 .lucky7-market-row.is-wrap {
@@ -271,8 +266,8 @@
   justify-content: center;
   min-height: 26px;
   margin-bottom: 4px;
-  color: #243a48;
-  font-size: 11px;
+  color: var(--runner-text);
+  font-size: 12px;
   font-weight: 700;
   line-height: 1.15;
   text-align: center;
@@ -286,11 +281,17 @@
   padding: 4px 2px;
   border: none;
   border-radius: 5px;
-  background: rgba(114, 187, 239, 0.5);
-  box-shadow: 0 2px 7px 1px #67828be6;
-  color: #111;
+  background: var(--back-1);
+  box-shadow: 0 2px 7px 1px rgba(103, 130, 139, 0.9);
+  color: var(--runner-text);
   text-align: center;
-  font-weight: 600;
+  font-weight: 700;
+}
+
+.lucky7-runner-box:active,
+.lucky7-runner-box.is-active {
+  background: var(--back-1-active);
+  color: var(--back-1-active-text);
 }
 
 .lucky7-runner-odds {
