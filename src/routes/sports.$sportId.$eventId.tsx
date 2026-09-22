@@ -381,7 +381,15 @@ function EventPage() {
   const matchOdds = allMatchOdds.filter((m) => !isLineMarket(m));
   const lines = allMatchOdds.filter(isLineMarket);
   const bookmakers = data?.bookmakers ?? [];
-  const fancy = data?.fancy ?? [];
+  // Finished sessions (the over already bowled, market settled/void) are
+  // removed from the board, exactly like the reference book does.
+  const fancy = (data?.fancy ?? []).filter((m) => {
+    const raw = String(m.oddsData?.status ?? "").toUpperCase();
+    if (/CLOSE|SETTLE|RESULT|REMOVED/.test(raw)) return false;
+    const extra = m as unknown as { isSettlement?: number; isVoid?: number; isClosed?: number };
+    return !extra.isSettlement && !extra.isVoid && !extra.isClosed;
+  });
+
   const sportsbook = data?.sportsbook ?? [];
 
   // Every feed tick: if the upstream marks a runner WINNER / LOSER, settle
