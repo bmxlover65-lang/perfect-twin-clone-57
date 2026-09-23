@@ -1690,29 +1690,28 @@ function CardRacePanel({
                     key={`${r.selectionId}-${i}`}
                     className={`flex items-stretch ${i ? "border-t border-casino-market-divider" : ""}`}
                   >
-                    <div className="flex min-h-[42px] flex-1 items-center px-2 py-1">
+                    <div className="flex min-h-[52px] flex-1 items-center px-3 py-1">
                       <Label text={label} />
                     </div>
-                    <div className="flex w-[134px] items-center justify-center p-1">
-                      <div
-                        {...(open && r.price?.back?.[0]?.price
-                          ? {
-                              "data-market-plate": "",
-                              "data-market-option": "",
-                              "data-bet-label": String(label).toUpperCase(),
-                              "data-bet-odds": String(r.price.back[0]!.price),
-                            }
-                          : {})}
-                        className={`flex h-[38px] w-full flex-col items-center justify-center rounded-[5px] leading-none ${open ? "cursor-pointer bg-casino-market-rate" : "bg-casino-market-rate/55"}`}
-                      >
-                        <span className="text-[0.95rem] font-bold text-[#12314e]">
-                          {fmtOdds(r.price?.back?.[0]?.price)}
-                        </span>
-                        <span className="text-[0.68rem] text-[#4a6c8c]">
-                          {r.price?.back?.[0]?.size ?? ""}
-                        </span>
-                      </div>
+                    <div
+                      {...(open && r.price?.back?.[0]?.price
+                        ? {
+                            "data-market-plate": "",
+                            "data-market-option": "",
+                            "data-bet-label": String(label).toUpperCase(),
+                            "data-bet-odds": String(r.price.back[0]!.price),
+                          }
+                        : {})}
+                      className={`flex w-[92px] shrink-0 flex-col items-center justify-center gap-[2px] leading-none ${open ? "cursor-pointer bg-casino-market-rate" : "bg-casino-market-rate/70"}`}
+                    >
+                      <span className="text-[1.05rem] font-bold text-[#5b7f9c]">
+                        {fmtOdds(r.price?.back?.[0]?.price)}
+                      </span>
+                      <span className="text-[0.7rem] text-[#7d99ae]">
+                        {r.price?.back?.[0]?.size ?? ""}
+                      </span>
                     </div>
+
                   </div>
                 );
               })}
