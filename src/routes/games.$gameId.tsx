@@ -1465,7 +1465,11 @@ function AndarBaharPanel({
                 <span className="text-foreground">♠</span><span className="text-card-red">♥</span>
                 <span className="text-foreground">♣</span><span className="text-card-red">♦</span>
               </span>
-              {!r.open ? <LockKeyhole className="absolute h-5 w-5 text-board-header-foreground" strokeWidth={3} /> : null}
+              {!r.open ? (
+                <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-baccarat-lock text-board-header-foreground">
+                  <LockKeyhole className="h-4 w-4" strokeWidth={3} />
+                </span>
+              ) : null}
             </span>
             <span className="mt-0.5 text-[0.58rem] font-normal leading-none text-foreground">0</span>
           </button>
