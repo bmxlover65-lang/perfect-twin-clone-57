@@ -1688,7 +1688,8 @@ function CardRacePanel({
                 return (
                   <div
                     key={`${r.selectionId}-${i}`}
-                    className={`flex items-stretch ${i ? "border-t border-casino-market-divider" : ""}`}
+                    className={`flex items-stretch bg-white ${i ? "border-t border-casino-market-divider" : ""}`}
+
                   >
                     <div className="flex min-h-[52px] flex-1 items-center px-3 py-1">
                       <Label text={label} />
