@@ -318,6 +318,7 @@ function BaccaratPanel({
     const chipProps = chipBet
       ? {
           "data-market-option": "",
+          "data-nobet": "",
           onClick: () => {
             if (r.open && r.price) chipBet.bet(r.label, r.price);
           },
