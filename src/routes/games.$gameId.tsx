@@ -762,6 +762,13 @@ function refBadge(raw: string, game: string): { letter: string; tone: "high" | "
   if (game === "99.0019") {
     return /DRAGON|^D/.test(l) ? { letter: "D", tone: "high" } : /TIGER/.test(l) || l === "T" ? { letter: "T", tone: "low" } : { letter: "T", tone: "tie" };
   }
+  if (game === "99.0022") {
+    const n = l.match(/\d+/)?.[0] ?? "?";
+    return { letter: n, tone: ("c" + n) as "tie" };
+  }
+  if (game === "99.0001") {
+    return /TIE|^T$/.test(l) ? { letter: "T", tone: "tie" } : /BANKER|^B$/.test(l) ? { letter: "B", tone: "low" } : { letter: "P", tone: "high" };
+  }
   return /\bB\b|\(\s*B\s*\)|PLAYER B|^B$/.test(l)
     ? { letter: "B", tone: "low" }
     : /\bA\b|\(\s*A\s*\)|PLAYER A|^A$/.test(l)
@@ -784,7 +791,7 @@ function Lucky7Recent({ results, game = "99.0030" }: { results: CasinoResult[]; 
               <button
                 type="button"
                 data-nobet=""
-                className={`lucky7-result-chip${tone === "low" ? " is-low" : tone === "tie" ? " is-tie" : ""}`}
+                className={`lucky7-result-chip${tone === "low" ? " is-low" : tone === "tie" ? " is-tie" : tone === "high" ? "" : ` is-${tone}`}`}
               >
                 {first}
               </button>
@@ -1027,6 +1034,75 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
 }
 
 /** Joker Teen Patti reference board: compact white runner rows with one blue Back price. */
+
+/** Dukex list-layout market (1 Day TP / Joker TP / 32 Cards). */
+function RefListMarket({
+  market,
+  suspended,
+  minMax = false,
+  backOnly,
+}: {
+  market: CasinoMarket;
+  suspended: boolean;
+  minMax?: boolean;
+  backOnly?: boolean;
+}) {
+  const names = market.runnersName ?? {};
+  const runners = market.runners ?? [];
+  const hasLay = backOnly === undefined ? runners.some((r) => Boolean(r.price?.lay?.[0]?.price)) || minMax : !backOnly;
+  const cols = hasLay ? "minmax(0,1fr) 78px 78px" : backOnly && !minMax && runners.length <= 2 ? "minmax(0,1fr) 90px" : "minmax(0,1fr) 156px";
+  const locked =
+    suspended || (runners.length > 0 && runners.every((r) => !isOpenStatus(r.status ?? "ONLINE")));
+  return (
+    <section className="reflist-market">
+      <header className="reflist-header">
+        <span>{market.marketName}</span>
+        <span className="reflist-info">i</span>
+      </header>
+      {minMax ? (
+        <div className="reflist-row is-head" style={{ gridTemplateColumns: cols }}>
+          <div className="reflist-minmax">
+            <span>Min/Max {Math.max(100, market.min ?? 0)} - {market.max ?? 500000}</span>
+          </div>
+          <span className="reflist-colhead">Back</span>
+          <span className="reflist-colhead is-lay">Lay</span>
+        </div>
+      ) : null}
+      <div className="reflist-body">
+        {runners.map((runner) => {
+          const label = names[String(runner.selectionId)] ?? String(runner.selectionId);
+          const open = !locked && isOpenStatus(runner.status ?? "ONLINE");
+          const cell = (side: "back" | "lay") => {
+            const point = side === "back" ? runner.price?.back?.[0] : runner.price?.lay?.[0];
+            return (
+              <button
+                type="button"
+                data-market-option=""
+                data-market-plate=""
+                data-bet-label={label}
+                data-bet-odds={point?.price ?? ""}
+                disabled={!open || !point?.price}
+                className={`reflist-cell${side === "lay" ? " is-lay" : ""}`}
+              >
+                <span className="reflist-odds">{fmtOdds(point?.price)}</span>
+                <span className="reflist-size">{point?.size == null ? "" : String(Math.round(point.size))}</span>
+              </button>
+            );
+          };
+          return (
+            <div key={String(runner.selectionId)} data-runner-row="" className="reflist-row" style={{ gridTemplateColumns: cols }}>
+              <span data-runner-name="" className="reflist-name"><span>{label}</span></span>
+              {cell("back")}
+              {hasLay ? cell("lay") : null}
+            </div>
+          );
+        })}
+        {locked ? <div data-suspended="" className="reflist-suspended">SUSPENDED</div> : null}
+      </div>
+    </section>
+  );
+}
+
 function JokerTeenPattiBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
@@ -3916,7 +3992,7 @@ function GamePage() {
         ) : gameId === "99.0001" && markets.length ? (
           <BaccaratPanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0022" && markets.length ? (
-          <Cards32Panel markets={markets} suspended={suspended} />
+          <div className="reflist">{[...markets].sort((a, b) => { const o = ["WINNER", "CARD COLOR", "CARD TOTAL", "LUCKY NUMBER"]; const ai = o.indexOf((a.marketName ?? "").trim().toUpperCase()); const bi = o.indexOf((b.marketName ?? "").trim().toUpperCase()); return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi); }).map((m, i) => <RefListMarket key={`${m.marketId}-${i}`} market={m} suspended={suspended} />)}</div>
         ) : gameId === "99.0007" && markets.length ? (
           <PokerPanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0046" && markets.length ? (
@@ -3931,13 +4007,13 @@ function GamePage() {
             ))}
           </div>
         ) : gameId === "99.0013" && markets.length ? (
-          markets.map((m, i) => (
-            <OneDayTeenPattiBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
-          ))
+          <div className="reflist">{markets.map((m, i) => (
+            <RefListMarket key={`${m.marketId}-${i}`} market={m} suspended={suspended} minMax />
+          ))}</div>
         ) : gameId === "99.0016" && markets.length ? (
-          markets.map((m, i) => (
-            <JokerTeenPattiBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
-          ))
+          <div className="reflist">{markets.map((m, i) => (
+            <RefListMarket key={`${m.marketId}-${i}`} market={m} suspended={suspended} backOnly />
+          ))}</div>
         ) : (
           markets.map((m, i) => (
             <MarketBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
@@ -3946,7 +4022,7 @@ function GamePage() {
         </Fit>
         </ChipBetProvider>
         {/* Recent Result sits flush under the last market, like the original. */}
-        {["99.0030", "99.0010", "99.0019"].includes(gameId) ? (
+        {["99.0030", "99.0010", "99.0019", "99.0013", "99.0016", "99.0001", "99.0022"].includes(gameId) ? (
           <Lucky7Recent results={results} game={gameId} />
         ) : (
           <RecentStrip results={results} oneDay={gameId === "99.0013"} joker={gameId === "99.0016"} dragonTiger={gameId === "99.0019"} baccarat={gameId === "99.0001"} cards32={gameId === "99.0022"} />
