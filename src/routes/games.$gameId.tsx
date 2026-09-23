@@ -3858,7 +3858,7 @@ function RecentStrip({
             dragonTiger && isTie
               ? "bg-[#F6D743] text-black"
               : baccarat && isTie
-                ? "bg-baccarat-green text-board-header-foreground"
+                ? "bg-[#F6D743] text-black"
               : isNum && playerMatch
               ? (PLAYER32_TONE[w] ?? "bg-[#E67E22] text-white")
               : isNum
@@ -3921,7 +3921,7 @@ function RecentStrip({
                    : "h-7 min-w-7 px-1.5 text-[0.75rem]"
               } ${finalTone}`}
             >
-              {dragonTiger && isTie ? "Tie" : first || "-"}
+              {(dragonTiger || baccarat) && isTie ? "Tie" : first || "-"}
             </span>
           );
 
