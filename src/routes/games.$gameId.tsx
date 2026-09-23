@@ -1628,7 +1628,6 @@ function AndarBaharPanel({
           </button>
         ))}
       </div>
-      {suspended ? <SuspendVeil /> : null}
     </div>
   );
 }
