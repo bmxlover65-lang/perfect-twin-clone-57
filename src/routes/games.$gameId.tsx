@@ -666,7 +666,7 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
         </div>
         {suspended ? (
           <div className="lucky7-suspended" aria-hidden="true">
-            SUSPENDED
+            SUSPEND
           </div>
         ) : null}
       </div>
