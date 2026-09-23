@@ -5,6 +5,7 @@ manual result override only for **self-generated games** (Balloon, Dream Catcher
 Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 
 ## Phase 1 — Betting UI everywhere (in progress)
+- [ ] Re-test casino betting after the Live TV player upgrade, including click, stake placement and result settlement
 - [x] Shared wallet + bet book (`src/lib/wallet.ts`)
 - [x] Reference-style bet slip: odds/stake steppers, chip grid, Cancel/Place Bet
 - [x] Error toasts: "You have Insufficient Balance.", "Do Not Place Bet At The Same Time."
@@ -44,6 +45,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Public API smoke-tested: balance / bet (idempotent) / bets, invalid key + wallet decline paths
 
 ## Phase 5 — Original table parity (in progress)
+- [x] Casino Live TV: branded loading state, connection status, retry, sound and fullscreen controls
 - [ ] Compare all 21 casino games against universeapi.shop at mobile width
 - [x] Ball by Ball: four-minute mobile reference audit; matched 20-second timer, live rate cadence, 64px boxes, shine, transparent locked state, cricket-ball result, disclaimer and circular history
 - [x] Ball by Ball: fix live bet placement after the reference-style bet-slip update
