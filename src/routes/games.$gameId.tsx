@@ -1595,8 +1595,8 @@ function AndarBaharPanel({
         })}
       </div>
 
-      <div className="flex flex-wrap justify-center gap-x-1.5 gap-y-2 px-4 py-2">
-        <p className="w-full text-center text-[0.95rem] leading-none text-foreground">{fmtOdds(cards[0]?.price)}</p>
+      <div className="flex flex-wrap justify-center gap-x-2 gap-y-2 px-3 py-2">
+        <p className="w-full text-center text-[1.1rem] font-semibold leading-none text-foreground">{fmtOdds(cards[0]?.price)}</p>
         {cards.map((r) => (
           <button
             type="button"
@@ -1606,15 +1606,15 @@ function AndarBaharPanel({
             data-bet-label={r.label}
             data-bet-odds={String(r.price ?? "")}
             disabled={!r.open}
-            className="relative flex w-[30px] flex-col items-center text-center"
+            className="relative flex w-[38px] flex-col items-center text-center"
           >
             <span
-              className={`relative flex h-[45px] w-[30px] flex-col items-center justify-center overflow-hidden rounded-[1px] border border-live-badge ${r.open ? "bg-background" : "bg-foreground/70"}`}
+              className={`relative flex h-[54px] w-[38px] flex-col items-center justify-center overflow-hidden rounded-[4px] border-2 border-[#F2D84B] ${r.open ? "bg-background" : "bg-background/60"}`}
             >
-              <span className="text-[1.08rem] font-extrabold leading-none text-foreground">
+              <span className={`text-[1.2rem] font-extrabold leading-none text-foreground ${r.open ? "" : "opacity-50"}`}>
                 {r.label}
               </span>
-              <span className="mt-0.5 grid grid-cols-2 gap-x-0.5 text-[0.62rem] leading-[0.7]">
+              <span className={`mt-0.5 grid grid-cols-2 gap-x-0.5 text-[0.66rem] leading-[0.75] ${r.open ? "" : "opacity-50"}`}>
                 <span className="text-foreground">♠</span><span className="text-card-red">♥</span>
                 <span className="text-foreground">♣</span><span className="text-card-red">♦</span>
               </span>
@@ -1624,7 +1624,7 @@ function AndarBaharPanel({
                 </span>
               ) : null}
             </span>
-            <span className="mt-0.5 text-[0.58rem] font-normal leading-none text-foreground">0</span>
+            <span className="mt-0.5 text-[0.72rem] font-normal leading-none text-foreground">0</span>
           </button>
         ))}
       </div>
