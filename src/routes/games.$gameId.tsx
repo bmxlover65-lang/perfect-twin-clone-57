@@ -1515,7 +1515,7 @@ function DT20Panel({
           ? ["♥", "♦"]
           : [];
     return (
-      <span className="inline-flex items-center gap-[3px] text-[0.85rem] font-bold uppercase text-[#6E88A0]">
+      <span className="inline-flex items-center gap-[3px] text-[0.85rem] font-bold uppercase text-[#1b2c3d]">
         {base}
         <span className="ml-[2px] flex gap-[3px]">
           <Suits list={suits} />
@@ -1567,7 +1567,7 @@ function DT20Panel({
                   >
                     <span className="text-[0.9rem] font-bold text-[#111]">{fmtOdds(price)}</span>
                     <span className="text-[0.72rem] text-[#111]">
-                      {fmtSize(r.price?.back?.[0]?.size)}
+                      {fmtInt(r.price?.back?.[0]?.size)}
                     </span>
                   </div>
                 </div>
