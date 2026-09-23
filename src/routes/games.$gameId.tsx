@@ -3166,7 +3166,7 @@ function GamePage() {
     } finally {
       inFlight.current = false;
     }
-  }, [gameId]);
+  }, [gameId, cacheKey]);
 
   useEffect(() => {
     void load();
