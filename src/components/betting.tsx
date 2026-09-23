@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { BET_ERR, placeBet, readWallet, useWallet, type Bet } from "@/lib/wallet";
 import { playerSession } from "@/lib/player";
 import { useEmbed } from "@/lib/embed";
+import { Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export type Pick = { label: string; odds: number };
 type ExtractedPick = Pick & { element: HTMLElement };
@@ -342,6 +344,8 @@ export function BetLayer({
   const [stake, setStake] = useState(DEFAULT_STAKE);
   const [err, setErr] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [quickBet, setQuickBet] = useState(false);
+  const [quickStake, setQuickStake] = useState(() => readLastStake());
   // Reference-style liability/profit figures shown directly below the market plates.
   const [chips, setChips] = useState<{
     id: number;
@@ -483,6 +487,41 @@ export function BetLayer({
     openedPlate.current?.style.removeProperty("margin-bottom");
     openedPlate.current = null;
     setPick(null);
+  };
+
+  const submitQuickBet = (selection: Pick) => {
+    if (busy.current) {
+      setErr("Do Not Place Bet At The Same Time.");
+      return;
+    }
+    if (quickStake < 100) {
+      setErr("Minimum bet is 100.");
+      return;
+    }
+    if (!playerSession() && quickStake > readWallet().balance) {
+      setErr("You have Insufficient Balance.");
+      return;
+    }
+    busy.current = true;
+    saveLastStake(quickStake);
+    const placed = placeBet({
+      gameId,
+      gameName,
+      round,
+      label: selection.label,
+      odds: selection.odds,
+      stake: quickStake,
+    });
+    window.setTimeout(() => {
+      busy.current = false;
+    }, 600);
+    if (!placed) {
+      setErr("You have Insufficient Balance.");
+      return;
+    }
+    setSuccess(
+      `Bet Placed · ${selection.label} @ ${selection.odds} · ${Math.round(quickStake)}`,
+    );
   };
 
   // Ball by Ball and Heads & Tails use two-column grids. Expanding the clicked
@@ -640,6 +679,10 @@ export function BetLayer({
         const target = e.target as HTMLElement;
         const p = extractPick(target, root);
         if (p) {
+          if (quickBet) {
+            submitQuickBet(p);
+            return;
+          }
           const rootBox = root.getBoundingClientRect();
           // Mobile boards are scaled down with a transform: rect coords are visual
           // pixels, but absolutely-positioned chips use unscaled layout units.
@@ -729,6 +772,40 @@ export function BetLayer({
         }
       }}
     >
+      <div data-nobet="" className="flex items-center gap-1.5 overflow-x-auto bg-code-surface px-2 py-2">
+        <Button
+          type="button"
+          size="sm"
+          variant={quickBet ? "destructive" : "secondary"}
+          aria-pressed={quickBet}
+          onClick={() => setQuickBet((value) => !value)}
+          className="h-9 shrink-0 px-2.5 text-[0.7rem] font-extrabold uppercase"
+        >
+          <Zap className="h-3.5 w-3.5" /> Quick Bet
+        </Button>
+        {SLIP_CHIPS.map((value) => (
+          <Button
+            key={value}
+            type="button"
+            size="sm"
+            variant="secondary"
+            aria-label={`Select ${value} stake`}
+            aria-pressed={quickStake === value}
+            onClick={() => {
+              setQuickStake(value);
+              setStake(value);
+              saveLastStake(value);
+            }}
+            className={`h-9 min-w-[54px] shrink-0 px-2 text-[0.72rem] font-extrabold ${
+              quickStake === value
+                ? "ring-2 ring-destructive ring-offset-1 ring-offset-code-surface"
+                : ""
+            }`}
+          >
+            {value >= 1000 ? `${value / 1000}k` : value}
+          </Button>
+        ))}
+      </div>
       {children}
 
       {(() => {
@@ -842,7 +919,7 @@ export function BetLayer({
               </div>
             )}
 
-            <div className="px-1 pb-2 pt-2">
+            <div className="px-2 pb-2 pt-2">
               <div className="grid grid-cols-2 gap-1.5">
                 <Stepper value={odds} onChange={setOdds} step={0.01} decimals={2} />
                 <Stepper value={stake} onChange={setStake} step={100} decimals={0} editable min={100} />
@@ -857,9 +934,9 @@ export function BetLayer({
                       setStake(c);
                       saveLastStake(c);
                     }}
-                    className={`h-[31px] rounded-[4px] border text-[0.88rem] font-medium active:bg-[#eef4f8] ${
+                    className={`h-[31px] rounded-[4px] border text-[0.88rem] font-bold active:bg-[#eef4f8] ${
                       Math.round(stake) === c
-                        ? "border-[#2f7fbe] bg-[#2f7fbe] text-white"
+                        ? "border-destructive bg-destructive text-destructive-foreground ring-2 ring-destructive/35"
                         : "border-[#c3d3de] bg-white text-[#1d2c36]"
                     }`}
                   >

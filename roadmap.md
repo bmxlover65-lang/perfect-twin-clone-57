@@ -5,7 +5,8 @@ manual result override only for **self-generated games** (Balloon, Dream Catcher
 Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 
 ## Phase 1 — Betting UI everywhere (in progress)
-- [ ] Re-test casino betting after the Live TV player upgrade, including click, stake placement and result settlement
+- [x] Re-test casino betting after the Live TV player upgrade, including click and stake placement
+- [x] Add one-tap Quick Bet with selected stake chips while preserving the normal bet slip
 - [x] Shared wallet + bet book (`src/lib/wallet.ts`)
 - [x] Reference-style bet slip: odds/stake steppers, chip grid, Cancel/Place Bet
 - [x] Error toasts: "You have Insufficient Balance.", "Do Not Place Bet At The Same Time."
