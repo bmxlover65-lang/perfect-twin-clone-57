@@ -3565,6 +3565,7 @@ function GamePage() {
           ))
         )}
         </Fit>
+        </ChipBetProvider>
         {/* Recent Result sits flush under the last market, like the original. */}
         {gameId === "99.0030" ? (
           <Lucky7Recent results={results} />
