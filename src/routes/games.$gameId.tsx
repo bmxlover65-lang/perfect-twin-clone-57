@@ -1815,6 +1815,9 @@ function AAAPanel({
                 </div>
               );
             })}
+            {(winner.runners ?? []).every((r) => suspended || !isOpenStatus(r.status)) ? (
+              <SuspendVeil size="sm" />
+            ) : null}
           </div>
         </div>
       ) : null}
