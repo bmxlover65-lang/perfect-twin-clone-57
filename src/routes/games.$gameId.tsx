@@ -2203,7 +2203,8 @@ const BACCARAT_CHIPS: { v: string; src: string }[] = [
 ];
 
 function BaccaratChipRow() {
-  const [sel, setSel] = useState("1k");
+  const cb = useChipBet();
+  const sel = cb?.chip ?? "1k";
   return (
     <div className="mt-10 flex h-[58px] flex-nowrap items-center gap-1 overflow-x-auto px-1">
       {BACCARAT_CHIPS.map((chip) => (
@@ -2211,8 +2212,9 @@ function BaccaratChipRow() {
           key={chip.v}
           type="button"
           aria-label={`${chip.v} chip`}
-          onClick={() => setSel(chip.v)}
-          className={`relative flex h-[49px] w-[49px] shrink-0 items-center justify-center rounded-full transition-transform ${sel === chip.v ? "scale-105" : ""}`}
+          data-nobet=""
+          onClick={() => cb?.select(chip.v)}
+          className={`relative flex h-[49px] w-[49px] shrink-0 items-center justify-center rounded-full transition-transform ${sel === chip.v ? "scale-110 ring-2 ring-[#FFD24A]" : ""}`}
         >
           <img src={chip.src} alt="" className="absolute inset-0 h-full w-full object-contain" draggable={false} />
           <span className="relative z-10 text-[0.68rem] font-medium text-casino-market-text">{chip.v}</span>
@@ -2223,7 +2225,8 @@ function BaccaratChipRow() {
 }
 
 function ChipRow() {
-  const [sel, setSel] = useState("100");
+  const cb = useChipBet();
+  const sel = cb?.chip ?? "100";
   return (
     <div className="mt-3 flex flex-nowrap items-center gap-2 overflow-x-auto rounded-b-[6px] bg-[#1F1F1F] px-2 py-2 sm:gap-3 sm:px-3">
       {PANEL_CHIPS.map((c) => {
@@ -2232,7 +2235,8 @@ function ChipRow() {
           <button
             key={c.v}
             type="button"
-            onClick={() => setSel(c.v)}
+            data-nobet=""
+            onClick={() => cb?.select(c.v)}
             className="relative inline-flex shrink-0 flex-col items-center gap-1"
           >
             <span
