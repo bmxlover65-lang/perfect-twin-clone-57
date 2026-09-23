@@ -175,7 +175,7 @@ function OneDayCards({ hand, title }: { hand: Record<string, string>; title: str
         {codes.map((code, index) =>
           sideThird && index === 2 ? (
             <span key={`${code}-${index}`} className="flex h-[31px] w-[31px] items-center justify-center">
-              <span className="rotate-90"><Card code={code} /></span>
+              <span className="flex rotate-90"><Card code={code} /></span>
             </span>
           ) : (
             <Card key={`${code}-${index}`} code={code} />
