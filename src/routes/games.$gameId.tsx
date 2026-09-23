@@ -3262,6 +3262,17 @@ function GamePage() {
   }, [gameId, roundKey, feedStatus]);
 
 
+  // The declared result is the earliest signal that the table has moved on.
+  // Pull a fresh live frame right away plus a short burst, so the next round's
+  // open plates appear the moment the result feed ticks over.
+  const latestResultRound = String(results[0]?.roundId ?? "");
+  useEffect(() => {
+    if (!latestResultRound) return;
+    void load();
+    const burst = [150, 400, 800, 1500, 2500].map((ms) => setTimeout(() => void load(), ms));
+    return () => burst.forEach(clearTimeout);
+  }, [latestResultRound, load]);
+
   // Settlement is handled by the shared result feed above.
 
 
