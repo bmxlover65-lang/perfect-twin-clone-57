@@ -5,6 +5,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -108,6 +109,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 import WinCelebration from "@/components/WinCelebration";
+import { useWallet } from "@/lib/wallet";
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
@@ -228,14 +230,44 @@ function SiteHeader() {
   );
 }
 
+/** Dukex-style in-game bar, phone view only on casino game pages. */
+function GameTopBar() {
+  const w = useWallet();
+  const exposure = w.bets.filter((b) => b.status === "open").reduce((t, b) => t + b.stake, 0);
+  const fmt = (n: number) => n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const btn = "flex h-[36px] w-[36px] items-center justify-center rounded-[4px] border border-[#555] bg-[#2b2b2b] text-white";
+  return (
+    <header className="sticky top-0 z-40 flex h-[56px] items-center gap-2 bg-[#1e1e1e] px-1.5 font-[Tahoma,Helvetica,Arial,sans-serif] text-white sm:hidden">
+      <Link to="/casino-docs" className="flex h-[36px] items-center rounded-[4px] border border-[#555] bg-[#2b2b2b] px-3 text-[0.72rem] font-bold">Rules</Link>
+      <Link to="/" className="flex h-[36px] flex-col items-center justify-center rounded-[4px] bg-gradient-to-b from-[#7ed957] to-[#3fa31f] px-3 text-center text-[0.68rem] font-bold leading-[1.15] text-[#111]">GAMING<br />LOBBY</Link>
+      <div className="ml-auto text-right text-[0.74rem] font-bold leading-[1.45]">
+        <div>Main PTI {fmt(w.balance)}</div>
+        <div>Exposure (<span className="text-[#ff2020]">{fmt(exposure)}</span>)</div>
+      </div>
+      <button type="button" aria-label="Refresh" onClick={() => window.location.reload()} className={btn}>
+        <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M4 12a8 8 0 1 0 2.5-5.8" /><path d="M4 4v4h4" /></svg>
+      </button>
+      <Link to="/my-bets" aria-label="Bet history" className={btn}>
+        <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M4 12a8 8 0 1 0 2.5-5.8" /><path d="M4 4v4h4" /><path d="M12 8v4l3 2" /></svg>
+      </Link>
+    </header>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const embed = useEmbed();
+  const onGame = useRouterState({ select: (st) => st.location.pathname.startsWith("/games/") });
 
   return (
     <QueryClientProvider client={queryClient}>
       <div className={embed ? "min-h-dvh bg-table-felt" : "min-h-screen bg-background"}>
-        {embed ? null : <SiteHeader />}
+        {embed ? null : onGame ? (
+          <>
+            <GameTopBar />
+            <div className="hidden sm:block"><SiteHeader /></div>
+          </>
+        ) : <SiteHeader />}
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
         <WinCelebration />
