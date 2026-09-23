@@ -1674,53 +1674,43 @@ function AndarBaharPanel({
   const cards = list(byName("LUCKY CARD"));
   const minmax = byName("WINNER");
 
-  const Chip = ({ r, kind }: { r: ABRunner; kind: "side" | "bet1" | "bet2" }) => (
-    <button
-      type="button"
-      data-market-option=""
-      data-market-plate=""
-      data-bet-label={r.label}
-      data-bet-odds={String(r.price ?? "")}
-      disabled={!r.open}
-      className={`relative flex h-[58px] min-w-0 flex-col items-center justify-center overflow-hidden rounded-[10px] border-[3px] border-[#F2D84B] leading-none ${
-        r.open
-          ? kind === "side"
-            ? "bg-[#F2F2F2] text-[#1e293b]"
-            : kind === "bet1"
-              ? "bg-[#2E7BD1] text-white"
-              : "bg-[#16324A] text-white"
-          : "bg-[#16324A] text-white/60"
-      }`}
-    >
-      <span className="whitespace-nowrap text-[0.78rem] font-bold uppercase">{r.label}</span>
-      <span className="mt-1.5 text-[1.15rem] font-extrabold">{fmtOdds(r.price)}</span>
-      {!r.open ? (
-        <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center text-white">
-          <LockKeyhole className="h-6 w-6" strokeWidth={2.5} />
-        </span>
-      ) : null}
-    </button>
+  const Lock = ({ size = 22 }: { size?: number }) => (
+    <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center text-white">
+      <svg viewBox="0 0 24 24" style={{ width: size, height: size }} fill="currentColor" aria-hidden="true">
+        <path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5Zm-3 8V7a3 3 0 1 1 6 0v3H9Z" />
+      </svg>
+    </span>
   );
+  const PL = () => <div className="flex h-[17px] items-center justify-center text-[11px] font-semibold text-[#243a48]">0</div>;
+  const plate = (r: ABRunner) => ({
+    type: "button" as const,
+    "data-market-option": "",
+    "data-market-plate": "",
+    "data-bet-label": r.label,
+    "data-bet-odds": String(r.price ?? ""),
+    disabled: !r.open,
+  });
 
-  const Bar = ({ r }: { r: ABRunner }) => (
-    <button
-      type="button"
-      data-market-option=""
-      data-market-plate=""
-      data-bet-label={r.label}
-      data-bet-odds={String(r.price ?? "")}
-      disabled={!r.open}
-      className={`relative flex h-[55px] w-full items-center justify-center overflow-hidden rounded-[10px] text-[1.35rem] font-extrabold ${
-        r.open ? "bg-[#8FC4F8] text-[#111]" : "bg-[#16324A] text-white/60"
-      }`}
-    >
-      {fmtOdds(r.price)}
-      {!r.open ? (
-        <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center text-white">
-          <LockKeyhole className="h-6 w-6" strokeWidth={2.5} />
-        </span>
-      ) : null}
-    </button>
+  const Chip = ({ r, kind }: { r: ABRunner; kind: "side" | "bet1" | "bet2" }) => (
+    <div className="min-w-0">
+      <button
+        {...plate(r)}
+        className={`relative flex h-[52px] w-full flex-col items-center justify-center overflow-hidden rounded-[6px] border-[4px] border-[#fff153] font-bold leading-none ${
+          r.open
+            ? kind === "side"
+              ? "bg-[#ececec] text-[#243a48]"
+              : kind === "bet1"
+                ? "bg-[#2d6fa8] text-white"
+                : "bg-[#243240] text-white"
+            : "bg-[#243240] text-white"
+        }`}
+      >
+        <span className={`whitespace-nowrap text-[9px] font-bold uppercase ${r.open ? "" : "opacity-30"}`}>{r.label}</span>
+        <span className={`mt-[3px] text-[16px] font-bold ${r.open ? "" : "opacity-0"}`}>{fmtOdds(r.price)}</span>
+        {!r.open ? <Lock /> : null}
+      </button>
+      <PL />
+    </div>
   );
 
   const suitGlyph: Record<string, { s: string; red: boolean }> = {
@@ -1735,121 +1725,96 @@ function AndarBaharPanel({
     const b1 = winner.find((r) => r.label.toUpperCase().startsWith("1ST") && r.label.endsWith(letter));
     const b2 = winner.find((r) => r.label.toUpperCase().startsWith("2ST") && r.label.endsWith(letter));
     return (
-      <div className="grid grid-cols-[18px_repeat(3,minmax(0,1fr))_18px] items-start gap-1.5">
-        <span className="pt-4 text-[1.05rem] font-normal text-foreground">{letter}</span>
-        {s ? (
-          <div>
-            <Chip r={s} kind="side" />
-            <p className="mt-1 text-center text-[0.72rem] leading-none text-foreground">0</p>
-          </div>
-        ) : null}
-        {b1 ? (
-          <div>
-            <Chip r={b1} kind="bet1" />
-            <p className="mt-1 text-center text-[0.72rem] leading-none text-foreground">0</p>
-          </div>
-        ) : null}
-        {b2 ? (
-          <div>
-            <Chip r={b2} kind="bet2" />
-            <p className="mt-1 text-center text-[0.72rem] leading-none text-foreground">0</p>
-          </div>
-        ) : null}
-        <span className="pt-4 text-right text-[1.05rem] font-normal text-foreground">{letter}</span>
+      <div className="grid h-[72px] grid-cols-[18px_repeat(3,minmax(0,1fr))_18px] gap-x-[3px]">
+        <span className="flex h-[52px] items-center justify-center text-[13px] font-bold text-[#243a48]">{letter}</span>
+        {s ? <Chip r={s} kind="side" /> : <div />}
+        {b1 ? <Chip r={b1} kind="bet1" /> : <div />}
+        {b2 ? <Chip r={b2} kind="bet2" /> : <div />}
+        <span className="flex h-[52px] items-center justify-center text-[13px] font-bold text-[#243a48]">{letter}</span>
       </div>
     );
   };
 
   return (
-    <div className="relative mt-0 bg-muted text-foreground">
+    <div className="relative mt-0 bg-[#e0e0e0] p-[2px] pt-[4px] font-[Tahoma,Helvetica,Arial,sans-serif] text-[12px] text-[#243a48]">
       <span className="sr-only">Min/Max: {Math.max(100, minmax?.min ?? 0)} - {minmax?.max ?? 0}</span>
-      <div className="space-y-2 px-2 py-2">
+      <div className="space-y-[2px]">
         {group("A")}
         {group("B")}
       </div>
 
-      <div className="mt-1 grid grid-cols-2 gap-3 px-3 py-2">
+      <div className="mt-[8px] grid grid-cols-2 gap-x-[4px]">
         {["ODD", "EVEN"].map((n) => {
           const r = oddEven.find((x) => x.label.toUpperCase() === n);
           if (!r) return <div key={n} />;
           return (
             <div key={n}>
-              <p className="mb-1.5 text-center text-[1.12rem] font-extrabold text-foreground">{n}</p>
-              <Bar r={r} />
-              <p className="mt-1 text-center text-[0.72rem] leading-none text-foreground">0</p>
+              <p className="flex h-[18px] items-center justify-center text-[12px] font-bold text-[#111]">{n}</p>
+              <button
+                {...plate(r)}
+                className={`relative mt-[4px] flex h-[48px] w-full items-center justify-center overflow-hidden rounded-[6px] border border-[#5a9fd4] text-[16px] font-bold ${
+                  r.open ? "bg-[#72bbef] text-[#111]" : "bg-[#243240] text-white"
+                }`}
+              >
+                <span className={r.open ? "" : "opacity-0"}>{fmtOdds(r.price)}</span>
+                {!r.open ? <Lock /> : null}
+              </button>
+              <PL />
             </div>
           );
         })}
       </div>
 
-      <div className="grid grid-cols-4 gap-2.5 px-3 py-2.5">
+      <div className="mt-[4px] grid grid-cols-4 gap-x-[4px]">
         {suits.map((r) => {
           const g = suitGlyph[r.label.toUpperCase()] ?? { s: "?", red: false };
           return (
             <div key={r.id}>
-              <p
-                className={`mb-1.5 text-center text-[1.6rem] leading-none ${
-                  g.red ? "text-card-red" : "text-foreground"
-                }`}
-              >
+              <p className={`flex h-[22px] items-center justify-center text-[22px] leading-none ${g.red ? "text-[#e11d2e]" : "text-[#111]"}`}>
                 {g.s}
               </p>
               <button
-                type="button"
-                data-market-option=""
-                data-market-plate=""
-                data-bet-label={r.label}
-                data-bet-odds={String(r.price ?? "")}
-                disabled={!r.open}
-                className={`relative flex h-[58px] w-full items-center justify-center overflow-hidden rounded-[10px] border-[3px] border-[#F2D84B] text-[1.15rem] font-extrabold ${
-                  r.open ? "bg-[#F2F2F2] text-[#1e293b]" : "bg-[#16324A] text-white/60"
+                {...plate(r)}
+                className={`relative mt-[2px] flex h-[48px] w-full items-center justify-center overflow-hidden rounded-[6px] border-[4px] border-[#fff153] text-[16px] font-bold ${
+                  r.open ? "bg-[#ececec] text-[#243a48]" : "bg-[#243240] text-white"
                 }`}
               >
-                {r.open ? fmtOdds(r.price) : null}
-                {!r.open ? (
-                  <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center text-white">
-                    <LockKeyhole className="h-6 w-6" strokeWidth={2.5} />
-                  </span>
-                ) : null}
+                <span className={r.open ? "" : "opacity-0"}>{fmtOdds(r.price)}</span>
+                {!r.open ? <Lock /> : null}
               </button>
-              <p className="mt-1 text-center text-[0.72rem] leading-none text-foreground">0</p>
+              <PL />
             </div>
           );
         })}
       </div>
 
-      <div className="flex flex-wrap justify-center gap-x-2 gap-y-2 px-3 py-2">
-        <p className="w-full text-center text-[1.1rem] font-semibold leading-none text-foreground">{fmtOdds(cards[0]?.price)}</p>
-        {cards.map((r) => (
-          <button
-            type="button"
-            key={r.id}
-            data-market-option=""
-            data-market-plate=""
-            data-bet-label={r.label}
-            data-bet-odds={String(r.price ?? "")}
-            disabled={!r.open}
-            className="relative flex w-[38px] flex-col items-center text-center"
-          >
-            <span
-              className={`relative flex h-[54px] w-[38px] flex-col items-center justify-center overflow-hidden rounded-[4px] border-2 border-[#F2D84B] ${r.open ? "bg-background" : "bg-background/60"}`}
-            >
-              <span className={`text-[1.2rem] font-extrabold leading-none text-foreground ${r.open ? "" : "opacity-50"}`}>
-                {r.label}
-              </span>
-              <span className={`mt-0.5 grid grid-cols-2 gap-x-0.5 text-[0.66rem] leading-[0.75] ${r.open ? "" : "opacity-50"}`}>
-                <span className="text-foreground">♠</span><span className="text-card-red">♥</span>
-                <span className="text-foreground">♣</span><span className="text-card-red">♦</span>
-              </span>
-              {!r.open ? (
-                <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-baccarat-lock text-board-header-foreground">
-                  <LockKeyhole className="h-4 w-4" strokeWidth={3} />
-                </span>
-              ) : null}
-            </span>
-            <span className="mt-0.5 text-[0.72rem] font-normal leading-none text-foreground">0</span>
-          </button>
-        ))}
+      <div className="mt-[7px] pb-[8px]">
+        <p className="flex h-[21px] items-center justify-center text-[14px] font-bold text-[#111]">{fmtOdds(cards[0]?.price)}</p>
+        <div className="mx-auto mt-[6px] flex max-w-[330px] flex-wrap justify-center gap-x-[3px] gap-y-[4px]">
+          {cards.map((r) => {
+            const img = LUCKY7_CARD_IMAGES[r.label.trim().toUpperCase()];
+            return (
+              <div key={r.id} className="flex w-[38px] flex-col items-center">
+                <button
+                  {...plate(r)}
+                  className="relative block h-[48px] w-[34px] overflow-hidden rounded-[2px] border border-[#d4af37] bg-white p-0"
+                >
+                  {img ? (
+                    <img src={img} alt={r.label} className={`block h-[46px] w-[32px] object-cover ${r.open ? "" : "opacity-40"}`} />
+                  ) : (
+                    <span className="text-[16px] font-bold text-[#111]">{r.label}</span>
+                  )}
+                  {!r.open ? (
+                    <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center text-[#9aa3ab]">
+                      <LockKeyhole className="h-[14px] w-[14px]" strokeWidth={2.6} />
+                    </span>
+                  ) : null}
+                </button>
+                <PL />
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
