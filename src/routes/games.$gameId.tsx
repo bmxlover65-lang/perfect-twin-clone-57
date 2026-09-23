@@ -1103,7 +1103,7 @@ function RefListMarket({
           };
           return (
             <div key={String(runner.selectionId)} data-runner-row="" className="reflist-row" style={{ gridTemplateColumns: cols }}>
-              <span data-runner-name="" className="reflist-name">{/CARD$/i.test((market.marketName ?? "").trim()) && /^(A|[2-9]|10|J|Q|K)$/i.test(String(label).trim()) && LUCKY7_CARD_IMAGES[String(label).trim().toUpperCase()] ? <img src={LUCKY7_CARD_IMAGES[String(label).trim().toUpperCase()]} alt={String(label)} className="h-[30px] w-auto" /> : /CARD COLOR$/i.test((market.marketName ?? "").trim()) && /^RED$/i.test(String(label).trim()) ? <span>RED <span className="text-[#d42a2a]">♥ ♦</span></span> : /CARD COLOR$/i.test((market.marketName ?? "").trim()) && /^BLACK$/i.test(String(label).trim()) ? <span>BLACK <span className="text-[#111]">♠ ♣</span></span> : <span>{label}</span>}</span>
+              <span data-runner-name="" className="reflist-name">{/CARD$/i.test((market.marketName ?? "").trim()) && /^(A|[2-9]|10|J|Q|K)$/i.test(String(label).trim()) && LUCKY7_CARD_IMAGES[String(label).trim().toUpperCase()] ? <img src={LUCKY7_CARD_IMAGES[String(label).trim().toUpperCase()]} alt={String(label)} className="reflist-cardimg h-[30px] w-auto" /> : /CARD COLOR$/i.test((market.marketName ?? "").trim()) && /^RED$/i.test(String(label).trim()) ? <span>RED <span className="reflist-suits text-[#d42a2a]">♥ ♦</span></span> : /CARD COLOR$/i.test((market.marketName ?? "").trim()) && /^BLACK$/i.test(String(label).trim()) ? <span>BLACK <span className="reflist-suits text-[#111]">♠ ♣</span></span> : <span>{label}</span>}</span>
               {cell("back")}
               {hasLay ? cell("lay") : null}
             </div>
@@ -3923,7 +3923,7 @@ function GamePage() {
         {gameId === "99.0014" && markets.length ? (
           <MuflisPanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0018" && markets.length ? (
-          <div className="reflist">{markets.map((m, i) => <RefListMarket key={`${m.marketId}-${i}`} market={m} suspended={suspended} backOnly />)}</div>
+          <div className="reflist is-dt">{markets.map((m, i) => <RefListMarket key={`${m.marketId}-${i}`} market={m} suspended={suspended} backOnly />)}</div>
         ) : gameId === "99.0021" && markets.length ? (
           <DragonTigerPanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0041" && markets.length ? (
