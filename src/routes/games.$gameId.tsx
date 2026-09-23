@@ -3149,6 +3149,11 @@ function GamePage() {
     try {
       const s = await fetchCasinoState(gameId);
       setState((previous) => stabilizeCasinoState(previous, s));
+      try {
+        if (s?.data) sessionStorage.setItem(cacheKey, JSON.stringify(s));
+      } catch {
+        // storage full or blocked — caching is only an optimisation
+      }
       setAge(0);
       setError(null);
     } catch (e) {
