@@ -436,7 +436,7 @@ function PokerPanel({
           }`}
         />
         <span className="relative flex h-full flex-col items-center justify-center text-poker-plate-text">
-          <span className="font-serif text-[1.3rem] font-extrabold leading-none">{fmtOdds(point?.price)}</span>
+          <span className="text-[1.3rem] font-extrabold leading-none">{fmtOdds(point?.price)}</span>
           <span className="mt-[3px] text-[0.72rem] font-medium leading-none opacity-70">
             {point?.size == null ? "" : String(Math.round(point.size))}
           </span>
@@ -449,10 +449,10 @@ function PokerPanel({
   return (
     <div className="bg-poker-panel px-2 pb-2 pt-2">
       <div className="mb-3 grid h-[56px] grid-cols-2 gap-5 px-1">
-        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold font-serif text-[1.1rem] font-extrabold uppercase text-poker-plate-text">PLAYER A</div>
-        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold font-serif text-[1.1rem] font-extrabold uppercase text-poker-plate-text">PLAYER B</div>
+        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold text-[1.1rem] font-extrabold uppercase text-poker-plate-text">PLAYER A</div>
+        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold text-[1.1rem] font-extrabold uppercase text-poker-plate-text">PLAYER B</div>
       </div>
-      {markets.map((m) => {
+      {[...markets].sort((x, y) => { const o = ["WINNER", "ONE PAIR", "TWO PAIR", "THREE OF A KIND", "STRAIGHT", "STRAIGHT FLUSH", "FLUSH", "FULL HOUSE", "FOUR OF A KIND"]; const xi = o.indexOf((x.marketName ?? "").trim().toUpperCase()); const yi = o.indexOf((y.marketName ?? "").trim().toUpperCase()); return (xi < 0 ? 99 : xi) - (yi < 0 ? 99 : yi); }).map((m) => {
           const names = m.runnersName ?? {};
           const runners = m.runners ?? [];
           const a = runners.find((r) => (names[String(r.selectionId)] ?? "").toUpperCase().includes("A"));
@@ -3978,7 +3978,7 @@ function GamePage() {
           round={String(d?.roundId ?? "")}
           disabled={suspended}
         >
-        <Fit designWidth={860} mobileNative>
+        <div className="casino-ref-font"><Fit designWidth={860} mobileNative>
         {gameId === "99.0014" && markets.length ? (
           <MuflisPanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0018" && markets.length ? (
@@ -4019,7 +4019,7 @@ function GamePage() {
             <MarketBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
           ))
         )}
-        </Fit>
+        </Fit></div>
         </ChipBetProvider>
         {/* Recent Result sits flush under the last market, like the original. */}
         {["99.0030", "99.0010", "99.0019", "99.0013", "99.0016", "99.0001", "99.0022"].includes(gameId) ? (
@@ -4161,7 +4161,7 @@ function RecentStrip({
   return (
 
       <div className={`mt-0 flex items-center overflow-x-auto ${grey ? "bg-[#E6E6E6]" : "bg-black"} ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger || cards32 ? "h-[40px] gap-2 px-1 py-1" : baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "gap-2 px-3 py-2.5"}`}>
-        <span className={`shrink-0 font-bold ${grey ? "text-black" : "text-white"} ${oneDay ? "mr-0 text-[1rem]" : joker || dragonTiger || cards32 ? "mr-0 font-serif text-[0.98rem]" : baccarat ? "mr-0 text-[1.05rem]" : "mr-1 text-[0.95rem]"}`}>Recent Result</span>
+        <span className={`mr-3 shrink-0 font-['Tahoma',Helvetica,sans-serif] text-[12px] font-bold ${grey ? "text-black" : "text-white"}`}>Recent Result</span>
 
 
 
