@@ -3797,7 +3797,7 @@ function GamePage() {
           </div>
         ) : gameId === "99.0010" && markets.length ? (
           markets.map((m, i) => (
-            <DarkGridBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
+            <TP20Board key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
           ))
         ) : gameId === "99.0013" && markets.length ? (
           markets.map((m, i) => (
