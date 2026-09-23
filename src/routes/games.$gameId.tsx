@@ -1451,7 +1451,7 @@ function AndarBaharPanel({
   const cards = list(byName("LUCKY CARD"));
   const minmax = byName("WINNER");
 
-  const Chip = ({ r, kind }: { r: ABRunner; kind: "side" | "bet" }) => (
+  const Chip = ({ r, kind }: { r: ABRunner; kind: "side" | "bet1" | "bet2" }) => (
     <button
       type="button"
       data-market-option=""
@@ -1459,21 +1459,21 @@ function AndarBaharPanel({
       data-bet-label={r.label}
       data-bet-odds={String(r.price ?? "")}
       disabled={!r.open}
-      className={`relative flex h-[51px] min-w-0 flex-col items-center justify-center overflow-hidden rounded-[7px] border-2 border-live-badge text-[0.64rem] font-normal leading-none ${
-        kind === "side"
-          ? r.open
-            ? "bg-background text-foreground"
-            : "bg-muted text-foreground/55"
-          : r.open
-            ? "bg-casino-market-header text-board-header-foreground"
-            : "bg-casino-market-header text-board-header-foreground/45"
+      className={`relative flex h-[58px] min-w-0 flex-col items-center justify-center overflow-hidden rounded-[10px] border-[3px] border-[#F2D84B] leading-none ${
+        r.open
+          ? kind === "side"
+            ? "bg-[#F2F2F2] text-[#1e293b]"
+            : kind === "bet1"
+              ? "bg-[#2E7BD1] text-white"
+              : "bg-[#16324A] text-white"
+          : "bg-[#16324A] text-white/60"
       }`}
     >
-      <span className="whitespace-nowrap uppercase">{r.label}</span>
-      <span className="mt-1 text-[0.66rem]">{fmtOdds(r.price)}</span>
+      <span className="whitespace-nowrap text-[0.78rem] font-bold uppercase">{r.label}</span>
+      <span className="mt-1.5 text-[1.15rem] font-extrabold">{fmtOdds(r.price)}</span>
       {!r.open ? (
-        <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-baccarat-lock text-board-header-foreground">
-          <LockKeyhole className="h-5 w-5" strokeWidth={3} />
+        <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center text-white">
+          <LockKeyhole className="h-6 w-6" strokeWidth={2.5} />
         </span>
       ) : null}
     </button>
@@ -1487,12 +1487,14 @@ function AndarBaharPanel({
       data-bet-label={r.label}
       data-bet-odds={String(r.price ?? "")}
       disabled={!r.open}
-      className="relative flex h-[30px] w-full items-center justify-center bg-casino-market-rate text-[0.9rem] font-extrabold text-foreground"
+      className={`relative flex h-[55px] w-full items-center justify-center overflow-hidden rounded-[10px] text-[1.35rem] font-extrabold ${
+        r.open ? "bg-[#8FC4F8] text-[#111]" : "bg-[#16324A] text-white/60"
+      }`}
     >
       {fmtOdds(r.price)}
       {!r.open ? (
-        <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-baccarat-lock text-board-header-foreground">
-          <LockKeyhole className="h-5 w-5" strokeWidth={3} />
+        <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center text-white">
+          <LockKeyhole className="h-6 w-6" strokeWidth={2.5} />
         </span>
       ) : null}
     </button>
