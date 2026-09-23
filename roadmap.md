@@ -89,7 +89,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] 20-20 Poker: Royal mobile Player tabs, curved gold price panels, per-market suspended overlays and Recent Result
 - [x] 32 Cards: Royal mobile Winner, Card Color, Card Total and Lucky Number tables with section-scoped suspended overlays
 - [ ] Card Race: market box + Recent Result placement
-- [x] Amar Akbar Anthony: Dukex mobile Winner, Odd/Even, Color, Under/Over and Card proportions with market-scoped suspend covers
+- [~] Amar Akbar Anthony: line-by-line Dukex mobile parity for Winner, Odd/Even, Color, Under/Over, Card and market-scoped SUSPEND covers; fresh visual comparison pending
 - [x] VIMAAN: match supplied mobile history strip, radial flying graph, waiting/plane state, flew-away result and compact All Bets header
 - [x] Balloon: Royal-style mobile scene, balloon scale, live/waiting result states, compact controls, stakes and HEAT buttons
 - [x] Balloon: transparent scenic betting controls and masked live-player activity below the avatar
