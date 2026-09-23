@@ -1640,15 +1640,13 @@ function CardRacePanel({
 
     if (kingSuit) {
       return (
-        <span className="inline-flex items-center gap-2">
-          <span className="inline-flex h-[42px] w-[32px] shrink-0 flex-col items-center justify-center rounded-[3px] border border-[#E3C96B] bg-white leading-none shadow-sm">
-            <span className="text-[0.95rem] font-bold" style={{ color: suitColor(kingSuit) }}>K</span>
-            <span className="text-[0.9rem]" style={{ color: suitColor(kingSuit) }}>{kingSuit}</span>
-          </span>
-          <span className="text-[0.9rem] font-bold leading-tight text-[#555]">{up}</span>
+        <span className="inline-flex h-[44px] w-[34px] shrink-0 flex-col items-center justify-center rounded-[3px] border border-[#E3C96B] bg-white leading-none shadow-sm">
+          <span className="text-[1rem] font-bold" style={{ color: suitColor(kingSuit) }}>K</span>
+          <span className="text-[0.95rem]" style={{ color: suitColor(kingSuit) }}>{kingSuit}</span>
         </span>
       );
     }
+
 
 
     const suffix =
