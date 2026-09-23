@@ -2675,6 +2675,12 @@ function GamePage() {
       setStream("https://player.universestudio.games/index.html?appName=PLATINGE7&streamingName=GAME30&url=livecdnplatin.com&token=178610215242255360831371");
       return;
     }
+    // Instant games render their own animation — no live studio stream exists,
+    // so asking for one only produces a 400 from the feed.
+    if (gameId === "88.0030" || gameId === "88.0023") {
+      setStream(null);
+      return;
+    }
     fetchCasinoStream(gameId)
       .then((r) => setStream(r.upstreamIframeUrl ?? null))
       .catch(() => undefined);
