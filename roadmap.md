@@ -79,7 +79,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Joker TP: match supplied white PLAYER row surface and dark bold serif label text
 - [x] 20-20 Dragon Tiger: match Royal mobile board height, light surface, plate sizing, typography and compact result strip
 - [ ] DTL: card display; Recent Result under last market; DTL rate box
-- [ ] 1 Day Dragon Tiger: rate box + video card display
+- [x] Dragon Tiger (99.0018) done; [ ] 1 Day Dragon Tiger: rate box + video card display
 - [x] Joker TP: mobile reference stage ratio, Joker/player cards, compact Winner board and Recent Result strip
 - [x] 20-20 DT: mobile reference stage, Dragon/Tiger cards, centred Tie market and result colors
 - [x] Andar Bahar: Royal mobile layout, live/suspended plates, Odd/Even, suits, rank cards and Recent Result
@@ -148,6 +148,6 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [ ] 32 Cards (99.0022)
 - [ ] Poker (99.0007)
 - [ ] DTL (99.0041)
-- [ ] 1 Day Dragon Tiger (99.0021)
+- [x] Dragon Tiger (99.0018) done; [ ] 1 Day Dragon Tiger (99.0021)
 - [ ] 20-20 Dragon Tiger (99.0019)
 - [ ] Lucky 7 suspend check (99.0030)
