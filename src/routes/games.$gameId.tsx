@@ -1729,7 +1729,7 @@ function AAAPanel({
     </div>
   );
 
-  const Watermark = () => <SuspendVeil />;
+  const Watermark = () => <SuspendVeil size="sm" />;
 
 
   const Header = ({ name }: { name: string }) => (
