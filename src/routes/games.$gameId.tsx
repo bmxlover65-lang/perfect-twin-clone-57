@@ -210,7 +210,7 @@ function stabilizeCasinoState(previous: CasinoState | null, incoming: CasinoStat
   return { ...incoming, data: { ...nextData, marketArr } };
 }
 
-/** Original-style suspended veil: faded market background + bold red SUSPENDED text. */
+/** Original-style suspended veil: faded market background + bold red SUSPEND text. */
 function SuspendVeil({
   className = "",
   size = "md",
@@ -223,17 +223,15 @@ function SuspendVeil({
   return (
     <div
       data-suspended="true"
-      className={`pointer-events-none absolute inset-0 z-20 flex items-center justify-center ${
-        solid ? "" : "bg-casino-suspend-veil"
-      } ${className}`}
-      style={solid ? { background: "rgba(255,255,255,0.86)" } : undefined}
+      className={`pointer-events-none absolute inset-0 z-20 flex items-center justify-center ${className}`}
+      style={{ background: solid ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.5)" }}
     >
       <span
-        className={`font-extrabold uppercase tracking-[0.06em] text-casino-suspend-text ${
-          size === "sm" ? "text-[1.05rem]" : "text-[1.5rem] sm:text-[1.8rem]"
+        className={`font-bold uppercase text-[#D0021B] ${
+          size === "sm" ? "text-[0.95rem]" : "text-[1.25rem]"
         }`}
       >
-        SUSPENDED
+        SUSPEND
       </span>
     </div>
   );
@@ -421,8 +419,8 @@ function PokerPanel({
                 ))}
               </div>
               {isSusp ? (
-                <div data-suspended="true" className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-background/75">
-                  <span className="text-[1.35rem] font-extrabold uppercase text-casino-suspend-text">SUSPENDED</span>
+                <div data-suspended="true" className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-[rgba(255,255,255,0.5)]">
+                  <span className="text-[1.25rem] font-bold uppercase text-[#D0021B]">SUSPEND</span>
                 </div>
               ) : null}
             </section>
@@ -668,7 +666,7 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
         </div>
         {suspended ? (
           <div className="lucky7-suspended" aria-hidden="true">
-            SUSPENDED
+            SUSPEND
           </div>
         ) : null}
       </div>
@@ -875,10 +873,9 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
       {locked ? (
         <span
           data-suspended="true"
-          className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-[6px] bg-casino-suspend-veil text-[0.68rem] font-extrabold uppercase tracking-[0.02em] text-casino-suspend-text"
-        >
-          Suspended
-        </span>
+          className="pointer-events-none absolute inset-0 z-20 rounded-[6px]"
+          style={{ background: "rgba(255,255,255,0.55)" }}
+        />
       ) : null}
     </div>
   );
@@ -1767,7 +1764,7 @@ function AAAPanel({
       <span className="text-[0.92rem] font-bold text-[#111]">{fmtOdds(price)}</span>
       <span className="text-[0.66rem] text-[#111]">{size ?? ""}</span>
       {locked ? (
-        <span className="pointer-events-none absolute inset-0 bg-casino-suspend-veil" />
+        <span className="pointer-events-none absolute inset-0" style={{ background: "rgba(255,255,255,0.55)" }} />
       ) : null}
     </div>
   );
@@ -1818,6 +1815,9 @@ function AAAPanel({
                 </div>
               );
             })}
+            {(winner.runners ?? []).every((r) => suspended || !isOpenStatus(r.status)) ? (
+              <SuspendVeil size="sm" />
+            ) : null}
           </div>
         </div>
       ) : null}
