@@ -2166,80 +2166,79 @@ function AAAPanel({
     .filter(Boolean) as CasinoMarket[];
 
   const MinMax = ({ m }: { m: CasinoMarket }) => (
-    <div className="flex h-[22px] items-center justify-center bg-[#dbe9f2] text-[0.7rem] font-bold text-[#111]">
+    <div className="aaa-minmax">
       Min/Max: {Math.max(100, m.min ?? 0)} - {m.max ?? 100000}
     </div>
   );
 
-  const Watermark = () => <SuspendVeil size="sm" solid bordered />;
-
+  const Suspend = ({ large = false }: { large?: boolean }) => (
+    <div data-suspended="true" className={`aaa-suspend${large ? " is-large" : ""}`}>SUSPEND</div>
+  );
 
   const Header = ({ name }: { name: string }) => (
-    <div className="flex h-[27px] items-center bg-casino-market-header px-2 text-[0.78rem] font-extrabold uppercase text-board-header-foreground">
-      {name}
-    </div>
+    <div className="aaa-header">{name}</div>
   );
 
   const PriceCell = ({
+    label,
     price,
     size,
     tone,
     locked,
   }: {
+    label: string;
     price?: number | null | undefined;
     size?: number | null | undefined;
     tone: "back" | "lay";
     locked?: boolean;
   }) => (
-    <div
-      className="relative flex h-[38px] w-full flex-col items-center justify-center leading-none"
-      style={{ background: tone === "back" ? "#72BBEF" : "#F9C9D4" }}
+    <button
+      type="button"
+      disabled={locked || !price}
+      data-market-option=""
+      data-market-plate=""
+      data-bet-label={label}
+      data-bet-odds={price ?? ""}
+      className={`aaa-price is-${tone}`}
     >
-      <span className="text-[0.92rem] font-bold text-[#111]">{fmtOdds(price)}</span>
-      <span className="text-[0.66rem] text-[#111]">{size ?? ""}</span>
-      {locked ? (
-        <span className="pointer-events-none absolute inset-0" style={{ background: "rgba(255,255,255,0.55)" }} />
-      ) : null}
-    </div>
+      <span className="aaa-odds">{fmtOdds(price)}</span>
+      <span className="aaa-size">{size ?? ""}</span>
+    </button>
   );
 
   return (
-    <div className="mt-0 space-y-2 bg-casino-market-body p-1">
+    <div className="aaa-board">
       {winner ? (
-        <div className="border-b border-casino-market-divider">
+        <section className="aaa-market">
           <Header name="WINNER" />
-          <div className="flex items-stretch bg-white">
-            <div className="flex-1 p-1">
-              <div className="flex h-[22px] items-center justify-center bg-[#dbe9f2] text-[0.7rem] font-bold text-[#111]">
+          <div className="aaa-winner-head">
+            <div className="aaa-minmax-wrap">
+              <div className="aaa-minmax">
                 Min/Max: {Math.max(100, winner.min ?? 0)} - {winner.max ?? 100000}
               </div>
             </div>
-            <div className="flex w-[78px] items-center justify-center bg-casino-market-rate text-[0.78rem] font-semibold text-[#111]">
-              Back
-            </div>
-            <div className="flex w-[78px] items-center justify-center bg-[#F9C9D4] text-[0.78rem] font-semibold text-[#111]">
-              Lay
-            </div>
+            <div className="aaa-column is-back">Back</div>
+            <div className="aaa-column is-lay">Lay</div>
           </div>
-          <div className="relative">
+          <div className="aaa-market-body">
             {(winner.runners ?? []).map((r, i) => {
               const open = !suspended && isOpenStatus(r.status);
               const label = (winner.runnersName ?? {})[String(r.selectionId)] ?? "";
               return (
-                <div key={`${r.selectionId}-${i}`} className="flex items-stretch border-t border-[#eee]">
-                  <div className="flex min-h-[44px] flex-1 items-center px-2 text-[0.92rem] font-bold text-[#444]">
-                    {label}
-                  </div>
-                  <div className="w-[78px] p-1">
+                <div key={`${r.selectionId}-${i}`} className="aaa-winner-row">
+                  <div className="aaa-runner">{label}</div>
+                  <div className="aaa-winner-price">
                     <PriceCell
+                      label={label}
                       price={r.price?.back?.[0]?.price}
                       size={r.price?.back?.[0]?.size}
                       tone="back"
                       locked={!open}
                     />
                   </div>
-                  <div className="w-[78px] p-1">
+                  <div className="aaa-winner-price">
                     <PriceCell
+                      label={label}
                       price={r.price?.lay?.[0]?.price}
                       size={r.price?.lay?.[0]?.size}
                       tone="lay"
@@ -2250,90 +2249,81 @@ function AAAPanel({
               );
             })}
             {(winner.runners ?? []).every((r) => suspended || !isOpenStatus(r.status)) ? (
-              <SuspendVeil size="md" solid bordered />
+              <Suspend />
             ) : null}
           </div>
-        </div>
+        </section>
       ) : null}
 
-      <div className="grid grid-cols-3 gap-1">
+      <div className="aaa-side-grid">
         {sides.map((m, mi) => {
           const runners = m.runners ?? [];
           const closed = runners.every((r) => suspended || !isOpenStatus(r.status));
           return (
-            <div key={`${m.marketId}-${mi}`} className="border-b border-casino-market-divider">
+            <section key={`${m.marketId}-${mi}`} className="aaa-market aaa-side-market">
               <Header name={m.marketName ?? ""} />
-              <div className="p-1">
+              <div className="aaa-side-minmax">
                 <MinMax m={m} />
               </div>
-              <div className="relative">
+              <div className="aaa-market-body">
                 {runners.map((r, i) => {
                   const label = ((m.runnersName ?? {})[String(r.selectionId)] ?? "").toUpperCase();
                   const isRed = label === "RED";
                   const isBlack = label === "BLACK";
+                  const open = !suspended && isOpenStatus(r.status);
                   return (
-                    <div
+                    <button
+                      type="button"
                       key={`${r.selectionId}-${i}`}
-                      className="flex h-[72px] flex-col items-center justify-center leading-tight"
-                      style={{ background: i === 0 ? "#8A2226" : "#196AB1" }}
+                      disabled={!open || !r.price?.back?.[0]?.price}
+                      data-market-option=""
+                      data-market-plate=""
+                      data-bet-label={label}
+                      data-bet-odds={r.price?.back?.[0]?.price ?? ""}
+                      className={`aaa-side-price is-${i === 0 ? "lay" : "back"}`}
                     >
-                      <span className="text-[0.95rem] font-bold text-white">
+                      <span className="aaa-side-label">
                         {isRed ? (
-                          <span className="text-[#FF6B6B]">♥ ♦</span>
+                          <span className="aaa-red-suits">♥ ♦</span>
                         ) : isBlack ? (
-                          <span className="text-[#111]">♠ ♣</span>
+                          <span className="aaa-black-suits">♠ ♣</span>
                         ) : (
                           label
                         )}
                       </span>
-                      <span className="text-[0.95rem] font-bold text-white">
-                        {fmtOdds(r.price?.back?.[0]?.price)}
-                      </span>
-                      <span className="text-[0.78rem] text-white">
-                        {r.price?.back?.[0]?.size ?? ""}
-                      </span>
-                    </div>
+                      <span className="aaa-side-odds">{fmtOdds(r.price?.back?.[0]?.price)}</span>
+                      <span className="aaa-side-size">{r.price?.back?.[0]?.size ?? ""}</span>
+                    </button>
                   );
                 })}
-                {closed ? <Watermark /> : null}
+                {closed ? <Suspend /> : null}
               </div>
-            </div>
+            </section>
           );
         })}
       </div>
 
       {card ? (
-        <div className="border-b border-casino-market-divider">
+        <section className="aaa-market">
           <Header name="CARD" />
-          <div className="flex items-stretch">
-            <div className="flex-1 p-1">
+          <div className="aaa-card-head">
+            <div className="aaa-minmax-wrap">
               <MinMax m={card} />
             </div>
-                <div className="flex w-[154px] items-center justify-center bg-casino-market-rate text-[0.78rem] font-semibold text-[#111]">
-              Back
-            </div>
+            <div className="aaa-column is-back">Back</div>
           </div>
-          <div className="relative">
+          <div className="aaa-market-body">
             {(card.runners ?? []).map((r, i) => {
               const open = !suspended && isOpenStatus(r.status);
               const rank = ((card.runnersName ?? {})[String(r.selectionId)] ?? "").toUpperCase();
               return (
-                  <div key={`${r.selectionId}-${i}`} className="flex items-stretch border-t border-[#eee]">
-                    <div className="flex min-h-[44px] flex-1 items-center px-2">
-                      <span className="inline-flex h-[34px] w-[25px] flex-col items-center justify-center rounded-[3px] border border-[#E3C96B] bg-white leading-none">
-                      <span className="text-[1rem] font-bold text-[#333]">{rank}</span>
-                      <span className="mt-[1px] text-[0.5rem] leading-none">
-                        <span className="text-[#111]">♠</span>
-                        <span className="text-[#E01B24]">♦</span>
-                      </span>
-                      <span className="text-[0.5rem] leading-none">
-                        <span className="text-[#111]">♣</span>
-                        <span className="text-[#E01B24]">♥</span>
-                      </span>
-                    </span>
+                <div key={`${r.selectionId}-${i}`} className="aaa-card-row">
+                  <div className="aaa-card-rank">
+                    {LUCKY7_CARD_IMAGES[rank] ? <img src={LUCKY7_CARD_IMAGES[rank]} alt={rank} /> : rank}
                   </div>
-                  <div className="w-[154px] p-1">
+                  <div className="aaa-card-price">
                     <PriceCell
+                      label={rank}
                       price={r.price?.back?.[0]?.price}
                       size={r.price?.back?.[0]?.size}
                       tone="back"
@@ -2344,10 +2334,10 @@ function AAAPanel({
               );
             })}
             {(card.runners ?? []).every((r) => suspended || !isOpenStatus(r.status)) ? (
-              <SuspendVeil size="md" solid bordered />
+              <Suspend large />
             ) : null}
           </div>
-        </div>
+        </section>
       ) : null}
     </div>
   );
