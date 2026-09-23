@@ -459,7 +459,7 @@ export function BetLayer({
       if (cellEl && (inLatchedMarket(cellEl) || isBlockedByOverlay(cellEl, root))) {
         setPick(null);
       }
-    }, 120);
+    }, 300);
     return () => window.clearInterval(id);
   }, [round]);
 
@@ -502,7 +502,7 @@ export function BetLayer({
       if (!cellEl || isBlockedByOverlay(cellEl, rootEl)) {
         setPick(null);
       }
-    }, 120);
+    }, 300);
     return () => window.clearInterval(id);
   }, [pick]);
 
