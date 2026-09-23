@@ -1676,7 +1676,9 @@ function AndarBaharPanel({
 
   const Lock = ({ size = 22 }: { size?: number }) => (
     <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center text-white">
-      <LockKeyhole style={{ width: size, height: size }} strokeWidth={2.6} />
+      <svg viewBox="0 0 24 24" style={{ width: size, height: size }} fill="currentColor" aria-hidden="true">
+        <path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5Zm-3 8V7a3 3 0 1 1 6 0v3H9Z" />
+      </svg>
     </span>
   );
   const PL = () => <div className="flex h-[17px] items-center justify-center text-[11px] font-semibold text-[#243a48]">0</div>;
@@ -1788,7 +1790,7 @@ function AndarBaharPanel({
 
       <div className="mt-[7px] pb-[8px]">
         <p className="flex h-[21px] items-center justify-center text-[14px] font-bold text-[#111]">{fmtOdds(cards[0]?.price)}</p>
-        <div className="mt-[6px] flex flex-wrap justify-center gap-x-[3px] gap-y-[4px]">
+        <div className="mx-auto mt-[6px] flex max-w-[330px] flex-wrap justify-center gap-x-[3px] gap-y-[4px]">
           {cards.map((r) => {
             const img = LUCKY7_CARD_IMAGES[r.label.trim().toUpperCase()];
             return (
