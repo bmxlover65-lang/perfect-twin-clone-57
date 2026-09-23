@@ -1764,7 +1764,7 @@ function AAAPanel({
       <span className="text-[0.92rem] font-bold text-[#111]">{fmtOdds(price)}</span>
       <span className="text-[0.66rem] text-[#111]">{size ?? ""}</span>
       {locked ? (
-        <span className="pointer-events-none absolute inset-0 bg-casino-suspend-veil" />
+        <span className="pointer-events-none absolute inset-0" style={{ background: "rgba(255,255,255,0.55)" }} />
       ) : null}
     </div>
   );
