@@ -414,6 +414,7 @@
 
 /* RecentResults_badge — Dukex: 28px tall pill, min 32px wide, 0.8rem bold */
 .lucky7-result-chip {
+  font-family: Tahoma, Helvetica, sans-serif;
   display: grid;
   place-items: center;
   width: 26px;
