@@ -64,6 +64,7 @@ async function handshake(): Promise<string | null> {
     // drain the namespace-connect ack
     await call(`/socket.io/?EIO=4&transport=polling&sid=${id}`).catch(() => null);
     subscribed.clear();
+    warmed = "";
     sid = id;
     sidAt = Date.now();
     return id;
