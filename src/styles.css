@@ -1002,7 +1002,7 @@
 .reflist-colhead.is-lay { background: #f9c9d4; }
 .reflist-minmax { display: flex; align-items: center; padding: 0 12px 0 19px; }
 .reflist-minmax > span { flex: 1; display: flex; align-items: center; justify-content: center; height: 22px; border-radius: 4px; background: #dfe7e8; font-size: 10px; color: #6b757d; }
-.reflist-suspended { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; border: 2px solid #ca1010; background: #fff; opacity: .5; color: #ca1010; font-size: 25px; font-weight: 700; pointer-events: none; }
+.reflist-suspended { position: absolute; inset: 0 1px 1px; z-index: 2; display: flex; align-items: center; justify-content: center; border: 2px solid #ca1010; border-radius: 4px; background: #fff; opacity: .5; color: #ca1010; font-size: 25px; font-weight: 700; pointer-events: none; }
 .lucky7-result-chip.is-c9 { background: #f9a9ba; }
 .lucky7-result-chip.is-c10 { background: #4cd964; }
 .lucky7-result-chip.is-c11 { background: #ffff33; }
