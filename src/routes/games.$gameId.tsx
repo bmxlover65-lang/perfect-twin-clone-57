@@ -746,10 +746,15 @@ function Lucky7Recent({ results }: { results: CasinoResult[] }) {
       <ul className="lucky7-results-list">
         {results.slice(0, 10).map((r, idx) => {
           const raw = (deriveWinner(r as AnyResult, true) || "-").trim().toUpperCase();
-          const first = raw.startsWith("H") ? "H" : "L";
+          const first = raw.startsWith("T") ? "T" : raw.startsWith("H") ? "H" : "L";
           return (
             <li key={`${String((r as AnyResult).roundId ?? idx)}-${idx}`}>
-              <button type="button" data-nobet="" className={`lucky7-result-chip${first === "L" ? " is-low" : ""}`}>
+              <button
+                type="button"
+                data-nobet=""
+                className={`lucky7-result-chip${first === "L" ? " is-low" : ""}`}
+                style={first === "T" ? { background: "#F6D743", color: "#111" } : undefined}
+              >
                 {first}
               </button>
             </li>
