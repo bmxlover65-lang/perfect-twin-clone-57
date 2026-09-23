@@ -448,10 +448,57 @@ function normalizeStatuses(splat: string, text: string): string {
 
 
 
+/**
+ * Sports now come straight from the exchange host: one key-free call per path,
+ * no session round trip, all market groups (match odds / bookmaker / over-under
+ * / fancy / sportsbook) in the same frame so they can never drift apart.
+ * Anything it cannot answer falls through to the old upstream chain below.
+ */
+async function oriResponse(splat: string, search: string): Promise<Response | null> {
+  const jsonOut = (payload: unknown) =>
+    new Response(JSON.stringify(payload), {
+      status: 200,
+      headers: { "content-type": "application/json", "cache-control": "no-store" },
+    });
+
+  if (splat === "sports") {
+    const sports = await oriSports();
+    return sports ? jsonOut({ sports }) : null;
+  }
+
+  const ev = /^sports\/([^/]+)\/events$/.exec(splat);
+  if (ev) {
+    const q = new URLSearchParams(search).get("inPlay");
+    const inPlay = q === null || q === "" ? undefined : q === "1" || q === "true";
+    const events = await oriEvents(decodeURIComponent(ev[1]!), inPlay);
+    if (!events) return null;
+    return jsonOut({ refreshedAt: new Date().toISOString(), ttlSec: 1, events });
+  }
+
+  const od = /^sports\/([^/]+)\/([^/]+)\/odds$/.exec(splat);
+  if (od) {
+    const data = await oriOdds(decodeURIComponent(od[1]!), decodeURIComponent(od[2]!));
+    return data ? jsonOut(data) : null;
+  }
+
+  return null;
+}
+
 export async function proxy(splat: string, search: string, body?: string, origin = "") {
 
   const snapshotKey = sportsSnapshotKey(splat, search);
   try {
+    if (body === undefined && /^sports(\/|$)/.test(splat)) {
+      const direct = await oriResponse(splat, search);
+      if (direct) {
+        if (isSportsPath(splat)) {
+          const text = await direct.clone().text();
+          sportsSnapshot.set(snapshotKey, { at: Date.now(), text });
+          if (/^sports\/[^/]+\/events$/.test(splat)) void rememberEventNames(text);
+        }
+        return direct;
+      }
+    }
     if (splat === "stream") {
       const u = new URLSearchParams(search).get("u") ?? "";
       return streamPage(u, origin, "GET");
