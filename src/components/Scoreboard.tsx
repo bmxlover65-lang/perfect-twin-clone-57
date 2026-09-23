@@ -46,7 +46,9 @@ export function Scoreboard({ sportId, eventId }: { sportId: string; eventId: str
   }, [sportId, eventId, useAura]);
 
   if (useAura) {
-    const src = `${AURA_SCORE_BASE}/scoreboard/index.html?sportId=${encodeURIComponent(
+    // Served through our own origin: the feed host sets X-Frame-Options and
+    // refuses to render inside a third-party frame.
+    const src = `/api/public/uapi/sproxy/${AURA_SCORE_BASE}/scoreboard/index.html?sportId=${encodeURIComponent(
       sportId,
     )}&eventId=${encodeURIComponent(eventId)}`;
     return (
