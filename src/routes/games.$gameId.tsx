@@ -172,15 +172,7 @@ function OneDayCards({ hand, title }: { hand: Record<string, string>; title: str
         {title.replace(/_/g, " ").toUpperCase()}
       </p>
       <div className="mt-[3px] flex gap-[2px] [&_img]:h-[34px] [&_img]:w-[24px] [&_img]:rounded-[2px] [&_span[aria-label]]:h-[34px] [&_span[aria-label]]:w-[24px]">
-        {codes.map((code, index) =>
-          sideThird && index === 2 ? (
-            <span key={`${code}-${index}`} className="flex h-[31px] w-[31px] items-center justify-center">
-              <span className="flex rotate-90"><Card code={code} /></span>
-            </span>
-          ) : (
-            <Card key={`${code}-${index}`} code={code} />
-          ),
-        )}
+        {codes.map((code, index) => <Card key={`${code}-${index}`} code={code} />)}
       </div>
     </div>
   );
@@ -195,7 +187,15 @@ function JokerCards({ hand, title, sideThird = false }: { hand: Record<string, s
         {title.replace(/_/g, " ").toUpperCase()}
       </p>
       <div className="mt-[2px] flex gap-[2px] [&_img]:h-[31px] [&_img]:w-[22px] [&_img]:rounded-[2px] [&_span[aria-label]]:h-[31px] [&_span[aria-label]]:w-[22px]">
-        {codes.map((code, index) => <Card key={`${code}-${index}`} code={code} />)}
+        {codes.map((code, index) =>
+          sideThird && index === 2 ? (
+            <span key={`${code}-${index}`} className="flex h-[31px] w-[31px] items-center justify-center">
+              <span className="flex rotate-90"><Card code={code} /></span>
+            </span>
+          ) : (
+            <Card key={`${code}-${index}`} code={code} />
+          ),
+        )}
       </div>
     </div>
   );
