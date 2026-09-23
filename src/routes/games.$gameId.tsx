@@ -1039,6 +1039,78 @@ function JokerTeenPattiBoard({ market, suspended }: { market: CasinoMarket; susp
 
 
 /** 20-20 Dragon Tiger reference board: Dragon/Tiger above with Tie centred below. */
+/** 20-20 Teen Patti board — dark navy header + ice-blue body with two big blue rate plates per market. */
+function TP20Board({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
+  const [showInfo, setShowInfo] = useState(false);
+  const names = market.runnersName ?? {};
+  const runners = market.runners ?? [];
+  return (
+    <section className="overflow-hidden">
+      <header className="flex h-[40px] items-center justify-between gap-2 bg-casino-market-header px-2.5">
+        {showInfo ? (
+          <button
+            type="button"
+            aria-label="Hide Min/Max info"
+            onClick={() => setShowInfo(false)}
+            className="whitespace-nowrap rounded-[4px] bg-white px-2 py-[2px] text-[0.78rem] font-extrabold leading-tight text-[#16324F]"
+          >
+            Min/Max: {Math.max(100, market.min ?? 0)} - {market.max ?? 100000}
+          </button>
+        ) : (
+          <h3 className="truncate text-[0.95rem] font-extrabold uppercase tracking-wide text-board-header-foreground">
+            {market.marketName}
+          </h3>
+        )}
+        <button
+          type="button"
+          aria-label="Min/Max info"
+          onClick={() => setShowInfo((v) => !v)}
+          className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-board-header-foreground text-casino-market-header"
+        >
+          <Info className="h-[14px] w-[14px]" strokeWidth={3} />
+        </button>
+      </header>
+      <div className="relative bg-[#C7DCF0] px-3 py-3">
+        <div className={`grid gap-x-4 gap-y-3 ${runners.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
+          {runners.map((r) => {
+            const label = String(names[String(r.selectionId)] ?? r.selectionId).trim().toUpperCase();
+            const p = r.price?.back?.[0];
+            const open = !suspended && isOpenStatus(r.status ?? "ONLINE") && Boolean(p?.price);
+            return (
+              <div key={String(r.selectionId)} data-market-option="" className="min-w-0">
+                <div className="truncate pb-1.5 text-center text-[0.98rem] font-bold uppercase text-[#16324F]">
+                  {label}
+                </div>
+                <button
+                  type="button"
+                  data-market-plate=""
+                  data-bet-label={label}
+                  data-bet-odds={String(p?.price ?? "")}
+                  disabled={!open}
+                  className="mx-auto flex h-[62px] w-full max-w-[175px] flex-col items-center justify-center rounded-[10px] bg-[#9CCBF2] shadow-[0_3px_6px_rgba(0,0,0,0.28)] disabled:cursor-not-allowed"
+                >
+                  <span className="text-[1.2rem] font-extrabold leading-none text-[#111]">{fmtOdds(p?.price)}</span>
+                  <span className="mt-1 text-[0.78rem] leading-none text-[#333]">
+                    {p?.size == null ? "" : String(Math.round(p.size))}
+                  </span>
+                </button>
+              </div>
+            );
+          })}
+        </div>
+        {suspended ? (
+          <div
+            data-suspended=""
+            className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center border-2 border-[#D0021B] bg-[rgba(255,255,255,0.45)]"
+          >
+            <span className="text-[1.7rem] font-extrabold uppercase tracking-wide text-[#D0021B]">Suspended</span>
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
 function DragonTiger20Board({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
