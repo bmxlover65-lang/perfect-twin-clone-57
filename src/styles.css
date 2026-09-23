@@ -320,9 +320,8 @@
 
 /* RunnerBox_locked */
 .lucky7-runner-box.is-locked {
-  opacity: 0.45;
+  opacity: 0.85;
   cursor: default;
-  filter: grayscale(0.5);
 }
 
 .lucky7-runner-lock {
