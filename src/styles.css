@@ -240,18 +240,19 @@
   position: absolute;
   width: 100%;
   height: 100%;
-  font-size: 0.95rem;
+  font-size: 25px;
   font-weight: 700;
   top: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  z-index: 20;
-  border: 1px solid #d0021b;
+  z-index: 1;
+  border: 2px solid var(--suspended);
   border-radius: 0 0 5px 5px;
-  color: #d0021b;
-  background: rgba(255, 255, 255, 0.72);
+  color: var(--suspended);
+  background: #ffffff;
+  opacity: 0.5;
   pointer-events: none;
 }
 
@@ -273,6 +274,10 @@
   width: 50%;
   padding: 0 0 4px;
   min-width: 0;
+}
+
+.lucky7-runner.is-wide {
+  width: 100%;
 }
 
 /* RunnerBox_title */
@@ -319,6 +324,14 @@
   filter: grayscale(0.5);
 }
 
+.lucky7-runner-lock {
+  position: absolute;
+  right: 6px;
+  width: 11px;
+  height: 11px;
+  color: #4a5a63;
+}
+
 /* RunnerBox_icon */
 .lucky7-plate-suits {
   position: absolute;
@@ -328,6 +341,10 @@
   align-items: center;
   font-size: 12px;
   line-height: 1.1;
+}
+
+.lucky7-plate-suits .is-red {
+  color: var(--red-suit);
 }
 
 .lucky7-card-art {

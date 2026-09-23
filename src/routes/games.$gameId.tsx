@@ -9,6 +9,7 @@ import { useEmbed } from "@/lib/embed";
 import { AppLoader } from "@/components/AppLoader";
 import { Button } from "@/components/ui/button";
 import { CasinoLivePlayer } from "@/components/CasinoLivePlayer";
+import { getGame } from "@/data/games";
 
 import { applyOverride, useAdminConfig } from "@/lib/admin";
 import { logResult } from "@/lib/telemetry";
@@ -653,99 +654,98 @@ function PlateSuits({ suits }: { suits: string[] }) {
 function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const [showInfo, setShowInfo] = useState(false);
   const names = market.runnersName ?? {};
-  const runners = market.runners ?? [];
+  const rawRunners = market.runners ?? [];
   const name = (market.marketName ?? "").trim();
   const minBet = Math.max(100, market.min ?? 0);
   const maxBet = market.max ?? 100000;
+  const tieIndex = rawRunners.findIndex((runner) =>
+    /^tie$/i.test(String(names[String(runner.selectionId)] ?? runner.selectionId).trim()),
+  );
+  const runners = tieIndex < 0
+    ? rawRunners
+    : [
+        ...rawRunners.slice(0, tieIndex),
+        ...rawRunners.slice(tieIndex + 1),
+        rawRunners[tieIndex],
+      ].filter((runner): runner is NonNullable<typeof runner> => Boolean(runner));
 
   return (
-    <section className="overflow-hidden">
-      <header className="flex h-[40px] items-center justify-between gap-2 bg-casino-market-header px-2.5">
-        {showInfo ? (
+    <section className="lucky7-market">
+      <header className="lucky7-market-header">
+        <strong>{name}</strong>
+        <span className="lucky7-market-minmax">
           <button
             type="button"
-            aria-label="Hide Min/Max info"
-            onClick={() => setShowInfo(false)}
-            className="whitespace-nowrap rounded-[4px] bg-white px-2 py-[2px] text-[0.78rem] font-extrabold leading-tight text-[#16324F]"
+            aria-label={`${name} minimum and maximum bet`}
+            data-nobet=""
+            onClick={() => setShowInfo((value) => !value)}
+            className="lucky7-market-info"
           >
-            Min/Max: {minBet} - {maxBet}
+            i
           </button>
-        ) : (
-          <h3 className="truncate text-[0.95rem] font-extrabold uppercase tracking-wide text-board-header-foreground">
-            {name}
-          </h3>
-        )}
-        <button
-          type="button"
-          aria-label={`${name} information`}
-          data-nobet=""
-          onClick={() => setShowInfo((v) => !v)}
-          className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-board-header-foreground text-casino-market-header"
-        >
-          <Info className="h-[14px] w-[14px]" strokeWidth={3} />
-        </button>
+          {showInfo ? (
+            <span className="lucky7-market-info-panel">
+              Min/Max: {minBet.toLocaleString("en-US")} - {maxBet.toLocaleString("en-US")}
+            </span>
+          ) : null}
+        </span>
       </header>
-      <div className="relative bg-[#C7DCF0] px-3 py-3">
-        <div className={`grid gap-x-4 gap-y-3 ${runners.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
-          {runners.map((r) => {
+      <div className="lucky7-market-body">
+        <div className="lucky7-market-row">
+          {runners.map((r, index) => {
             const label = String(names[String(r.selectionId)] ?? r.selectionId).trim();
             const p = r.price?.back?.[0];
-            const locked = !suspended && (!isOpenStatus(r.status ?? "ONLINE") || !p?.price);
+            const locked = !isOpenStatus(r.status ?? "ONLINE") || !p?.price;
             const rank = label.toUpperCase().replace(/^CARD\s+/, "").trim();
             const cardSrc = LUCKY7_CARD_IMAGES[rank];
             const suits = labelSuits(label);
+            const wide = runners.length % 2 === 1 && index === runners.length - 1 && /^tie$/i.test(label);
             return (
               <div
                 key={String(r.selectionId)}
                 data-market-option=""
                 data-bet-label={label.toUpperCase()}
                 data-bet-odds={String(p?.price ?? "")}
-                className="min-w-0"
+                className={`lucky7-runner${wide ? " is-wide" : ""}`}
               >
-                <div className="truncate pb-1.5 text-center text-[0.98rem] font-bold uppercase text-[#16324F]">
-                  {label}
-                </div>
+                <span className="lucky7-runner-title">{label}</span>
                 <button
                   type="button"
                   data-market-plate=""
                   data-bet-label={label.toUpperCase()}
                   data-bet-odds={String(p?.price ?? "")}
                   disabled={locked || suspended}
-                  className="mx-auto flex h-[62px] w-full max-w-[175px] items-center justify-center gap-2 rounded-[10px] bg-[#9CCBF2] px-2 shadow-[0_3px_6px_rgba(0,0,0,0.28)] disabled:cursor-not-allowed"
+                  aria-disabled={locked || suspended}
+                  className={`lucky7-runner-box${locked ? " is-locked" : ""}`}
                 >
                   {cardSrc ? (
-                    <img src={cardSrc} alt="" loading="lazy" className="h-[42px] w-[30px] shrink-0 rounded-[3px] bg-white object-contain shadow-sm" />
+                    <span className="lucky7-plate-suits">
+                      <img src={cardSrc} alt="" loading="lazy" className="lucky7-card-art" />
+                    </span>
                   ) : suits.length ? (
-                    <span className="flex shrink-0 items-center gap-[2px] leading-none">
+                    <span className="lucky7-plate-suits">
                       {suits.map((s) => (
                         <span
                           key={s}
-                          className="text-[1.5rem]"
-                          style={{ color: s === "♥" || s === "♦" ? "#E01B24" : "#111" }}
+                          className={s === "♥" || s === "♦" ? "is-red" : undefined}
                         >
                           {s}
                         </span>
                       ))}
                     </span>
                   ) : null}
-                  <span className="flex min-w-0 flex-col items-center justify-center leading-none">
-                    <span className="text-[1.2rem] font-extrabold text-[#111]">{fmtOdds(p?.price)}</span>
-                    <span className="mt-1 text-[0.78rem] text-[#333]">
-                      {p?.size == null ? "" : String(Math.round(p.size))}
-                    </span>
+                  <span className="lucky7-runner-values">
+                    <span className="lucky7-runner-odds">{fmtOdds(p?.price)}</span>
+                    <span className="lucky7-runner-size">{p?.size == null ? "" : String(p.size)}</span>
                   </span>
+                  {locked ? <LockKeyhole className="lucky7-runner-lock" aria-hidden="true" /> : null}
                 </button>
               </div>
             );
           })}
         </div>
         {suspended ? (
-          <div
-            data-suspended=""
-            className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center border-2 border-[#D0021B] bg-[rgba(255,255,255,0.45)]"
-          >
-            <span className="text-[1.7rem] font-extrabold uppercase tracking-wide text-[#D0021B]">Suspended</span>
-          </div>
+          <div data-suspended="" className="lucky7-suspended">SUSPENDED</div>
         ) : null}
       </div>
     </section>
@@ -766,8 +766,7 @@ function Lucky7Recent({ results }: { results: CasinoResult[] }) {
               <button
                 type="button"
                 data-nobet=""
-                className={`lucky7-result-chip${first === "L" ? " is-low" : ""}`}
-                style={first === "T" ? { background: "#F6D743", color: "#111" } : undefined}
+                className={`lucky7-result-chip${first === "L" ? " is-low" : first === "T" ? " is-tie" : ""}`}
               >
                 {first}
               </button>
@@ -3097,6 +3096,7 @@ function GamePage() {
       ? "mx-auto min-h-dvh w-full max-w-full bg-table-felt px-0 py-0"
       : `mx-auto ${w} px-4 py-3 sm:py-5`;
   const { gameId } = Route.useParams();
+  const fallbackGameName = getGame(gameId)?.name ?? gameId;
   const { admin, cfg } = useAdminConfig();
   const [state, setState] = useState<CasinoState | null>(null);
   // Last frame seen for this table, kept for the tab session. Re-opening a
@@ -3654,7 +3654,7 @@ function GamePage() {
               Live · Universe Original
             </p>
             <h1 className="text-[1.35rem] font-extrabold uppercase text-foreground">
-              {cleanGameName(d?.eventName) ?? "Loading game…"}
+              {cleanGameName(d?.eventName) ?? fallbackGameName}
             </h1>
             <p className="mt-1 flex flex-wrap items-center gap-2 text-[0.8rem] font-bold text-foreground/80">
               <span>RID: {d?.roundId ?? "—"}</span>
@@ -3794,7 +3794,7 @@ function GamePage() {
               Live · Universe Live
             </p>
             <h1 className="mt-1 text-[1.35rem] font-extrabold leading-tight text-foreground sm:text-2xl">
-              {cleanGameName(d?.eventName) ?? "Loading game…"}
+              {cleanGameName(d?.eventName) ?? fallbackGameName}
             </h1>
           </div>
           <span className="flex shrink-0 flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-2">

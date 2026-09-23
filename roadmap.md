@@ -85,6 +85,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Andar Bahar: Royal mobile layout, live/suspended plates, Odd/Even, suits, rank cards and Recent Result
 - [x] Lucky 7 Lucky Card: full-width two-column plates with reference row spacing and compact card/rate typography
 - [x] Lucky 7 Lucky Card: supplied 100×38 blue boxes with rank above, bordered mini-card, rate and full amount
+- [x] Lucky 7: uploaded package parity for compact headers, 105×38.5 rate boxes, cards, locks, suspension and results
 - [x] 20-20 Poker: Royal mobile Player tabs, curved gold price panels, per-market suspended overlays and Recent Result
 - [x] 32 Cards: Royal mobile Winner, Card Color, Card Total and Lucky Number tables with section-scoped suspended overlays
 - [ ] Card Race: market box + Recent Result placement
