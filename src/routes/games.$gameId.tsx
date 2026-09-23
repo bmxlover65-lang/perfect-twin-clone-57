@@ -150,10 +150,10 @@ function Cards({ hand, title }: { hand: Record<string, string>; title: string })
   if (!codes.length) return null;
   return (
     <div>
-      <p className="text-[0.55rem] font-bold uppercase tracking-wide text-white drop-shadow sm:text-[0.7rem]">
+      <p className="text-[0.8rem] font-bold uppercase text-white drop-shadow">
         {title.replace(/_/g, " ").toUpperCase()}
       </p>
-      <div className="mt-0.5 flex flex-wrap justify-center gap-0">
+      <div className="mt-0.5 flex flex-wrap justify-start gap-0">
 
         {codes.map((c, i) => (
           <Card key={`${c}-${i}`} code={c} />
