@@ -1830,11 +1830,11 @@ function AAAPanel({
                     <div
                       key={`${r.selectionId}-${i}`}
                       className="flex h-[72px] flex-col items-center justify-center leading-tight"
-                      style={{ background: i === 0 ? "#D9A0A8" : "#78AEDB" }}
+                      style={{ background: i === 0 ? "#8A2226" : "#196AB1" }}
                     >
                       <span className="text-[0.95rem] font-bold text-white">
                         {isRed ? (
-                          <span className="text-[#E01B24]">♥ ♦</span>
+                          <span className="text-[#FF6B6B]">♥ ♦</span>
                         ) : isBlack ? (
                           <span className="text-[#111]">♠ ♣</span>
                         ) : (
