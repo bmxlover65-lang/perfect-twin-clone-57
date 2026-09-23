@@ -61,6 +61,7 @@ import {
   fetchCasinoStream,
   fmtOdds,
   fmtSize,
+  fmtInt,
   type CasinoMarket,
   type CasinoResult,
   type CasinoState,
@@ -226,6 +227,33 @@ function SuspendVeil({ className = "", size = "md" }: { className?: string; size
     </div>
   );
 }
+
+/** Round "i" badge in a market header; tapping it reveals the min/max limits. */
+function MarketInfo({ min, max }: { min: number; max: number }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span className="relative flex shrink-0 items-center gap-2">
+      {open ? (
+        <span className="whitespace-nowrap text-[0.68rem] font-bold text-board-header-foreground/90">
+          Min/Max: {min} - {max}
+        </span>
+      ) : null}
+      <button
+        type="button"
+        aria-label="Min and max limits"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((v) => !v);
+        }}
+        className="flex h-[18px] w-[18px] items-center justify-center rounded-full bg-white text-[0.68rem] font-bold italic text-casino-market-header"
+      >
+        i
+      </button>
+    </span>
+  );
+}
+
+
 
 
 
@@ -1324,7 +1352,11 @@ function AndarBaharPanel({
     >
       <span className="whitespace-nowrap uppercase">{r.label}</span>
       <span className="mt-1 text-[0.66rem]">{fmtOdds(r.price)}</span>
-      {!r.open ? <LockKeyhole className="absolute h-5 w-5 text-board-header-foreground" strokeWidth={3} /> : null}
+      {!r.open ? (
+        <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-baccarat-lock text-board-header-foreground">
+          <LockKeyhole className="h-5 w-5" strokeWidth={3} />
+        </span>
+      ) : null}
     </button>
   );
 
@@ -1339,7 +1371,11 @@ function AndarBaharPanel({
       className="relative flex h-[30px] w-full items-center justify-center bg-casino-market-rate text-[0.9rem] font-extrabold text-foreground"
     >
       {fmtOdds(r.price)}
-      {!r.open ? <LockKeyhole className="absolute h-5 w-5 text-board-header-foreground" strokeWidth={3} /> : null}
+      {!r.open ? (
+        <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-baccarat-lock text-board-header-foreground">
+          <LockKeyhole className="h-5 w-5" strokeWidth={3} />
+        </span>
+      ) : null}
     </button>
   );
 
@@ -1429,7 +1465,11 @@ function AndarBaharPanel({
                 <span className="text-foreground">♠</span><span className="text-card-red">♥</span>
                 <span className="text-foreground">♣</span><span className="text-card-red">♦</span>
               </span>
-              {!r.open ? <LockKeyhole className="absolute h-5 w-5 text-board-header-foreground" strokeWidth={3} /> : null}
+              {!r.open ? (
+                <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-baccarat-lock text-board-header-foreground">
+                  <LockKeyhole className="h-4 w-4" strokeWidth={3} />
+                </span>
+              ) : null}
             </span>
             <span className="mt-0.5 text-[0.58rem] font-normal leading-none text-foreground">0</span>
           </button>
@@ -1488,7 +1528,7 @@ function DT20Panel({
           ? ["♥", "♦"]
           : [];
     return (
-      <span className="inline-flex items-center gap-[3px] text-[0.85rem] font-bold uppercase text-[#6E88A0]">
+      <span className="inline-flex items-center gap-[3px] text-[0.85rem] font-bold uppercase text-[#1b2c3d]">
         {base}
         <span className="ml-[2px] flex gap-[3px]">
           <Suits list={suits} />
@@ -1506,13 +1546,11 @@ function DT20Panel({
           runners.length > 0 && runners.every((r) => suspended || !isOpenStatus(r.status));
         return (
           <div key={`${m.marketId}-${mi}`} className="border-b border-casino-market-divider">
-            <div className="flex h-[34px] items-center justify-between bg-casino-market-header px-2">
-              <span className="text-[0.8rem] font-extrabold uppercase tracking-wide text-board-header-foreground">
+            <div className="flex h-[34px] items-center justify-between gap-2 bg-casino-market-header px-2">
+              <span className="truncate text-[0.8rem] font-extrabold uppercase tracking-wide text-board-header-foreground">
                 {m.marketName}
               </span>
-              <span className="text-[0.72rem] font-bold text-board-header-foreground/85">
-                Min/Max: {Math.max(100, m.min ?? 0)} - {m.max ?? 100000}
-              </span>
+              <MarketInfo min={Math.max(100, m.min ?? 0)} max={m.max ?? 100000} />
             </div>
             <div className="relative">
               {runners.map((r, i) => {
@@ -1536,20 +1574,19 @@ function DT20Panel({
                           "data-bet-odds": String(price),
                         }
                       : {})}
-                    className={`m-1 flex w-[105px] flex-col items-center justify-center rounded-[5px] bg-casino-market-rate leading-tight ${
+                    className={`my-[3px] mr-[3px] flex w-[92px] shrink-0 flex-col items-center justify-center rounded-[5px] bg-casino-market-rate leading-tight ${
                       open ? "cursor-pointer" : ""
                     }`}
                   >
-                    <span className="text-[0.85rem] text-[#111]">{fmtOdds(price)}</span>
-                    <span className="text-[0.75rem] text-[#111]">
-                      {fmtSize(r.price?.back?.[0]?.size)}
+                    <span className="text-[0.9rem] font-bold text-[#111]">{fmtOdds(price)}</span>
+                    <span className="text-[0.72rem] text-[#111]">
+                      {fmtInt(r.price?.back?.[0]?.size)}
                     </span>
                   </div>
-                  <div className="w-[105px] border-l border-casino-market-divider bg-casino-market-body" />
                 </div>
                 );
               })}
-              {allClosed ? <SuspendVeil className="pr-[210px]" /> : null}
+              {allClosed ? <SuspendVeil size="sm" /> : null}
 
             </div>
           </div>
