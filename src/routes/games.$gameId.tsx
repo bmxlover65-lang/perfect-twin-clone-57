@@ -3219,6 +3219,14 @@ function GamePage() {
       setRoundSuspended(!openNow);
       return;
     }
+    // A round can start with a late/suspended frame and only then go live.
+    // Until the round has actually been open once, keep following the feed so
+    // the plates unlock as soon as betting opens.
+    if (openNow && !roundWasOpen.current) {
+      roundWasOpen.current = true;
+      setRoundSuspended(false);
+      return;
+    }
     if (openNow) roundWasOpen.current = true;
     else if (roundWasOpen.current) setRoundSuspended(true);
   }, [roundKey, feedStatus]);
