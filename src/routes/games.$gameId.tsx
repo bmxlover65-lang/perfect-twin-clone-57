@@ -1059,6 +1059,7 @@ function RefListMarket({
         <span>{market.marketName}</span>
         <span className="reflist-info">i</span>
       </header>
+      <div className="reflist-body">
       {minMax ? (
         <div className="reflist-row is-head" style={{ gridTemplateColumns: cols }}>
           <div className="reflist-minmax">
@@ -1068,7 +1069,6 @@ function RefListMarket({
           <span className="reflist-colhead is-lay">Lay</span>
         </div>
       ) : null}
-      <div className="reflist-body">
         {runners.map((runner) => {
           const label = names[String(runner.selectionId)] ?? String(runner.selectionId);
           const open = !locked && isOpenStatus(runner.status ?? "ONLINE");
