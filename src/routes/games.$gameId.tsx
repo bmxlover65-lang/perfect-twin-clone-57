@@ -28,6 +28,10 @@ import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
 import { CardFace } from "@/components/CardFace";
 import { CARD_BACK, cardImage } from "@/lib/card-assets";
 import { LUCKY7_CARD_IMAGES } from "@/lib/lucky7-card-assets";
+import hkCard from "@/assets/cards/HK.png.asset.json";
+import skCard from "@/assets/cards/SK.png.asset.json";
+import dkCard from "@/assets/cards/DK.png.asset.json";
+import ckCard from "@/assets/cards/CK.png.asset.json";
 
 
 
@@ -2049,6 +2053,9 @@ function DT20Panel({
 }
 
 
+const CARD_RACE_K: Record<string, string> = { "♥": hkCard.url, "♠": skCard.url, "♦": dkCard.url, "♣": ckCard.url };
+
+// Card Race — measured against Dukex at 393px (Tahoma 12px, 22px headers, 92px back column).
 function CardRacePanel({
   markets,
   suspended,
@@ -2056,71 +2063,47 @@ function CardRacePanel({
   markets: CasinoMarket[];
   suspended: boolean;
 }) {
-  const suitColor = (s: string) => (s === "♥" || s === "♦" ? "#E01B24" : "#111");
+  const suitColor = (s: string) => (s === "♥" || s === "♦" ? "#e0283e" : "#243a48");
+  const kingOf = (up: string) =>
+    up.startsWith("HEART") ? "♥" : up.startsWith("DIAMOND") ? "♦" : up.startsWith("SPADE") ? "♠" : up.startsWith("CLUB") ? "♣" : null;
 
   const Label = ({ text }: { text: string }) => {
     const up = text.toUpperCase();
-    const kingSuit =
-      up.startsWith("HEART") ? "♥" :
-      up.startsWith("DIAMOND") ? "♦" :
-      up.startsWith("SPADE") ? "♠" :
-      up.startsWith("CLUB") ? "♣" : null;
-
-    if (kingSuit) {
-      return (
-        <span className="inline-flex h-[44px] w-[34px] shrink-0 flex-col items-center justify-center rounded-[3px] border border-[#E3C96B] bg-white leading-none shadow-sm">
-          <span className="text-[1rem] font-bold" style={{ color: suitColor(kingSuit) }}>K</span>
-          <span className="text-[0.95rem]" style={{ color: suitColor(kingSuit) }}>{kingSuit}</span>
-        </span>
-      );
-    }
-
-
-
-    const suffix =
-      up === "RED" ? ["♥", "♦"] :
-      up === "BLACK" ? ["♠", "♣"] :
-      up.startsWith("ANY SUIT") ? ["♥", "♠", "♦", "♣"] : [];
-
+    const k = kingOf(up);
+    if (k) return <img src={CARD_RACE_K[k]} alt={`K ${k}`} className="h-[40px] w-[30px] border-2 border-[#e6c200]" />;
+    const suffix = up === "RED" ? ["♥", "♦"] : up === "BLACK" ? ["♠", "♣"] : [];
     return (
-      <span className="inline-flex items-center gap-1 text-[0.95rem] font-bold text-[#555]">
+      <span className="inline-flex items-center text-[12px] font-bold leading-[18px] text-[#243a48]">
         {up.replace(/♥|♦|♠|♣/g, "").trim()}
-        {suffix.map((s) => (
-          <span key={s} style={{ color: suitColor(s) }} className="text-[0.85rem]">
-            {s}
+        {suffix.length ? (
+          <span className="ml-[8px] inline-flex gap-[5px] text-[11px]">
+            {suffix.map((s) => <span key={s} style={{ color: suitColor(s) }}>{s}</span>)}
           </span>
-        ))}
+        ) : null}
       </span>
     );
   };
 
   return (
-    <div className="mt-0 space-y-2 bg-casino-market-body p-1">
+    <div className="bg-[#ededed] font-['Tahoma',Helvetica,sans-serif]">
       {markets.map((m, mi) => {
         const names = m.runnersName ?? {};
         const runners = m.runners ?? [];
         return (
-          <div key={`${m.marketId}-${mi}`} className="overflow-hidden border-b border-casino-market-divider">
-            <div className="flex h-[34px] items-center justify-between bg-casino-market-header px-2">
-              <span className="text-[0.85rem] font-extrabold uppercase tracking-wide text-board-header-foreground">
-                {m.marketName}
-              </span>
-              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-board-header-foreground text-[0.65rem] font-extrabold text-casino-market-header">
-                i
-              </span>
-            </div>
-            <div className="relative">
+          <section key={`${m.marketId}-${mi}`} className="mb-[3px]">
+            <header className="flex h-[22px] items-center justify-between rounded-t-[5px] px-[5px] py-[2px] text-[12px] font-bold text-white" style={{ background: "linear-gradient(180deg,#2e4b5e,#243a48)" }}>
+              <span>{m.marketName}</span>
+              <span className="flex h-[13px] w-[13px] items-center justify-center rounded-full bg-white text-[9px] font-extrabold text-[#243a48]">i</span>
+            </header>
+            <div className="relative bg-white">
               {runners.map((r, i) => {
                 const open = !suspended && isOpenStatus(r.status);
                 const label = names[String(r.selectionId)] ?? String(r.selectionId);
+                const isK = !!kingOf(String(label).toUpperCase());
                 return (
-                  <div
-                    key={`${r.selectionId}-${i}`}
-                    className={`flex items-stretch bg-white ${i ? "border-t border-casino-market-divider" : ""}`}
-
-                  >
-                    <div className="flex min-h-[52px] flex-1 items-center px-3 py-1">
-                      <Label text={label} />
+                  <div key={`${r.selectionId}-${i}`} className={`flex items-stretch border-t border-[#dee2e6] ${isK ? "h-[57px]" : "h-[48px]"}`}>
+                    <div className="flex flex-1 items-center bg-white px-[12px] py-[8px]">
+                      <Label text={String(label)} />
                     </div>
                     <div
                       {...(open && r.price?.back?.[0]?.price
@@ -2131,27 +2114,19 @@ function CardRacePanel({
                             "data-bet-odds": String(r.price.back[0]!.price),
                           }
                         : {})}
-                      className={`flex w-[92px] shrink-0 flex-col items-center justify-center gap-[2px] leading-none ${open ? "cursor-pointer bg-casino-market-rate" : "bg-casino-market-rate/70"}`}
+                      className={`flex w-[92px] shrink-0 flex-col items-center justify-center bg-[#72bbef] px-[6px] py-[8px] leading-none ${open ? "cursor-pointer" : ""}`}
                     >
-                      <span className="text-[1.05rem] font-bold text-[#5b7f9c]">
-                        {fmtOdds(r.price?.back?.[0]?.price)}
-                      </span>
-                      <span className="text-[0.7rem] text-[#7d99ae]">
-                        {r.price?.back?.[0]?.size ?? ""}
-                      </span>
+                      <span className="text-[14px] font-bold text-[#333]">{fmtOdds(r.price?.back?.[0]?.price)}</span>
+                      <span className="mt-[2px] text-[10px] text-[#555]">{r.price?.back?.[0]?.size ?? ""}</span>
                     </div>
-
                   </div>
                 );
               })}
-              {runners.length > 0 &&
-              runners.every((r) => suspended || !isOpenStatus(r.status)) ? (
-                <SuspendVeil size="sm" />
-
+              {runners.length > 0 && runners.every((r) => suspended || !isOpenStatus(r.status)) ? (
+                <div data-suspended="true" className="reflist-suspended" style={{ inset: 0 }}>SUSPENDED</div>
               ) : null}
             </div>
-
-          </div>
+          </section>
         );
       })}
     </div>
@@ -4026,7 +4001,7 @@ function GamePage() {
         {["99.0030", "99.0010", "99.0019", "99.0013", "99.0016", "99.0001", "99.0022"].includes(gameId) ? (
           <Lucky7Recent results={results} game={gameId} />
         ) : (
-          <RecentStrip results={results} oneDay={gameId === "99.0013"} joker={gameId === "99.0016"} dragonTiger={gameId === "99.0019"} baccarat={gameId === "99.0001"} cards32={gameId === "99.0022"} />
+          <RecentStrip results={results} oneDay={gameId === "99.0013"} joker={gameId === "99.0016"} dragonTiger={gameId === "99.0019"} baccarat={gameId === "99.0001"} cards32={gameId === "99.0022"} cardRace={gameId === "99.0046"} />
         )}
       </BetLayer>
 
@@ -4147,6 +4122,7 @@ function RecentStrip({
   dragonTiger,
   baccarat,
   cards32,
+  cardRace,
   grey,
 }: {
   results: CasinoResult[];
@@ -4157,12 +4133,13 @@ function RecentStrip({
   dragonTiger?: boolean;
   baccarat?: boolean;
   cards32?: boolean;
+  cardRace?: boolean;
   grey?: boolean;
 }) {
   return (
 
-      <div className={`mt-0 flex items-center overflow-x-auto ${grey ? "bg-[#E6E6E6]" : "bg-black"} ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger || cards32 ? "h-[40px] gap-2 px-1 py-1" : baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "mt-[5px] h-[36px] gap-[9px] px-[5px]"}`}>
-        <span className={`mr-3 shrink-0 font-['Tahoma',Helvetica,sans-serif] text-[12px] font-bold ${grey ? "text-black" : "text-white"}`}>Recent Result</span>
+      <div className={`mt-0 flex items-center overflow-x-auto ${grey ? "bg-[#E6E6E6]" : "bg-black"} ${cardRace ? "h-[59px] gap-[9px] p-[5px]" : oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger || cards32 ? "h-[40px] gap-2 px-1 py-1" : baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "mt-[5px] h-[36px] gap-[9px] px-[5px]"}`}>
+        <span className={`mr-3 shrink-0 font-['Tahoma',Helvetica,sans-serif] ${cardRace ? "mt-[8px] self-start text-[14px]" : "text-[12px]"} font-bold ${grey ? "text-black" : "text-white"}`}>Recent Result</span>
 
 
 
@@ -4225,6 +4202,9 @@ function RecentStrip({
                 : /club/i.test(raw)
                   ? "♣"
                   : null;
+          if (suit && cardRace) {
+            return <img key={`${r.roundId ?? ""}-${idx}`} title={`Round ${r.roundId}`} src={CARD_RACE_K[suit]} alt={`K ${suit}`} className="h-[43px] w-[32px] shrink-0 border-2 border-[#e6c200]" />;
+          }
           if (suit) {
             const col = suit === "♥" || suit === "♦" ? "#E01B24" : "#111";
             return (
