@@ -3152,7 +3152,13 @@ function GamePage() {
 
   useEffect(() => {
     void load();
-    const t = setInterval(() => void load(), 200);
+    // The upstream caches frames for ~700ms, so polling faster than that only
+    // burns bandwidth and makes the page janky. Round/result changes still
+    // trigger instant bursts below.
+    const t = setInterval(() => {
+      if (document.visibilityState === "hidden") return;
+      void load();
+    }, 800);
     const a = setInterval(() => setAge((v) => v + 1), 1000);
     const wake = () => {
       if (document.visibilityState === "visible") void load();
@@ -3250,8 +3256,11 @@ function GamePage() {
         });
     };
     void run();
-    const burst = [100, 250, 450, 700, 1000, 1400, 2000, 2800].map((ms) => setTimeout(run, ms));
-    const t = setInterval(run, 250);
+    const burst = [150, 450, 900, 1600, 2600].map((ms) => setTimeout(run, ms));
+    const t = setInterval(() => {
+      if (document.visibilityState === "hidden") return;
+      void run();
+    }, 1500);
 
     return () => {
       alive = false;

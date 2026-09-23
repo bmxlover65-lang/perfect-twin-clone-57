@@ -59,7 +59,11 @@ function suspendVeils(root: HTMLElement): HTMLElement[] {
   for (const el of Array.from(root.querySelectorAll<HTMLElement>('[data-suspended="true"]'))) {
     out.push(el);
   }
-  for (const el of Array.from(root.querySelectorAll<HTMLElement>("*"))) {
+  // Only text-bearing leaf tags are scanned — walking every node in the board
+  // several times a second is what made the page feel heavy.
+  for (const el of Array.from(
+    root.querySelectorAll<HTMLElement>("div,span,p,b,strong,em,small,label"),
+  )) {
     if (el.children.length > 0) continue;
     const txt = (el.textContent ?? "").replace(/\s+/g, " ").trim();
     if (!txt || txt.length > 24) continue;
@@ -376,7 +380,7 @@ export function BetLayer({
     if (rootRef.current) ro.observe(rootRef.current);
     window.addEventListener("resize", bump);
     window.addEventListener("scroll", bump, true);
-    const id = window.setInterval(bump, 400);
+    const id = window.setInterval(bump, 1000);
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", bump);
@@ -427,9 +431,12 @@ export function BetLayer({
 
       const flags: HTMLElement[] = [
         ...Array.from(root.querySelectorAll<HTMLElement>('[data-suspended="true"]')),
-        ...Array.from(root.querySelectorAll<HTMLElement>("*")).filter((el) => {
+        ...Array.from(
+          root.querySelectorAll<HTMLElement>("div,span,p,b,strong,em,small,label"),
+        ).filter((el) => {
           if (el.children.length > 0) return false;
           const t = (el.textContent ?? "").replace(/\s+/g, " ").trim();
+          if (!t || t.length > 24) return false;
           return /^(suspend(ed)?|locked|closed|ball\s*running)$/i.test(t);
         }),
       ];
@@ -452,7 +459,7 @@ export function BetLayer({
       if (cellEl && (inLatchedMarket(cellEl) || isBlockedByOverlay(cellEl, root))) {
         setPick(null);
       }
-    }, 120);
+    }, 300);
     return () => window.clearInterval(id);
   }, [round]);
 
@@ -495,7 +502,7 @@ export function BetLayer({
       if (!cellEl || isBlockedByOverlay(cellEl, rootEl)) {
         setPick(null);
       }
-    }, 120);
+    }, 300);
     return () => window.clearInterval(id);
   }, [pick]);
 
