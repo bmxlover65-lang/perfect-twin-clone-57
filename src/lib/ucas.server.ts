@@ -150,15 +150,45 @@ function startLoop(id: string) {
   })();
 }
 
+/**
+ * Every live table we serve. A cold worker subscribes to all of them in the
+ * background on the first request, so opening any other game is instant
+ * instead of waiting for a fresh subscribe round trip.
+ */
+const WARM_IDS = [
+  "99.0010", "99.0030", "99.0013", "99.0016", "99.0019", "99.0001", "99.0025",
+  "99.0022", "99.0007", "99.0041", "99.0021", "99.0014", "99.0046", "99.0005",
+  "99.0018", "88.0019", "88.0020", "88.0021", "88.0023",
+];
+
+function subscribe(id: string, eventId: string) {
+  if (subscribed.has(eventId)) return Promise.resolve();
+  subscribed.add(eventId);
+  return Promise.all([
+    post(id, `42["game:subscribe",{"eventId":${JSON.stringify(eventId)}}]`),
+    post(id, `42["game:subscribeResults",{"eventId":${JSON.stringify(eventId)}}]`),
+  ]).then(() => undefined);
+}
+
+let warmed = "";
+
+function warmAll(id: string) {
+  if (warmed === id) return;
+  warmed = id;
+  // Background fan-out: never blocks the request that triggered it.
+  void (async () => {
+    for (const eventId of WARM_IDS) {
+      await subscribe(id, eventId).catch(() => undefined);
+    }
+  })();
+}
+
 async function ensure(eventId: string): Promise<string | null> {
   const id = await session();
   if (!id) return null;
-  if (!subscribed.has(eventId)) {
-    subscribed.add(eventId);
-    await post(id, `42["game:subscribe",{"eventId":${JSON.stringify(eventId)}}]`);
-    await post(id, `42["game:subscribeResults",{"eventId":${JSON.stringify(eventId)}}]`);
-  }
   startLoop(id);
+  await subscribe(id, eventId);
+  warmAll(id);
   return id;
 }
 
