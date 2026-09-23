@@ -4160,7 +4160,7 @@ function RecentStrip({
 }) {
   return (
 
-      <div className={`mt-0 flex items-center overflow-x-auto ${grey ? "bg-[#E6E6E6]" : "bg-black"} ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger || cards32 ? "h-[40px] gap-2 px-1 py-1" : baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "gap-2 px-3 py-2.5"}`}>
+      <div className={`mt-0 flex items-center overflow-x-auto ${grey ? "bg-[#E6E6E6]" : "bg-black"} ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger || cards32 ? "h-[40px] gap-2 px-1 py-1" : baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "mt-[5px] h-[36px] gap-[9px] px-[5px]"}`}>
         <span className={`mr-3 shrink-0 font-['Tahoma',Helvetica,sans-serif] text-[12px] font-bold ${grey ? "text-black" : "text-white"}`}>Recent Result</span>
 
 
@@ -4252,7 +4252,7 @@ function RecentStrip({
                       ? "h-7 min-w-9 px-2 text-[0.78rem]"
                       : dream
                         ? "h-8 min-w-8 border-2 border-white px-1 text-[0.8rem]"
-                   : "h-7 min-w-7 px-1.5 text-[0.75rem]"
+                   : "h-[26px] min-w-[26px] px-1 font-['Tahoma',Helvetica,sans-serif] text-[12px]"
               } ${finalTone}`}
             >
               {(dragonTiger || baccarat) && isTie ? "Tie" : first || "-"}
