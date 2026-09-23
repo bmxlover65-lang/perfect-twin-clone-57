@@ -738,7 +738,7 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
                     <span className="lucky7-runner-odds">{fmtOdds(p?.price)}</span>
                     <span className="lucky7-runner-size">{p?.size == null ? "" : String(p.size)}</span>
                   </span>
-                  {locked ? <LockKeyhole className="lucky7-runner-lock" aria-hidden="true" /> : null}
+                  {locked && !suspended ? <LockKeyhole className="lucky7-runner-lock" aria-hidden="true" /> : null}
                 </button>
               </div>
             );
@@ -3783,7 +3783,13 @@ function GamePage() {
   }
 
   return (
-    <div className={shell(gameId === "99.0030" ? "max-w-[430px]" : "max-w-[900px]")}>
+    <div
+      className={
+        gameId === "99.0030" && !embed
+          ? "mx-auto w-full max-w-[430px] px-1 py-3 sm:py-5"
+          : shell(gameId === "99.0030" ? "max-w-[430px]" : "max-w-[900px]")
+      }
+    >
       {embed ? null : (
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
           <div className="min-w-0">
