@@ -1050,7 +1050,7 @@ function RefListMarket({
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
   const hasLay = backOnly === undefined ? runners.some((r) => Boolean(r.price?.lay?.[0]?.price)) || minMax : !backOnly;
-  const cols = hasLay ? "minmax(0,1fr) 78px 78px" : backOnly && !minMax && runners.length <= 2 ? "minmax(0,1fr) 90px" : "minmax(0,1fr) 156px";
+  const cols = hasLay ? "minmax(0,1fr) 78px 78px" : backOnly && !minMax ? "minmax(0,1fr) 90px" : "minmax(0,1fr) 156px";
   const locked =
     suspended || (runners.length > 0 && runners.every((r) => !isOpenStatus(r.status ?? "ONLINE")));
   return (
@@ -1091,7 +1091,7 @@ function RefListMarket({
           };
           return (
             <div key={String(runner.selectionId)} data-runner-row="" className="reflist-row" style={{ gridTemplateColumns: cols }}>
-              <span data-runner-name="" className="reflist-name"><span>{label}</span></span>
+              <span data-runner-name="" className="reflist-name">{/^(A|[2-9]|10|J|Q|K)$/i.test(String(label).trim()) && LUCKY7_CARD_IMAGES[String(label).trim().toUpperCase()] ? <img src={LUCKY7_CARD_IMAGES[String(label).trim().toUpperCase()]} alt={String(label)} className="h-[30px] w-auto" /> : <span>{label}</span>}</span>
               {cell("back")}
               {hasLay ? cell("lay") : null}
             </div>
@@ -3982,7 +3982,7 @@ function GamePage() {
         {gameId === "99.0014" && markets.length ? (
           <MuflisPanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0018" && markets.length ? (
-          <DT20Panel markets={markets} suspended={suspended} />
+          <div className="reflist">{markets.map((m, i) => <RefListMarket key={`${m.marketId}-${i}`} market={m} suspended={suspended} backOnly />)}</div>
         ) : gameId === "99.0021" && markets.length ? (
           <DragonTigerPanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0041" && markets.length ? (
