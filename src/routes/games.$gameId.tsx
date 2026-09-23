@@ -766,8 +766,7 @@ function Lucky7Recent({ results }: { results: CasinoResult[] }) {
               <button
                 type="button"
                 data-nobet=""
-                className={`lucky7-result-chip${first === "L" ? " is-low" : ""}`}
-                style={first === "T" ? { background: "#F6D743", color: "#111" } : undefined}
+                className={`lucky7-result-chip${first === "L" ? " is-low" : first === "T" ? " is-tie" : ""}`}
               >
                 {first}
               </button>
@@ -3795,7 +3794,7 @@ function GamePage() {
               Live · Universe Live
             </p>
             <h1 className="mt-1 text-[1.35rem] font-extrabold leading-tight text-foreground sm:text-2xl">
-              {cleanGameName(d?.eventName) ?? "Loading game…"}
+              {cleanGameName(d?.eventName) ?? fallbackGameName}
             </h1>
           </div>
           <span className="flex shrink-0 flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-2">
