@@ -214,9 +214,9 @@ function stabilizeCasinoState(previous: CasinoState | null, incoming: CasinoStat
 function SuspendVeil({
   className = "",
   size = "md",
-  solid = false,
+  solid = true,
   repeat = 1,
-  bordered = false,
+  bordered = true,
 }: {
   className?: string;
   size?: "sm" | "md";
@@ -332,8 +332,10 @@ function BaccaratPanel({
   const playerPair = pair.find((r) => r.label.includes("PLAYER")) ?? pair[0];
   const bankerPair = pair.find((r) => r.label.includes("BANKER")) ?? pair[1];
 
+  const marketLocked = suspended || [...winner, ...pair, ...(tie ? [tie] : [])].every((runner) => !runner.open);
+
   return (
-    <div className="mt-0 bg-baccarat-surface pb-1.5 pt-1">
+    <div className="relative mt-0 bg-baccarat-surface pb-1.5 pt-1">
       <div className="relative mx-1 h-[89px] overflow-hidden rounded-[14px]">
         <span className="pointer-events-none absolute left-1 top-1 z-20 text-[0.78rem] font-light text-board-header-foreground/50">0%</span>
         <div className="grid h-full grid-cols-2">
@@ -353,6 +355,7 @@ function BaccaratPanel({
         {bankerPair ? <BetPlate r={bankerPair} variant="banker-pair" /> : null}
       </div>
       <BaccaratChipRow />
+      {marketLocked ? <SuspendVeil /> : null}
     </div>
 
   );
@@ -428,9 +431,7 @@ function PokerPanel({
                 ))}
               </div>
               {isSusp ? (
-                <div data-suspended="true" className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-[rgba(255,255,255,0.5)]">
-                  <span className="text-[1.25rem] font-bold uppercase text-[#D0021B]">SUSPEND</span>
-                </div>
+                <SuspendVeil />
               ) : null}
             </section>
           );
@@ -445,6 +446,7 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
   const hasLay = runners.some((r) => Boolean(r.price?.lay?.[0]?.price));
+  const marketLocked = suspended || (runners.length > 0 && runners.every((runner) => !isOpenStatus(runner.status ?? "ONLINE")));
   const cols = hasLay ? "grid-cols-[1fr_130px_130px]" : "grid-cols-[1fr_130px]";
   // Original strips the side prefix inside a side-specific section
   // ("DRAGON ODD" -> "ODD" under the "DRAGON ODD/EVEN" header).
@@ -526,6 +528,7 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
             </div>
           );
         })}
+        {marketLocked ? <SuspendVeil /> : null}
       </div>
     </div>
   );
@@ -859,6 +862,7 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
   const hasLay = runners.some((r) => Boolean(r.price?.lay?.[0]?.price));
+  const marketLocked = suspended || (runners.length > 0 && runners.every((runner) => !isOpenStatus(runner.status ?? "ONLINE")));
   const cols = hasLay
     ? "grid-cols-[minmax(0,1fr)_92px_92px] sm:grid-cols-[minmax(0,1fr)_104px_104px]"
     : "grid-cols-[minmax(0,1fr)_126px] sm:grid-cols-[minmax(0,1fr)_152px]";
@@ -927,6 +931,7 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
             </div>
           );
         })}
+        {marketLocked ? <SuspendVeil /> : null}
       </div>
 
     </div>
@@ -1419,7 +1424,7 @@ function AndarBaharPanel({
   };
 
   return (
-    <div className="mt-0 bg-muted text-foreground">
+    <div className="relative mt-0 bg-muted text-foreground">
       <span className="sr-only">Min/Max: {Math.max(100, minmax?.min ?? 0)} - {minmax?.max ?? 0}</span>
       <div className="space-y-1 px-2.5 py-1">
         {group("A")}
@@ -1492,6 +1497,7 @@ function AndarBaharPanel({
           </button>
         ))}
       </div>
+      {suspended ? <SuspendVeil /> : null}
     </div>
   );
 }
