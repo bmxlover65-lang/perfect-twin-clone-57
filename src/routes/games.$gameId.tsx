@@ -2638,26 +2638,47 @@ function NumberPanel({
             className: "cursor-pointer",
           }
         : {};
-    if (note) {
+    const plate = dream ? DREAM_PLATE[key] : undefined;
+    if (plate) {
       return (
         <div
           {...directBet}
-          className={`relative overflow-hidden rounded-[6px] border-2 bg-black ${directBet.className ?? ""}`}
-          style={{ borderColor: DREAM_BORDER[key] ?? "#333" }}
+          className={`relative flex items-center justify-center overflow-hidden rounded-[4px] ${directBet.className ?? ""}`}
+          style={{
+            aspectRatio: "16 / 10",
+            background: `linear-gradient(180deg, ${plate.bg} 0%, ${plate.bg2} 100%)`,
+            boxShadow: `inset 0 0 0 2px ${plate.bg2}`,
+          }}
         >
-          <img
-            src={note}
-            alt={`${key}x`}
-            className="block w-full select-none object-cover"
-            style={{ aspectRatio: "16 / 9" }}
-            draggable={false}
-          />
+          <div className="flex h-full w-full flex-col items-center justify-center gap-[5px]">
+            <span
+              className="flex h-[54%] w-[74%] items-center justify-center rounded-[50%]"
+              style={{ background: plate.oval }}
+            >
+              <span
+                className="font-serif text-[1.9rem] font-black leading-none"
+                style={{ color: plate.text }}
+              >
+                {key}
+              </span>
+            </span>
+            <span
+              className="rounded-[2px] px-[7px] py-[2px] text-[0.62rem] font-extrabold uppercase leading-none"
+              style={{ background: plate.oval, color: plate.text }}
+            >
+              Pays {key}x
+            </span>
+          </div>
           {!t.open ? (
-            <div className="absolute inset-0 bg-black/55" />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/55">
+              <Lock className="h-5 w-5 text-white/80" />
+            </div>
           ) : null}
         </div>
       );
     }
+    void note;
+    void DREAM_BORDER;
 
 
     return (
