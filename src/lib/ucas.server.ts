@@ -110,23 +110,44 @@ function ingest(text: string) {
   }
 }
 
-async function pump(id: string) {
-  if (pumping) return pumping;
-  pumping = (async () => {
+let looping = false;
+
+/** Keep one long-poll loop alive so frames land continuously, not per-request. */
+function startLoop(id: string) {
+  if (looping) return;
+  looping = true;
+  void (async () => {
     try {
-      const res = await call(`/socket.io/?EIO=4&transport=polling&sid=${id}`);
-      if (res.status >= 400) {
-        sid = null;
-        return;
+      let current = id;
+      // Runs for the lifetime of the worker; each poll returns as soon as the
+      // gateway pushes a frame, so this is an always-fresh stream.
+      for (;;) {
+        try {
+          const res = await call(`/socket.io/?EIO=4&transport=polling&sid=${current}`);
+          if (res.status >= 400) {
+            sid = null;
+            const next = await session();
+            if (!next) {
+              await new Promise((r) => setTimeout(r, 1000));
+              continue;
+            }
+            current = next;
+            for (const eventId of [...subscribed]) {
+              subscribed.delete(eventId);
+              await ensure(eventId);
+            }
+            continue;
+          }
+          ingest(await res.text());
+          if (sid) current = sid;
+        } catch {
+          await new Promise((r) => setTimeout(r, 500));
+        }
       }
-      ingest(await res.text());
-    } catch {
-      /* transient — next call retries */
     } finally {
-      pumping = null;
+      looping = false;
     }
   })();
-  return pumping;
 }
 
 async function ensure(eventId: string): Promise<string | null> {
@@ -137,7 +158,17 @@ async function ensure(eventId: string): Promise<string | null> {
     await post(id, `42["game:subscribe",{"eventId":${JSON.stringify(eventId)}}]`);
     await post(id, `42["game:subscribeResults",{"eventId":${JSON.stringify(eventId)}}]`);
   }
+  startLoop(id);
   return id;
+}
+
+async function waitFor(check: () => boolean, ms: number) {
+  const until = Date.now() + ms;
+  while (Date.now() < until) {
+    if (check()) return true;
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  return check();
 }
 
 /** Latest live frame for a casino event, or null when the gateway is silent. */
@@ -147,20 +178,7 @@ export async function ucasState(eventId: string): Promise<{
 } | null> {
   const id = await ensure(eventId);
   if (!id) return null;
-  const hit = states.get(eventId);
-  if (hit && Date.now() - hit.at < 700) return { data: hit.data, freshnessMs: Date.now() - hit.at };
-
-  for (let i = 0; i < 3; i++) {
-    await pump(id);
-    const frame = states.get(eventId);
-    if (frame && Date.now() - frame.at < 3000) {
-      return { data: frame.data, freshnessMs: Date.now() - frame.at };
-    }
-    if (!sid) {
-      const again = await ensure(eventId);
-      if (!again) break;
-    }
-  }
+  await waitFor(() => states.has(eventId), 6000);
   const last = states.get(eventId);
   return last ? { data: last.data, freshnessMs: Date.now() - last.at } : null;
 }
@@ -169,8 +187,6 @@ export async function ucasState(eventId: string): Promise<{
 export async function ucasResults(eventId: string): Promise<unknown[]> {
   const id = await ensure(eventId);
   if (!id) return results.get(eventId)?.data ?? [];
-  const hit = results.get(eventId);
-  if (hit && Date.now() - hit.at < 1500) return hit.data;
-  await pump(id);
-  return results.get(eventId)?.data ?? hit?.data ?? [];
+  await waitFor(() => results.has(eventId), 4000);
+  return results.get(eventId)?.data ?? [];
 }
