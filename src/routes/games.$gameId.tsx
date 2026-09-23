@@ -211,15 +211,26 @@ function stabilizeCasinoState(previous: CasinoState | null, incoming: CasinoStat
 }
 
 /** Original-style suspended veil: faded market background + bold red SUSPENDED text. */
-function SuspendVeil({ className = "", size = "md" }: { className?: string; size?: "sm" | "md" }) {
+function SuspendVeil({
+  className = "",
+  size = "md",
+  solid = false,
+}: {
+  className?: string;
+  size?: "sm" | "md";
+  solid?: boolean;
+}) {
   return (
     <div
       data-suspended="true"
-      className={`pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-casino-suspend-veil ${className}`}
+      className={`pointer-events-none absolute inset-0 z-20 flex items-center justify-center ${
+        solid ? "" : "bg-casino-suspend-veil"
+      } ${className}`}
+      style={solid ? { background: "rgba(255,255,255,0.86)" } : undefined}
     >
       <span
         className={`font-extrabold uppercase tracking-[0.06em] text-casino-suspend-text ${
-          size === "sm" ? "text-[1.15rem]" : "text-[1.5rem] sm:text-[1.8rem]"
+          size === "sm" ? "text-[1.05rem]" : "text-[1.5rem] sm:text-[1.8rem]"
         }`}
       >
         SUSPENDED
@@ -1729,7 +1740,7 @@ function AAAPanel({
     </div>
   );
 
-  const Watermark = () => <SuspendVeil />;
+  const Watermark = () => <SuspendVeil size="sm" solid />;
 
 
   const Header = ({ name }: { name: string }) => (
@@ -1738,30 +1749,26 @@ function AAAPanel({
     </div>
   );
 
-  const SuspCell = () => (
-    <div className="flex h-[38px] w-full items-center justify-center rounded-[5px] bg-casino-suspend-veil">
-      <span className="text-[0.78rem] font-extrabold uppercase tracking-[0.06em] text-casino-suspend-text">
-        Suspended
-      </span>
-    </div>
-  );
-
-
   const PriceCell = ({
     price,
     size,
     tone,
+    locked,
   }: {
     price?: number | null | undefined;
     size?: number | null | undefined;
     tone: "back" | "lay";
+    locked?: boolean;
   }) => (
     <div
-      className="flex h-[38px] w-full flex-col items-center justify-center leading-none"
+      className="relative flex h-[38px] w-full flex-col items-center justify-center leading-none"
       style={{ background: tone === "back" ? "#72BBEF" : "#F9C9D4" }}
     >
       <span className="text-[0.92rem] font-bold text-[#111]">{fmtOdds(price)}</span>
       <span className="text-[0.66rem] text-[#111]">{size ?? ""}</span>
+      {locked ? (
+        <span className="pointer-events-none absolute inset-0 bg-casino-suspend-veil" />
+      ) : null}
     </div>
   );
 
@@ -1793,26 +1800,20 @@ function AAAPanel({
                     {label}
                   </div>
                   <div className="w-[124px] p-1">
-                    {open ? (
-                      <PriceCell
-                        price={r.price?.back?.[0]?.price}
-                        size={r.price?.back?.[0]?.size}
-                        tone="back"
-                      />
-                    ) : (
-                      <SuspCell />
-                    )}
+                    <PriceCell
+                      price={r.price?.back?.[0]?.price}
+                      size={r.price?.back?.[0]?.size}
+                      tone="back"
+                      locked={!open}
+                    />
                   </div>
                   <div className="w-[124px] p-1">
-                    {open ? (
-                      <PriceCell
-                        price={r.price?.lay?.[0]?.price}
-                        size={r.price?.lay?.[0]?.size}
-                        tone="lay"
-                      />
-                    ) : (
-                      <SuspCell />
-                    )}
+                    <PriceCell
+                      price={r.price?.lay?.[0]?.price}
+                      size={r.price?.lay?.[0]?.size}
+                      tone="lay"
+                      locked={!open}
+                    />
                   </div>
                 </div>
               );
@@ -1840,11 +1841,11 @@ function AAAPanel({
                     <div
                       key={`${r.selectionId}-${i}`}
                       className="flex h-[72px] flex-col items-center justify-center leading-tight"
-                      style={{ background: i === 0 ? "#D9A0A8" : "#78AEDB" }}
+                      style={{ background: i === 0 ? "#8A2226" : "#196AB1" }}
                     >
                       <span className="text-[0.95rem] font-bold text-white">
                         {isRed ? (
-                          <span className="text-[#E01B24]">♥ ♦</span>
+                          <span className="text-[#FF6B6B]">♥ ♦</span>
                         ) : isBlack ? (
                           <span className="text-[#111]">♠ ♣</span>
                         ) : (
@@ -1898,15 +1899,12 @@ function AAAPanel({
                     </span>
                   </div>
                   <div className="w-[248px] p-1">
-                    {open ? (
-                      <PriceCell
-                        price={r.price?.back?.[0]?.price}
-                        size={r.price?.back?.[0]?.size}
-                        tone="back"
-                      />
-                    ) : (
-                      <SuspCell />
-                    )}
+                    <PriceCell
+                      price={r.price?.back?.[0]?.price}
+                      size={r.price?.back?.[0]?.size}
+                      tone="back"
+                      locked={!open}
+                    />
                   </div>
                 </div>
               );

@@ -19,6 +19,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SportsDocsRouteImport } from './routes/sports-docs'
 import { Route as AuthenticatedConsoleRouteImport } from './routes/_authenticated/console'
 import { Route as AuthenticatedOperatorRouteImport } from './routes/_authenticated/operator'
+import { Route as AuthenticatedUiAuditRouteImport } from './routes/_authenticated/ui-audit'
 import { Route as GamesGameIdRouteImport } from './routes/games.$gameId'
 import { Route as SportsIndexRouteImport } from './routes/sports.index'
 import { Route as SportsSportIdEventIdRouteImport } from './routes/sports.$sportId.$eventId'
@@ -81,6 +82,11 @@ const AuthenticatedConsoleRoute = AuthenticatedConsoleRouteImport.update({
 const AuthenticatedOperatorRoute = AuthenticatedOperatorRouteImport.update({
   id: '/operator',
   path: '/operator',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedUiAuditRoute = AuthenticatedUiAuditRouteImport.update({
+  id: '/ui-audit',
+  path: '/ui-audit',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const GamesGameIdRoute = GamesGameIdRouteImport.update({
@@ -164,6 +170,7 @@ export interface FileRoutesByFullPath {
   '/sports-docs': typeof SportsDocsRoute
   '/console': typeof AuthenticatedConsoleRoute
   '/operator': typeof AuthenticatedOperatorRoute
+  '/ui-audit': typeof AuthenticatedUiAuditRoute
   '/games/$gameId': typeof GamesGameIdRoute
   '/sports/': typeof SportsIndexRoute
   '/sports/$sportId/$eventId': typeof SportsSportIdEventIdRoute
@@ -189,6 +196,7 @@ export interface FileRoutesByTo {
   '/sports-docs': typeof SportsDocsRoute
   '/console': typeof AuthenticatedConsoleRoute
   '/operator': typeof AuthenticatedOperatorRoute
+  '/ui-audit': typeof AuthenticatedUiAuditRoute
   '/games/$gameId': typeof GamesGameIdRoute
   '/sports': typeof SportsIndexRoute
   '/sports/$sportId/$eventId': typeof SportsSportIdEventIdRoute
@@ -216,6 +224,7 @@ export interface FileRoutesById {
   '/sports-docs': typeof SportsDocsRoute
   '/_authenticated/console': typeof AuthenticatedConsoleRoute
   '/_authenticated/operator': typeof AuthenticatedOperatorRoute
+  '/_authenticated/ui-audit': typeof AuthenticatedUiAuditRoute
   '/games/$gameId': typeof GamesGameIdRoute
   '/sports/': typeof SportsIndexRoute
   '/sports/$sportId/$eventId': typeof SportsSportIdEventIdRoute
@@ -243,6 +252,7 @@ export interface FileRouteTypes {
     | '/sports-docs'
     | '/console'
     | '/operator'
+    | '/ui-audit'
     | '/games/$gameId'
     | '/sports/'
     | '/sports/$sportId/$eventId'
@@ -268,6 +278,7 @@ export interface FileRouteTypes {
     | '/sports-docs'
     | '/console'
     | '/operator'
+    | '/ui-audit'
     | '/games/$gameId'
     | '/sports'
     | '/sports/$sportId/$eventId'
@@ -294,6 +305,7 @@ export interface FileRouteTypes {
     | '/sports-docs'
     | '/_authenticated/console'
     | '/_authenticated/operator'
+    | '/_authenticated/ui-audit'
     | '/games/$gameId'
     | '/sports/'
     | '/sports/$sportId/$eventId'
@@ -406,6 +418,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOperatorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ui-audit': {
+      id: '/_authenticated/ui-audit'
+      path: '/ui-audit'
+      fullPath: '/ui-audit'
+      preLoaderRoute: typeof AuthenticatedUiAuditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/games/$gameId': {
       id: '/games/$gameId'
       path: '/games/$gameId'
@@ -510,11 +529,13 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedConsoleRoute: typeof AuthenticatedConsoleRoute
   AuthenticatedOperatorRoute: typeof AuthenticatedOperatorRoute
+  AuthenticatedUiAuditRoute: typeof AuthenticatedUiAuditRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConsoleRoute: AuthenticatedConsoleRoute,
   AuthenticatedOperatorRoute: AuthenticatedOperatorRoute,
+  AuthenticatedUiAuditRoute: AuthenticatedUiAuditRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
