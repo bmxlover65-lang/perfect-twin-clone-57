@@ -140,6 +140,7 @@ function SportsPage() {
   }, []);
 
   const inFlight = useRef(false);
+  const didLoad = useRef(false);
   const emptyStreak = useRef(0);
 
   const load = useCallback(
@@ -205,24 +206,45 @@ function SportsPage() {
     [],
   );
 
+  // Fast path: refresh only the sport that is on screen. The other sports are
+  // refreshed on a slow full sweep, so the visible list updates quicker while
+  // the feed does a fraction of the work.
+  const refreshVisible = useCallback(async (id: string) => {
+    try {
+      const r = await fetchEvents(id);
+      const list = (r?.events ?? []).map((e) => ({ ...e, sportId: e.sportId || id }));
+      if (!list.length) return;
+      setEvents((prev) => [...prev.filter((e) => e.sportId !== id), ...list]);
+      setRefreshedAt(new Date().toLocaleTimeString());
+    } catch {
+      /* keep last good list */
+    }
+  }, []);
+
   useEffect(() => {
     emptyStreak.current = 0;
-    void load();
-    const t = setInterval(() => {
+    void load(didLoad.current);
+    didLoad.current = true;
+    const quick = setInterval(() => {
+      if (document.visibilityState === "hidden") return;
+      void refreshVisible(sportId);
+    }, 2000);
+    const full = setInterval(() => {
       if (document.visibilityState === "hidden") return;
       void load(true);
-    }, 3000);
+    }, 30000);
     const onVisible = () => {
       if (document.visibilityState === "visible") void load(true);
     };
     document.addEventListener("visibilitychange", onVisible);
     window.addEventListener("focus", onVisible);
     return () => {
-      clearInterval(t);
+      clearInterval(quick);
+      clearInterval(full);
       document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("focus", onVisible);
     };
-  }, [load]);
+  }, [load, refreshVisible, sportId]);
 
 
 

@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from "react";
 
 import { GAMES, type GameDef } from "@/data/games";
 import { GameCard } from "@/components/GameCard";
-import { AppLoader } from "@/components/AppLoader";
 import { fetchCasinoGames, type CasinoGame } from "@/lib/uapi";
 
 export const Route = createFileRoute("/")({
@@ -62,7 +61,6 @@ function Lobby() {
   const [games, setGames] = useState<CasinoGame[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [refreshedAt, setRefreshedAt] = useState("");
-  const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     try {
@@ -72,17 +70,17 @@ function Lobby() {
       setRefreshedAt(new Date().toLocaleTimeString());
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load games");
-    } finally {
-      setLoading(false);
     }
   }, []);
 
   useEffect(() => {
     void load();
+    // The lobby list barely changes; a slow poll keeps it fresh without
+    // hammering the feed on every open tab.
     const t = setInterval(() => {
       if (document.visibilityState === "hidden") return;
       void load();
-    }, 2000);
+    }, 20000);
     const onVisible = () => {
       if (document.visibilityState === "visible") void load();
     };
@@ -105,7 +103,6 @@ function Lobby() {
   const rank = (id: string) => (id === VIMAAN ? -2 : id === BBB ? -1 : 0);
   const list = [...raw].sort((a, b) => rank(a.id) - rank(b.id));
 
-  if (loading) return <AppLoader />;
 
 
   return (
