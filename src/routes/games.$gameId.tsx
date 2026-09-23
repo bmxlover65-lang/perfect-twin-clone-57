@@ -790,7 +790,7 @@ function refBadge(raw: string, game: string): { letter: string; tone: "high" | "
 
 function Lucky7Recent({ results, game = "99.0030" }: { results: CasinoResult[]; game?: string }) {
   return (
-    <section className="lucky7-results">
+    <section className={`lucky7-results${game === "99.0019" ? " is-dt20" : ""}`}>
       <h5 className="lucky7-results-title">Recent Result</h5>
       <ul className="lucky7-results-list">
         {results.slice(0, 10).map((r, idx) => {
@@ -3942,7 +3942,7 @@ function GamePage() {
           <AAAPanel markets={markets} suspended={suspended} />
         ) : ["99.0030", "99.0010", "99.0019"].includes(gameId) && markets.length ? (
           // Reference MarketPanel (grid layout) — shared by Lucky 7, 20-20 Teen Patti, 20-20 Dragon Tiger.
-          <div className="lucky7-board">
+          <div className={`lucky7-board${gameId === "99.0019" ? " is-dt20" : ""}`}>
             {markets.map((m, i) => (
               <Lucky7Board key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
             ))}
