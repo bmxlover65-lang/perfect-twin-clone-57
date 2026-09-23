@@ -983,17 +983,20 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
 function JokerTeenPattiBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
+  const allClosed =
+    suspended ||
+    (runners.length > 0 && runners.every((r) => !isOpenStatus(r.status ?? "ONLINE") || !r.price?.back?.[0]?.price));
   return (
-    <div className="mt-0 overflow-hidden border border-casino-market-divider bg-ex-market-surface">
-      <header className="flex h-[22px] items-center justify-between bg-casino-market-header px-1.5">
-        <span className="text-[0.7rem] font-bold uppercase text-board-header-foreground">
+    <div className="mt-0 overflow-hidden bg-ex-market-surface">
+      <header className="flex h-[38px] items-center justify-between bg-[#2c3e50] px-3">
+        <span className="text-[1rem] font-bold uppercase tracking-wide text-white">
           {market.marketName}
         </span>
-        <span className="flex h-[14px] w-[14px] items-center justify-center rounded-full bg-board-header-foreground text-casino-market-header">
-          <Info className="h-[10px] w-[10px]" strokeWidth={3} />
+        <span className="flex h-[18px] w-[18px] items-center justify-center rounded-full bg-white text-[#2c3e50]">
+          <Info className="h-[12px] w-[12px]" strokeWidth={3} />
         </span>
       </header>
-      <div className="relative">
+      <div className={`relative ${allClosed ? "border-2 border-[#F0A9A9]" : ""}`}>
         {runners.map((runner) => {
           const back = runner.price?.back?.[0];
           const open = !suspended && isOpenStatus(runner.status ?? "ONLINE") && Boolean(back?.price);
@@ -1001,9 +1004,12 @@ function JokerTeenPattiBoard({ market, suspended }: { market: CasinoMarket; susp
             <div
               key={String(runner.selectionId)}
               data-runner-row=""
-              className="grid h-[41px] grid-cols-[minmax(0,1fr)_99px] border-b border-casino-market-divider last:border-b-0"
+              className="grid h-[50px] grid-cols-[minmax(0,1fr)_112px] border-b border-casino-market-divider bg-white last:border-b-0"
             >
-              <span data-runner-name="" className="flex h-full items-start bg-background px-1.5 pt-1.5 font-serif text-[0.72rem] font-bold uppercase leading-none text-foreground">
+              <span
+                data-runner-name=""
+                className={`flex h-full items-center px-3 text-[1rem] font-bold uppercase leading-none ${allClosed ? "text-[#98a2ad]" : "text-[#1e3a52]"}`}
+              >
                 {names[String(runner.selectionId)] ?? String(runner.selectionId)}
               </span>
               <button
@@ -1013,19 +1019,24 @@ function JokerTeenPattiBoard({ market, suspended }: { market: CasinoMarket; susp
                 data-bet-label={String(names[String(runner.selectionId)] ?? runner.selectionId)}
                 data-bet-odds={String(back?.price ?? "")}
                 disabled={!open}
-                className="relative flex flex-col items-center justify-center bg-casino-market-rate text-ex-cell-foreground disabled:cursor-not-allowed"
+                className={`relative flex flex-col items-center justify-center bg-[#8FCBF0] text-[#11263a] disabled:cursor-not-allowed ${allClosed ? "opacity-70" : ""}`}
               >
-                <span className="text-[0.82rem] font-bold leading-none">{fmtOdds(back?.price)}</span>
-                <span className="mt-1 text-[0.67rem] font-normal leading-none">{back?.size == null ? "" : String(Math.round(back.size))}</span>
+                <span className="text-[1.05rem] font-bold leading-none">{fmtOdds(back?.price)}</span>
+                <span className="mt-1 text-[0.78rem] font-normal leading-none">{back?.size == null ? "" : String(Math.round(back.size))}</span>
               </button>
             </div>
           );
         })}
-        {suspended ? <SuspendVeil /> : null}
+        {allClosed ? (
+          <span className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
+            <span className="text-[1.6rem] font-bold uppercase tracking-wide text-[#E08585]">SUSPENDED</span>
+          </span>
+        ) : null}
       </div>
     </div>
   );
 }
+
 
 /** 20-20 Dragon Tiger reference board: Dragon/Tiger above with Tie centred below. */
 function DragonTiger20Board({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
