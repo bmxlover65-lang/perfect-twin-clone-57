@@ -1917,7 +1917,7 @@ function AAAPanel({
               );
             })}
             {(card.runners ?? []).every((r) => suspended || !isOpenStatus(r.status)) ? (
-              <SuspendVeil size="sm" className="sticky" />
+              <SuspendVeil size="sm" repeat={4} />
             ) : null}
           </div>
         </div>
