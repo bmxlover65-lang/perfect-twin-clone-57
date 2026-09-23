@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from "react";
 
 import { GAMES, type GameDef } from "@/data/games";
 import { GameCard } from "@/components/GameCard";
-import { AppLoader } from "@/components/AppLoader";
 import { fetchCasinoGames, type CasinoGame } from "@/lib/uapi";
 
 export const Route = createFileRoute("/")({
@@ -104,7 +103,6 @@ function Lobby() {
   const rank = (id: string) => (id === VIMAAN ? -2 : id === BBB ? -1 : 0);
   const list = [...raw].sort((a, b) => rank(a.id) - rank(b.id));
 
-  if (loading) return <AppLoader />;
 
 
   return (
