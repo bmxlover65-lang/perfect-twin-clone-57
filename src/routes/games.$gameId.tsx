@@ -2366,19 +2366,19 @@ function MuflisPanel({
     { v: "5k", src: chip5.url },
     { v: "10k", src: chip10.url },
     { v: "25k", src: chip20.url },
-    { v: "50k", src: chip50.url },
-    { v: "100k", src: chip100.url },
-    { v: "200k", src: chip200.url },
+    { v: "50k", src: chip1k.url },
+    { v: "100k", src: chip10.url },
+    { v: "200k", src: chip1k.url },
   ];
 
   const Hand = () => (
-    <div className="flex items-end justify-center gap-[6px]">
+    <div className="flex items-end justify-center gap-[4px]">
       {[0, 1, 2].map((i) => (
         <img
           key={i}
           src={CARD_BACK}
           alt=""
-          className="h-[52px] w-[38px] rounded-[2px] border border-[#111] bg-white object-cover"
+          className="h-[46px] w-[34px] rounded-[1px] border border-[#111] bg-white object-cover"
           draggable={false}
         />
       ))}
@@ -2409,23 +2409,26 @@ function MuflisPanel({
         type="button"
         {...(open ? openProps : {})}
         disabled={!open}
-        className={`relative flex h-[92px] w-full flex-col items-center justify-center gap-[6px] rounded-[16px] ${
+        className={`relative flex h-[88px] w-full flex-col items-center justify-center gap-[5px] rounded-[16px] shadow-[0_2px_3px_rgba(0,0,0,0.35)] ${
           open ? "bg-[#060606]" : "bg-[#2b2b2b]"
         }`}
       >
         <span
-          className={`text-[1.25rem] font-extrabold uppercase leading-none ${
-            open ? "text-white" : "text-white/35"
+          className={`text-[18px] font-bold uppercase leading-none ${
+            open ? "text-white" : "text-[#8a8a8a]"
           }`}
         >
           {label}
         </span>
-        <span className={`text-[1rem] leading-none ${open ? "text-white" : "text-white/35"}`}>
+        <span className={`text-[13px] font-bold leading-none ${open ? "text-white" : "text-[#8a8a8a]"}`}>
           {fmtOdds(point?.price)}
         </span>
         {open ? null : (
           <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <LockKeyhole className="h-7 w-7 text-white" strokeWidth={2.4} />
+            <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" aria-hidden="true">
+              <path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="#fff" strokeWidth="2.6" />
+              <rect x="4.5" y="10" width="15" height="12" rx="1.5" fill="#fff" />
+            </svg>
           </span>
         )}
       </button>
@@ -2435,16 +2438,16 @@ function MuflisPanel({
   const selChip = chipBet?.chip ?? "1k";
 
   return (
-    <div className="bg-[#ededed] px-3 pb-3 pt-3">
-      <div className="mb-2 grid grid-cols-2 gap-3">
+    <div className="bg-[#ededed] px-2 pb-[34px] pt-2">
+      <div className="mb-2 grid grid-cols-2 gap-2">
         <Hand />
         <Hand />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <Side letter="A" />
         <Side letter="B" />
       </div>
-      <div className="mt-4 flex items-center justify-between gap-1">
+      <div className="mt-[30px] flex items-center justify-between gap-[3px] px-[6px]">
         {chips.map((c) => (
           <button
             key={c.v}
@@ -2452,7 +2455,7 @@ function MuflisPanel({
             data-nobet=""
             aria-label={`${c.v} chip`}
             onClick={() => chipBet?.select(c.v)}
-            className={`relative inline-flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-full transition-transform ${
+            className={`relative inline-flex h-[49px] w-[49px] shrink-0 items-center justify-center rounded-full shadow-[0_0_7px_2px_rgba(255,150,40,0.55)] transition-transform ${
               selChip === c.v ? "scale-110 ring-2 ring-[#D4AF1F]" : ""
             }`}
           >
@@ -2462,7 +2465,7 @@ function MuflisPanel({
               className="absolute inset-0 h-full w-full select-none object-contain"
               draggable={false}
             />
-            <span className="relative z-10 text-[0.72rem] font-extrabold text-[#111]">{c.v}</span>
+            <span className="relative z-10 text-[11px] font-bold text-[#111]">{c.v}</span>
           </button>
         ))}
       </div>
