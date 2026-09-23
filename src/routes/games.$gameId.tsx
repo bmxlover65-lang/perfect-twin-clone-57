@@ -3870,7 +3870,7 @@ function RecentStrip({
                 : isTie
                   ? "bg-[#8CD9B5] text-[#0F172A]"
                     : baccarat && first === "B"
-                      ? "bg-baccarat-red text-board-header-foreground"
+                      ? "bg-[#F9A9BA] text-black"
                     : baccarat && first === "P"
                       ? "bg-baccarat-blue text-board-header-foreground"
                     : first === "L"
