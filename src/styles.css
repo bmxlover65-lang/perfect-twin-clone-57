@@ -1002,6 +1002,14 @@
 .reflist-colhead.is-lay { background: #f9c9d4; }
 .reflist-minmax { display: flex; align-items: center; padding: 0 12px 0 19px; }
 .reflist-minmax > span { flex: 1; display: flex; align-items: center; justify-content: center; height: 22px; border-radius: 4px; background: #dfe7e8; font-size: 10px; color: #6b757d; }
+/* Dragon Tiger (99.0018) — Dukex measured at 393px */
+.reflist.is-dt .reflist-header { height: 22px; }
+.reflist.is-dt .reflist-row { height: 44px; }
+.reflist.is-dt .reflist-row:has(.reflist-cardimg) { height: 51px; }
+.reflist.is-dt .reflist-name { padding: 0 11px; }
+.reflist.is-dt .reflist-cardimg { height: 36px; }
+.reflist.is-dt .reflist-suits { margin-left: 6px; word-spacing: 1px; }
+.reflist.is-dt .reflist-row { grid-template-columns: minmax(0,1fr) 86px !important; }
 .reflist-suspended { position: absolute; inset: 0 1px 1px; z-index: 2; display: flex; align-items: center; justify-content: center; border: 2px solid #ca1010; border-radius: 4px; background: #fff; opacity: .5; color: #ca1010; font-size: 25px; font-weight: 700; pointer-events: none; }
 .lucky7-result-chip.is-c9 { background: #f9a9ba; }
 .lucky7-result-chip.is-c10 { background: #4cd964; }
