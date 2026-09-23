@@ -1220,48 +1220,59 @@ function DTLPanel({
   const odd = oddEven.find((r) => r.label.endsWith("ODD"));
   const even = oddEven.find((r) => r.label.endsWith("EVEN"));
 
-  const PriceBox = ({ r }: { r?: Row | undefined }) =>
-    r ? (
+  const DtlLock = () => (
+    <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+      <svg viewBox="0 0 24 24" className="h-6 w-6 text-white" fill="currentColor" aria-hidden="true">
+        <path d="M12 2a5 5 0 0 0-5 5v3H6a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-1V7a5 5 0 0 0-5-5Zm-3 8V7a3 3 0 1 1 6 0v3H9Z" />
+      </svg>
+    </span>
+  );
+
+  const PriceBox = ({ r }: { r?: Row | undefined }) => {
+    const bettable = Boolean(r?.open && r?.price);
+    return (
       <div
-        {...(r.open && r.price
+        {...(bettable
           ? {
               "data-market-plate": "",
               "data-market-option": "",
-              "data-bet-label": r.label,
-              "data-bet-odds": String(r.price),
+              "data-bet-label": r?.label ?? "",
+              "data-bet-odds": String(r?.price ?? ""),
             }
           : {})}
-        className={`relative flex h-[42px] w-[112px] items-center justify-center bg-casino-market-rate text-[0.9rem] font-bold text-casino-market-text ${
-          r.open && r.price ? "cursor-pointer" : ""
+        className={`relative flex h-[58px] w-[150px] items-center justify-center rounded-[2px] border border-[#5b9bd5] bg-[#333b43] ${
+          bettable ? "cursor-pointer" : ""
         }`}
       >
-        {r.open ? <span>{fmtOdds(r.price)}</span> : <span className="text-base">🔒</span>}
+        <span
+          className={`text-[1.15rem] font-bold text-white ${r?.open ? "" : "opacity-40"}`}
+        >
+          {fmtOdds(r?.price)}
+        </span>
+        {r?.open ? null : <DtlLock />}
       </div>
-    ) : (
-      <div className="h-[42px] w-[112px]" />
     );
+  };
 
   const RowLine = ({ label, r }: { label: ReactNode; r?: Row | undefined }) => (
-    <div className="flex min-h-[44px] items-center justify-between border-b border-casino-market-divider bg-casino-market-body px-3">
-      <span className="text-[0.78rem] font-semibold text-casino-market-text">{label}</span>
-      <div>
-        <PriceBox r={r} />
-      </div>
+    <div className="flex min-h-[68px] items-center justify-between border-b border-[#1b2126] bg-[#333b43] px-3">
+      <span className="text-[1rem] font-bold text-white">{label}</span>
+      <PriceBox r={r} />
     </div>
   );
 
   return (
-    <div className="mt-1 bg-casino-market-body font-[Tahoma,Helvetica,sans-serif]">
-      <div className="grid grid-cols-3 bg-l7-card">
+    <div className="bg-[#2b3238] font-[Tahoma,Helvetica,sans-serif]">
+      <div className="grid grid-cols-3 bg-[#39424a]">
         {(["DRAGON", "TIGER", "LION"] as const).map((t) => (
           <button
             key={t}
             type="button"
             onClick={() => setTab(t)}
-            className={`py-2 text-[0.78rem] font-bold capitalize ${
+            className={`py-[14px] text-[1.05rem] capitalize ${
               tab === t
-                ? "border-b-2 border-l7-suspend text-casino-market-text"
-                : "border-b-2 border-transparent text-casino-market-text"
+                ? "border-b-[4px] border-[#f2c319] font-semibold text-white"
+                : "border-b-[4px] border-transparent text-white/60"
             }`}
           >
             {t.toLowerCase()}
@@ -1270,16 +1281,16 @@ function DTLPanel({
       </div>
 
       {resultDeclared ? (
-        <div className="mx-1 mt-1 bg-casino-market-header px-2 py-1 text-[0.72rem] font-extrabold uppercase text-board-header-foreground">
+        <div className="bg-casino-market-header px-3 py-1 text-[0.72rem] font-extrabold uppercase text-board-header-foreground">
           Result Declared
         </div>
       ) : null}
 
-      <div className="relative mt-1">
+      <div className="relative">
         <RowLine label="Winner" r={winner} />
         <RowLine
           label={
-            <span className="flex gap-2 text-xl leading-none text-[#E0393B]">
+            <span className="flex gap-3 text-[1.35rem] leading-none text-[#e0201c]">
               <span>♥</span>
               <span>♦</span>
             </span>
@@ -1288,7 +1299,7 @@ function DTLPanel({
         />
         <RowLine
           label={
-            <span className="flex gap-2 text-xl leading-none text-white">
+            <span className="flex gap-3 text-[1.35rem] leading-none text-black">
               <span>♣</span>
               <span>♠</span>
             </span>
@@ -1297,41 +1308,52 @@ function DTLPanel({
         />
         <RowLine label="Odd" r={odd} />
         <RowLine label="Even" r={even} />
-        {suspended ? <SuspendVeil /> : null}
       </div>
 
-      <div className="relative flex flex-wrap justify-center gap-1 bg-l7-card px-2 py-2">
-        {cards.map((r) => {
-          const rank = r.label.replace(`${tab} `, "");
-          return (
-            <div
-              key={r.id}
-              {...(r.open && r.price
-                ? {
-                    "data-market-plate": "",
-                    "data-market-option": "",
-                    "data-bet-label": r.label,
-                    "data-bet-odds": String(r.price),
-                  }
-                : {})}
-              className={`w-[38px] text-center ${r.open && r.price ? "cursor-pointer" : ""}`}
-            >
-              <div className="relative flex h-[48px] flex-col items-center justify-center rounded-[3px] border border-l7-card-border bg-l7-card text-[1rem] font-extrabold text-casino-market-text">
-                {r.open ? rank : <span className="text-base">🔒</span>}
-                <span className="absolute bottom-0.5 left-0.5 text-[0.55rem] text-casino-market-text">♣ ♠</span>
-                <span className="absolute bottom-0.5 right-0.5 text-[0.55rem] text-[#E0393B]">♥ ♦</span>
-              </div>
-              <p className="py-0.5 text-[0.65rem] font-bold text-casino-market-text">
-                {fmtOdds(r.price)}
-              </p>
-            </div>
-          );
-        })}
-      </div>
-
+      {cards.length ? (
+        <div className="bg-[#2b3238] px-2 pb-4 pt-3">
+          <p className="pb-3 text-center text-[1.15rem] font-bold text-white">
+            {fmtOdds(cards[0]?.price)}
+          </p>
+          <div className="flex flex-wrap justify-center gap-[6px]">
+            {cards.map((r) => {
+              const rank = r.label.replace(`${tab} `, "").trim();
+              const bettable = r.open && Boolean(r.price);
+              return (
+                <div
+                  key={r.id}
+                  {...(bettable
+                    ? {
+                        "data-market-plate": "",
+                        "data-market-option": "",
+                        "data-bet-label": r.label,
+                        "data-bet-odds": String(r.price),
+                      }
+                    : {})}
+                  className={bettable ? "cursor-pointer" : ""}
+                >
+                  <div
+                    className={`relative flex h-[68px] w-[46px] items-center justify-center rounded-[3px] border-2 border-[#f2c319] ${
+                      bettable ? "bg-[#f2f2f2]" : "bg-[#9a9a9a]"
+                    }`}
+                  >
+                    <span className="text-[1.35rem] font-bold leading-none text-black">{rank}</span>
+                    <span className="absolute left-[3px] top-[3px] text-[0.55rem] leading-[0.62rem] text-black">♠</span>
+                    <span className="absolute right-[3px] top-[3px] text-[0.55rem] leading-[0.62rem] text-[#e0201c]">♦</span>
+                    <span className="absolute bottom-[3px] left-[3px] text-[0.55rem] leading-[0.62rem] text-black">♣</span>
+                    <span className="absolute bottom-[3px] right-[3px] text-[0.55rem] leading-[0.62rem] text-[#e0201c]">♥</span>
+                    {bettable ? null : <DtlLock />}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
+
 
 function AndarBaharPanel({
   markets,
