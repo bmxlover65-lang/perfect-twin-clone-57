@@ -735,7 +735,7 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
                     </span>
                   ) : null}
                   <span className="lucky7-runner-values">
-                    <span className="lucky7-runner-odds">{fmtOdds(p?.price)}</span>
+                    <span className="lucky7-runner-odds">{p?.price ? String(Number(p.price)) : fmtOdds(p?.price)}</span>
                     <span className="lucky7-runner-size">{p?.size == null ? "" : String(p.size)}</span>
                   </span>
                   {locked && !suspended ? <LockKeyhole className="lucky7-runner-lock" aria-hidden="true" /> : null}

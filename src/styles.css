@@ -405,20 +405,21 @@
 /* RecentResults_list */
 .lucky7-results-list {
   display: flex;
-  gap: 6px;
+  gap: 9px;
+  margin-left: 14px;
 }
 
 /* RecentResults_badge — Dukex: 28px tall pill, min 32px wide, 0.8rem bold */
 .lucky7-result-chip {
   display: grid;
   place-items: center;
-  min-width: 32px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 9999px;
-  font-size: 0.8rem;
+  font-size: 12px;
   font-weight: 700;
   color: #000000;
-  padding: 0 4px;
+  padding: 0;
   margin-left: 0;
   flex: 0 0 auto;
   border: 0;
