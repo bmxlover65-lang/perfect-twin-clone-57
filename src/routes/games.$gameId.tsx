@@ -229,22 +229,23 @@ function SuspendVeil({
       data-suspended="true"
       className={`pointer-events-none absolute inset-0 z-20 flex flex-col items-center ${
         repeat > 1 ? "justify-around" : "justify-center"
-      } ${bordered ? "border border-[#e12b32]" : ""} ${className}`}
-      style={{ background: solid ? "rgba(255,255,255,0.72)" : "rgba(255,255,255,0.5)" }}
+      } ${bordered ? "border border-[#f0b3b3]" : ""} ${className}`}
+      style={{ background: solid ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.45)" }}
     >
       {Array.from({ length: Math.max(1, repeat) }).map((_, i) => (
         <span
           key={i}
-          className={`font-bold uppercase text-[#D0021B] ${
-            size === "sm" ? "text-[0.95rem]" : "text-[1.25rem]"
+          className={`font-bold uppercase leading-none text-[#e28b8b] ${
+            size === "sm" ? "text-[1.15rem]" : "text-[1.5rem]"
           }`}
         >
-          SUSPEND
+          SUSPENDED
         </span>
       ))}
     </div>
   );
 }
+
 
 /** Round "i" badge in a market header; tapping it reveals the min/max limits. */
 function MarketInfo({ min, max }: { min: number; max: number }) {
@@ -1639,15 +1640,13 @@ function CardRacePanel({
 
     if (kingSuit) {
       return (
-        <span className="inline-flex items-center gap-2">
-          <span className="inline-flex h-[42px] w-[32px] shrink-0 flex-col items-center justify-center rounded-[3px] border border-[#E3C96B] bg-white leading-none shadow-sm">
-            <span className="text-[0.95rem] font-bold" style={{ color: suitColor(kingSuit) }}>K</span>
-            <span className="text-[0.9rem]" style={{ color: suitColor(kingSuit) }}>{kingSuit}</span>
-          </span>
-          <span className="text-[0.9rem] font-bold leading-tight text-[#555]">{up}</span>
+        <span className="inline-flex h-[44px] w-[34px] shrink-0 flex-col items-center justify-center rounded-[3px] border border-[#E3C96B] bg-white leading-none shadow-sm">
+          <span className="text-[1rem] font-bold" style={{ color: suitColor(kingSuit) }}>K</span>
+          <span className="text-[0.95rem]" style={{ color: suitColor(kingSuit) }}>{kingSuit}</span>
         </span>
       );
     }
+
 
 
     const suffix =
@@ -1689,31 +1688,31 @@ function CardRacePanel({
                 return (
                   <div
                     key={`${r.selectionId}-${i}`}
-                    className={`flex items-stretch ${i ? "border-t border-casino-market-divider" : ""}`}
+                    className={`flex items-stretch bg-white ${i ? "border-t border-casino-market-divider" : ""}`}
+
                   >
-                    <div className="flex min-h-[42px] flex-1 items-center px-2 py-1">
+                    <div className="flex min-h-[52px] flex-1 items-center px-3 py-1">
                       <Label text={label} />
                     </div>
-                    <div className="flex w-[134px] items-center justify-center p-1">
-                      <div
-                        {...(open && r.price?.back?.[0]?.price
-                          ? {
-                              "data-market-plate": "",
-                              "data-market-option": "",
-                              "data-bet-label": String(label).toUpperCase(),
-                              "data-bet-odds": String(r.price.back[0]!.price),
-                            }
-                          : {})}
-                        className={`flex h-[38px] w-full flex-col items-center justify-center rounded-[5px] leading-none ${open ? "cursor-pointer bg-casino-market-rate" : "bg-casino-market-rate/55"}`}
-                      >
-                        <span className="text-[0.95rem] font-bold text-[#12314e]">
-                          {fmtOdds(r.price?.back?.[0]?.price)}
-                        </span>
-                        <span className="text-[0.68rem] text-[#4a6c8c]">
-                          {r.price?.back?.[0]?.size ?? ""}
-                        </span>
-                      </div>
+                    <div
+                      {...(open && r.price?.back?.[0]?.price
+                        ? {
+                            "data-market-plate": "",
+                            "data-market-option": "",
+                            "data-bet-label": String(label).toUpperCase(),
+                            "data-bet-odds": String(r.price.back[0]!.price),
+                          }
+                        : {})}
+                      className={`flex w-[92px] shrink-0 flex-col items-center justify-center gap-[2px] leading-none ${open ? "cursor-pointer bg-casino-market-rate" : "bg-casino-market-rate/70"}`}
+                    >
+                      <span className="text-[1.05rem] font-bold text-[#5b7f9c]">
+                        {fmtOdds(r.price?.back?.[0]?.price)}
+                      </span>
+                      <span className="text-[0.7rem] text-[#7d99ae]">
+                        {r.price?.back?.[0]?.size ?? ""}
+                      </span>
                     </div>
+
                   </div>
                 );
               })}
