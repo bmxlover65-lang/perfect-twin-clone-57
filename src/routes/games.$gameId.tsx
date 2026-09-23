@@ -210,7 +210,7 @@ function stabilizeCasinoState(previous: CasinoState | null, incoming: CasinoStat
   return { ...incoming, data: { ...nextData, marketArr } };
 }
 
-/** Original-style suspended veil: faded market background + bold red SUSPENDED text. */
+/** Original-style suspended veil: faded market background + bold red SUSPEND text. */
 function SuspendVeil({
   className = "",
   size = "md",
@@ -223,17 +223,15 @@ function SuspendVeil({
   return (
     <div
       data-suspended="true"
-      className={`pointer-events-none absolute inset-0 z-20 flex items-center justify-center ${
-        solid ? "" : "bg-casino-suspend-veil"
-      } ${className}`}
-      style={solid ? { background: "rgba(255,255,255,0.86)" } : undefined}
+      className={`pointer-events-none absolute inset-0 z-20 flex items-center justify-center ${className}`}
+      style={{ background: solid ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.5)" }}
     >
       <span
-        className={`font-extrabold uppercase tracking-[0.06em] text-casino-suspend-text ${
-          size === "sm" ? "text-[1.05rem]" : "text-[1.5rem] sm:text-[1.8rem]"
+        className={`font-bold uppercase text-[#D0021B] ${
+          size === "sm" ? "text-[0.95rem]" : "text-[1.25rem]"
         }`}
       >
-        SUSPENDED
+        SUSPEND
       </span>
     </div>
   );
