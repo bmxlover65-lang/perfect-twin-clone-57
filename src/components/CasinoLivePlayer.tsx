@@ -100,48 +100,6 @@ export function CasinoLivePlayer({ src, title, className, loaderSrc }: CasinoLiv
         </div>
       ) : null}
 
-      <span className="pointer-events-none absolute bottom-2 left-2 z-20 rounded-full border border-border/30 bg-code-surface/70 px-2.5 py-1 text-[0.62rem] font-bold uppercase text-primary-foreground backdrop-blur-md">
-        {status === "live" ? "Live" : status === "reconnecting" ? "Reconnecting…" : "Connecting…"}
-      </span>
-
-      <div className="absolute bottom-2 right-2 z-20 flex items-center gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover/player:opacity-100 sm:group-focus-within/player:opacity-100">
-        <Button
-          type="button"
-          size="icon"
-          variant="secondary"
-          title="Reload live video"
-          aria-label="Reload live video"
-          onClick={() => {
-            setStatus("connecting");
-            setReload((value) => value + 1);
-          }}
-          className="h-8 w-8 bg-code-surface/75 text-primary-foreground hover:bg-code-surface"
-        >
-          <RefreshCw />
-        </Button>
-        <Button
-          type="button"
-          size="icon"
-          variant="secondary"
-          title={muted ? "Turn sound on" : "Mute sound"}
-          aria-label={muted ? "Turn sound on" : "Mute sound"}
-          onClick={toggleMute}
-          className="h-8 w-8 bg-code-surface/75 text-primary-foreground hover:bg-code-surface"
-        >
-          {muted ? <VolumeX /> : <Volume2 />}
-        </Button>
-        <Button
-          type="button"
-          size="icon"
-          variant="secondary"
-          title="Full screen"
-          aria-label="Full screen"
-          onClick={enterFullscreen}
-          className="h-8 w-8 bg-code-surface/75 text-primary-foreground hover:bg-code-surface"
-        >
-          <Maximize />
-        </Button>
-      </div>
     </div>
   );
 }
