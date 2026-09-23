@@ -211,15 +211,26 @@ function stabilizeCasinoState(previous: CasinoState | null, incoming: CasinoStat
 }
 
 /** Original-style suspended veil: faded market background + bold red SUSPENDED text. */
-function SuspendVeil({ className = "", size = "md" }: { className?: string; size?: "sm" | "md" }) {
+function SuspendVeil({
+  className = "",
+  size = "md",
+  solid = false,
+}: {
+  className?: string;
+  size?: "sm" | "md";
+  solid?: boolean;
+}) {
   return (
     <div
       data-suspended="true"
-      className={`pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-casino-suspend-veil ${className}`}
+      className={`pointer-events-none absolute inset-0 z-20 flex items-center justify-center ${
+        solid ? "" : "bg-casino-suspend-veil"
+      } ${className}`}
+      style={solid ? { background: "rgba(255,255,255,0.86)" } : undefined}
     >
       <span
         className={`font-extrabold uppercase tracking-[0.06em] text-casino-suspend-text ${
-          size === "sm" ? "text-[1.15rem]" : "text-[1.5rem] sm:text-[1.8rem]"
+          size === "sm" ? "text-[1.05rem]" : "text-[1.5rem] sm:text-[1.8rem]"
         }`}
       >
         SUSPENDED
