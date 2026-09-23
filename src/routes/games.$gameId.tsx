@@ -3681,6 +3681,7 @@ function GamePage() {
             results={results}
             dream={gameId === "88.0020"}
             lucky7={gameId === "99.0030"}
+            grey={gameId === "88.0019"}
           />
         ) : null}
 
@@ -3961,6 +3962,7 @@ function RecentStrip({
   dragonTiger,
   baccarat,
   cards32,
+  grey,
 }: {
   results: CasinoResult[];
   dream?: boolean;
@@ -3970,11 +3972,12 @@ function RecentStrip({
   dragonTiger?: boolean;
   baccarat?: boolean;
   cards32?: boolean;
+  grey?: boolean;
 }) {
   return (
 
-      <div className={`mt-0 flex items-center overflow-x-auto bg-black ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger || cards32 ? "h-[40px] gap-2 px-1 py-1" : baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "gap-2 px-3 py-2.5"}`}>
-        <span className={`shrink-0 font-bold text-white ${oneDay ? "mr-0 text-[1rem]" : joker || dragonTiger || cards32 ? "mr-0 font-serif text-[0.98rem]" : baccarat ? "mr-0 text-[1.05rem]" : "mr-1 text-[0.95rem]"}`}>Recent Result</span>
+      <div className={`mt-0 flex items-center overflow-x-auto ${grey ? "bg-[#E6E6E6]" : "bg-black"} ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger || cards32 ? "h-[40px] gap-2 px-1 py-1" : baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "gap-2 px-3 py-2.5"}`}>
+        <span className={`shrink-0 font-bold ${grey ? "text-black" : "text-white"} ${oneDay ? "mr-0 text-[1rem]" : joker || dragonTiger || cards32 ? "mr-0 font-serif text-[0.98rem]" : baccarat ? "mr-0 text-[1.05rem]" : "mr-1 text-[0.95rem]"}`}>Recent Result</span>
 
 
 
