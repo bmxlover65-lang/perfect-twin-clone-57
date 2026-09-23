@@ -106,7 +106,7 @@ async function upstream(path: string, search: string, token: string, body?: stri
 // referer and re-served from our origin, otherwise the CDN answers 403.
 const STREAM_REFERER = "https://universeapi.shop/";
 
-const STREAM_HOSTS = /(^|\.)(diamondtech\.shop|livestream11\.com|xfeed247\.live|zfeed247\.live|feed247\.live)$/i;
+const STREAM_HOSTS = /(^|\.)(diamondtech\.shop|livestream11\.com|xfeed247\.live|zfeed247\.live|feed247\.live|exchange24x7\.live)$/i;
 
 function proxyPrefix(origin: string) {
   return `${origin}/api/public/uapi/sproxy/`;
