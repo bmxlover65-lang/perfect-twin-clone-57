@@ -22,7 +22,7 @@ import {
 import { CoinStageImage, HeadsTailsPanel } from "@/components/HeadsTails";
 
 import { CardFace } from "@/components/CardFace";
-import { cardImage } from "@/lib/card-assets";
+import { CARD_BACK, cardImage } from "@/lib/card-assets";
 import { LUCKY7_CARD_IMAGES } from "@/lib/lucky7-card-assets";
 
 
