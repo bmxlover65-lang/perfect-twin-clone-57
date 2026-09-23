@@ -2564,26 +2564,50 @@ function DragonTigerPanel({
                 "data-bet-odds": String(pair.back),
               }
             : {})}
-          className={`relative mx-[6px] flex h-[60px] items-center justify-between rounded-[22px] bg-[#F6A21E] px-5 ${
+          className={`relative mx-[6px] flex h-[58px] items-center justify-between rounded-[14px] px-5 ${
             pair.open && pair.back ? "cursor-pointer" : ""
           }`}
+          style={{
+            background: "linear-gradient(180deg,#8c2b3f 0%,#5f1526 100%)",
+            opacity: pair.open ? 1 : 0.8,
+          }}
         >
-          <span className="text-[0.78rem] font-bold uppercase text-black">{pair.label}</span>
-          <span className="text-[0.8rem] font-bold text-black">{fmtOdds(pair.back)}</span>
+          <span className={`text-[0.9rem] font-bold uppercase text-white ${pair.open ? "" : "opacity-45"}`}>
+            {pair.label}
+          </span>
+          <span className={`text-[1rem] font-bold text-white ${pair.open ? "" : "opacity-45"}`}>
+            {fmtOdds(pair.back)}
+          </span>
           {!pair.open ? <Lock /> : null}
         </div>
       ) : null}
 
-      <p className="bg-white px-3 py-1 text-right text-[0.58rem] font-semibold text-black/55">
+      <p className="bg-white px-3 py-1 text-right text-[0.62rem] font-semibold text-black/60">
         Min:{Math.max(100, winnerMkt?.min ?? 0)} Max:{winnerMkt?.max ?? 100000}
       </p>
 
-      <div className="rounded-[6px] border border-l7-card-border bg-white">
-        <div className="grid grid-cols-2">
-          {(["DRAGON", "TIGER"] as const).map((side) => <button key={side} type="button" onClick={() => setTab(side)} className={`h-9 border-b-2 text-[0.8rem] font-bold ${tab === side ? "border-[#2e4b5e]" : "border-transparent"}`}>{side[0] + side.slice(1).toLowerCase()}</button>)}
-        </div>
+      <div className="grid grid-cols-2">
+        {(["DRAGON", "TIGER"] as const).map((side) => (
+          <button
+            key={side}
+            type="button"
+            onClick={() => setTab(side)}
+            className={`h-[54px] text-[0.95rem] font-bold uppercase text-white ${
+              tab === side ? "border-t-[3px] border-black" : ""
+            }`}
+            style={{
+              background:
+                tab === side
+                  ? "linear-gradient(180deg,#8c2b3f 0%,#5f1526 100%)"
+                  : "linear-gradient(180deg,#bd7f8d 0%,#a96574 100%)",
+            }}
+          >
+            {side}
+          </button>
+        ))}
       </div>
       <SideBlock side={tab} />
+
 
       <CardBlock side={tab} />
     </div>
