@@ -2556,15 +2556,15 @@ function ChipRow() {
 
 export function tileTone(label: string): string {
   const l = label.trim().toUpperCase();
-  if (l === "0" || l === "GREEN") return "bg-[#12563A] text-[#DFF6E9]";
-  if (l === "HEADS") return "bg-[#12563A] text-[#DFF6E9]";
-  if (l === "RED" || l === "TAILS") return "bg-[#6B2B24] text-[#F0C7C1]";
+  if (l === "0" || l === "GREEN") return "bg-[#0E8A3C] text-white";
+  if (l === "HEADS") return "bg-[#0E8A3C] text-white";
+  if (l === "RED" || l === "TAILS" || l === "ODD") return "bg-[#D9392F] text-white";
   if (/^\d+$/.test(l)) {
     return Number(l) % 2 === 1
-      ? "bg-[#6B2B24] text-[#F0C7C1]"
-      : "bg-[#232323] text-[#D8D8D8]";
+      ? "bg-[#D9392F] text-white"
+      : "bg-[#1C1C1C] text-white";
   }
-  return "bg-[#232323] text-[#D8D8D8]";
+  return "bg-[#1C1C1C] text-white";
 }
 
 export const DREAM_NOTE: Record<string, string> = {
@@ -2663,19 +2663,25 @@ function NumberPanel({
     return (
       <div
         {...directBet}
-        className={`relative flex h-[54px] flex-col items-center justify-center rounded-[6px] border border-white/10 sm:h-[68px] ${
+        className={`relative flex ${dream ? "h-[54px] sm:h-[68px]" : "h-[64px] sm:h-[88px]"} flex-col items-center justify-center rounded-[8px] border-2 ${
+          dream ? "border-white/10" : "border-[#F0433F]"
+        } ${
           (dream ? DREAM_TONE[t.label.trim()] : undefined) ?? tileTone(t.label)
         } ${directBet.className ?? ""}`}
       >
-        <span className="text-[0.95rem] font-extrabold leading-none sm:text-[1.1rem]">
+        <span className={`${dream ? "text-[0.95rem] sm:text-[1.1rem]" : "text-[1.35rem] sm:text-[1.6rem]"} font-extrabold leading-none`}>
           {t.label}
         </span>
-        <span className="mt-1 text-[0.66rem] font-bold leading-none sm:text-[0.72rem]">
-          {t.price ? t.price.toFixed(2) : "—"}
-        </span>
-        <span className="mt-[3px] text-[0.6rem] font-semibold leading-none opacity-60 sm:text-[0.66rem]">
-          {t.size ? Math.round(t.size) : ""}
-        </span>
+        {dream ? (
+          <>
+            <span className="mt-1 text-[0.66rem] font-bold leading-none sm:text-[0.72rem]">
+              {t.price ? t.price.toFixed(2) : "—"}
+            </span>
+            <span className="mt-[3px] text-[0.6rem] font-semibold leading-none opacity-60 sm:text-[0.66rem]">
+              {t.size ? Math.round(t.size) : ""}
+            </span>
+          </>
+        ) : null}
 
         {!t.open ? <div className="absolute inset-0 rounded-[6px] bg-black/45" /> : null}
       </div>
@@ -3675,6 +3681,7 @@ function GamePage() {
             results={results}
             dream={gameId === "88.0020"}
             lucky7={gameId === "99.0030"}
+            grey={gameId === "88.0019"}
           />
         ) : null}
 
@@ -3955,6 +3962,7 @@ function RecentStrip({
   dragonTiger,
   baccarat,
   cards32,
+  grey,
 }: {
   results: CasinoResult[];
   dream?: boolean;
@@ -3964,11 +3972,12 @@ function RecentStrip({
   dragonTiger?: boolean;
   baccarat?: boolean;
   cards32?: boolean;
+  grey?: boolean;
 }) {
   return (
 
-      <div className={`mt-0 flex items-center overflow-x-auto bg-black ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger || cards32 ? "h-[40px] gap-2 px-1 py-1" : baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "gap-2 px-3 py-2.5"}`}>
-        <span className={`shrink-0 font-bold text-white ${oneDay ? "mr-0 text-[1rem]" : joker || dragonTiger || cards32 ? "mr-0 font-serif text-[0.98rem]" : baccarat ? "mr-0 text-[1.05rem]" : "mr-1 text-[0.95rem]"}`}>Recent Result</span>
+      <div className={`mt-0 flex items-center overflow-x-auto ${grey ? "bg-[#E6E6E6]" : "bg-black"} ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger || cards32 ? "h-[40px] gap-2 px-1 py-1" : baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "gap-2 px-3 py-2.5"}`}>
+        <span className={`shrink-0 font-bold ${grey ? "text-black" : "text-white"} ${oneDay ? "mr-0 text-[1rem]" : joker || dragonTiger || cards32 ? "mr-0 font-serif text-[0.98rem]" : baccarat ? "mr-0 text-[1.05rem]" : "mr-1 text-[0.95rem]"}`}>Recent Result</span>
 
 
 
@@ -4000,10 +4009,10 @@ function RecentStrip({
               ? (PLAYER32_TONE[w] ?? "bg-[#E67E22] text-white")
               : isNum
                 ? w === "0"
-                  ? "bg-[#12563A] text-white"
+                  ? "bg-[#0E8A3C] text-white"
                   : Number(w) % 2 === 1
-                    ? "bg-[#D9483B] text-white"
-                    : "bg-[#1E1E1E] text-white"
+                    ? "bg-[#D9392F] text-white"
+                    : "bg-[#1C1C1C] text-white"
                 : isTie
                   ? "bg-[#8CD9B5] text-[#0F172A]"
                     : baccarat && first === "B"
