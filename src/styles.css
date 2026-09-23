@@ -1069,3 +1069,9 @@
 .aaa-card-rank img { width: auto; height: 30px; }
 .aaa-suspend { position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center; border: 1px solid var(--aaa-suspend); background: color-mix(in oklab, var(--aaa-surface) 68%, transparent); color: var(--aaa-suspend); font-size: 19px; font-weight: 700; line-height: 1; pointer-events: none; }
 .aaa-suspend.is-large { font-size: 20px; }
+
+/* 20-20 Dragon Tiger (99.0019) — Dukex measured at 393px */
+.lucky7-board.is-dt20 .lucky7-runner-box { width: 81px; height: 35px; }
+.lucky7-results.is-dt20 { padding: 3px 5px; }
+.lucky7-results.is-dt20 .lucky7-results-list { gap: 7px; }
+.lucky7-results.is-dt20 .lucky7-result-chip { height: 24px; }
