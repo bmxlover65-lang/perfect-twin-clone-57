@@ -211,9 +211,38 @@ function pushSettle(rows: { ref: string; outcome: "won" | "lost" | "void"; multi
   for (const r of rows) void remoteSettle(session, r.ref, r.outcome, r.multiplier);
 }
 
+/** One runner of a declared round, across every market (WINNER, ODD/EVEN, PAIR…). */
+export type RunnerOutcome = { market: string; name: string; won: boolean };
+
+const stripParens = (s: string) => norm(s.replace(/\([^)]*\)/g, " "));
+
+/**
+ * Resolve a bet against the full per-market result. Exact runner name first;
+ * then the name without its bracketed hint ("LOW CARD ( A to 6 )" → "LOW CARD"),
+ * only when that stripped name is unique. Returns null when no runner matches.
+ */
+function resolveFromRunners(label: string, runners: RunnerOutcome[]): boolean | null {
+  const a = norm(label);
+  if (!a || !runners.length) return null;
+  const exact = runners.filter((r) => norm(r.name) === a);
+  if (exact.length) return exact.some((r) => r.won);
+  const as = stripParens(label);
+  const loose = runners.filter((r) => {
+    const n = stripParens(r.name);
+    return n === as || (as.length >= 3 && n.startsWith(as));
+  });
+  if (loose.length === 1) return loose[0]!.won;
+  return null;
+}
+
 /** Settle every open bet of a game for a finished round against the winner. */
-export function settleRound(gameId: string, round: string, winner: string) {
-  if (!round || !winner) return;
+export function settleRound(
+  gameId: string,
+  round: string,
+  winner: string,
+  runners: RunnerOutcome[] = [],
+) {
+  if (!round || (!winner && !runners.length)) return;
   const w = readWallet();
   let credited = 0;
   let touched = false;
@@ -221,7 +250,8 @@ export function settleRound(gameId: string, round: string, winner: string) {
   const bets = w.bets.map((b) => {
     if (b.status !== "open" || b.gameId !== gameId || b.round !== round) return b;
     touched = true;
-    const won = isWin(b.label, winner);
+    const exact = resolveFromRunners(b.label, runners);
+    const won = exact ?? isWin(b.label, winner);
     const payout = won ? Math.round(b.stake * b.odds) : 0;
     credited += payout;
     settled.push({ ref: b.id, outcome: won ? "won" : "lost", multiplier: b.odds });

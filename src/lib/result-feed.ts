@@ -17,7 +17,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CasinoResult } from "@/lib/uapi";
 import { endWinCelebration } from "@/components/WinCelebration";
-import { settleLatest, settleRound } from "@/lib/wallet";
+import { settleLatest, settleRound, type RunnerOutcome } from "@/lib/wallet";
 
 export const LUCKY7_GAMES = ["99.0030"];
 
@@ -64,6 +64,29 @@ export function deriveWinner(r?: AnyResult, lucky7?: boolean): string {
     if (derived) return derived;
   }
   return flat.replace(/_/g, " ");
+}
+
+/** Every runner of every market in a result row, with its WINNER/LOSER flag. */
+export function runnersOf(r?: AnyResult): RunnerOutcome[] {
+  const out: RunnerOutcome[] = [];
+  for (const m of r?.results ?? []) {
+    const names = (m.runnersName ?? {}) as Record<string, string>;
+    const raw = m.runners as unknown;
+    const pairs: [string, string][] = Array.isArray(raw)
+      ? (raw as { selectionId?: string | number; result?: string }[]).map((x) => [
+          String(x.selectionId),
+          String(x.result ?? ""),
+        ])
+      : raw && typeof raw === "object"
+        ? Object.entries(raw as Record<string, string>).map(([k, v]) => [k, String(v)])
+        : [];
+    for (const [id, res] of pairs) {
+      const name = names[id];
+      if (!name) continue;
+      out.push({ market: m.marketName ?? "", name, won: res.toUpperCase() === "WINNER" });
+    }
+  }
+  return out;
 }
 
 export type FeedResult = {
@@ -114,13 +137,23 @@ export function useResultFeed({ gameId, round, open, liveWinner, results }: Opti
     setCurrent(null);
   }, [gameId]);
 
+  const settleNow = (rid: string, winner: string, row?: AnyResult) => {
+    if (settled.current.has(rid)) return;
+    settled.current.add(rid);
+    settleRound(gameId, rid, winner, runnersOf(row));
+  };
+
   const publish = (next: FeedResult) => {
     const prev = declared.current.get(next.round);
+    if (next.source === "history") settleNow(next.round, next.winner, next.row);
     if (prev && prev.winner === next.winner) return;
     declared.current.set(next.round, { ...next, at: prev?.at ?? next.at });
-    if (!settled.current.has(next.round)) {
-      settled.current.add(next.round);
-      settleRound(gameId, next.round, next.winner);
+    if (next.source === "live" && !settled.current.has(next.round)) {
+      // Side markets (odd/even, colour, pair, suit…) need the full result row,
+      // so wait for history; fall back to the live winner if it never comes.
+      const rid = next.round;
+      const winner = next.winner;
+      window.setTimeout(() => settleNow(rid, winner), 25_000);
     }
     // The first winner seen after mount is a leftover round — record it so bets
     // still settle, but never flash its banner/celebration. Likewise, a result
@@ -157,10 +190,11 @@ export function useResultFeed({ gameId, round, open, liveWinner, results }: Opti
         }
         return;
       }
-      if (!winner) return;
+      if (!winner && !runnersOf(row).length) return;
       const prev = declared.current.get(rid);
       // Keep the live winner text (it lands first) but attach the richer row.
       if (prev) {
+        settleNow(rid, prev.winner || winner, row);
         declared.current.set(rid, { ...prev, row });
         if (booted.current && idx === 0 && (!celebRound.current || celebRound.current === rid)) {
           setCurrent(declared.current.get(rid) ?? prev);

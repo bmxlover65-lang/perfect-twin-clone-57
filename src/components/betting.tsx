@@ -161,7 +161,15 @@ function extractPick(target: HTMLElement, root: HTMLElement): ExtractedPick | nu
   // Never treat media / inputs / explicitly opted-out areas as a bet click.
   if (target.closest("iframe,video,img,input,textarea,select,a,[data-nobet]")) return null;
   const control = target.closest("button");
-  if (control && !control.hasAttribute("data-market-option")) return null;
+  if (
+    control &&
+    !control.hasAttribute("data-market-option") &&
+    !control.hasAttribute("data-market-plate") &&
+    !control.hasAttribute("data-bet-label")
+  ) {
+    return null;
+  }
+  if (control?.disabled) return null;
 
   const explicit = target.closest<HTMLElement>("[data-bet-label][data-bet-odds]");
   if (explicit) {
