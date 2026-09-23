@@ -404,10 +404,10 @@ function PokerPanel({
 
 
   return (
-    <div className="bg-poker-panel px-1.5 pb-1 pt-2">
-      <div className="mb-2 grid h-[42px] grid-cols-2 gap-4 px-1.5">
-        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold font-serif text-[0.92rem] font-extrabold text-foreground">PLAYER A</div>
-        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold font-serif text-[0.92rem] font-extrabold text-foreground">PLAYER B</div>
+    <div className="bg-poker-panel px-2 pb-2 pt-2">
+      <div className="mb-3 grid h-[56px] grid-cols-2 gap-5 px-1">
+        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold font-serif text-[1.1rem] font-extrabold uppercase text-foreground/75">PLAYER A</div>
+        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold font-serif text-[1.1rem] font-extrabold uppercase text-foreground/75">PLAYER B</div>
       </div>
       {markets.map((m) => {
           const names = m.runnersName ?? {};
@@ -418,16 +418,16 @@ function PokerPanel({
             suspended ||
             runners.every((r) => !isOpenStatus(r.status));
           return (
-            <section key={m.marketId} className={`relative mb-1 overflow-hidden rounded-bl-[5px] rounded-br-[42px] rounded-tl-[42px] rounded-tr-[5px] bg-poker-panel pb-2 shadow-[0_2px_5px_color-mix(in_oklab,var(--foreground)_24%,transparent)] ${isSusp ? "border border-casino-suspend-text" : "border border-border"}`}>
-              <header className="mx-1 mt-1 flex h-[25px] items-center justify-center rounded-bl-[3px] rounded-br-[23px] rounded-tl-[23px] rounded-tr-[3px] border border-border bg-background px-1.5 shadow-[0_2px_3px_color-mix(in_oklab,var(--foreground)_18%,transparent)]">
-                <h3 className="truncate text-[0.67rem] font-extrabold uppercase text-foreground">
+            <section key={m.marketId} className={`relative mb-2 overflow-hidden rounded-bl-[6px] rounded-br-[52px] rounded-tl-[52px] rounded-tr-[6px] bg-background pb-3 shadow-[0_2px_6px_color-mix(in_oklab,var(--foreground)_22%,transparent)] ${isSusp ? "border-2 border-casino-suspend-text" : "border border-border"}`}>
+              <header className="mx-2 mt-2 flex h-[34px] items-center justify-center rounded-bl-[4px] rounded-br-[30px] rounded-tl-[30px] rounded-tr-[4px] border border-border bg-background px-2 shadow-[0_2px_4px_color-mix(in_oklab,var(--foreground)_16%,transparent)]">
+                <h3 className={`truncate text-[0.92rem] font-extrabold uppercase ${isSusp ? "text-foreground/45" : "text-foreground"}`}>
                   {m.marketName}
                 </h3>
-                <span className="absolute right-3 flex h-3 w-3 shrink-0 items-center justify-center rounded-full bg-foreground text-[0.5rem] font-black text-background">
+                <span className="absolute right-5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-foreground/50 text-[0.62rem] font-bold text-foreground/60">
                   i
                 </span>
               </header>
-              <div className="relative grid h-[62px] grid-cols-2 items-center pt-1">
+              <div className="relative grid h-[78px] grid-cols-2 items-center pt-1">
                 {[a, b].map((r, index) => (
                   <div key={r ? String(r.selectionId) : index} className="min-w-0 text-center">
                     <Plate
@@ -437,13 +437,16 @@ function PokerPanel({
                     />
                   </div>
                 ))}
+                {isSusp ? (
+                  <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-[1.7rem] font-bold text-casino-suspend-text">
+                    SUSPENDED
+                  </span>
+                ) : null}
               </div>
-              {isSusp ? (
-                <SuspendVeil />
-              ) : null}
             </section>
           );
         })}
+
     </div>
   );
 
