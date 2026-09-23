@@ -4094,6 +4094,8 @@ function RecentStrip({
                     ? "h-6 min-w-7 px-1.5 text-[0.7rem]"
                     : oneDay || baccarat
                       ? "h-7 min-w-9 px-2 text-[0.78rem]"
+                      : dream
+                        ? "h-8 min-w-8 border-2 border-white px-1 text-[0.8rem]"
                    : "h-7 min-w-7 px-1.5 text-[0.75rem]"
               } ${finalTone}`}
             >
