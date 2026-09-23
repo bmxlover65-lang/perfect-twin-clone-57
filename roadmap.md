@@ -139,3 +139,6 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [ ] HEADS & TAILS: ek round me do baar flip ho raha hai — ek hi flip
 - [ ] BALLOON: betting original se match karke verify
 - [ ] Cashout banner 2-3 second baad apne aap gayab ho (original jaisa)
+
+- [ ] Suspend look parity with Dukex for every casino game (20-20 TP verified same)
+- [ ] Then remaining games one by one vs Dukex side-by-side
