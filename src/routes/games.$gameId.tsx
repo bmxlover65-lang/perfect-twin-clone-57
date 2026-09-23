@@ -227,6 +227,33 @@ function SuspendVeil({ className = "", size = "md" }: { className?: string; size
   );
 }
 
+/** Round "i" badge in a market header; tapping it reveals the min/max limits. */
+function MarketInfo({ min, max }: { min: number; max: number }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span className="relative flex shrink-0 items-center gap-2">
+      {open ? (
+        <span className="whitespace-nowrap text-[0.68rem] font-bold text-board-header-foreground/90">
+          Min/Max: {min} - {max}
+        </span>
+      ) : null}
+      <button
+        type="button"
+        aria-label="Min and max limits"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((v) => !v);
+        }}
+        className="flex h-[18px] w-[18px] items-center justify-center rounded-full bg-white text-[0.68rem] font-bold italic text-casino-market-header"
+      >
+        i
+      </button>
+    </span>
+  );
+}
+
+
+
 
 
 function BaccaratPanel({
