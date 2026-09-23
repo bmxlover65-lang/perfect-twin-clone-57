@@ -753,20 +753,38 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
 }
 
 
-function Lucky7Recent({ results }: { results: CasinoResult[] }) {
+/** Reference badge mapping: tone high=blue, low=pink, tie=yellow. */
+function refBadge(raw: string, game: string): { letter: string; tone: "high" | "low" | "tie" } {
+  const l = raw.toUpperCase();
+  if (game === "99.0030") {
+    return /LOW|^L/.test(l) ? { letter: "L", tone: "low" } : /HIGH|^H/.test(l) ? { letter: "H", tone: "high" } : { letter: "T", tone: "tie" };
+  }
+  if (game === "99.0019") {
+    return /DRAGON|^D/.test(l) ? { letter: "D", tone: "high" } : /TIGER/.test(l) || l === "T" ? { letter: "T", tone: "low" } : { letter: "T", tone: "tie" };
+  }
+  return /\bB\b|\(\s*B\s*\)|PLAYER B|^B$/.test(l)
+    ? { letter: "B", tone: "low" }
+    : /\bA\b|\(\s*A\s*\)|PLAYER A|^A$/.test(l)
+      ? { letter: "A", tone: "high" }
+      : { letter: l.trim()[0] || "?", tone: "tie" };
+}
+
+function Lucky7Recent({ results, game = "99.0030" }: { results: CasinoResult[]; game?: string }) {
   return (
     <section className="lucky7-results">
       <h5 className="lucky7-results-title">Recent Result</h5>
       <ul className="lucky7-results-list">
         {results.slice(0, 10).map((r, idx) => {
-          const raw = (deriveWinner(r as AnyResult, true) || "-").trim().toUpperCase();
-          const first = raw.startsWith("T") ? "T" : raw.startsWith("H") ? "H" : "L";
+          const raw = (deriveWinner(r as AnyResult, true) || "-").trim();
+          const b = refBadge(raw, game);
+          const first = b.letter;
+          const tone = b.tone;
           return (
             <li key={`${String((r as AnyResult).roundId ?? idx)}-${idx}`}>
               <button
                 type="button"
                 data-nobet=""
-                className={`lucky7-result-chip${first === "L" ? " is-low" : first === "T" ? " is-tie" : ""}`}
+                className={`lucky7-result-chip${tone === "low" ? " is-low" : tone === "tie" ? " is-tie" : ""}`}
               >
                 {first}
               </button>
@@ -3905,21 +3923,13 @@ function GamePage() {
           <CardRacePanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0005" && markets.length ? (
           <AAAPanel markets={markets} suspended={suspended} />
-        ) : gameId === "99.0019" && markets.length ? (
-          markets.map((m, i) => (
-            <DragonTiger20Board key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
-          ))
-        ) : gameId === "99.0030" && markets.length ? (
+        ) : ["99.0030", "99.0010", "99.0019"].includes(gameId) && markets.length ? (
+          // Reference MarketPanel (grid layout) — shared by Lucky 7, 20-20 Teen Patti, 20-20 Dragon Tiger.
           <div className="lucky7-board">
-
             {markets.map((m, i) => (
               <Lucky7Board key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
             ))}
           </div>
-        ) : gameId === "99.0010" && markets.length ? (
-          markets.map((m, i) => (
-            <TP20Board key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
-          ))
         ) : gameId === "99.0013" && markets.length ? (
           markets.map((m, i) => (
             <OneDayTeenPattiBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
@@ -3936,8 +3946,8 @@ function GamePage() {
         </Fit>
         </ChipBetProvider>
         {/* Recent Result sits flush under the last market, like the original. */}
-        {gameId === "99.0030" ? (
-          <Lucky7Recent results={results} />
+        {["99.0030", "99.0010", "99.0019"].includes(gameId) ? (
+          <Lucky7Recent results={results} game={gameId} />
         ) : (
           <RecentStrip results={results} oneDay={gameId === "99.0013"} joker={gameId === "99.0016"} dragonTiger={gameId === "99.0019"} baccarat={gameId === "99.0001"} cards32={gameId === "99.0022"} />
         )}
