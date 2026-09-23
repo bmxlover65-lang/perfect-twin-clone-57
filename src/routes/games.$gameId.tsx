@@ -383,18 +383,25 @@ function PokerPanel({
         data-bet-label={label}
         data-bet-odds={point?.price ?? ""}
         disabled={locked || !point?.price}
-        className="relative h-[49px] w-[142px] max-w-[94%] overflow-hidden rounded-bl-[4px] rounded-br-[34px] rounded-tl-[34px] rounded-tr-[4px] bg-background shadow-[0_3px_5px_color-mix(in_oklab,var(--foreground)_22%,transparent)]"
+        className={`relative h-[62px] w-[190px] max-w-[96%] overflow-hidden rounded-bl-[6px] rounded-br-[42px] rounded-tl-[42px] rounded-tr-[6px] bg-background shadow-[0_4px_6px_color-mix(in_oklab,var(--foreground)_22%,transparent)] ${
+          locked ? "opacity-70" : ""
+        }`}
       >
-        <span className="absolute inset-y-0 left-[10px] right-[10px] -skew-x-[28deg] bg-poker-gold" />
+        <span
+          className={`absolute inset-y-0 left-[14px] right-[14px] -skew-x-[28deg] ${
+            locked ? "bg-muted" : "bg-poker-gold"
+          }`}
+        />
         <span className="relative flex h-full flex-col items-center justify-center text-foreground">
-          <span className="font-serif text-[1rem] font-extrabold leading-none">{fmtOdds(point?.price)}</span>
-          <span className="mt-[2px] text-[0.58rem] font-medium leading-none">
+          <span className="font-serif text-[1.3rem] font-extrabold leading-none">{fmtOdds(point?.price)}</span>
+          <span className="mt-[3px] text-[0.72rem] font-medium leading-none opacity-70">
             {point?.size == null ? "" : String(Math.round(point.size))}
           </span>
         </span>
       </button>
     );
   };
+
 
   return (
     <div className="bg-poker-panel px-1.5 pb-1 pt-2">
