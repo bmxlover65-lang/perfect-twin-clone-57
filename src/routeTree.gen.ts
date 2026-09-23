@@ -14,9 +14,11 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CasinoDocsRouteImport } from './routes/casino-docs'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MyBetsRouteImport } from './routes/my-bets'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SportsDocsRouteImport } from './routes/sports-docs'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedConsoleRouteImport } from './routes/_authenticated/console'
 import { Route as AuthenticatedOperatorRouteImport } from './routes/_authenticated/operator'
 import { Route as AuthenticatedUiAuditRouteImport } from './routes/_authenticated/ui-audit'
@@ -59,6 +61,11 @@ const CasinoDocsRoute = CasinoDocsRouteImport.update({
   path: '/casino-docs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MyBetsRoute = MyBetsRouteImport.update({
   id: '/my-bets',
   path: '/my-bets',
@@ -74,6 +81,12 @@ const SportsDocsRoute = SportsDocsRouteImport.update({
   path: '/sports-docs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedConsoleRoute = AuthenticatedConsoleRouteImport.update({
   id: '/console',
   path: '/console',
@@ -165,9 +178,11 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/casino-docs': typeof CasinoDocsRoute
+  '/mcp': typeof McpRoute
   '/my-bets': typeof MyBetsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sports-docs': typeof SportsDocsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/console': typeof AuthenticatedConsoleRoute
   '/operator': typeof AuthenticatedOperatorRoute
   '/ui-audit': typeof AuthenticatedUiAuditRoute
@@ -191,9 +206,11 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/casino-docs': typeof CasinoDocsRoute
+  '/mcp': typeof McpRoute
   '/my-bets': typeof MyBetsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sports-docs': typeof SportsDocsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/console': typeof AuthenticatedConsoleRoute
   '/operator': typeof AuthenticatedOperatorRoute
   '/ui-audit': typeof AuthenticatedUiAuditRoute
@@ -219,9 +236,11 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/casino-docs': typeof CasinoDocsRoute
+  '/mcp': typeof McpRoute
   '/my-bets': typeof MyBetsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sports-docs': typeof SportsDocsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/console': typeof AuthenticatedConsoleRoute
   '/_authenticated/operator': typeof AuthenticatedOperatorRoute
   '/_authenticated/ui-audit': typeof AuthenticatedUiAuditRoute
@@ -247,9 +266,11 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/casino-docs'
+    | '/mcp'
     | '/my-bets'
     | '/sitemap.xml'
     | '/sports-docs'
+    | '/.well-known/oauth-protected-resource'
     | '/console'
     | '/operator'
     | '/ui-audit'
@@ -273,9 +294,11 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/casino-docs'
+    | '/mcp'
     | '/my-bets'
     | '/sitemap.xml'
     | '/sports-docs'
+    | '/.well-known/oauth-protected-resource'
     | '/console'
     | '/operator'
     | '/ui-audit'
@@ -300,9 +323,11 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/casino-docs'
+    | '/mcp'
     | '/my-bets'
     | '/sitemap.xml'
     | '/sports-docs'
+    | '/.well-known/oauth-protected-resource'
     | '/_authenticated/console'
     | '/_authenticated/operator'
     | '/_authenticated/ui-audit'
@@ -328,9 +353,11 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   CasinoDocsRoute: typeof CasinoDocsRoute
+  McpRoute: typeof McpRoute
   MyBetsRoute: typeof MyBetsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SportsDocsRoute: typeof SportsDocsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   GamesGameIdRoute: typeof GamesGameIdRoute
   SportsIndexRoute: typeof SportsIndexRoute
   SportsSportIdEventIdRoute: typeof SportsSportIdEventIdRoute
@@ -383,6 +410,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CasinoDocsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/my-bets': {
       id: '/my-bets'
       path: '/my-bets'
@@ -402,6 +436,13 @@ declare module '@tanstack/react-router' {
       path: '/sports-docs'
       fullPath: '/sports-docs'
       preLoaderRoute: typeof SportsDocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/console': {
@@ -558,9 +599,12 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   CasinoDocsRoute: CasinoDocsRoute,
+  McpRoute: McpRoute,
   MyBetsRoute: MyBetsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SportsDocsRoute: SportsDocsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   GamesGameIdRoute: GamesGameIdRoute,
   SportsIndexRoute: SportsIndexRoute,
   SportsSportIdEventIdRoute: SportsSportIdEventIdRoute,
