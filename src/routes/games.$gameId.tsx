@@ -2024,22 +2024,29 @@ function MuflisPanel({
     </div>
   );
 
+  const chipBet = useChipBet();
+
   const Side = ({ letter }: { letter: "A" | "B" }) => {
     const r = pick(letter);
     const point = r?.price?.back?.[0];
     const open = !suspended && isOpenStatus(r?.status) && !!point?.price;
     const label = `PLAYER ${letter}`;
+    const openProps = chipBet
+      ? {
+          "data-market-option": "",
+          "data-nobet": "",
+          onClick: () => chipBet.bet(label, point!.price!),
+        }
+      : {
+          "data-market-plate": "",
+          "data-market-option": "",
+          "data-bet-label": label,
+          "data-bet-odds": String(point!.price),
+        };
     return (
       <button
         type="button"
-        {...(open
-          ? {
-              "data-market-plate": "",
-              "data-market-option": "",
-              "data-bet-label": label,
-              "data-bet-odds": String(point!.price),
-            }
-          : {})}
+        {...(open ? openProps : {})}
         disabled={!open}
         className={`relative flex h-[92px] w-full flex-col items-center justify-center gap-[6px] rounded-[16px] ${
           open ? "bg-[#060606]" : "bg-[#2b2b2b]"
@@ -2064,6 +2071,8 @@ function MuflisPanel({
     );
   };
 
+  const selChip = chipBet?.chip ?? "1k";
+
   return (
     <div className="bg-[#ededed] px-3 pb-3 pt-3">
       <div className="mb-2 grid grid-cols-2 gap-3">
@@ -2076,7 +2085,16 @@ function MuflisPanel({
       </div>
       <div className="mt-4 flex items-center justify-between gap-1">
         {chips.map((c) => (
-          <span key={c.v} className="relative inline-flex h-[48px] w-[48px] shrink-0 items-center justify-center">
+          <button
+            key={c.v}
+            type="button"
+            data-nobet=""
+            aria-label={`${c.v} chip`}
+            onClick={() => chipBet?.select(c.v)}
+            className={`relative inline-flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-full transition-transform ${
+              selChip === c.v ? "scale-110 ring-2 ring-[#D4AF1F]" : ""
+            }`}
+          >
             <img
               src={c.src}
               alt={`${c.v} chip`}
@@ -2084,7 +2102,7 @@ function MuflisPanel({
               draggable={false}
             />
             <span className="relative z-10 text-[0.72rem] font-extrabold text-[#111]">{c.v}</span>
-          </span>
+          </button>
         ))}
       </div>
     </div>
