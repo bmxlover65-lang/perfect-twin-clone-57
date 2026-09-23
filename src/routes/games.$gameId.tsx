@@ -61,6 +61,7 @@ import {
   fetchCasinoStream,
   fmtOdds,
   fmtSize,
+  fmtInt,
   type CasinoMarket,
   type CasinoResult,
   type CasinoState,
