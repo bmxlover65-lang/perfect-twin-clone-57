@@ -1091,7 +1091,7 @@ function RefListMarket({
           };
           return (
             <div key={String(runner.selectionId)} data-runner-row="" className="reflist-row" style={{ gridTemplateColumns: cols }}>
-              <span data-runner-name="" className="reflist-name">{/^(A|[2-9]|10|J|Q|K)$/i.test(String(label).trim()) && LUCKY7_CARD_IMAGES[String(label).trim().toUpperCase()] ? <img src={LUCKY7_CARD_IMAGES[String(label).trim().toUpperCase()]} alt={String(label)} className="h-[30px] w-auto" /> : <span>{label}</span>}</span>
+              <span data-runner-name="" className="reflist-name">{/CARD$/i.test((market.marketName ?? "").trim()) && /^(A|[2-9]|10|J|Q|K)$/i.test(String(label).trim()) && LUCKY7_CARD_IMAGES[String(label).trim().toUpperCase()] ? <img src={LUCKY7_CARD_IMAGES[String(label).trim().toUpperCase()]} alt={String(label)} className="h-[30px] w-auto" /> : <span>{label}</span>}</span>
               {cell("back")}
               {hasLay ? cell("lay") : null}
             </div>
