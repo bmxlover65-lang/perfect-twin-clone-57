@@ -229,22 +229,23 @@ function SuspendVeil({
       data-suspended="true"
       className={`pointer-events-none absolute inset-0 z-20 flex flex-col items-center ${
         repeat > 1 ? "justify-around" : "justify-center"
-      } ${bordered ? "border border-[#e12b32]" : ""} ${className}`}
-      style={{ background: solid ? "rgba(255,255,255,0.72)" : "rgba(255,255,255,0.5)" }}
+      } ${bordered ? "border border-[#f0b3b3]" : ""} ${className}`}
+      style={{ background: solid ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.45)" }}
     >
       {Array.from({ length: Math.max(1, repeat) }).map((_, i) => (
         <span
           key={i}
-          className={`font-bold uppercase text-[#D0021B] ${
-            size === "sm" ? "text-[0.95rem]" : "text-[1.25rem]"
+          className={`font-bold uppercase leading-none text-[#e28b8b] ${
+            size === "sm" ? "text-[1.15rem]" : "text-[1.5rem]"
           }`}
         >
-          SUSPEND
+          SUSPENDED
         </span>
       ))}
     </div>
   );
 }
+
 
 /** Round "i" badge in a market header; tapping it reveals the min/max limits. */
 function MarketInfo({ min, max }: { min: number; max: number }) {
