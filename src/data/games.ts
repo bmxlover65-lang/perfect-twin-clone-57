@@ -4,7 +4,8 @@ import dtlImg from "@/assets/games/DTL.webp.asset.json";
 import lucky7Img from "@/assets/games/Lucky-7.webp.asset.json";
 import teenpatti1DayImg from "@/assets/games/1_Day_teenpatti.webp.asset.json";
 import jokerTeenpattiImg from "@/assets/games/Joker_teenpatti.webp.asset.json";
-import dragonTigerImg from "@/assets/games/dragon_tiger-01.webp.asset.json";
+import dragonTigerImg from "@/assets/dragon-tiger-classic.webp.asset.json";
+import dragonTiger2020Img from "@/assets/dragon-tiger-2020.webp.asset.json";
 import baccaratImg from "@/assets/games/Baccarat.webp.asset.json";
 import andarBaharImg from "@/assets/games/Andar_Bahar.webp.asset.json";
 import dragonTiger1DayImg from "@/assets/games/1_Day_Dragon_tiger.webp.asset.json";
@@ -419,7 +420,7 @@ const GAME_IMAGES: Record<string, string> = {
   "99.0046": cardRaceImg.url,
   "99.0016": jokerTeenpattiImg.url,
   "99.0018": dragonTigerImg.url,
-  "99.0019": dragonTigerImg.url,
+  "99.0019": dragonTiger2020Img.url,
   "99.0021": dragonTiger1DayImg.url,
   "99.0001": baccaratImg.url,
   "99.0025": andarBaharImg.url,
