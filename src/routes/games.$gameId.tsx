@@ -1112,8 +1112,8 @@ function OneDayTeenPattiBoard({ market, suspended }: { market: CasinoMarket; sus
           side === "back" ? "bg-casino-market-rate" : "bg-ex-lay"
         }`}
       >
-        <span className="text-[0.9rem] font-extrabold leading-none">{fmtOdds(point?.price)}</span>
-        <span className="mt-1 text-[0.72rem] font-normal leading-none">
+        <span className="text-[1.05rem] font-extrabold leading-none">{fmtOdds(point?.price)}</span>
+        <span className="mt-1 text-[0.75rem] font-normal leading-none">
           {point?.size == null ? "" : String(Math.round(point.size))}
         </span>
       </button>
