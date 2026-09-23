@@ -222,6 +222,16 @@ const stripParens = (s: string) => norm(s.replace(/\([^)]*\)/g, " "));
  * only when that stripped name is unique. Returns null when no runner matches.
  */
 function resolveFromRunners(label: string, runners: RunnerOutcome[]): boolean | null {
+  // Live boards sometimes spell a runner differently from the result feed.
+  const fixed = label.replace(/\b2st\b/gi, "2nd").replace(/\s+(back|lay)$/i, "");
+  const hit = matchRunner(fixed, runners);
+  if (hit != null) return hit;
+  // "ODD A" on a board whose result runner is just "ODD".
+  const bare = fixed.replace(/\s+[AB]$/i, "");
+  return bare !== fixed ? matchRunner(bare, runners) : null;
+}
+
+function matchRunner(label: string, runners: RunnerOutcome[]): boolean | null {
   const a = norm(label);
   if (!a || !runners.length) return null;
   const exact = runners.filter((r) => norm(r.name) === a);
