@@ -172,13 +172,21 @@ function OneDayCards({ hand, title }: { hand: Record<string, string>; title: str
         {title.replace(/_/g, " ").toUpperCase()}
       </p>
       <div className="mt-[3px] flex gap-[2px] [&_img]:h-[34px] [&_img]:w-[24px] [&_img]:rounded-[2px] [&_span[aria-label]]:h-[34px] [&_span[aria-label]]:w-[24px]">
-        {codes.map((code, index) => <Card key={`${code}-${index}`} code={code} />)}
+        {codes.map((code, index) =>
+          sideThird && index === 2 ? (
+            <span key={`${code}-${index}`} className="flex h-[31px] w-[31px] items-center justify-center">
+              <span className="rotate-90"><Card code={code} /></span>
+            </span>
+          ) : (
+            <Card key={`${code}-${index}`} code={code} />
+          ),
+        )}
       </div>
     </div>
   );
 }
 
-function JokerCards({ hand, title }: { hand: Record<string, string>; title: string }) {
+function JokerCards({ hand, title, sideThird = false }: { hand: Record<string, string>; title: string; sideThird?: boolean }) {
   const codes = Object.values(hand);
   if (!codes.length) return null;
   return (
@@ -2601,7 +2609,7 @@ function BaccaratChipRow() {
   const cb = useChipBet();
   const sel = cb?.chip ?? "1k";
   return (
-    <div className="mt-10 flex h-[58px] flex-nowrap items-center gap-1 overflow-x-auto px-1">
+    <div className="mx-2 mt-2.5 flex h-[94px] flex-nowrap items-center gap-[9px] overflow-x-auto bg-background/70 px-1">
       {BACCARAT_CHIPS.map((chip) => (
         <button
           key={chip.v}
@@ -2609,7 +2617,7 @@ function BaccaratChipRow() {
           aria-label={`${chip.v} chip`}
           data-nobet=""
           onClick={() => cb?.select(chip.v)}
-          className={`relative flex h-[49px] w-[49px] shrink-0 items-center justify-center rounded-full transition-transform ${sel === chip.v ? "scale-110 ring-2 ring-[#FFD24A]" : ""}`}
+          className={`relative flex h-[49px] w-[49px] shrink-0 items-center justify-center rounded-full shadow-[0_0_10px_rgba(255,150,40,0.55)] transition-transform ${sel === chip.v ? "scale-110 ring-2 ring-[#FFD24A]" : ""}`}
         >
           <img src={chip.src} alt="" className="absolute inset-0 h-full w-full object-contain" draggable={false} />
           <span className="relative z-10 text-[0.68rem] font-medium text-casino-market-text">{chip.v}</span>
@@ -3935,7 +3943,7 @@ function GamePage() {
           </p>
           {handLayout.map((h) => (
              gameId === "99.0001"
-               ? <JokerCards key={h.title} title={h.title} hand={h.hand} />
+               ? <JokerCards key={h.title} title={h.title} hand={h.hand} sideThird />
                : gameId === "99.0013"
               ? <OneDayCards key={h.title} title={h.title} hand={h.hand} />
               : gameId === "99.0016"
