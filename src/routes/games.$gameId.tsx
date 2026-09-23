@@ -363,7 +363,7 @@ function BaccaratPanel({
         type="button"
         {...chipProps}
         disabled={!r.open}
-        className={`relative flex h-full w-full min-w-0 flex-col justify-center overflow-hidden text-board-header-foreground ${variant === "tie" ? "pointer-events-auto" : ""} ${tone} ${alignCls} ${r.open ? "" : "opacity-60"}`}
+        className={`relative flex h-full w-full min-w-0 flex-col justify-center overflow-hidden text-board-header-foreground ${variant === "tie" ? "pointer-events-auto" : ""} ${tone} ${alignCls} ${r.open ? "" : "brightness-[0.62] saturate-[0.8]"}`}
       >
         <span className="text-[1rem] font-bold uppercase leading-tight">{r.label}</span>
         {r.open || variant === "player" || variant === "banker" ? <span className="mt-[3px] text-[1rem] font-bold leading-none">{fmtOdds(r.price)}</span> : null}
