@@ -2576,6 +2576,15 @@ export const DREAM_NOTE: Record<string, string> = {
   "40": dream40x.url,
 };
 
+export const DREAM_PLATE: Record<string, { bg: string; bg2: string; oval: string; text: string }> = {
+  "1": { bg: "#E7B948", bg2: "#C9962C", oval: "#6B4E12", text: "#F3D083" },
+  "2": { bg: "#78ACDF", bg2: "#5590C8", oval: "#183C66", text: "#A9CDEE" },
+  "5": { bg: "#C58FE3", bg2: "#A96FCB", oval: "#4A2162", text: "#DDB3F2" },
+  "10": { bg: "#5CC677", bg2: "#3EA95B", oval: "#154F2B", text: "#9DE9AF" },
+  "20": { bg: "#E9854D", bg2: "#CD6730", oval: "#6B2C10", text: "#F6B78C" },
+  "40": { bg: "#EA6A70", bg2: "#CF4A51", oval: "#6B161B", text: "#F5A5A9" },
+};
+
 export const DREAM_TONE: Record<string, string> = {
   "1": "bg-[#C79A00] text-white",
   "2": "bg-[#2B6FA8] text-white",
@@ -2638,26 +2647,47 @@ function NumberPanel({
             className: "cursor-pointer",
           }
         : {};
-    if (note) {
+    const plate = dream ? DREAM_PLATE[key] : undefined;
+    if (plate) {
       return (
         <div
           {...directBet}
-          className={`relative overflow-hidden rounded-[6px] border-2 bg-black ${directBet.className ?? ""}`}
-          style={{ borderColor: DREAM_BORDER[key] ?? "#333" }}
+          className={`relative flex items-center justify-center overflow-hidden rounded-[4px] ${directBet.className ?? ""}`}
+          style={{
+            aspectRatio: "16 / 10",
+            background: `linear-gradient(180deg, ${plate.bg} 0%, ${plate.bg2} 100%)`,
+            boxShadow: `inset 0 0 0 2px ${plate.bg2}`,
+          }}
         >
-          <img
-            src={note}
-            alt={`${key}x`}
-            className="block w-full select-none object-cover"
-            style={{ aspectRatio: "16 / 9" }}
-            draggable={false}
-          />
+          <div className="flex h-full w-full flex-col items-center justify-center gap-[5px]">
+            <span
+              className="flex h-[54%] w-[74%] items-center justify-center rounded-[50%]"
+              style={{ background: plate.oval }}
+            >
+              <span
+                className="font-serif text-[1.9rem] font-black leading-none"
+                style={{ color: plate.text }}
+              >
+                {key}
+              </span>
+            </span>
+            <span
+              className="rounded-[2px] px-[7px] py-[2px] text-[0.62rem] font-extrabold uppercase leading-none"
+              style={{ background: plate.oval, color: plate.text }}
+            >
+              Pays {key}x
+            </span>
+          </div>
           {!t.open ? (
-            <div className="absolute inset-0 bg-black/55" />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/55">
+              <LockKeyhole className="h-5 w-5 text-white/80" strokeWidth={3} />
+            </div>
           ) : null}
         </div>
       );
     }
+    void note;
+    void DREAM_BORDER;
 
 
     return (
@@ -4064,6 +4094,8 @@ function RecentStrip({
                     ? "h-6 min-w-7 px-1.5 text-[0.7rem]"
                     : oneDay || baccarat
                       ? "h-7 min-w-9 px-2 text-[0.78rem]"
+                      : dream
+                        ? "h-8 min-w-8 border-2 border-white px-1 text-[0.8rem]"
                    : "h-7 min-w-7 px-1.5 text-[0.75rem]"
               } ${finalTone}`}
             >
