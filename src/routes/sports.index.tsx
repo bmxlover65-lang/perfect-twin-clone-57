@@ -140,6 +140,7 @@ function SportsPage() {
   }, []);
 
   const inFlight = useRef(false);
+  const didLoad = useRef(false);
   const emptyStreak = useRef(0);
 
   const load = useCallback(
@@ -222,7 +223,8 @@ function SportsPage() {
 
   useEffect(() => {
     emptyStreak.current = 0;
-    void load();
+    void load(didLoad.current);
+    didLoad.current = true;
     const quick = setInterval(() => {
       if (document.visibilityState === "hidden") return;
       void refreshVisible(sportId);
