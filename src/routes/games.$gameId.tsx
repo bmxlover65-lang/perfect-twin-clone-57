@@ -392,7 +392,7 @@ function PokerPanel({
             locked ? "bg-muted" : "bg-poker-gold"
           }`}
         />
-        <span className="relative flex h-full flex-col items-center justify-center text-foreground">
+        <span className="relative flex h-full flex-col items-center justify-center text-poker-plate-text">
           <span className="font-serif text-[1.3rem] font-extrabold leading-none">{fmtOdds(point?.price)}</span>
           <span className="mt-[3px] text-[0.72rem] font-medium leading-none opacity-70">
             {point?.size == null ? "" : String(Math.round(point.size))}
@@ -406,8 +406,8 @@ function PokerPanel({
   return (
     <div className="bg-poker-panel px-2 pb-2 pt-2">
       <div className="mb-3 grid h-[56px] grid-cols-2 gap-5 px-1">
-        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold font-serif text-[1.1rem] font-extrabold uppercase text-foreground/75">PLAYER A</div>
-        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold font-serif text-[1.1rem] font-extrabold uppercase text-foreground/75">PLAYER B</div>
+        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold font-serif text-[1.1rem] font-extrabold uppercase text-poker-plate-text">PLAYER A</div>
+        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold font-serif text-[1.1rem] font-extrabold uppercase text-poker-plate-text">PLAYER B</div>
       </div>
       {markets.map((m) => {
           const names = m.runnersName ?? {};
