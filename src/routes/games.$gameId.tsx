@@ -1352,7 +1352,11 @@ function AndarBaharPanel({
     >
       <span className="whitespace-nowrap uppercase">{r.label}</span>
       <span className="mt-1 text-[0.66rem]">{fmtOdds(r.price)}</span>
-      {!r.open ? <LockKeyhole className="absolute h-5 w-5 text-board-header-foreground" strokeWidth={3} /> : null}
+      {!r.open ? (
+        <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-baccarat-lock text-board-header-foreground">
+          <LockKeyhole className="h-5 w-5" strokeWidth={3} />
+        </span>
+      ) : null}
     </button>
   );
 
