@@ -4009,10 +4009,10 @@ function RecentStrip({
               ? (PLAYER32_TONE[w] ?? "bg-[#E67E22] text-white")
               : isNum
                 ? w === "0"
-                  ? "bg-[#12563A] text-white"
+                  ? "bg-[#0E8A3C] text-white"
                   : Number(w) % 2 === 1
-                    ? "bg-[#D9483B] text-white"
-                    : "bg-[#1E1E1E] text-white"
+                    ? "bg-[#D9392F] text-white"
+                    : "bg-[#1C1C1C] text-white"
                 : isTie
                   ? "bg-[#8CD9B5] text-[#0F172A]"
                     : baccarat && first === "B"
