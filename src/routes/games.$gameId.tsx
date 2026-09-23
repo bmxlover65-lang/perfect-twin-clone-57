@@ -4204,7 +4204,9 @@ function RecentStrip({
                     : baccarat && first === "P"
                       ? "bg-baccarat-blue text-board-header-foreground"
                     : first === "L"
-                    ? (lucky7 ? "bg-[#F9A9BA] text-white" : "bg-[#8E44C7] text-white")
+                    ? (lucky7 ? "bg-[#F9A9BA] text-white" : "bg-[#4CD964] text-black")
+                    : first === "C"
+                      ? "bg-[#FFFF33] text-black"
                     : ["B", "T"].includes(first)
                       ? "bg-ex-lay text-ex-cell-foreground"
                       : "bg-ex-back text-ex-cell-foreground";
