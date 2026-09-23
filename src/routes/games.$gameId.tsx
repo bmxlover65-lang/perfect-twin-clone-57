@@ -369,7 +369,24 @@ function PokerPanel({
   markets: CasinoMarket[];
   suspended: boolean;
 }) {
-  const Plate = ({ runner, label, locked }: {
+  const Hand = () => (
+    <div className="flex items-end justify-center gap-[6px]">
+      {[0, 1, 2].map((i) => (
+        <img
+          key={i}
+          src={CARD_BACK}
+          alt=""
+          className="h-[48px] w-[34px] rounded-[2px] border border-[#cfcfcf] bg-white object-cover"
+        />
+      ))}
+    </div>
+  );
+
+  const Plate = ({
+    runner,
+    label,
+    locked,
+  }: {
     runner?: (CasinoMarket["runners"] extends (infer R)[] | undefined ? R : never) | undefined;
     label: string;
     locked: boolean;
@@ -383,63 +400,56 @@ function PokerPanel({
         data-bet-label={label}
         data-bet-odds={point?.price ?? ""}
         disabled={locked || !point?.price}
-        className="relative h-[49px] w-[142px] max-w-[94%] overflow-hidden rounded-bl-[4px] rounded-br-[34px] rounded-tl-[34px] rounded-tr-[4px] bg-background shadow-[0_3px_5px_color-mix(in_oklab,var(--foreground)_22%,transparent)]"
+        className={`relative flex h-[86px] w-full flex-col items-center justify-center gap-[6px] rounded-[14px] ${
+          locked ? "bg-[#2b2b2b]" : "bg-[#0a0a0a]"
+        }`}
       >
-        <span className="absolute inset-y-0 left-[10px] right-[10px] -skew-x-[28deg] bg-poker-gold" />
-        <span className="relative flex h-full flex-col items-center justify-center text-foreground">
-          <span className="font-serif text-[1rem] font-extrabold leading-none">{fmtOdds(point?.price)}</span>
-          <span className="mt-[2px] text-[0.58rem] font-medium leading-none">
-            {point?.size == null ? "" : String(Math.round(point.size))}
-          </span>
+        <span
+          className={`text-[1.2rem] font-extrabold uppercase leading-none ${
+            locked ? "text-white/35" : "text-white"
+          }`}
+        >
+          {label}
         </span>
+        <span className={`text-[1rem] leading-none ${locked ? "text-white/35" : "text-white"}`}>
+          {fmtOdds(point?.price)}
+        </span>
+        {locked ? (
+          <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <LockKeyhole className="h-6 w-6 text-white" strokeWidth={2.4} />
+          </span>
+        ) : null}
       </button>
     );
   };
 
+  const market = markets[0];
+  const names = market?.runnersName ?? {};
+  const runners = market?.runners ?? [];
+  const a = runners.find((r) => (names[String(r.selectionId)] ?? "").toUpperCase().includes("A"));
+  const b = runners.find((r) => (names[String(r.selectionId)] ?? "").toUpperCase().includes("B"));
+  const isSusp = suspended || (runners.length > 0 && runners.every((r) => !isOpenStatus(r.status)));
+
   return (
-    <div className="bg-poker-panel px-1.5 pb-1 pt-2">
-      <div className="mb-2 grid h-[42px] grid-cols-2 gap-4 px-1.5">
-        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold font-serif text-[0.92rem] font-extrabold text-foreground">PLAYER A</div>
-        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold font-serif text-[0.92rem] font-extrabold text-foreground">PLAYER B</div>
+    <div className="bg-[#ededed] px-3 pb-4 pt-3">
+      <div className="mb-2 grid grid-cols-2 gap-3">
+        <Hand />
+        <Hand />
       </div>
-      {markets.map((m) => {
-          const names = m.runnersName ?? {};
-          const runners = m.runners ?? [];
-          const a = runners.find((r) => (names[String(r.selectionId)] ?? "").toUpperCase().includes("A"));
-          const b = runners.find((r) => (names[String(r.selectionId)] ?? "").toUpperCase().includes("B"));
-          const isSusp =
-            suspended ||
-            runners.every((r) => !isOpenStatus(r.status));
-          return (
-            <section key={m.marketId} className={`relative mb-1 overflow-hidden rounded-bl-[5px] rounded-br-[42px] rounded-tl-[42px] rounded-tr-[5px] bg-poker-panel pb-2 shadow-[0_2px_5px_color-mix(in_oklab,var(--foreground)_24%,transparent)] ${isSusp ? "border border-casino-suspend-text" : "border border-border"}`}>
-              <header className="mx-1 mt-1 flex h-[25px] items-center justify-center rounded-bl-[3px] rounded-br-[23px] rounded-tl-[23px] rounded-tr-[3px] border border-border bg-background px-1.5 shadow-[0_2px_3px_color-mix(in_oklab,var(--foreground)_18%,transparent)]">
-                <h3 className="truncate text-[0.67rem] font-extrabold uppercase text-foreground">
-                  {m.marketName}
-                </h3>
-                <span className="absolute right-3 flex h-3 w-3 shrink-0 items-center justify-center rounded-full bg-foreground text-[0.5rem] font-black text-background">
-                  i
-                </span>
-              </header>
-              <div className="relative grid h-[62px] grid-cols-2 items-center pt-1">
-                {[a, b].map((r, index) => (
-                  <div key={r ? String(r.selectionId) : index} className="min-w-0 text-center">
-                    <Plate
-                      runner={r}
-                      label={r ? (names[String(r.selectionId)] ?? String(r.selectionId)) : index === 0 ? "PLAYER A" : "PLAYER B"}
-                      locked={isSusp || !r}
-                    />
-                  </div>
-                ))}
-              </div>
-              {isSusp ? (
-                <SuspendVeil />
-              ) : null}
-            </section>
-          );
-        })}
+      <div className="grid grid-cols-2 gap-3">
+        {[a, b].map((r, index) => (
+          <Plate
+            key={r ? String(r.selectionId) : index}
+            runner={r}
+            label={index === 0 ? "PLAYER A" : "PLAYER B"}
+            locked={isSusp || !r}
+          />
+        ))}
+      </div>
     </div>
   );
 }
+
 
 
 
