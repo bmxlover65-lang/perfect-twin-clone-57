@@ -873,10 +873,9 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
       {locked ? (
         <span
           data-suspended="true"
-          className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-[6px] bg-casino-suspend-veil text-[0.68rem] font-extrabold uppercase tracking-[0.02em] text-casino-suspend-text"
-        >
-          Suspended
-        </span>
+          className="pointer-events-none absolute inset-0 z-20 rounded-[6px]"
+          style={{ background: "rgba(255,255,255,0.55)" }}
+        />
       ) : null}
     </div>
   );
