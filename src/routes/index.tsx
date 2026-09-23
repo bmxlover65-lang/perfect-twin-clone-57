@@ -62,7 +62,6 @@ function Lobby() {
   const [games, setGames] = useState<CasinoGame[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [refreshedAt, setRefreshedAt] = useState("");
-  const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     try {
@@ -72,17 +71,17 @@ function Lobby() {
       setRefreshedAt(new Date().toLocaleTimeString());
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load games");
-    } finally {
-      setLoading(false);
     }
   }, []);
 
   useEffect(() => {
     void load();
+    // The lobby list barely changes; a slow poll keeps it fresh without
+    // hammering the feed on every open tab.
     const t = setInterval(() => {
       if (document.visibilityState === "hidden") return;
       void load();
-    }, 2000);
+    }, 20000);
     const onVisible = () => {
       if (document.visibilityState === "visible") void load();
     };
