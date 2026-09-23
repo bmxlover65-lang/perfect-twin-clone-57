@@ -1112,8 +1112,8 @@ function OneDayTeenPattiBoard({ market, suspended }: { market: CasinoMarket; sus
           side === "back" ? "bg-casino-market-rate" : "bg-ex-lay"
         }`}
       >
-        <span className="text-[0.9rem] font-extrabold leading-none">{fmtOdds(point?.price)}</span>
-        <span className="mt-1 text-[0.72rem] font-normal leading-none">
+        <span className="text-[1.05rem] font-extrabold leading-none">{fmtOdds(point?.price)}</span>
+        <span className="mt-1 text-[0.75rem] font-normal leading-none">
           {point?.size == null ? "" : String(Math.round(point.size))}
         </span>
       </button>
@@ -1122,20 +1122,20 @@ function OneDayTeenPattiBoard({ market, suspended }: { market: CasinoMarket; sus
 
   return (
     <section className="overflow-hidden border border-casino-market-divider bg-ex-market-surface">
-      <header className="flex h-[24px] items-center bg-casino-market-header px-1.5 text-[0.8rem] font-extrabold uppercase text-board-header-foreground">
+      <header className="flex h-[32px] items-center bg-casino-market-header px-2 text-[0.95rem] font-extrabold uppercase tracking-wide text-board-header-foreground">
         {market.marketName}
       </header>
       <div className="relative">
-        <div className="grid h-[33px] grid-cols-[minmax(0,1fr)_78px_78px] items-stretch border-b border-casino-market-divider">
+        <div className="grid h-[40px] grid-cols-[minmax(0,1fr)_92px_92px] items-stretch border-b border-casino-market-divider">
           <div className="flex items-center justify-center px-2">
-            <span className="flex h-[23px] w-full max-w-[180px] items-center justify-center rounded-[3px] bg-ex-minmax text-[0.69rem] font-bold text-casino-market-text">
+            <span className="flex h-[26px] w-full max-w-[220px] items-center justify-center rounded-[6px] bg-[#DCE7E6] text-[0.78rem] font-bold text-casino-market-text">
               Min/Max&nbsp; {Math.max(100, market.min ?? 0)} - {market.max ?? 500000}
             </span>
           </div>
-          <span className="flex items-center justify-center border-l border-casino-market-divider bg-casino-market-rate text-[0.8rem] font-extrabold text-casino-market-text">
+          <span className="flex items-center justify-center border-l border-casino-market-divider bg-casino-market-rate text-[0.9rem] font-extrabold text-casino-market-text">
             Back
           </span>
-          <span className="flex items-center justify-center border-l border-casino-market-divider bg-ex-lay text-[0.8rem] font-extrabold text-casino-market-text">
+          <span className="flex items-center justify-center border-l border-casino-market-divider bg-ex-lay text-[0.9rem] font-extrabold text-casino-market-text">
             Lay
           </span>
         </div>
@@ -1143,9 +1143,9 @@ function OneDayTeenPattiBoard({ market, suspended }: { market: CasinoMarket; sus
           <div
             key={String(runner.selectionId)}
             data-runner-row=""
-            className="grid h-[41px] grid-cols-[minmax(0,1fr)_78px_78px] border-b border-casino-market-divider last:border-b-0"
+            className="grid h-[52px] grid-cols-[minmax(0,1fr)_92px_92px] border-b border-casino-market-divider last:border-b-0"
           >
-            <span data-runner-name="" className="flex h-full min-w-0 items-center bg-background px-1.5 font-serif text-[0.76rem] font-bold uppercase text-foreground">
+            <span data-runner-name="" className="flex h-full min-w-0 items-center bg-background px-2 text-[0.92rem] font-bold uppercase text-foreground">
               <span className="truncate">{names[String(runner.selectionId)] ?? String(runner.selectionId)}</span>
             </span>
             {priceCell(runner, "back")}
@@ -1153,7 +1153,12 @@ function OneDayTeenPattiBoard({ market, suspended }: { market: CasinoMarket; sus
           </div>
         ))}
         {suspended ? (
-          <SuspendVeil className="top-[33px]" size="sm" />
+          <div
+            data-suspended=""
+            className="pointer-events-none absolute inset-x-0 bottom-0 top-[40px] z-20 flex items-center justify-center border-2 border-[#D0021B] bg-[rgba(255,255,255,0.5)]"
+          >
+            <span className="text-[1.6rem] font-extrabold uppercase tracking-wide text-[#D0021B]">Suspended</span>
+          </div>
         ) : null}
       </div>
     </section>
