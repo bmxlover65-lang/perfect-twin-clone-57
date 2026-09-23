@@ -60,6 +60,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [ ] Match recent-result labels/colors and table-specific result rules
 - [ ] Re-test every table at mobile and desktop widths with no runtime errors
 - [x] Re-test all 15 live casino tables at 393px with no horizontal overflow or console errors
+- [x] Re-test Vimaan, Balloon, Heads & Tails, Dream Catcher and Lucky 0–9 at 393px with no overflow or console errors
 - [x] Standardize Dukex-style suspended markets: faded rates, red outline and centered `SUSPEND`
 
 ## Phase 6 — Pending fixes (user list, Sep 5)
