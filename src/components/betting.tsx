@@ -772,40 +772,6 @@ export function BetLayer({
         }
       }}
     >
-      <div data-nobet="" className="flex items-center gap-1.5 overflow-x-auto bg-code-surface px-2 py-2">
-        <Button
-          type="button"
-          size="sm"
-          variant={quickBet ? "destructive" : "secondary"}
-          aria-pressed={quickBet}
-          onClick={() => setQuickBet((value) => !value)}
-          className="h-9 shrink-0 px-2.5 text-[0.7rem] font-extrabold uppercase"
-        >
-          <Zap className="h-3.5 w-3.5" /> Quick Bet
-        </Button>
-        {SLIP_CHIPS.map((value) => (
-          <Button
-            key={value}
-            type="button"
-            size="sm"
-            variant="secondary"
-            aria-label={`Select ${value} stake`}
-            aria-pressed={quickStake === value}
-            onClick={() => {
-              setQuickStake(value);
-              setStake(value);
-              saveLastStake(value);
-            }}
-            className={`h-9 min-w-[54px] shrink-0 px-2 text-[0.72rem] font-extrabold ${
-              quickStake === value
-                ? "ring-2 ring-destructive ring-offset-1 ring-offset-code-surface"
-                : ""
-            }`}
-          >
-            {value >= 1000 ? `${value / 1000}k` : value}
-          </Button>
-        ))}
-      </div>
       {children}
 
       {(() => {
