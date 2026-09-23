@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { oriEvents, oriOdds, oriSports } from "@/lib/ori.server";
+import { ucasResults, ucasState } from "@/lib/ucas.server";
 
 const UPSTREAM = "https://universeapi.shop/public";
 
@@ -540,14 +541,45 @@ export async function proxy(splat: string, search: string, body?: string, origin
       return Response.json({ sessionToken: token });
     }
 
-    let token = await getToken();
+    // Casino live state now comes from the key-free exchange socket gateway.
+    // The old provider put its casino feed behind auth, so this is the primary
+    // source; the upstream chain below stays as a fallback.
+    const stateMatch = /^games\/([^/]+)\/state$/.exec(splat);
+    if (stateMatch && body === undefined) {
+      const eventId = decodeURIComponent(stateMatch[1]!);
+      const live = await ucasState(eventId);
+      if (live?.data) {
+        const payload = {
+          eventId,
+          freshnessMs: live.freshnessMs,
+          stale: live.freshnessMs > 5000,
+          data: live.data,
+        };
+        const text = JSON.stringify(payload);
+        sportsSnapshot.set(snapshotKey, { at: Date.now(), text });
+        return new Response(text, {
+          status: 200,
+          headers: { "content-type": "application/json", "cache-control": "no-store" },
+        });
+      }
+    }
+
+    let token = await getToken().catch(() => "");
     const preMatch = /^games\/([^/]+)\/results$/.exec(splat);
     if (preMatch) {
+      const eventId = decodeURIComponent(preMatch[1]!);
       // official results mirror is the source of truth for casino events
-      const data = await mirrorResults(decodeURIComponent(preMatch[1]!));
+      const data = await mirrorResults(eventId);
       if (data.length) {
         return Response.json(
           { data, source: "mirror" },
+          { status: 200, headers: { "cache-control": "no-store" } },
+        );
+      }
+      const live = await ucasResults(eventId);
+      if (live.length) {
+        return Response.json(
+          { data: live, source: "socket" },
           { status: 200, headers: { "cache-control": "no-store" } },
         );
       }
