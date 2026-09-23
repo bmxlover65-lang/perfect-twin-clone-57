@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "sdk_version": "3.0.2",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "universe-api",
+      "version": "0.1.0",
+      "title": "Universe Api"
+    },
+    "tools": [
+      {
+        "name": "list_casino_games",
+        "title": "List casino games",
+        "description": "List the casino tables offered by Universe Api, optionally filtered by name.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "search": {
+              "description": "Part of a game name to filter by.",
+              "type": "string",
+              "maxLength": 60
+            }
+          },
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_sports",
+        "title": "List sports",
+        "description": "List the sports available on Universe Api with their sport IDs.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_matches",
+        "title": "List matches",
+        "description": "List current and upcoming matches for a sport (e.g. sport ID 4 for cricket).",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "sportId": {
+              "type": "string",
+              "pattern": "^[\\w.-]{1,20}$",
+              "description": "Sport ID from list_sports."
+            },
+            "inPlayOnly": {
+              "description": "Only return matches that are live now.",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "sportId"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_match_odds",
+        "title": "Get match odds",
+        "description": "Get live markets and back/lay odds (match odds, bookmaker, fancy) for one match.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "sportId": {
+              "type": "string",
+              "pattern": "^[\\w.-]{1,20}$",
+              "description": "Sport ID from list_sports."
+            },
+            "eventId": {
+              "type": "string",
+              "pattern": "^[\\w.:-]{1,60}$",
+              "description": "Match event ID from list_matches."
+            }
+          },
+          "required": [
+            "sportId",
+            "eventId"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
