@@ -3842,8 +3842,10 @@ function RecentStrip({
             "11": "bg-[#8E44AD] text-white",
           };
           const tone =
-            (dragonTiger || baccarat) && isTie
-              ? "bg-baccarat-green text-board-header-foreground"
+            dragonTiger && isTie
+              ? "bg-[#F6D743] text-black"
+              : baccarat && isTie
+                ? "bg-baccarat-green text-board-header-foreground"
               : isNum && playerMatch
               ? (PLAYER32_TONE[w] ?? "bg-[#E67E22] text-white")
               : isNum
