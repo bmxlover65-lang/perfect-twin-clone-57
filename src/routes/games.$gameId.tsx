@@ -8,6 +8,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useEmbed } from "@/lib/embed";
 import { AppLoader } from "@/components/AppLoader";
 import { Button } from "@/components/ui/button";
+import { CasinoLivePlayer } from "@/components/CasinoLivePlayer";
 
 import { applyOverride, useAdminConfig } from "@/lib/admin";
 import { logResult } from "@/lib/telemetry";
@@ -3814,12 +3815,11 @@ function GamePage() {
       >
 
         {stream ? (
-          <iframe
+          <CasinoLivePlayer
             title="Live game stream"
             src={stream}
-            allow="autoplay; fullscreen; encrypted-media"
-            allowFullScreen
-            className={`${gameId === "99.0030" ? "aspect-[1.82/1]" : gameId === "99.0013" ? "aspect-[1.72/1]" : ["99.0001", "99.0016", "99.0019", "99.0022"].includes(gameId) ? "aspect-[1.78/1]" : "aspect-video"} w-full border-0 bg-black ${gameId === "99.0030" ? "" : "sm:aspect-video"}`}
+            loaderSrc={casinoStageMark.url}
+            className={`${gameId === "99.0030" ? "aspect-[1.82/1]" : gameId === "99.0013" ? "aspect-[1.72/1]" : ["99.0001", "99.0016", "99.0019", "99.0022"].includes(gameId) ? "aspect-[1.78/1]" : "aspect-video"} w-full ${gameId === "99.0030" ? "" : "sm:aspect-video"}`}
           />
         ) : (
           <div className={`${gameId === "99.0030" ? "aspect-[1.82/1]" : gameId === "99.0013" ? "aspect-[1.72/1]" : ["99.0001", "99.0016", "99.0019", "99.0022"].includes(gameId) ? "aspect-[1.78/1]" : "aspect-video"} w-full bg-black ${gameId === "99.0030" ? "" : "sm:aspect-video"}`} />

@@ -44,6 +44,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] Public API smoke-tested: balance / bet (idempotent) / bets, invalid key + wallet decline paths
 
 ## Phase 5 — Original table parity (in progress)
+- [x] Casino Live TV: branded loading state, connection status, retry, sound and fullscreen controls
 - [ ] Compare all 21 casino games against universeapi.shop at mobile width
 - [x] Ball by Ball: four-minute mobile reference audit; matched 20-second timer, live rate cadence, 64px boxes, shine, transparent locked state, cricket-ball result, disclaimer and circular history
 - [x] Ball by Ball: fix live bet placement after the reference-style bet-slip update
