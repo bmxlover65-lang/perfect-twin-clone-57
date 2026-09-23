@@ -1145,6 +1145,16 @@ function Cards32Panel({ markets, suspended }: { markets: CasinoMarket[]; suspend
     return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
   });
 
+  /** Per-row suspended cover — dukex style: red border box + centered red text. */
+  const RowSuspend = () => (
+    <span
+      data-suspended="true"
+      className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center border border-[#D0021B] bg-[rgba(255,255,255,0.5)]"
+    >
+      <span className="text-[1.3rem] font-bold text-[#D0021B]">SUSPENDED</span>
+    </span>
+  );
+
   return (
     <div className="bg-ex-market-surface">
       {ordered.map((market) => {
@@ -1152,18 +1162,24 @@ function Cards32Panel({ markets, suspended }: { markets: CasinoMarket[]; suspend
         const runners = market.runners ?? [];
         const hasLay = runners.some((runner) => Boolean(runner.price?.lay?.[0]?.price));
         const cols = hasLay
-          ? "grid-cols-[minmax(0,1fr)_70px_70px]"
-          : "grid-cols-[minmax(0,1fr)_84px]";
-        const marketLocked = suspended || runners.every((runner) => !isOpenStatus(runner.status ?? "ONLINE"));
+          ? "grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)_minmax(0,1fr)]"
+          : "grid-cols-[minmax(0,1.7fr)_minmax(0,2fr)]";
+        const marketLocked =
+          suspended ||
+          (runners.length > 0 &&
+            runners.every((runner) => !isOpenStatus(runner.status ?? "ONLINE")));
 
         return (
-          <section key={String(market.marketId)} className={`border-x border-b bg-ex-market-surface ${marketLocked ? "border-casino-suspend-text" : "border-border"}`}>
-            <header className="flex h-[20px] items-center justify-between border-b border-border bg-casino-market-header px-1">
-              <h3 className="truncate text-[0.66rem] font-extrabold uppercase leading-none text-board-header-foreground">
+          <section
+            key={String(market.marketId)}
+            className="border-b border-border bg-ex-market-surface"
+          >
+            <header className="flex h-[32px] items-center justify-between bg-casino-market-header px-2">
+              <h3 className="truncate text-[0.85rem] font-extrabold uppercase leading-none tracking-wide text-board-header-foreground">
                 {market.marketName}
               </h3>
-              <span className="flex h-[12px] w-[12px] shrink-0 items-center justify-center rounded-full bg-board-header-foreground text-casino-market-header">
-                <Info className="h-[9px] w-[9px]" strokeWidth={3} />
+              <span className="flex h-[17px] w-[17px] shrink-0 items-center justify-center rounded-full bg-board-header-foreground text-casino-market-header">
+                <Info className="h-[11px] w-[11px]" strokeWidth={3} />
               </span>
             </header>
             <div className="relative">
@@ -1172,6 +1188,7 @@ function Cards32Panel({ markets, suspended }: { markets: CasinoMarket[]; suspend
                 const lay = runner.price?.lay?.[0];
                 const label = names[String(runner.selectionId)] ?? String(runner.selectionId);
                 const open = !suspended && isOpenStatus(runner.status ?? "ONLINE");
+                const rowLocked = !marketLocked && !open;
                 const cell = (point: typeof back, side: "back" | "lay") => (
                   <button
                     type="button"
@@ -1182,24 +1199,41 @@ function Cards32Panel({ markets, suspended }: { markets: CasinoMarket[]; suspend
                     disabled={!open || !point?.price}
                     className={`flex h-full min-w-0 flex-col items-center justify-center border-l border-casino-market-divider ${side === "back" ? "bg-ex-back" : "bg-ex-lay"}`}
                   >
-                    <span className="text-[0.75rem] font-extrabold leading-none text-foreground">{fmtOdds(point?.price)}</span>
-                    <span className="mt-[3px] text-[0.5rem] font-medium leading-none text-foreground">
+                    <span className="text-[0.95rem] font-extrabold leading-none text-foreground">
+                      {fmtOdds(point?.price)}
+                    </span>
+                    <span className="mt-[4px] text-[0.62rem] font-medium leading-none text-foreground/70">
                       {point?.size == null ? "" : String(Math.round(point.size))}
                     </span>
                   </button>
                 );
 
                 return (
-                  <div key={String(runner.selectionId)} data-runner-row="" className={`grid h-[34px] ${cols} border-b border-border last:border-b-0`}>
-                    <span data-runner-name="" className="flex min-w-0 items-center bg-ex-market-surface px-1 text-[0.64rem] font-bold leading-tight text-ex-cell-foreground">
+                  <div
+                    key={String(runner.selectionId)}
+                    data-runner-row=""
+                    className={`relative grid h-[48px] ${cols} border-b border-border last:border-b-0`}
+                  >
+                    <span
+                      data-runner-name=""
+                      className="flex min-w-0 items-center bg-ex-market-surface px-2 text-[0.8rem] font-semibold leading-tight text-ex-cell-foreground"
+                    >
                       <span className="truncate">{label}</span>
                     </span>
                     {cell(back, "back")}
                     {hasLay ? cell(lay, "lay") : null}
+                    {rowLocked ? <RowSuspend /> : null}
                   </div>
                 );
               })}
-              {marketLocked ? <SuspendVeil size="sm" /> : null}
+              {marketLocked ? (
+                <span
+                  data-suspended="true"
+                  className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center border border-[#D0021B] bg-[rgba(255,255,255,0.5)]"
+                >
+                  <span className="text-[1.5rem] font-bold text-[#D0021B]">SUSPENDED</span>
+                </span>
+              ) : null}
             </div>
           </section>
         );
