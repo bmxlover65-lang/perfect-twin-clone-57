@@ -3246,13 +3246,16 @@ function GamePage() {
 
 
   useEffect(() => {
-    if (gameId === "99.0030") {
-      setStream("https://player.universestudio.games/index.html?appName=PLATINGE7&streamingName=GAME30&url=livecdnplatin.com&token=178610215242255360831371");
+    // Live studio streams for the table games. Verified published stream names
+    // on the studio WebRTC server: GAME<nn> where nn is the game id suffix.
+    const studio = studioStreamUrl(gameId);
+    if (studio) {
+      setStream(studio);
       return;
     }
     // Instant games render their own animation — no live studio stream exists,
     // so asking for one only produces a 400 from the feed.
-    if (gameId === "88.0030" || gameId === "88.0023") {
+    if (gameId.startsWith("88.")) {
       setStream(null);
       return;
     }
