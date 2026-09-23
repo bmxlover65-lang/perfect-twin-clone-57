@@ -2374,23 +2374,19 @@ function DragonTigerPanel({
         } ${rounded === "l" ? "rounded-l-full" : "rounded-r-full border-l border-white"}`}
         style={{ background: bg }}
       >
-        {open ? (
-          <>
-            <span className="text-[0.82rem] font-bold leading-none text-[#111]">
-              {fmtOdds(price)}
-            </span>
-            <span className="mt-1 text-[0.62rem] font-semibold text-[#111]/70">
-              {fmtSize(side === "back" ? r?.backSize : r?.laySize)}
-            </span>
-          </>
-        ) : (
-          <Lock />
-        )}
+        <span className={`text-[0.95rem] font-bold leading-none text-[#111] ${open ? "" : "opacity-40"}`}>
+          {fmtOdds(price)}
+        </span>
+        <span className={`mt-1 text-[0.62rem] font-semibold text-[#111]/70 ${open ? "" : "opacity-40"}`}>
+          {(() => { const v = side === "back" ? r?.backSize : r?.laySize; return v == null ? "" : String(Math.round(v)); })()}
+        </span>
+        {open ? null : <Lock />}
+
       </div>
     );
   };
 
-  const GreenBox = ({
+  const MaroonBox = ({
     r,
     label,
     price,
@@ -2401,10 +2397,8 @@ function DragonTigerPanel({
   }) => {
     const bettable = Boolean(r?.open && price);
     return (
-      <div className="text-center">
-        <p className="mb-1 text-[0.78rem] font-bold text-[#212529]">
-          {r && !r.open ? "" : fmtOdds(price)}
-        </p>
+      <div className="min-w-0 text-center">
+        <p className="mb-[6px] text-[0.95rem] font-bold text-[#111]">{fmtOdds(price)}</p>
         <div
           {...(bettable
             ? {
@@ -2414,15 +2408,22 @@ function DragonTigerPanel({
                 "data-bet-odds": String(price ?? ""),
               }
             : {})}
-          className={`relative flex h-[58px] items-center justify-center rounded-[16px] bg-[#F6A21E] px-3 ${
+          className={`relative flex h-[44px] items-center justify-center rounded-[10px] px-2 ${
             bettable ? "cursor-pointer" : ""
           }`}
+          style={{
+            background: "linear-gradient(180deg,#8c2b3f 0%,#5f1526 100%)",
+            opacity: r && !r.open ? 0.75 : 1,
+          }}
         >
-          {r && !r.open ? (
-            <Lock />
-          ) : (
-            <span className="text-[0.78rem] font-bold uppercase text-black">{label}</span>
-          )}
+          <span
+            className={`text-[0.82rem] font-bold uppercase text-white ${
+              r && !r.open ? "opacity-40" : ""
+            }`}
+          >
+            {label}
+          </span>
+          {r && !r.open ? <Lock /> : null}
         </div>
       </div>
     );
@@ -2435,80 +2436,98 @@ function DragonTigerPanel({
     const odd = oe.find((r) => r.label.endsWith("ODD"));
     const red = color.find((r) => r.label.includes("RED"));
     const black = color.find((r) => r.label.includes("BLACK"));
-    const mkt = byName(`${side} ODD/EVEN`);
+    const oeMkt = byName(`${side} ODD/EVEN`);
+    const colMkt = byName(`${side} CARD COLOR`);
     return (
-      <div className="rounded-[6px] border border-l7-card-border bg-white p-[6px]">
-        <div className="grid grid-cols-2 gap-2">
-          <GreenBox r={even} label="Even" price={even?.back} />
-          <GreenBox r={odd} label="Odd" price={odd?.back} />
-        </div>
-        <div className="mt-2 grid grid-cols-2 gap-2">
-          <GreenBox
+      <div className="bg-white px-2 pb-1 pt-2">
+        <div className="grid grid-cols-4 gap-2">
+          <MaroonBox r={even} label="Even" price={even?.back} />
+          <MaroonBox r={odd} label="Odd" price={odd?.back} />
+          <MaroonBox
             r={red}
             price={red?.back}
-            label={<span className="text-[#E0393B]">♥ ♦</span>}
+            label={<span className="text-[1rem] text-[#ff5757]">♦ ♥</span>}
           />
-          <GreenBox
+          <MaroonBox
             r={black}
             price={black?.back}
-            label={<span className="text-black/70">♠ ♣</span>}
+            label={<span className="text-[1rem] text-black">♣ ♠</span>}
           />
         </div>
-        <p className="pt-1 text-right text-[0.58rem] font-semibold text-black/55">
-          Min:{Math.max(100, mkt?.min ?? 0)} Max:{mkt?.max ?? 100000}
-        </p>
+        <div className="grid grid-cols-2 pt-1">
+          <p className="text-center text-[0.62rem] font-semibold text-black/60">
+            Min:{Math.max(100, oeMkt?.min ?? 0)} Max:{oeMkt?.max ?? 100000}
+          </p>
+          <p className="text-center text-[0.62rem] font-semibold text-black/60">
+            Min:{Math.max(100, colMkt?.min ?? 0)} Max:{colMkt?.max ?? 100000}
+          </p>
+        </div>
       </div>
     );
   };
+
+  const CardTile = ({ rank, locked }: { rank: string; locked: boolean }) => (
+    <div className="relative flex h-[62px] w-[48px] flex-col items-center justify-center rounded-[5px] border-2 border-[#D9A521] bg-white">
+      <span className="absolute left-[4px] top-[1px] text-[0.85rem] font-bold leading-none text-[#111]">
+        {rank}
+      </span>
+      <span className="mt-3 grid grid-cols-2 gap-x-[3px] text-[0.6rem] leading-[0.78rem]">
+        <span className="text-black">♠</span>
+        <span className="text-[#e0201c]">♦</span>
+        <span className="text-black">♣</span>
+        <span className="text-[#e0201c]">♥</span>
+      </span>
+      {locked ? (
+        <>
+          <span className="pointer-events-none absolute inset-0 rounded-[3px] bg-black/35" />
+          <Lock />
+        </>
+      ) : null}
+    </div>
+  );
 
   const CardBlock = ({ side }: { side: "DRAGON" | "TIGER" }) => {
     const cards = list(byName(`${side} CARD`));
     if (!cards.length) return null;
     return (
-      <div className="mt-[6px] rounded-[6px] border border-l7-card-border bg-white p-[6px_4px]">
-        <div className="flex items-center justify-between px-[6px] pb-[6px]">
-          <p className="text-[0.8rem] font-bold uppercase text-[#23282c]">
-            {side} Card <span className="ml-2">{fmtOdds(cards[0]?.back)}</span>
+      <div className="bg-[#e9edf0] pb-3">
+        <div className="flex items-center justify-between bg-[#ededed] px-3 py-[10px]">
+          <p className="text-[0.95rem] font-bold uppercase text-[#23282c]">
+            {side} Card <span className="ml-2">{cards[0]?.back == null ? "" : cards[0].back.toFixed(2)}</span>
           </p>
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#2c6f9e] text-[0.62rem] font-bold text-white">
+          <span className="flex h-[18px] w-[18px] items-center justify-center rounded-full border border-[#555] text-[0.62rem] font-bold text-[#333]">
             i
           </span>
         </div>
-        <div className="flex flex-wrap justify-center gap-x-[10px] gap-y-2">
-          {cards.map((r) => (
-            <div
-              key={r.id}
-              {...(r.open && r.back
-                ? {
-                    "data-market-plate": "",
-                    "data-market-option": "",
-                    "data-bet-label": r.label,
-                    "data-bet-odds": String(r.back),
-                  }
-                : {})}
-              className={`w-[40px] text-center ${r.open && r.back ? "cursor-pointer" : ""}`}
-            >
-              <div className="relative h-[56px] w-[40px] overflow-hidden rounded-[3px]">
-                <img src={LUCKY7_CARD_IMAGES[r.label.replace(`${side} `, "").trim()] ?? LUCKY7_CARD_IMAGES["A"]} alt={r.label} className="h-full w-full object-cover" />
-                {!r.open ? (
-                  <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2">
-                    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-white" fill="currentColor" aria-hidden="true">
-                      <path d="M12 2a5 5 0 0 0-5 5v3H6a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-1V7a5 5 0 0 0-5-5Zm-3 8V7a3 3 0 1 1 6 0v3H9Z" />
-                    </svg>
-                  </span>
-                ) : null}
-
+        <div className="flex flex-wrap justify-center gap-x-[10px] gap-y-[10px] px-2 pt-3">
+          {cards.map((r) => {
+            const rank = r.label.replace(`${side} `, "").trim().toUpperCase();
+            const bettable = r.open && Boolean(r.back);
+            return (
+              <div
+                key={r.id}
+                {...(bettable
+                  ? {
+                      "data-market-plate": "",
+                      "data-market-option": "",
+                      "data-bet-label": r.label,
+                      "data-bet-odds": String(r.back),
+                    }
+                  : {})}
+                className={bettable ? "cursor-pointer" : ""}
+              >
+                <CardTile rank={rank} locked={!bettable} />
               </div>
-              <p className="mt-0.5 text-[0.68rem] font-bold text-[#23282c]">{fmtOdds(r.back)}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
-        <p className="px-2 pt-1 text-right text-[0.58rem] font-semibold text-black/55">
+        <p className="px-3 pt-2 text-right text-[0.6rem] font-semibold text-black/55">
           Min:100 Max:{cardMax}
         </p>
       </div>
     );
   };
+
 
   return (
     <div className="mt-1 space-y-[6px] bg-l7-page py-[5px] font-[Tahoma,Helvetica,sans-serif]">
@@ -2516,14 +2535,14 @@ function DragonTigerPanel({
         <div className="grid grid-cols-2 gap-[6px]">
         <div className="flex flex-col items-center gap-1">
           <span className="text-[0.8rem] font-bold text-[#23282c]">DRAGON</span>
-          <div className="flex h-[60px] w-full max-w-[160px]">
+          <div className="flex h-[60px] w-full max-w-[180px]">
           <WinCell r={dragon} side="back" rounded="l" />
           <WinCell r={dragon} side="lay" rounded="r" />
           </div>
         </div>
         <div className="flex flex-col items-center gap-1">
           <span className="text-[0.8rem] font-bold text-[#23282c]">TIGER</span>
-          <div className="flex h-[60px] w-full max-w-[160px]">
+          <div className="flex h-[60px] w-full max-w-[180px]">
           <WinCell r={tiger} side="back" rounded="l" />
           <WinCell r={tiger} side="lay" rounded="r" />
           </div>
@@ -2541,26 +2560,50 @@ function DragonTigerPanel({
                 "data-bet-odds": String(pair.back),
               }
             : {})}
-          className={`relative mx-[6px] flex h-[60px] items-center justify-between rounded-[22px] bg-[#F6A21E] px-5 ${
+          className={`relative mx-[6px] flex h-[58px] items-center justify-between rounded-[14px] px-5 ${
             pair.open && pair.back ? "cursor-pointer" : ""
           }`}
+          style={{
+            background: "linear-gradient(180deg,#8c2b3f 0%,#5f1526 100%)",
+            opacity: pair.open ? 1 : 0.8,
+          }}
         >
-          <span className="text-[0.78rem] font-bold uppercase text-black">{pair.label}</span>
-          <span className="text-[0.8rem] font-bold text-black">{fmtOdds(pair.back)}</span>
+          <span className={`text-[0.9rem] font-bold uppercase text-white ${pair.open ? "" : "opacity-45"}`}>
+            {pair.label}
+          </span>
+          <span className={`text-[1rem] font-bold text-white ${pair.open ? "" : "opacity-45"}`}>
+            {pair.back == null ? "" : pair.back.toFixed(2)}
+          </span>
           {!pair.open ? <Lock /> : null}
         </div>
       ) : null}
 
-      <p className="bg-white px-3 py-1 text-right text-[0.58rem] font-semibold text-black/55">
+      <p className="bg-white px-3 py-1 text-right text-[0.62rem] font-semibold text-black/60">
         Min:{Math.max(100, winnerMkt?.min ?? 0)} Max:{winnerMkt?.max ?? 100000}
       </p>
 
-      <div className="rounded-[6px] border border-l7-card-border bg-white">
-        <div className="grid grid-cols-2">
-          {(["DRAGON", "TIGER"] as const).map((side) => <button key={side} type="button" onClick={() => setTab(side)} className={`h-9 border-b-2 text-[0.8rem] font-bold ${tab === side ? "border-[#2e4b5e]" : "border-transparent"}`}>{side[0] + side.slice(1).toLowerCase()}</button>)}
-        </div>
+      <div className="grid grid-cols-2">
+        {(["DRAGON", "TIGER"] as const).map((side) => (
+          <button
+            key={side}
+            type="button"
+            onClick={() => setTab(side)}
+            className={`h-[54px] text-[0.95rem] font-bold uppercase text-white ${
+              tab === side ? "border-t-[3px] border-black" : ""
+            }`}
+            style={{
+              background:
+                tab === side
+                  ? "linear-gradient(180deg,#8c2b3f 0%,#5f1526 100%)"
+                  : "linear-gradient(180deg,#bd7f8d 0%,#a96574 100%)",
+            }}
+          >
+            {side}
+          </button>
+        ))}
       </div>
       <SideBlock side={tab} />
+
 
       <CardBlock side={tab} />
     </div>
