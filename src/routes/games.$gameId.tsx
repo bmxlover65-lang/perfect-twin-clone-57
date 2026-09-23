@@ -354,19 +354,19 @@ function BaccaratPanel({
         };
     const alignCls =
       align === "left"
-        ? "items-start pl-4"
+        ? "items-start pl-3"
         : align === "right"
-          ? "items-end pr-4"
+          ? "items-end pr-3"
           : "items-center";
     return (
       <button
         type="button"
         {...chipProps}
         disabled={!r.open}
-        className={`relative flex h-full w-full min-w-0 flex-col justify-center overflow-hidden text-board-header-foreground ${variant === "tie" ? "pointer-events-auto" : ""} ${tone} ${alignCls} ${r.open ? "" : "opacity-60"}`}
+        className={`relative flex h-full w-full min-w-0 flex-col justify-center overflow-hidden text-board-header-foreground ${variant === "tie" ? "pointer-events-auto" : ""} ${tone} ${alignCls} ${r.open ? "" : "brightness-[0.62] saturate-[0.8]"}`}
       >
-        <span className="text-[1.15rem] font-extrabold uppercase leading-tight">{r.label}</span>
-        <span className="mt-1 text-[1.2rem] font-bold leading-none">{fmtOdds(r.price)}</span>
+        <span className="text-[1rem] font-bold uppercase leading-tight">{r.label}</span>
+        {r.open || variant === "player" || variant === "banker" ? <span className="mt-[3px] text-[1rem] font-bold leading-none">{fmtOdds(r.price)}</span> : null}
         {!r.open ? <LockOverlay /> : null}
       </button>
     );
@@ -381,20 +381,20 @@ function BaccaratPanel({
 
   return (
     <div className="relative mt-0 bg-baccarat-surface pb-1.5 pt-2">
-      <div className="relative mx-2 h-[110px] overflow-visible rounded-[22px]">
-        <div className="grid h-full grid-cols-2 overflow-hidden rounded-[22px]">
+      <div className="relative mx-2 h-[89px] overflow-visible rounded-[18px]">
+        <div className="grid h-full grid-cols-2 overflow-hidden rounded-[18px]">
           {player ? <BetPlate r={player} variant="player" align="left" /> : null}
           {banker ? <BetPlate r={banker} variant="banker" align="right" /> : null}
         </div>
         {tie ? (
           <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
-            <div className="h-[110px] w-[110px] overflow-hidden rounded-full border-[5px] border-baccarat-ring">
+            <div className="h-[89px] w-[89px] overflow-hidden rounded-full border-[3px] border-baccarat-ring">
               <BetPlate r={tie} variant="tie" />
             </div>
           </div>
         ) : null}
       </div>
-      <div className="mt-3 grid h-[85px] grid-cols-2 gap-2 px-2">
+      <div className="mt-2.5 grid h-[76px] grid-cols-2 gap-2 px-2">
         {playerPair ? <BetPlate r={playerPair} variant="player-pair" /> : null}
         {bankerPair ? <BetPlate r={bankerPair} variant="banker-pair" /> : null}
       </div>
