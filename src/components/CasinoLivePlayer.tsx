@@ -100,7 +100,7 @@ export function CasinoLivePlayer({ src, title, className, loaderSrc }: CasinoLiv
         </div>
       ) : null}
 
-      <span className="pointer-events-none absolute left-2 top-2 z-20 rounded-full border border-border/30 bg-code-surface/70 px-2.5 py-1 text-[0.62rem] font-bold uppercase text-primary-foreground backdrop-blur-md">
+      <span className="pointer-events-none absolute bottom-2 left-2 z-20 rounded-full border border-border/30 bg-code-surface/70 px-2.5 py-1 text-[0.62rem] font-bold uppercase text-primary-foreground backdrop-blur-md">
         {status === "live" ? "Live" : status === "reconnecting" ? "Reconnecting…" : "Connecting…"}
       </span>
 
