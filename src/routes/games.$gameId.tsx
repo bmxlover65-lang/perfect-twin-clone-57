@@ -419,8 +419,8 @@ function PokerPanel({
                 ))}
               </div>
               {isSusp ? (
-                <div data-suspended="true" className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-background/75">
-                  <span className="text-[1.35rem] font-extrabold uppercase text-casino-suspend-text">SUSPENDED</span>
+                <div data-suspended="true" className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-[rgba(255,255,255,0.5)]">
+                  <span className="text-[1.25rem] font-bold uppercase text-[#D0021B]">SUSPEND</span>
                 </div>
               ) : null}
             </section>
