@@ -1738,30 +1738,26 @@ function AAAPanel({
     </div>
   );
 
-  const SuspCell = () => (
-    <div className="flex h-[38px] w-full items-center justify-center rounded-[5px] bg-casino-suspend-veil">
-      <span className="text-[0.78rem] font-extrabold uppercase tracking-[0.06em] text-casino-suspend-text">
-        Suspended
-      </span>
-    </div>
-  );
-
-
   const PriceCell = ({
     price,
     size,
     tone,
+    locked,
   }: {
     price?: number | null | undefined;
     size?: number | null | undefined;
     tone: "back" | "lay";
+    locked?: boolean;
   }) => (
     <div
-      className="flex h-[38px] w-full flex-col items-center justify-center leading-none"
+      className="relative flex h-[38px] w-full flex-col items-center justify-center leading-none"
       style={{ background: tone === "back" ? "#72BBEF" : "#F9C9D4" }}
     >
       <span className="text-[0.92rem] font-bold text-[#111]">{fmtOdds(price)}</span>
       <span className="text-[0.66rem] text-[#111]">{size ?? ""}</span>
+      {locked ? (
+        <span className="pointer-events-none absolute inset-0 bg-casino-suspend-veil" />
+      ) : null}
     </div>
   );
 
