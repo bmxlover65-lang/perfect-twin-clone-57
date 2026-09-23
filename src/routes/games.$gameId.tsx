@@ -2109,6 +2109,88 @@ const PANEL_CHIPS: { v: string; src: string }[] = [
   { v: "100k", src: chip5.url },
 ];
 
+/** "1k" → 1000, "500k" → 500000, "100" → 100. */
+function chipAmount(v: string): number {
+  const t = v.trim().toLowerCase();
+  if (t.endsWith("k")) return Math.round(parseFloat(t) * 1000);
+  return Math.round(Number(t) || 0);
+}
+
+/** Chip games: pick a chip, tap a plate → bet placed directly (no slip). */
+const ChipBetContext = createContext<{
+  chip: string;
+  select: (v: string) => void;
+  bet: (label: string, odds: number) => void;
+} | null>(null);
+
+function ChipBetProvider({
+  gameId,
+  gameName,
+  round,
+  disabled,
+  children,
+}: {
+  gameId: string;
+  gameName: string;
+  round: string;
+  disabled?: boolean;
+  children: ReactNode;
+}) {
+  const [chip, setChip] = useState("100");
+  const [err, setErr] = useState<string | null>(null);
+  const [ok, setOk] = useState<string | null>(null);
+  const busy = useRef(false);
+  const roundRef = useRef(round);
+  roundRef.current = round;
+
+  const bet = useCallback(
+    (label: string, odds: number) => {
+      if (disabled) return;
+      if (busy.current) {
+        setErr("Do Not Place Bet At The Same Time.");
+        return;
+      }
+      const stake = chipAmount(chip);
+      if (stake < 100) {
+        setErr("Minimum bet is 100.");
+        return;
+      }
+      if (!playerSession() && stake > readWallet().balance) {
+        setErr("You have Insufficient Balance.");
+        return;
+      }
+      busy.current = true;
+      const placed = placeBet({
+        gameId,
+        gameName,
+        round: roundRef.current,
+        label,
+        odds,
+        stake,
+      });
+      window.setTimeout(() => {
+        busy.current = false;
+      }, 600);
+      if (!placed) {
+        setErr("You have Insufficient Balance.");
+        return;
+      }
+      setOk(`Bet Placed · ${label} @ ${odds} · ${stake}`);
+    },
+    [chip, disabled, gameId, gameName],
+  );
+
+  return (
+    <ChipBetContext.Provider value={{ chip, select: setChip, bet }}>
+      {children}
+      {err ? <ErrorToast message={err} onDone={() => setErr(null)} /> : null}
+      {ok ? <SuccessToast message={ok} onDone={() => setOk(null)} /> : null}
+    </ChipBetContext.Provider>
+  );
+}
+
+const useChipBet = () => useContext(ChipBetContext);
+
 const BACCARAT_CHIPS: { v: string; src: string }[] = [
   { v: "1k", src: chip1k.url },
   { v: "5k", src: chip5.url },
