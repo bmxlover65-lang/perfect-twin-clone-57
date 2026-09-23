@@ -2576,6 +2576,15 @@ export const DREAM_NOTE: Record<string, string> = {
   "40": dream40x.url,
 };
 
+export const DREAM_PLATE: Record<string, { bg: string; bg2: string; oval: string; text: string }> = {
+  "1": { bg: "#E7B948", bg2: "#C9962C", oval: "#6B4E12", text: "#F3D083" },
+  "2": { bg: "#78ACDF", bg2: "#5590C8", oval: "#183C66", text: "#A9CDEE" },
+  "5": { bg: "#C58FE3", bg2: "#A96FCB", oval: "#4A2162", text: "#DDB3F2" },
+  "10": { bg: "#5CC677", bg2: "#3EA95B", oval: "#154F2B", text: "#9DE9AF" },
+  "20": { bg: "#E9854D", bg2: "#CD6730", oval: "#6B2C10", text: "#F6B78C" },
+  "40": { bg: "#EA6A70", bg2: "#CF4A51", oval: "#6B161B", text: "#F5A5A9" },
+};
+
 export const DREAM_TONE: Record<string, string> = {
   "1": "bg-[#C79A00] text-white",
   "2": "bg-[#2B6FA8] text-white",
@@ -2671,7 +2680,7 @@ function NumberPanel({
           </div>
           {!t.open ? (
             <div className="absolute inset-0 flex items-center justify-center bg-black/55">
-              <Lock className="h-5 w-5 text-white/80" />
+              <LockKeyhole className="h-5 w-5 text-white/80" strokeWidth={3} />
             </div>
           ) : null}
         </div>
