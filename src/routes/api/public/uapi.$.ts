@@ -288,140 +288,6 @@ async function rememberEventNames(text: string) {
   }
 }
 
-async function backupSports(splat: string) {
-  const eventsMatch = /^sports\/([^/]+)\/events$/.exec(splat);
-  const oddsMatch = /^sports\/([^/]+)\/([^/]+)\/odds$/.exec(splat);
-  if (splat === "sports") {
-    const { AURA_SPORTS } = await import("@/lib/aura.server");
-    return Response.json({ sports: AURA_SPORTS }, { headers: { "cache-control": "no-store" } });
-  }
-  if (!eventsMatch && !oddsMatch) return null;
-
-
-  // Failover order: primary (universeapi) handled by the caller, then the
-  // live exchange socket feed (Dream), then the static backup.
-  try {
-    const aura = await import("@/lib/aura.server");
-    if (eventsMatch) {
-      const events = await aura.auraEvents(decodeURIComponent(eventsMatch[1]!));
-      if (events.length) {
-        return Response.json(
-          { events, source: "aura", refreshedAt: new Date().toISOString() },
-          { status: 200, headers: { "cache-control": "no-store" } },
-        );
-      }
-    } else {
-      const odds = await aura.auraOdds(
-        decodeURIComponent(oddsMatch![1]!),
-        decodeURIComponent(oddsMatch![2]!),
-      );
-      if (odds) return Response.json(odds, { status: 200, headers: { "cache-control": "no-store" } });
-    }
-  } catch {
-    /* fall through to the secondary backup */
-  }
-
-  // Third source: The Odds API (free plan, heavily cached).
-  try {
-    const oa = await import("@/lib/oddsapi.server");
-    if (eventsMatch) {
-      const events = await oa.oddsApiEvents(decodeURIComponent(eventsMatch[1]!));
-      if (events.length) {
-        return Response.json(
-          { events, source: "oddsapi", refreshedAt: new Date().toISOString() },
-          { status: 200, headers: { "cache-control": "no-store" } },
-        );
-      }
-    } else {
-      const odds = await oa.oddsApiOdds(
-        decodeURIComponent(oddsMatch![1]!),
-        decodeURIComponent(oddsMatch![2]!),
-      );
-      if (odds) return Response.json(odds, { status: 200, headers: { "cache-control": "no-store" } });
-    }
-  } catch {
-    /* fall through to the static backup */
-  }
-
-  try {
-
-    const backup = await import("@/lib/skyfair.server");
-    if (eventsMatch) {
-      const events = await backup.backupEvents(decodeURIComponent(eventsMatch[1]!), (n) =>
-        primaryIdByName.get(n),
-      );
-      if (!events.length) return null;
-      return Response.json(
-        { events, source: "backup", refreshedAt: new Date().toISOString() },
-        { status: 200, headers: { "cache-control": "no-store" } },
-      );
-    }
-    const sportId = decodeURIComponent(oddsMatch![1]!);
-    const exEventId = decodeURIComponent(oddsMatch![2]!);
-    const odds = await backup.backupOdds(sportId, exEventId, eventNames.get(exEventId));
-    if (!odds) return null;
-    return Response.json(odds, { status: 200, headers: { "cache-control": "no-store" } });
-  } catch {
-    return null;
-  }
-}
-
-type OddsPayload = {
-  matchOdds?: {
-    marketType?: string;
-    runnersData?: Record<string, string>;
-    oddsData?: { status?: string; runners?: { selectionId: string | number; status?: string }[] };
-  }[];
-  result?: string;
-  inPlay?: boolean;
-};
-
-/**
- * The primary provider sometimes stops short of publishing the winner when a
- * match ends. Fill that in from the backup exchange so results settle live.
- */
-async function mergeBackupResult(splat: string, text: string) {
-  const m = /^sports\/([^/]+)\/([^/]+)\/odds$/.exec(splat);
-  if (!m) return null;
-  let payload: OddsPayload;
-  try {
-    payload = JSON.parse(text) as OddsPayload;
-  } catch {
-    return null;
-  }
-  const market = payload.matchOdds?.find((x) => (x.marketType ?? "MATCH_ODDS") === "MATCH_ODDS");
-  const runners = market?.oddsData?.runners ?? [];
-  const hasWinner = runners.some((r) => (r.status ?? "").toUpperCase() === "WINNER");
-  const status = (market?.oddsData?.status ?? "").toUpperCase();
-  const closed = /CLOSED|SETTLED|INACTIVE/.test(status) || payload.inPlay === false;
-  if (hasWinner || !closed || !runners.length) return null;
-
-  try {
-    const sportId = decodeURIComponent(m[1]!);
-    const exEventId = decodeURIComponent(m[2]!);
-    const backup = await import("@/lib/skyfair.server");
-    const alt = (await backup.backupOdds(sportId, exEventId, eventNames.get(exEventId))) as
-      | (OddsPayload & { result?: string })
-      | null;
-    const winnerName = alt?.result;
-    if (!winnerName) return null;
-    const target = backup.normalizeName(winnerName);
-    let matched = false;
-    for (const r of runners) {
-      const name = market?.runnersData?.[String(r.selectionId)] ?? "";
-      const win = backup.normalizeName(name) === target;
-      if (win) matched = true;
-      r.status = win ? "WINNER" : "LOSER";
-    }
-    if (!matched) return null;
-    if (market?.oddsData) market.oddsData.status = "CLOSED";
-    payload.result = winnerName;
-    payload.inPlay = false;
-    return Response.json(payload, { status: 200, headers: { "cache-control": "no-store" } });
-  } catch {
-    return null;
-  }
-}
 
 type PriceRow = { price?: number; size?: number };
 type PricedRunner = {
@@ -581,183 +447,6 @@ function normalizeStatuses(splat: string, text: string): string {
 
 
 
-/**
- * Keep the displayed exchange prices synchronized with the live backup feed.
- * The primary endpoint can return a valid-looking but delayed snapshot, so
- * waiting for zero prices leaves the board visibly behind the reference site.
- */
-async function mergeBackupPrices(splat: string, text: string) {
-  const m = /^sports\/([^/]+)\/([^/]+)\/odds$/.exec(splat);
-  if (!m) return null;
-  let payload: PricedPayload;
-  try {
-    payload = JSON.parse(text) as PricedPayload;
-  } catch {
-    return null;
-  }
-  const market = payload.matchOdds?.find((x) => (x.marketType ?? "MATCH_ODDS") === "MATCH_ODDS");
-  const runners = market?.oddsData?.runners ?? [];
-  if (!runners.length) return null;
-  const status = (market?.oddsData?.status ?? "OPEN").toUpperCase();
-  if (/CLOSED|SETTLED|INACTIVE/.test(status)) return null;
-
-  try {
-    const sportId = decodeURIComponent(m[1]!);
-    const exEventId = decodeURIComponent(m[2]!);
-    const backup = await import("@/lib/skyfair.server");
-    const alt = (await backup.backupOdds(
-      sportId,
-      exEventId,
-      payload.eventName ?? eventNames.get(exEventId),
-    )) as PricedPayload | null;
-    const altMarket = alt?.matchOdds?.[0];
-    const altRunners = altMarket?.oddsData?.runners ?? [];
-    if (!altRunners.length) return null;
-
-    let filled = false;
-    for (const r of runners) {
-      const name = backup.normalizeName(market?.runnersData?.[String(r.selectionId)] ?? "");
-      const hit = altRunners.find(
-        (a) =>
-          backup.normalizeName(altMarket?.runnersData?.[String(a.selectionId)] ?? "") === name,
-      );
-      if (!hit) continue;
-      if (hit.price && (liveDepth(hit.price.back) || liveDepth(hit.price.lay))) {
-        r.price = hit.price;
-        filled = true;
-      }
-
-    }
-    if (!filled) return null;
-    return Response.json(payload, { status: 200, headers: { "cache-control": "no-store" } });
-  } catch {
-    return null;
-  }
-}
-
-
-/**
- * Bookmaker / fancy / sportsbook straight from the live exchange socket.
- *
- * The primary provider republishes those markets from a slow cache: expired
- * fancy sessions (e.g. "19 Over Runs" after the over finished) keep hanging
- * around and ball-running suspensions arrive seconds late. The socket feed is
- * the same one the reference book renders, so for an event it knows we take
- * those groups from it verbatim.
- */
-/**
- * Union the primary event list with the live socket feed, so a match that only
- * one of the two providers knows still shows on the board.
- */
-async function withAuraEvents(splat: string, text: string): Promise<string> {
-  const m = /^sports\/([^/]+)\/events$/.exec(splat);
-  if (!m) return text;
-  let payload: { events?: { exEventId?: string; eventName?: string }[] };
-  try {
-    payload = JSON.parse(text) as typeof payload;
-  } catch {
-    return text;
-  }
-  if (!Array.isArray(payload.events)) return text;
-  try {
-    const aura = await import("@/lib/aura.server");
-    const { normalizeName } = await import("@/lib/skyfair.server");
-    const live = await aura.auraEvents(decodeURIComponent(m[1]!));
-    if (!live.length) return text;
-    const seen = new Set(
-      payload.events.map((e) => normalizeName(String(e?.eventName ?? ""))).filter(Boolean),
-    );
-    const extra = live.filter(
-      (e) => !seen.has(normalizeName(String((e as { eventName?: string }).eventName ?? ""))),
-    );
-    if (!extra.length) return text;
-    payload.events = [...payload.events, ...(extra as typeof payload.events)];
-    return JSON.stringify(payload);
-  } catch {
-    return text;
-  }
-}
-
-async function withAuraMarkets(splat: string, text: string): Promise<string> {
-  if (!/^sports\/[^/]+\/[^/]+\/odds$/.test(splat)) return text;
-  const m = /^sports\/([^/]+)\/([^/]+)\/odds$/.exec(splat)!;
-  let payload: Record<string, unknown>;
-  try {
-    payload = JSON.parse(text) as Record<string, unknown>;
-  } catch {
-    return text;
-  }
-  try {
-    const aura = await import("@/lib/aura.server");
-    const live = (await aura.auraOdds(
-      decodeURIComponent(m[1]!),
-      decodeURIComponent(m[2]!),
-    )) as Record<string, unknown> | null;
-    if (!live) return text;
-    for (const group of ["matchOdds", "bookmakers", "fancy", "sportsbook"] as const) {
-      const rows = live[group];
-      // An empty live auxiliary group is meaningful: the provider has removed
-      // the completed session. Match Odds is retained only during a brief
-      // reconnect where that core group is absent.
-      if (group !== "matchOdds" || (Array.isArray(rows) && rows.length)) {
-        payload[group] = Array.isArray(rows) ? rows : [];
-      }
-    }
-    return JSON.stringify(payload);
-  } catch {
-    return text;
-  }
-}
-
-/**
- * Match Odds from the public exchange REST feed, which ships the full three
- * back / three lay ladder. Used whenever our own feed has no usable Match Odds
- * prices for the event, and to deepen a single-level ladder.
- */
-async function withEx247Markets(splat: string, text: string): Promise<string> {
-  const m = /^sports\/([^/]+)\/([^/]+)\/odds$/.exec(splat);
-  if (!m) return text;
-  let payload: Record<string, unknown>;
-  try {
-    payload = JSON.parse(text) as Record<string, unknown>;
-  } catch {
-    return text;
-  }
-  const eventName = String((payload as { eventName?: string }).eventName ?? "");
-  if (!eventName) return text;
-
-  type Lvl = { price?: number };
-  type Mk = {
-    oddsData?: { runners?: { price?: { back?: Lvl[]; lay?: Lvl[] } }[] };
-  };
-  const current = Array.isArray(payload['matchOdds']) ? (payload['matchOdds'] as Mk[]) : [];
-  const depth = current.reduce(
-    (n, mk) =>
-      Math.max(
-        n,
-        ...(mk.oddsData?.runners ?? []).map((r) =>
-          Math.max(
-            (r.price?.back ?? []).filter((p) => (p?.price ?? 0) > 0).length,
-            (r.price?.lay ?? []).filter((p) => (p?.price ?? 0) > 0).length,
-          ),
-        ),
-        0,
-      ),
-    0,
-  );
-  // Our own ladder already has real depth — leave it alone.
-  if (depth >= 2) return text;
-
-  try {
-    const { ex247MatchOdds } = await import("@/lib/ex247.server");
-    const rows = await ex247MatchOdds(decodeURIComponent(m[1]!), eventName);
-    if (!rows?.length) return text;
-    payload['matchOdds'] = rows;
-    return JSON.stringify(payload);
-  } catch {
-    return text;
-  }
-}
 
 export async function proxy(splat: string, search: string, body?: string, origin = "") {
 
@@ -817,16 +506,7 @@ export async function proxy(splat: string, search: string, body?: string, origin
       token = await getToken(true);
       res = await upstream(splat, search, token, body);
     }
-    const text = normalizeStatuses(
-      splat,
-      await withAuraEvents(
-        splat,
-        await withEx247Markets(
-          splat,
-          await withAuraMarkets(splat, freshestMarkets(splat, await res.text())),
-        ),
-      ),
-    );
+    const text = normalizeStatuses(splat, freshestMarkets(splat, await res.text()));
 
 
     const resultsMatch = /^games\/([^/]+)\/results$/.exec(splat);
@@ -841,8 +521,6 @@ export async function proxy(splat: string, search: string, body?: string, origin
         );
       }
       if (isSportsPath(splat)) {
-        const alt = await backupSports(splat);
-        if (alt) return alt;
         const snap = snapshotResponse(snapshotKey, res.status);
         if (snap) return snap;
       }
@@ -851,46 +529,10 @@ export async function proxy(splat: string, search: string, body?: string, origin
         { status: 200, headers: { "cache-control": "no-store" } },
       );
     }
-    // Non-5xx failures (404 "Event not found", 4xx) also fail over to the
-    // live exchange feed, which carries events the primary no longer knows.
-    if (isSportsPath(splat) && !res.ok) {
-      const alt = await backupSports(splat);
-      if (alt) return alt;
-    }
     if (isSportsPath(splat) && res.ok && text.startsWith("{")) {
 
       sportsSnapshot.set(snapshotKey, { at: Date.now(), text });
       if (/^sports\/[^/]+\/events$/.test(splat)) void rememberEventNames(text);
-    }
-    // Upstream answered 200 but with an empty/errored sports payload: fail over.
-    if (isSportsPath(splat) && res.ok) {
-      let emptySports = false;
-      try {
-        const parsed = JSON.parse(text) as {
-          error?: string;
-          events?: unknown[];
-          matchOdds?: unknown[];
-          bookmakers?: unknown[];
-          fancy?: unknown[];
-        };
-        if (parsed.error) emptySports = true;
-        else if (/^sports\/[^/]+\/events$/.test(splat))
-          emptySports = Array.isArray(parsed.events) && parsed.events.length === 0;
-        else if (/^sports\/[^/]+\/[^/]+\/odds$/.test(splat))
-          emptySports =
-            !parsed.matchOdds?.length && !parsed.bookmakers?.length && !parsed.fancy?.length;
-      } catch {
-        emptySports = true;
-      }
-      if (emptySports) {
-        const alt = await backupSports(splat);
-        if (alt) return alt;
-      } else if (/^sports\/[^/]+\/[^/]+\/odds$/.test(splat)) {
-        const merged = await mergeBackupResult(splat, text);
-        if (merged) return merged;
-        const priced = await mergeBackupPrices(splat, text);
-        if (priced) return priced;
-      }
     }
 
     if (resultsMatch) {
@@ -924,8 +566,6 @@ export async function proxy(splat: string, search: string, body?: string, origin
 
   } catch (error) {
     if (isSportsPath(splat)) {
-      const alt = await backupSports(splat).catch(() => null);
-      if (alt) return alt;
       const snap = snapshotResponse(snapshotKey, 0);
       if (snap) return snap;
     }
