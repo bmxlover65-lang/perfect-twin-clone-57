@@ -94,6 +94,19 @@ export const Route = createFileRoute("/games/$gameId")({
 
 
 /** Strip table-suffixes like " - A" / " B" from the feed's event name. */
+// Live studio TV. Each table game publishes on the studio WebRTC server as
+// GAME<nn>, where nn is the suffix of its 99.00nn id. Only these ids have a
+// published stream, so unknown games keep falling back to the feed lookup.
+const STUDIO_STREAM_IDS = new Set([
+  "01", "05", "07", "10", "13", "14", "16", "18", "19", "21", "22", "25", "30", "41", "46",
+]);
+
+function studioStreamUrl(gameId: string): string | null {
+  const m = /^99\.00(\d{2})$/.exec(gameId);
+  if (!m || !STUDIO_STREAM_IDS.has(m[1]!)) return null;
+  return `https://player.universestudio.games/index.html?appName=PLATINGE7&streamingName=GAME${m[1]}&url=livecdnplatin.com&token=178610215242255360831371`;
+}
+
 function cleanGameName(name?: string | null): string | undefined {
   if (!name) return undefined;
   const cleaned = name.replace(/\s*[-–]\s*[A-Z]$/i, "").trim().replace(/\bVIMAN\b/gi, "VIMAAN");
@@ -3246,13 +3259,16 @@ function GamePage() {
 
 
   useEffect(() => {
-    if (gameId === "99.0030") {
-      setStream("https://player.universestudio.games/index.html?appName=PLATINGE7&streamingName=GAME30&url=livecdnplatin.com&token=178610215242255360831371");
+    // Live studio streams for the table games. Verified published stream names
+    // on the studio WebRTC server: GAME<nn> where nn is the game id suffix.
+    const studio = studioStreamUrl(gameId);
+    if (studio) {
+      setStream(studio);
       return;
     }
     // Instant games render their own animation — no live studio stream exists,
     // so asking for one only produces a 400 from the feed.
-    if (gameId === "88.0030" || gameId === "88.0023") {
+    if (gameId.startsWith("88.")) {
       setStream(null);
       return;
     }
