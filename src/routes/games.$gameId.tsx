@@ -399,7 +399,7 @@ function BaccaratPanel({
         {bankerPair ? <BetPlate r={bankerPair} variant="banker-pair" /> : null}
       </div>
       <BaccaratChipRow />
-      {marketLocked ? <SuspendVeil /> : null}
+      {marketLocked ? <span data-suspended="" hidden /> : null}
     </div>
 
   );
@@ -436,7 +436,7 @@ function PokerPanel({
           }`}
         />
         <span className="relative flex h-full flex-col items-center justify-center text-poker-plate-text">
-          <span className="font-serif text-[1.3rem] font-extrabold leading-none">{fmtOdds(point?.price)}</span>
+          <span className="text-[1.3rem] font-extrabold leading-none">{fmtOdds(point?.price)}</span>
           <span className="mt-[3px] text-[0.72rem] font-medium leading-none opacity-70">
             {point?.size == null ? "" : String(Math.round(point.size))}
           </span>
@@ -449,10 +449,10 @@ function PokerPanel({
   return (
     <div className="bg-poker-panel px-2 pb-2 pt-2">
       <div className="mb-3 grid h-[56px] grid-cols-2 gap-5 px-1">
-        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold font-serif text-[1.1rem] font-extrabold uppercase text-poker-plate-text">PLAYER A</div>
-        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold font-serif text-[1.1rem] font-extrabold uppercase text-poker-plate-text">PLAYER B</div>
+        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold text-[1.1rem] font-extrabold uppercase text-poker-plate-text">PLAYER A</div>
+        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold text-[1.1rem] font-extrabold uppercase text-poker-plate-text">PLAYER B</div>
       </div>
-      {markets.map((m) => {
+      {[...markets].sort((x, y) => { const o = ["WINNER", "ONE PAIR", "TWO PAIR", "THREE OF A KIND", "STRAIGHT", "STRAIGHT FLUSH", "FLUSH", "FULL HOUSE", "FOUR OF A KIND"]; const xi = o.indexOf((x.marketName ?? "").trim().toUpperCase()); const yi = o.indexOf((y.marketName ?? "").trim().toUpperCase()); return (xi < 0 ? 99 : xi) - (yi < 0 ? 99 : yi); }).map((m) => {
           const names = m.runnersName ?? {};
           const runners = m.runners ?? [];
           const a = runners.find((r) => (names[String(r.selectionId)] ?? "").toUpperCase().includes("A"));
@@ -762,6 +762,13 @@ function refBadge(raw: string, game: string): { letter: string; tone: "high" | "
   if (game === "99.0019") {
     return /DRAGON|^D/.test(l) ? { letter: "D", tone: "high" } : /TIGER/.test(l) || l === "T" ? { letter: "T", tone: "low" } : { letter: "T", tone: "tie" };
   }
+  if (game === "99.0022") {
+    const n = l.match(/\d+/)?.[0] ?? "?";
+    return { letter: n, tone: ("c" + n) as "tie" };
+  }
+  if (game === "99.0001") {
+    return /TIE|^T$/.test(l) ? { letter: "T", tone: "tie" } : /BANKER|^B$/.test(l) ? { letter: "B", tone: "low" } : { letter: "P", tone: "high" };
+  }
   return /\bB\b|\(\s*B\s*\)|PLAYER B|^B$/.test(l)
     ? { letter: "B", tone: "low" }
     : /\bA\b|\(\s*A\s*\)|PLAYER A|^A$/.test(l)
@@ -784,7 +791,7 @@ function Lucky7Recent({ results, game = "99.0030" }: { results: CasinoResult[]; 
               <button
                 type="button"
                 data-nobet=""
-                className={`lucky7-result-chip${tone === "low" ? " is-low" : tone === "tie" ? " is-tie" : ""}`}
+                className={`lucky7-result-chip${tone === "low" ? " is-low" : tone === "tie" ? " is-tie" : tone === "high" ? "" : ` is-${tone}`}`}
               >
                 {first}
               </button>
@@ -1027,6 +1034,75 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
 }
 
 /** Joker Teen Patti reference board: compact white runner rows with one blue Back price. */
+
+/** Dukex list-layout market (1 Day TP / Joker TP / 32 Cards). */
+function RefListMarket({
+  market,
+  suspended,
+  minMax = false,
+  backOnly,
+}: {
+  market: CasinoMarket;
+  suspended: boolean;
+  minMax?: boolean;
+  backOnly?: boolean;
+}) {
+  const names = market.runnersName ?? {};
+  const runners = market.runners ?? [];
+  const hasLay = backOnly === undefined ? runners.some((r) => Boolean(r.price?.lay?.[0]?.price)) || minMax : !backOnly;
+  const cols = hasLay ? "minmax(0,1fr) 78px 78px" : backOnly && !minMax ? "minmax(0,1fr) 90px" : "minmax(0,1fr) 156px";
+  const locked =
+    suspended || (runners.length > 0 && runners.every((r) => !isOpenStatus(r.status ?? "ONLINE")));
+  return (
+    <section className="reflist-market">
+      <header className="reflist-header">
+        <span>{market.marketName}</span>
+        <span className="reflist-info">i</span>
+      </header>
+      {minMax ? (
+        <div className="reflist-row is-head" style={{ gridTemplateColumns: cols }}>
+          <div className="reflist-minmax">
+            <span>Min/Max {Math.max(100, market.min ?? 0)} - {market.max ?? 500000}</span>
+          </div>
+          <span className="reflist-colhead">Back</span>
+          <span className="reflist-colhead is-lay">Lay</span>
+        </div>
+      ) : null}
+      <div className="reflist-body">
+        {runners.map((runner) => {
+          const label = names[String(runner.selectionId)] ?? String(runner.selectionId);
+          const open = !locked && isOpenStatus(runner.status ?? "ONLINE");
+          const cell = (side: "back" | "lay") => {
+            const point = side === "back" ? runner.price?.back?.[0] : runner.price?.lay?.[0];
+            return (
+              <button
+                type="button"
+                data-market-option=""
+                data-market-plate=""
+                data-bet-label={label}
+                data-bet-odds={point?.price ?? ""}
+                disabled={!open || !point?.price}
+                className={`reflist-cell${side === "lay" ? " is-lay" : ""}`}
+              >
+                <span className="reflist-odds">{fmtOdds(point?.price)}</span>
+                <span className="reflist-size">{point?.size == null ? "" : String(Math.round(point.size))}</span>
+              </button>
+            );
+          };
+          return (
+            <div key={String(runner.selectionId)} data-runner-row="" className="reflist-row" style={{ gridTemplateColumns: cols }}>
+              <span data-runner-name="" className="reflist-name">{/CARD$/i.test((market.marketName ?? "").trim()) && /^(A|[2-9]|10|J|Q|K)$/i.test(String(label).trim()) && LUCKY7_CARD_IMAGES[String(label).trim().toUpperCase()] ? <img src={LUCKY7_CARD_IMAGES[String(label).trim().toUpperCase()]} alt={String(label)} className="h-[30px] w-auto" /> : <span>{label}</span>}</span>
+              {cell("back")}
+              {hasLay ? cell("lay") : null}
+            </div>
+          );
+        })}
+        {locked ? <div data-suspended="" className="reflist-suspended">SUSPENDED</div> : null}
+      </div>
+    </section>
+  );
+}
+
 function JokerTeenPattiBoard({ market, suspended }: { market: CasinoMarket; suspended: boolean }) {
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
@@ -3902,11 +3978,11 @@ function GamePage() {
           round={String(d?.roundId ?? "")}
           disabled={suspended}
         >
-        <Fit designWidth={860} mobileNative>
+        <div className="casino-ref-font"><Fit designWidth={860} mobileNative>
         {gameId === "99.0014" && markets.length ? (
           <MuflisPanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0018" && markets.length ? (
-          <DT20Panel markets={markets} suspended={suspended} />
+          <div className="reflist">{markets.map((m, i) => <RefListMarket key={`${m.marketId}-${i}`} market={m} suspended={suspended} backOnly />)}</div>
         ) : gameId === "99.0021" && markets.length ? (
           <DragonTigerPanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0041" && markets.length ? (
@@ -3916,7 +3992,7 @@ function GamePage() {
         ) : gameId === "99.0001" && markets.length ? (
           <BaccaratPanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0022" && markets.length ? (
-          <Cards32Panel markets={markets} suspended={suspended} />
+          <div className="reflist">{[...markets].sort((a, b) => { const o = ["WINNER", "CARD COLOR", "CARD TOTAL", "LUCKY NUMBER"]; const ai = o.indexOf((a.marketName ?? "").trim().toUpperCase()); const bi = o.indexOf((b.marketName ?? "").trim().toUpperCase()); return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi); }).map((m, i) => <RefListMarket key={`${m.marketId}-${i}`} market={m} suspended={suspended} />)}</div>
         ) : gameId === "99.0007" && markets.length ? (
           <PokerPanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0046" && markets.length ? (
@@ -3931,22 +4007,22 @@ function GamePage() {
             ))}
           </div>
         ) : gameId === "99.0013" && markets.length ? (
-          markets.map((m, i) => (
-            <OneDayTeenPattiBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
-          ))
+          <div className="reflist">{markets.map((m, i) => (
+            <RefListMarket key={`${m.marketId}-${i}`} market={m} suspended={suspended} minMax />
+          ))}</div>
         ) : gameId === "99.0016" && markets.length ? (
-          markets.map((m, i) => (
-            <JokerTeenPattiBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
-          ))
+          <div className="reflist">{markets.map((m, i) => (
+            <RefListMarket key={`${m.marketId}-${i}`} market={m} suspended={suspended} backOnly />
+          ))}</div>
         ) : (
           markets.map((m, i) => (
             <MarketBoard key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
           ))
         )}
-        </Fit>
+        </Fit></div>
         </ChipBetProvider>
         {/* Recent Result sits flush under the last market, like the original. */}
-        {["99.0030", "99.0010", "99.0019"].includes(gameId) ? (
+        {["99.0030", "99.0010", "99.0019", "99.0013", "99.0016", "99.0001", "99.0022"].includes(gameId) ? (
           <Lucky7Recent results={results} game={gameId} />
         ) : (
           <RecentStrip results={results} oneDay={gameId === "99.0013"} joker={gameId === "99.0016"} dragonTiger={gameId === "99.0019"} baccarat={gameId === "99.0001"} cards32={gameId === "99.0022"} />
@@ -4084,8 +4160,8 @@ function RecentStrip({
 }) {
   return (
 
-      <div className={`mt-0 flex items-center overflow-x-auto ${grey ? "bg-[#E6E6E6]" : "bg-black"} ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger || cards32 ? "h-[40px] gap-2 px-1 py-1" : baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "gap-2 px-3 py-2.5"}`}>
-        <span className={`shrink-0 font-bold ${grey ? "text-black" : "text-white"} ${oneDay ? "mr-0 text-[1rem]" : joker || dragonTiger || cards32 ? "mr-0 font-serif text-[0.98rem]" : baccarat ? "mr-0 text-[1.05rem]" : "mr-1 text-[0.95rem]"}`}>Recent Result</span>
+      <div className={`mt-0 flex items-center overflow-x-auto ${grey ? "bg-[#E6E6E6]" : "bg-black"} ${oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger || cards32 ? "h-[40px] gap-2 px-1 py-1" : baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "mt-[5px] h-[36px] gap-[9px] px-[5px]"}`}>
+        <span className={`mr-3 shrink-0 font-['Tahoma',Helvetica,sans-serif] text-[12px] font-bold ${grey ? "text-black" : "text-white"}`}>Recent Result</span>
 
 
 
@@ -4128,7 +4204,9 @@ function RecentStrip({
                     : baccarat && first === "P"
                       ? "bg-baccarat-blue text-board-header-foreground"
                     : first === "L"
-                    ? (lucky7 ? "bg-[#F9A9BA] text-white" : "bg-[#8E44C7] text-white")
+                    ? (lucky7 ? "bg-[#F9A9BA] text-white" : "bg-[#4CD964] text-black")
+                    : first === "C"
+                      ? "bg-[#FFFF33] text-black"
                     : ["B", "T"].includes(first)
                       ? "bg-ex-lay text-ex-cell-foreground"
                       : "bg-ex-back text-ex-cell-foreground";
@@ -4174,7 +4252,7 @@ function RecentStrip({
                       ? "h-7 min-w-9 px-2 text-[0.78rem]"
                       : dream
                         ? "h-8 min-w-8 border-2 border-white px-1 text-[0.8rem]"
-                   : "h-7 min-w-7 px-1.5 text-[0.75rem]"
+                   : "h-[26px] min-w-[26px] px-1 font-['Tahoma',Helvetica,sans-serif] text-[12px]"
               } ${finalTone}`}
             >
               {(dragonTiger || baccarat) && isTie ? "Tie" : first || "-"}
