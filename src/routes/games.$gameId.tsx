@@ -307,19 +307,31 @@ function BaccaratPanel({
     </span>
   );
 
+  const chipBet = useChipBet();
+
   const BetPlate = ({ r, variant }: { r: R; variant: "player" | "banker" | "tie" | "player-pair" | "banker-pair" }) => {
     const tone = variant === "player" || variant === "banker-pair"
       ? "bg-baccarat-blue"
       : variant === "tie"
         ? "bg-baccarat-green"
         : "bg-baccarat-red";
+    const chipProps = chipBet
+      ? {
+          "data-market-option": "",
+          onClick: () => {
+            if (r.open && r.price) chipBet.bet(r.label, r.price);
+          },
+        }
+      : {
+          "data-market-option": "",
+          "data-market-plate": "",
+          "data-bet-label": r.label,
+          "data-bet-odds": String(r.price ?? ""),
+        };
     return (
       <button
         type="button"
-        data-market-option=""
-        data-market-plate=""
-        data-bet-label={r.label}
-        data-bet-odds={String(r.price ?? "")}
+        {...chipProps}
         disabled={!r.open}
         className={`relative flex h-full w-full min-w-0 flex-col items-center justify-center overflow-hidden text-board-header-foreground ${variant === "tie" ? "pointer-events-auto" : ""} ${tone}`}
       >
