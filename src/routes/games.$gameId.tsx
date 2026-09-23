@@ -3908,7 +3908,7 @@ function RecentStrip({
                    : "h-7 min-w-7 px-1.5 text-[0.75rem]"
               } ${finalTone}`}
             >
-              {first || "-"}
+              {dragonTiger && isTie ? "Tie" : first || "-"}
             </span>
           );
 
