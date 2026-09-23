@@ -198,6 +198,9 @@ function ConsolePage() {
               Claim admin
             </button>
           ) : null}
+          <a className={ghost} href="/ui-audit">
+            UI audit
+          </a>
           <button className={ghost} onClick={() => run(refresh)}>
             Refresh
           </button>
