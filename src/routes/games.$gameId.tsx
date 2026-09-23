@@ -601,7 +601,7 @@ function RankCardLabel({ rank }: { rank: string }) {
       src={src}
       alt={rank}
       loading="lazy"
-      className="mx-auto block h-[40px] w-[29px] rounded-[3px] object-cover shadow-sm sm:h-[46px] sm:w-[33px]"
+      className="mx-auto block h-[40px] w-[29px] rounded-[3px] bg-white object-contain shadow-sm sm:h-[46px] sm:w-[33px]"
     />
   );
 }
@@ -700,7 +700,7 @@ function Lucky7Board({ market, suspended }: { market: CasinoMarket; suspended: b
                   className="mx-auto flex h-[62px] w-full max-w-[175px] items-center justify-center gap-2 rounded-[10px] bg-[#9CCBF2] px-2 shadow-[0_3px_6px_rgba(0,0,0,0.28)] disabled:cursor-not-allowed"
                 >
                   {cardSrc ? (
-                    <img src={cardSrc} alt="" loading="lazy" className="h-[42px] w-[30px] shrink-0 rounded-[3px] object-cover shadow-sm" />
+                    <img src={cardSrc} alt="" loading="lazy" className="h-[42px] w-[30px] shrink-0 rounded-[3px] bg-white object-contain shadow-sm" />
                   ) : suits.length ? (
                     <span className="flex shrink-0 items-center gap-[2px] leading-none">
                       {suits.map((s) => (
