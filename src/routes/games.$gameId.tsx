@@ -1954,83 +1954,96 @@ function MuflisPanel({
     );
 
   const chips: { v: string; src: string }[] = [
-    { v: "100", src: chip1k.url },
-    { v: "200", src: chip5.url },
-    { v: "500", src: chip10.url },
-    { v: "1k", src: chip20.url },
-    { v: "2k", src: chip50.url },
-    { v: "5k", src: chip100.url },
-    { v: "10k", src: chip200.url },
-    { v: "25k", src: chip500.url },
-    { v: "50k", src: chip1k.url },
-    { v: "100k", src: chip5.url },
+    { v: "1k", src: chip1k.url },
+    { v: "5k", src: chip5.url },
+    { v: "10k", src: chip10.url },
+    { v: "25k", src: chip20.url },
+    { v: "50k", src: chip50.url },
+    { v: "100k", src: chip100.url },
+    { v: "200k", src: chip200.url },
   ];
 
+  const Hand = () => (
+    <div className="flex items-end justify-center gap-[6px]">
+      {[0, 1, 2].map((i) => (
+        <img
+          key={i}
+          src={CARD_BACK}
+          alt=""
+          className="h-[52px] w-[38px] rounded-[2px] border border-[#111] bg-white object-cover"
+          draggable={false}
+        />
+      ))}
+    </div>
+  );
 
   const Side = ({ letter }: { letter: "A" | "B" }) => {
     const r = pick(letter);
-    const open = !suspended && isOpenStatus(r?.status);
+    const point = r?.price?.back?.[0];
+    const open = !suspended && isOpenStatus(r?.status) && !!point?.price;
+    const label = `PLAYER ${letter}`;
     return (
-      <div className="relative flex-1">
-        <div
-          className={`relative flex h-[105px] items-center justify-center overflow-hidden ${
-            letter === "A" ? "rounded-l-[14px]" : "rounded-r-[14px]"
-          } bg-[#0B0B0D]`}
+      <button
+        type="button"
+        {...(open
+          ? {
+              "data-market-plate": "",
+              "data-market-option": "",
+              "data-bet-label": label,
+              "data-bet-odds": String(point!.price),
+            }
+          : {})}
+        disabled={!open}
+        className={`relative flex h-[92px] w-full flex-col items-center justify-center gap-[6px] rounded-[16px] ${
+          open ? "bg-[#060606]" : "bg-[#2b2b2b]"
+        }`}
+      >
+        <span
+          className={`text-[1.25rem] font-extrabold uppercase leading-none ${
+            open ? "text-white" : "text-white/35"
+          }`}
         >
-          <div
-            className={`absolute top-0 h-full w-[210px] bg-[#4A4A4A] ${
-              letter === "A" ? "right-0 rounded-l-[14px]" : "left-0 rounded-r-[14px]"
-            }`}
-          />
-          <div className="relative text-center leading-tight">
-            <p className="text-[1.3rem] font-extrabold uppercase tracking-wide text-white">
-              Player {letter}
-            </p>
-            <p className="mt-1 text-[1.3rem] font-extrabold text-white">
-              {fmtOdds(r?.price?.back?.[0]?.price)}
-            </p>
-          </div>
-          {!open ? (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0B0B0D]">
-              <span className="text-[1.15rem] font-extrabold uppercase tracking-wide text-[#e0201c]">
-                Suspended
-              </span>
-            </div>
-          ) : null}
-
-        </div>
-      </div>
+          {label}
+        </span>
+        <span className={`text-[1rem] leading-none ${open ? "text-white" : "text-white/35"}`}>
+          {fmtOdds(point?.price)}
+        </span>
+        {open ? null : (
+          <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <LockKeyhole className="h-7 w-7 text-white" strokeWidth={2.4} />
+          </span>
+        )}
+      </button>
     );
   };
 
   return (
-    <div className="mt-3 rounded-[14px] bg-[#2C2F33] p-3">
-      <p className="mb-2 text-right text-[0.7rem] font-semibold text-white/50">
-        Min:{Math.max(100, winner?.min ?? 0)} Max:{winner?.max ?? 500000}
-      </p>
-      <div className="flex items-stretch gap-1">
+    <div className="bg-[#ededed] px-3 pb-3 pt-3">
+      <div className="mb-2 grid grid-cols-2 gap-3">
+        <Hand />
+        <Hand />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
         <Side letter="A" />
         <Side letter="B" />
       </div>
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+      <div className="mt-4 flex items-center justify-between gap-1">
         {chips.map((c) => (
-          <span key={c.v} className="relative inline-flex h-[54px] w-[54px] shrink-0 items-center justify-center">
+          <span key={c.v} className="relative inline-flex h-[48px] w-[48px] shrink-0 items-center justify-center">
             <img
               src={c.src}
               alt={`${c.v} chip`}
               className="absolute inset-0 h-full w-full select-none object-contain"
               draggable={false}
             />
-            <span className="relative z-10 text-[0.8rem] font-extrabold text-[#111]">{c.v}</span>
+            <span className="relative z-10 text-[0.72rem] font-extrabold text-[#111]">{c.v}</span>
           </span>
         ))}
       </div>
-
-
-
     </div>
   );
 }
+
 
 /** Scales boards on desktop, but renders natively (full width) on phones. */
 function Fit({
