@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Info, LockKeyhole } from "lucide-react";
 import { Aviator } from "@/components/Aviator";
 import { FitBoard } from "@/components/FitBoard";
@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/button";
 
 import { applyOverride, useAdminConfig } from "@/lib/admin";
 import { logResult } from "@/lib/telemetry";
-import { BetLayer } from "@/components/betting";
+import { BetLayer, ErrorToast, SuccessToast } from "@/components/betting";
+import { placeBet, readWallet } from "@/lib/wallet";
+import { playerSession } from "@/lib/player";
 import {
   deriveWinner,
   useResultFeed,
@@ -305,19 +307,32 @@ function BaccaratPanel({
     </span>
   );
 
+  const chipBet = useChipBet();
+
   const BetPlate = ({ r, variant }: { r: R; variant: "player" | "banker" | "tie" | "player-pair" | "banker-pair" }) => {
     const tone = variant === "player" || variant === "banker-pair"
       ? "bg-baccarat-blue"
       : variant === "tie"
         ? "bg-baccarat-green"
         : "bg-baccarat-red";
+    const chipProps = chipBet
+      ? {
+          "data-market-option": "",
+          "data-nobet": "",
+          onClick: () => {
+            if (r.open && r.price) chipBet.bet(r.label, r.price);
+          },
+        }
+      : {
+          "data-market-option": "",
+          "data-market-plate": "",
+          "data-bet-label": r.label,
+          "data-bet-odds": String(r.price ?? ""),
+        };
     return (
       <button
         type="button"
-        data-market-option=""
-        data-market-plate=""
-        data-bet-label={r.label}
-        data-bet-odds={String(r.price ?? "")}
+        {...chipProps}
         disabled={!r.open}
         className={`relative flex h-full w-full min-w-0 flex-col items-center justify-center overflow-hidden text-board-header-foreground ${variant === "tie" ? "pointer-events-auto" : ""} ${tone}`}
       >
@@ -2009,22 +2024,29 @@ function MuflisPanel({
     </div>
   );
 
+  const chipBet = useChipBet();
+
   const Side = ({ letter }: { letter: "A" | "B" }) => {
     const r = pick(letter);
     const point = r?.price?.back?.[0];
     const open = !suspended && isOpenStatus(r?.status) && !!point?.price;
     const label = `PLAYER ${letter}`;
+    const openProps = chipBet
+      ? {
+          "data-market-option": "",
+          "data-nobet": "",
+          onClick: () => chipBet.bet(label, point!.price!),
+        }
+      : {
+          "data-market-plate": "",
+          "data-market-option": "",
+          "data-bet-label": label,
+          "data-bet-odds": String(point!.price),
+        };
     return (
       <button
         type="button"
-        {...(open
-          ? {
-              "data-market-plate": "",
-              "data-market-option": "",
-              "data-bet-label": label,
-              "data-bet-odds": String(point!.price),
-            }
-          : {})}
+        {...(open ? openProps : {})}
         disabled={!open}
         className={`relative flex h-[92px] w-full flex-col items-center justify-center gap-[6px] rounded-[16px] ${
           open ? "bg-[#060606]" : "bg-[#2b2b2b]"
@@ -2049,6 +2071,8 @@ function MuflisPanel({
     );
   };
 
+  const selChip = chipBet?.chip ?? "1k";
+
   return (
     <div className="bg-[#ededed] px-3 pb-3 pt-3">
       <div className="mb-2 grid grid-cols-2 gap-3">
@@ -2061,7 +2085,16 @@ function MuflisPanel({
       </div>
       <div className="mt-4 flex items-center justify-between gap-1">
         {chips.map((c) => (
-          <span key={c.v} className="relative inline-flex h-[48px] w-[48px] shrink-0 items-center justify-center">
+          <button
+            key={c.v}
+            type="button"
+            data-nobet=""
+            aria-label={`${c.v} chip`}
+            onClick={() => chipBet?.select(c.v)}
+            className={`relative inline-flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-full transition-transform ${
+              selChip === c.v ? "scale-110 ring-2 ring-[#D4AF1F]" : ""
+            }`}
+          >
             <img
               src={c.src}
               alt={`${c.v} chip`}
@@ -2069,7 +2102,7 @@ function MuflisPanel({
               draggable={false}
             />
             <span className="relative z-10 text-[0.72rem] font-extrabold text-[#111]">{c.v}</span>
-          </span>
+          </button>
         ))}
       </div>
     </div>
@@ -2107,6 +2140,88 @@ const PANEL_CHIPS: { v: string; src: string }[] = [
   { v: "100k", src: chip5.url },
 ];
 
+/** "1k" → 1000, "500k" → 500000, "100" → 100. */
+function chipAmount(v: string): number {
+  const t = v.trim().toLowerCase();
+  if (t.endsWith("k")) return Math.round(parseFloat(t) * 1000);
+  return Math.round(Number(t) || 0);
+}
+
+/** Chip games: pick a chip, tap a plate → bet placed directly (no slip). */
+const ChipBetContext = createContext<{
+  chip: string;
+  select: (v: string) => void;
+  bet: (label: string, odds: number) => void;
+} | null>(null);
+
+function ChipBetProvider({
+  gameId,
+  gameName,
+  round,
+  disabled,
+  children,
+}: {
+  gameId: string;
+  gameName: string;
+  round: string;
+  disabled?: boolean;
+  children: ReactNode;
+}) {
+  const [chip, setChip] = useState("100");
+  const [err, setErr] = useState<string | null>(null);
+  const [ok, setOk] = useState<string | null>(null);
+  const busy = useRef(false);
+  const roundRef = useRef(round);
+  roundRef.current = round;
+
+  const bet = useCallback(
+    (label: string, odds: number) => {
+      if (disabled) return;
+      if (busy.current) {
+        setErr("Do Not Place Bet At The Same Time.");
+        return;
+      }
+      const stake = chipAmount(chip);
+      if (stake < 100) {
+        setErr("Minimum bet is 100.");
+        return;
+      }
+      if (!playerSession() && stake > readWallet().balance) {
+        setErr("You have Insufficient Balance.");
+        return;
+      }
+      busy.current = true;
+      const placed = placeBet({
+        gameId,
+        gameName,
+        round: roundRef.current,
+        label,
+        odds,
+        stake,
+      });
+      window.setTimeout(() => {
+        busy.current = false;
+      }, 600);
+      if (!placed) {
+        setErr("You have Insufficient Balance.");
+        return;
+      }
+      setOk(`Bet Placed · ${label} @ ${odds} · ${stake}`);
+    },
+    [chip, disabled, gameId, gameName],
+  );
+
+  return (
+    <ChipBetContext.Provider value={{ chip, select: setChip, bet }}>
+      {children}
+      {err ? <ErrorToast message={err} onDone={() => setErr(null)} /> : null}
+      {ok ? <SuccessToast message={ok} onDone={() => setOk(null)} /> : null}
+    </ChipBetContext.Provider>
+  );
+}
+
+const useChipBet = () => useContext(ChipBetContext);
+
 const BACCARAT_CHIPS: { v: string; src: string }[] = [
   { v: "1k", src: chip1k.url },
   { v: "5k", src: chip5.url },
@@ -2119,7 +2234,8 @@ const BACCARAT_CHIPS: { v: string; src: string }[] = [
 ];
 
 function BaccaratChipRow() {
-  const [sel, setSel] = useState("1k");
+  const cb = useChipBet();
+  const sel = cb?.chip ?? "1k";
   return (
     <div className="mt-10 flex h-[58px] flex-nowrap items-center gap-1 overflow-x-auto px-1">
       {BACCARAT_CHIPS.map((chip) => (
@@ -2127,8 +2243,9 @@ function BaccaratChipRow() {
           key={chip.v}
           type="button"
           aria-label={`${chip.v} chip`}
-          onClick={() => setSel(chip.v)}
-          className={`relative flex h-[49px] w-[49px] shrink-0 items-center justify-center rounded-full transition-transform ${sel === chip.v ? "scale-105" : ""}`}
+          data-nobet=""
+          onClick={() => cb?.select(chip.v)}
+          className={`relative flex h-[49px] w-[49px] shrink-0 items-center justify-center rounded-full transition-transform ${sel === chip.v ? "scale-110 ring-2 ring-[#FFD24A]" : ""}`}
         >
           <img src={chip.src} alt="" className="absolute inset-0 h-full w-full object-contain" draggable={false} />
           <span className="relative z-10 text-[0.68rem] font-medium text-casino-market-text">{chip.v}</span>
@@ -2139,7 +2256,8 @@ function BaccaratChipRow() {
 }
 
 function ChipRow() {
-  const [sel, setSel] = useState("100");
+  const cb = useChipBet();
+  const sel = cb?.chip ?? "100";
   return (
     <div className="mt-3 flex flex-nowrap items-center gap-2 overflow-x-auto rounded-b-[6px] bg-[#1F1F1F] px-2 py-2 sm:gap-3 sm:px-3">
       {PANEL_CHIPS.map((c) => {
@@ -2148,7 +2266,8 @@ function ChipRow() {
           <button
             key={c.v}
             type="button"
-            onClick={() => setSel(c.v)}
+            data-nobet=""
+            onClick={() => cb?.select(c.v)}
             className="relative inline-flex shrink-0 flex-col items-center gap-1"
           >
             <span
@@ -2240,13 +2359,26 @@ function NumberPanel({
     "40": "#A5372A",
   };
 
+  const chipBet = useChipBet();
+
   const Tile = ({ t }: { t: Tile }) => {
     const key = t.label.trim();
     const note = dream ? DREAM_NOTE[key] : undefined;
+    const directBet =
+      chipBet && t.open && t.price
+        ? {
+            role: "button" as const,
+            tabIndex: 0,
+            "data-nobet": "",
+            onClick: () => chipBet.bet(t.label, t.price!),
+            className: "cursor-pointer",
+          }
+        : {};
     if (note) {
       return (
         <div
-          className="relative overflow-hidden rounded-[6px] border-2 bg-black"
+          {...directBet}
+          className={`relative overflow-hidden rounded-[6px] border-2 bg-black ${directBet.className ?? ""}`}
           style={{ borderColor: DREAM_BORDER[key] ?? "#333" }}
         >
           <img
@@ -2266,9 +2398,10 @@ function NumberPanel({
 
     return (
       <div
+        {...directBet}
         className={`relative flex h-[54px] flex-col items-center justify-center rounded-[6px] border border-white/10 sm:h-[68px] ${
           (dream ? DREAM_TONE[t.label.trim()] : undefined) ?? tileTone(t.label)
-        }`}
+        } ${directBet.className ?? ""}`}
       >
         <span className="text-[0.95rem] font-extrabold leading-none sm:text-[1.1rem]">
           {t.label}
@@ -3252,6 +3385,12 @@ function GamePage() {
             round={String(d?.roundId ?? "")}
             disabled={suspended}
           >
+            <ChipBetProvider
+              gameId={gameId}
+              gameName={d?.eventName ?? gameId}
+              round={String(d?.roundId ?? "")}
+              disabled={suspended}
+            >
             <Fit mobileNative designWidth={900}>
               {markets.length ? (
                 <NumberPanel
@@ -3262,6 +3401,7 @@ function GamePage() {
                 />
               ) : null}
             </Fit>
+            </ChipBetProvider>
           </BetLayer>
         )}
 
@@ -3369,6 +3509,12 @@ function GamePage() {
         disabled={suspended}
         exposureLayout={["99.0016", "99.0013"].includes(gameId) ? "row" : "market"}
       >
+        <ChipBetProvider
+          gameId={gameId}
+          gameName={d?.eventName ?? gameId}
+          round={String(d?.roundId ?? "")}
+          disabled={suspended}
+        >
         <Fit designWidth={860} mobileNative>
         {gameId === "99.0014" && markets.length ? (
           <MuflisPanel markets={markets} suspended={suspended} />
@@ -3419,6 +3565,7 @@ function GamePage() {
           ))
         )}
         </Fit>
+        </ChipBetProvider>
         {/* Recent Result sits flush under the last market, like the original. */}
         {gameId === "99.0030" ? (
           <Lucky7Recent results={results} />
