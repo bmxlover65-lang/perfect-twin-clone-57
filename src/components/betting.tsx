@@ -431,9 +431,12 @@ export function BetLayer({
 
       const flags: HTMLElement[] = [
         ...Array.from(root.querySelectorAll<HTMLElement>('[data-suspended="true"]')),
-        ...Array.from(root.querySelectorAll<HTMLElement>("*")).filter((el) => {
+        ...Array.from(
+          root.querySelectorAll<HTMLElement>("div,span,p,b,strong,em,small,label"),
+        ).filter((el) => {
           if (el.children.length > 0) return false;
           const t = (el.textContent ?? "").replace(/\s+/g, " ").trim();
+          if (!t || t.length > 24) return false;
           return /^(suspend(ed)?|locked|closed|ball\s*running)$/i.test(t);
         }),
       ];
