@@ -1789,26 +1789,20 @@ function AAAPanel({
                     {label}
                   </div>
                   <div className="w-[124px] p-1">
-                    {open ? (
-                      <PriceCell
-                        price={r.price?.back?.[0]?.price}
-                        size={r.price?.back?.[0]?.size}
-                        tone="back"
-                      />
-                    ) : (
-                      <SuspCell />
-                    )}
+                    <PriceCell
+                      price={r.price?.back?.[0]?.price}
+                      size={r.price?.back?.[0]?.size}
+                      tone="back"
+                      locked={!open}
+                    />
                   </div>
                   <div className="w-[124px] p-1">
-                    {open ? (
-                      <PriceCell
-                        price={r.price?.lay?.[0]?.price}
-                        size={r.price?.lay?.[0]?.size}
-                        tone="lay"
-                      />
-                    ) : (
-                      <SuspCell />
-                    )}
+                    <PriceCell
+                      price={r.price?.lay?.[0]?.price}
+                      size={r.price?.lay?.[0]?.size}
+                      tone="lay"
+                      locked={!open}
+                    />
                   </div>
                 </div>
               );
