@@ -395,30 +395,31 @@
 
 /* RecentResults_label */
 .lucky7-results-title {
-  font-size: 17.18px;
+  font-size: 12px;
   white-space: nowrap;
   color: #ffffff;
   font-weight: 700;
+  margin-right: 6px;
 }
 
 /* RecentResults_list */
 .lucky7-results-list {
   display: flex;
+  gap: 6px;
 }
 
-/* RecentResults_badge */
+/* RecentResults_badge — Dukex: 28px tall pill, min 32px wide, 0.8rem bold */
 .lucky7-result-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 35px;
+  display: grid;
+  place-items: center;
+  min-width: 32px;
   height: 28px;
-  border-radius: 15px;
-  font-size: 12px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
   font-weight: 700;
-  color: #333333;
-  padding: 5px;
-  margin-left: 10px;
+  color: #000000;
+  padding: 0 4px;
+  margin-left: 0;
   flex: 0 0 auto;
   border: 0;
   background: #72bbef;
