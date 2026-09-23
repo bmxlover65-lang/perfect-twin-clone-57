@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { oriEvents, oriOdds, oriSports } from "@/lib/ori.server";
+import { ucasResults, ucasState } from "@/lib/ucas.server";
 
 const UPSTREAM = "https://universeapi.shop/public";
 
