@@ -3094,7 +3094,7 @@ function GamePage() {
   const shell = (w: string) =>
     embed
       ? "mx-auto min-h-dvh w-full max-w-full bg-table-felt px-0 py-0"
-      : `mx-auto ${w} px-4 py-3 sm:py-5`;
+      : `mx-auto w-full ${w} px-0 py-0 sm:px-4 sm:py-5`;
   const { gameId } = Route.useParams();
   const fallbackGameName = getGame(gameId)?.name ?? gameId;
   const { admin, cfg } = useAdminConfig();
@@ -3786,12 +3786,12 @@ function GamePage() {
     <div
       className={
         gameId === "99.0030" && !embed
-          ? "mx-auto w-full max-w-[430px] px-1 py-3 sm:py-5"
+          ? "mx-auto w-full max-w-[430px] px-0 py-0 sm:px-1 sm:py-5"
           : shell(gameId === "99.0030" ? "max-w-[430px]" : "max-w-[900px]")
       }
     >
       {embed ? null : (
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+        <div className="hidden grid-cols-[minmax(0,1fr)_auto] items-start gap-3 sm:grid">
           <div className="min-w-0">
             <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
               ← Back to lobby
@@ -3817,7 +3817,7 @@ function GamePage() {
       <div
         ref={stageRef}
         data-one-day-teen-patti={gameId === "99.0013" ? "true" : undefined}
-        className={`relative overflow-hidden bg-black ${embed ? "" : "mt-4 rounded-none sm:rounded-md"}`}
+        className={`relative overflow-hidden bg-black ${embed ? "" : "mt-0 rounded-none sm:mt-4 sm:rounded-md"}`}
       >
 
         {stream ? (
