@@ -135,13 +135,17 @@ async function streamPage(rawUrl: string, origin: string, method = "GET", body?:
   if (!STREAM_HOSTS.test(target.hostname)) {
     return new Response("Stream host not allowed", { status: 403 });
   }
+  // Each provider whitelists a different client site; send the one it expects.
+  const referer = /exchange24x7\.live$/i.test(target.hostname)
+    ? "https://dukex.biz/"
+    : STREAM_REFERER;
   const doFetch = () =>
     fetch(target.toString(), {
       method,
       redirect: "follow",
       headers: {
-        referer: STREAM_REFERER,
-        origin: STREAM_REFERER.replace(/\/$/, ""),
+        referer,
+        origin: referer.replace(/\/$/, ""),
         "user-agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36",
         accept: "*/*",
