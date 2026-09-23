@@ -2438,7 +2438,7 @@ function MuflisPanel({
   const selChip = chipBet?.chip ?? "1k";
 
   return (
-    <div className="bg-[#ededed] px-2 pb-[36px] pt-2">
+    <div className="bg-[#ededed] px-2 pb-[34px] pt-2">
       <div className="mb-2 grid grid-cols-2 gap-2">
         <Hand />
         <Hand />
@@ -2447,7 +2447,7 @@ function MuflisPanel({
         <Side letter="A" />
         <Side letter="B" />
       </div>
-      <div className="mt-[36px] flex items-center justify-between gap-[3px] px-[6px]">
+      <div className="mt-[30px] flex items-center justify-between gap-[3px] px-[6px]">
         {chips.map((c) => (
           <button
             key={c.v}
