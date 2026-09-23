@@ -2359,13 +2359,26 @@ function NumberPanel({
     "40": "#A5372A",
   };
 
+  const chipBet = useChipBet();
+
   const Tile = ({ t }: { t: Tile }) => {
     const key = t.label.trim();
     const note = dream ? DREAM_NOTE[key] : undefined;
+    const directBet =
+      chipBet && t.open && t.price
+        ? {
+            role: "button" as const,
+            tabIndex: 0,
+            "data-nobet": "",
+            onClick: () => chipBet.bet(t.label, t.price!),
+            className: "cursor-pointer",
+          }
+        : {};
     if (note) {
       return (
         <div
-          className="relative overflow-hidden rounded-[6px] border-2 bg-black"
+          {...directBet}
+          className={`relative overflow-hidden rounded-[6px] border-2 bg-black ${directBet.className ?? ""}`}
           style={{ borderColor: DREAM_BORDER[key] ?? "#333" }}
         >
           <img
@@ -2385,9 +2398,10 @@ function NumberPanel({
 
     return (
       <div
+        {...directBet}
         className={`relative flex h-[54px] flex-col items-center justify-center rounded-[6px] border border-white/10 sm:h-[68px] ${
           (dream ? DREAM_TONE[t.label.trim()] : undefined) ?? tileTone(t.label)
-        }`}
+        } ${directBet.className ?? ""}`}
       >
         <span className="text-[0.95rem] font-extrabold leading-none sm:text-[1.1rem]">
           {t.label}
