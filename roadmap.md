@@ -59,6 +59,9 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [ ] Match every game's market names, order, layout, odds/lock states and min/max text
 - [ ] Match recent-result labels/colors and table-specific result rules
 - [ ] Re-test every table at mobile and desktop widths with no runtime errors
+- [x] Re-test all 15 live casino tables at 393px with no horizontal overflow or console errors
+- [x] Re-test Vimaan, Balloon, Heads & Tails, Dream Catcher and Lucky 0–9 at 393px with no overflow or console errors
+- [x] Standardize Dukex-style suspended markets: faded rates, red outline and centered `SUSPEND`
 
 ## Phase 6 — Pending fixes (user list, Sep 5)
 - [x] Dream Catcher + Lucky 0-9: chips 100…100k, "U" in wheel centre, bigger Dream wheel, own spin sound
@@ -82,7 +85,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] 20-20 Poker: Royal mobile Player tabs, curved gold price panels, per-market suspended overlays and Recent Result
 - [x] 32 Cards: Royal mobile Winner, Card Color, Card Total and Lucky Number tables with section-scoped suspended overlays
 - [ ] Card Race: market box + Recent Result placement
-- [ ] Amar Akbar Anthony: rate box (Odd/Even, Colour, Under/Over) + cards
+- [x] Amar Akbar Anthony: Dukex mobile Winner, Odd/Even, Color, Under/Over and Card proportions with market-scoped suspend covers
 - [x] VIMAAN: match supplied mobile history strip, radial flying graph, waiting/plane state, flew-away result and compact All Bets header
 - [x] Balloon: Royal-style mobile scene, balloon scale, live/waiting result states, compact controls, stakes and HEAT buttons
 - [x] Balloon: transparent scenic betting controls and masked live-player activity below the avatar

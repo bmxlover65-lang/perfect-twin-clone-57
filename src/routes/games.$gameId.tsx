@@ -214,21 +214,23 @@ function stabilizeCasinoState(previous: CasinoState | null, incoming: CasinoStat
 function SuspendVeil({
   className = "",
   size = "md",
-  solid = false,
+  solid = true,
   repeat = 1,
+  bordered = true,
 }: {
   className?: string;
   size?: "sm" | "md";
   solid?: boolean;
   repeat?: number;
+  bordered?: boolean;
 }) {
   return (
     <div
       data-suspended="true"
       className={`pointer-events-none absolute inset-0 z-20 flex flex-col items-center ${
         repeat > 1 ? "justify-around" : "justify-center"
-      } ${className}`}
-      style={{ background: solid ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.5)" }}
+      } ${bordered ? "border border-[#e12b32]" : ""} ${className}`}
+      style={{ background: solid ? "rgba(255,255,255,0.72)" : "rgba(255,255,255,0.5)" }}
     >
       {Array.from({ length: Math.max(1, repeat) }).map((_, i) => (
         <span
@@ -330,8 +332,10 @@ function BaccaratPanel({
   const playerPair = pair.find((r) => r.label.includes("PLAYER")) ?? pair[0];
   const bankerPair = pair.find((r) => r.label.includes("BANKER")) ?? pair[1];
 
+  const marketLocked = suspended || [...winner, ...pair, ...(tie ? [tie] : [])].every((runner) => !runner.open);
+
   return (
-    <div className="mt-0 bg-baccarat-surface pb-1.5 pt-1">
+    <div className="relative mt-0 bg-baccarat-surface pb-1.5 pt-1">
       <div className="relative mx-1 h-[89px] overflow-hidden rounded-[14px]">
         <span className="pointer-events-none absolute left-1 top-1 z-20 text-[0.78rem] font-light text-board-header-foreground/50">0%</span>
         <div className="grid h-full grid-cols-2">
@@ -351,6 +355,7 @@ function BaccaratPanel({
         {bankerPair ? <BetPlate r={bankerPair} variant="banker-pair" /> : null}
       </div>
       <BaccaratChipRow />
+      {marketLocked ? <SuspendVeil /> : null}
     </div>
 
   );
@@ -426,9 +431,7 @@ function PokerPanel({
                 ))}
               </div>
               {isSusp ? (
-                <div data-suspended="true" className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-[rgba(255,255,255,0.5)]">
-                  <span className="text-[1.25rem] font-bold uppercase text-[#D0021B]">SUSPEND</span>
-                </div>
+                <SuspendVeil />
               ) : null}
             </section>
           );
@@ -443,6 +446,7 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
   const hasLay = runners.some((r) => Boolean(r.price?.lay?.[0]?.price));
+  const marketLocked = suspended || (runners.length > 0 && runners.every((runner) => !isOpenStatus(runner.status ?? "ONLINE")));
   const cols = hasLay ? "grid-cols-[1fr_130px_130px]" : "grid-cols-[1fr_130px]";
   // Original strips the side prefix inside a side-specific section
   // ("DRAGON ODD" -> "ODD" under the "DRAGON ODD/EVEN" header).
@@ -524,6 +528,7 @@ function MarketBoard({ market, suspended }: { market: CasinoMarket; suspended: b
             </div>
           );
         })}
+        {marketLocked ? <SuspendVeil /> : null}
       </div>
     </div>
   );
@@ -857,6 +862,7 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
   const hasLay = runners.some((r) => Boolean(r.price?.lay?.[0]?.price));
+  const marketLocked = suspended || (runners.length > 0 && runners.every((runner) => !isOpenStatus(runner.status ?? "ONLINE")));
   const cols = hasLay
     ? "grid-cols-[minmax(0,1fr)_92px_92px] sm:grid-cols-[minmax(0,1fr)_104px_104px]"
     : "grid-cols-[minmax(0,1fr)_126px] sm:grid-cols-[minmax(0,1fr)_152px]";
@@ -925,6 +931,7 @@ function DarkRowBoard({ market, suspended }: { market: CasinoMarket; suspended: 
             </div>
           );
         })}
+        {marketLocked ? <SuspendVeil /> : null}
       </div>
 
     </div>
@@ -1417,7 +1424,7 @@ function AndarBaharPanel({
   };
 
   return (
-    <div className="mt-0 bg-muted text-foreground">
+    <div className="relative mt-0 bg-muted text-foreground">
       <span className="sr-only">Min/Max: {Math.max(100, minmax?.min ?? 0)} - {minmax?.max ?? 0}</span>
       <div className="space-y-1 px-2.5 py-1">
         {group("A")}
@@ -1490,6 +1497,7 @@ function AndarBaharPanel({
           </button>
         ))}
       </div>
+      {suspended ? <SuspendVeil /> : null}
     </div>
   );
 }
@@ -1739,16 +1747,16 @@ function AAAPanel({
     .filter(Boolean) as CasinoMarket[];
 
   const MinMax = ({ m }: { m: CasinoMarket }) => (
-    <div className="flex h-[22px] items-center justify-center bg-[#dbe9f2] text-[0.7rem] font-bold text-[#9fb6c4]">
+    <div className="flex h-[22px] items-center justify-center bg-[#dbe9f2] text-[0.7rem] font-bold text-[#111]">
       Min/Max: {Math.max(100, m.min ?? 0)} - {m.max ?? 100000}
     </div>
   );
 
-  const Watermark = () => <SuspendVeil size="sm" solid />;
+  const Watermark = () => <SuspendVeil size="sm" solid bordered />;
 
 
   const Header = ({ name }: { name: string }) => (
-    <div className="flex h-[34px] items-center bg-casino-market-header px-2 text-[0.85rem] font-extrabold uppercase tracking-wide text-board-header-foreground">
+    <div className="flex h-[27px] items-center bg-casino-market-header px-2 text-[0.78rem] font-extrabold uppercase text-board-header-foreground">
       {name}
     </div>
   );
@@ -1783,14 +1791,14 @@ function AAAPanel({
           <Header name="WINNER" />
           <div className="flex items-stretch bg-white">
             <div className="flex-1 p-1">
-              <div className="flex h-[22px] items-center justify-center bg-[#dbe9f2] text-[0.7rem] font-bold text-[#9fb6c4]">
+              <div className="flex h-[22px] items-center justify-center bg-[#dbe9f2] text-[0.7rem] font-bold text-[#111]">
                 Min/Max: {Math.max(100, winner.min ?? 0)} - {winner.max ?? 100000}
               </div>
             </div>
-            <div className="flex w-[124px] items-center justify-center bg-casino-market-rate text-[0.85rem] font-semibold text-casino-market-text/70">
+            <div className="flex w-[78px] items-center justify-center bg-casino-market-rate text-[0.78rem] font-semibold text-[#111]">
               Back
             </div>
-            <div className="flex w-[124px] items-center justify-center bg-[#F9C9D4] text-[0.85rem] font-semibold text-white">
+            <div className="flex w-[78px] items-center justify-center bg-[#F9C9D4] text-[0.78rem] font-semibold text-[#111]">
               Lay
             </div>
           </div>
@@ -1803,7 +1811,7 @@ function AAAPanel({
                   <div className="flex min-h-[44px] flex-1 items-center px-2 text-[0.92rem] font-bold text-[#444]">
                     {label}
                   </div>
-                  <div className="w-[124px] p-1">
+                  <div className="w-[78px] p-1">
                     <PriceCell
                       price={r.price?.back?.[0]?.price}
                       size={r.price?.back?.[0]?.size}
@@ -1811,7 +1819,7 @@ function AAAPanel({
                       locked={!open}
                     />
                   </div>
-                  <div className="w-[124px] p-1">
+                  <div className="w-[78px] p-1">
                     <PriceCell
                       price={r.price?.lay?.[0]?.price}
                       size={r.price?.lay?.[0]?.size}
@@ -1823,7 +1831,7 @@ function AAAPanel({
               );
             })}
             {(winner.runners ?? []).every((r) => suspended || !isOpenStatus(r.status)) ? (
-              <SuspendVeil size="sm" />
+              <SuspendVeil size="md" solid bordered />
             ) : null}
           </div>
         </div>
@@ -1882,7 +1890,7 @@ function AAAPanel({
             <div className="flex-1 p-1">
               <MinMax m={card} />
             </div>
-            <div className="flex w-[248px] items-center justify-center bg-casino-market-rate text-[0.85rem] font-semibold text-casino-market-text/70">
+                <div className="flex w-[154px] items-center justify-center bg-casino-market-rate text-[0.78rem] font-semibold text-[#111]">
               Back
             </div>
           </div>
@@ -1892,7 +1900,7 @@ function AAAPanel({
               const rank = ((card.runnersName ?? {})[String(r.selectionId)] ?? "").toUpperCase();
               return (
                   <div key={`${r.selectionId}-${i}`} className="flex items-stretch border-t border-[#eee]">
-                    <div className="flex min-h-[52px] flex-1 items-center px-2">
+                    <div className="flex min-h-[44px] flex-1 items-center px-2">
                       <span className="inline-flex h-[34px] w-[25px] flex-col items-center justify-center rounded-[3px] border border-[#E3C96B] bg-white leading-none">
                       <span className="text-[1rem] font-bold text-[#333]">{rank}</span>
                       <span className="mt-[1px] text-[0.5rem] leading-none">
@@ -1905,7 +1913,7 @@ function AAAPanel({
                       </span>
                     </span>
                   </div>
-                  <div className="w-[248px] p-1">
+                  <div className="w-[154px] p-1">
                     <PriceCell
                       price={r.price?.back?.[0]?.price}
                       size={r.price?.back?.[0]?.size}
@@ -1917,7 +1925,7 @@ function AAAPanel({
               );
             })}
             {(card.runners ?? []).every((r) => suspended || !isOpenStatus(r.status)) ? (
-              <SuspendVeil size="sm" repeat={4} />
+              <SuspendVeil size="md" solid bordered />
             ) : null}
           </div>
         </div>
