@@ -1506,13 +1506,11 @@ function DT20Panel({
           runners.length > 0 && runners.every((r) => suspended || !isOpenStatus(r.status));
         return (
           <div key={`${m.marketId}-${mi}`} className="border-b border-casino-market-divider">
-            <div className="flex h-[34px] items-center justify-between bg-casino-market-header px-2">
-              <span className="text-[0.8rem] font-extrabold uppercase tracking-wide text-board-header-foreground">
+            <div className="flex h-[34px] items-center justify-between gap-2 bg-casino-market-header px-2">
+              <span className="truncate text-[0.8rem] font-extrabold uppercase tracking-wide text-board-header-foreground">
                 {m.marketName}
               </span>
-              <span className="text-[0.72rem] font-bold text-board-header-foreground/85">
-                Min/Max: {Math.max(100, m.min ?? 0)} - {m.max ?? 100000}
-              </span>
+              <MarketInfo min={Math.max(100, m.min ?? 0)} max={m.max ?? 100000} />
             </div>
             <div className="relative">
               {runners.map((r, i) => {
@@ -1536,20 +1534,19 @@ function DT20Panel({
                           "data-bet-odds": String(price),
                         }
                       : {})}
-                    className={`m-1 flex w-[105px] flex-col items-center justify-center rounded-[5px] bg-casino-market-rate leading-tight ${
+                    className={`my-[3px] mr-[3px] flex w-[92px] shrink-0 flex-col items-center justify-center rounded-[5px] bg-casino-market-rate leading-tight ${
                       open ? "cursor-pointer" : ""
                     }`}
                   >
-                    <span className="text-[0.85rem] text-[#111]">{fmtOdds(price)}</span>
-                    <span className="text-[0.75rem] text-[#111]">
+                    <span className="text-[0.9rem] font-bold text-[#111]">{fmtOdds(price)}</span>
+                    <span className="text-[0.72rem] text-[#111]">
                       {fmtSize(r.price?.back?.[0]?.size)}
                     </span>
                   </div>
-                  <div className="w-[105px] border-l border-casino-market-divider bg-casino-market-body" />
                 </div>
                 );
               })}
-              {allClosed ? <SuspendVeil className="pr-[210px]" /> : null}
+              {allClosed ? <SuspendVeil size="sm" /> : null}
 
             </div>
           </div>
