@@ -3098,6 +3098,19 @@ function GamePage() {
   const { gameId } = Route.useParams();
   const { admin, cfg } = useAdminConfig();
   const [state, setState] = useState<CasinoState | null>(null);
+  // Last frame seen for this table, kept for the tab session. Re-opening a
+  // game paints the real board straight away instead of the loading splash,
+  // and the first live frame replaces it a moment later.
+  const cacheKey = `ucas:${gameId}`;
+  useEffect(() => {
+    setState(null);
+    try {
+      const raw = sessionStorage.getItem(`ucas:${gameId}`);
+      if (raw) setState(JSON.parse(raw) as CasinoState);
+    } catch {
+      // no cached frame — the splash shows until the feed answers
+    }
+  }, [gameId]);
   const [results, setResults] = useState<CasinoResult[]>([]);
   const [stream, setStream] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -3136,6 +3149,11 @@ function GamePage() {
     try {
       const s = await fetchCasinoState(gameId);
       setState((previous) => stabilizeCasinoState(previous, s));
+      try {
+        if (s?.data) sessionStorage.setItem(cacheKey, JSON.stringify(s));
+      } catch {
+        // storage full or blocked — caching is only an optimisation
+      }
       setAge(0);
       setError(null);
     } catch (e) {
@@ -3148,7 +3166,7 @@ function GamePage() {
     } finally {
       inFlight.current = false;
     }
-  }, [gameId]);
+  }, [gameId, cacheKey]);
 
   useEffect(() => {
     void load();
