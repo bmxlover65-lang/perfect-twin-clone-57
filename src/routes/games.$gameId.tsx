@@ -1909,6 +1909,9 @@ function AAAPanel({
                 </div>
               );
             })}
+            {(card.runners ?? []).every((r) => suspended || !isOpenStatus(r.status)) ? (
+              <SuspendVeil size="sm" className="sticky" />
+            ) : null}
           </div>
         </div>
       ) : null}
