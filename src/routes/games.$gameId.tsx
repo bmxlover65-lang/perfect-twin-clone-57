@@ -9,6 +9,7 @@ import { useEmbed } from "@/lib/embed";
 import { AppLoader } from "@/components/AppLoader";
 import { Button } from "@/components/ui/button";
 import { CasinoLivePlayer } from "@/components/CasinoLivePlayer";
+import { getGame } from "@/data/games";
 
 import { applyOverride, useAdminConfig } from "@/lib/admin";
 import { logResult } from "@/lib/telemetry";
@@ -3096,6 +3097,7 @@ function GamePage() {
       ? "mx-auto min-h-dvh w-full max-w-full bg-table-felt px-0 py-0"
       : `mx-auto ${w} px-4 py-3 sm:py-5`;
   const { gameId } = Route.useParams();
+  const fallbackGameName = getGame(gameId)?.name ?? gameId;
   const { admin, cfg } = useAdminConfig();
   const [state, setState] = useState<CasinoState | null>(null);
   // Last frame seen for this table, kept for the tab session. Re-opening a
@@ -3653,7 +3655,7 @@ function GamePage() {
               Live · Universe Original
             </p>
             <h1 className="text-[1.35rem] font-extrabold uppercase text-foreground">
-              {cleanGameName(d?.eventName) ?? "Loading game…"}
+              {cleanGameName(d?.eventName) ?? fallbackGameName}
             </h1>
             <p className="mt-1 flex flex-wrap items-center gap-2 text-[0.8rem] font-bold text-foreground/80">
               <span>RID: {d?.roundId ?? "—"}</span>
