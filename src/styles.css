@@ -380,6 +380,9 @@
 
 /* RecentResults_wrap */
 .lucky7-results {
+  font-family: Tahoma, Helvetica, sans-serif;
+  max-width: 430px;
+  margin-inline: auto;
   display: flex;
   align-items: center;
   background: #000000;
