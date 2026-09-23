@@ -2374,18 +2374,14 @@ function DragonTigerPanel({
         } ${rounded === "l" ? "rounded-l-full" : "rounded-r-full border-l border-white"}`}
         style={{ background: bg }}
       >
-        {open ? (
-          <>
-            <span className="text-[0.82rem] font-bold leading-none text-[#111]">
-              {fmtOdds(price)}
-            </span>
-            <span className="mt-1 text-[0.62rem] font-semibold text-[#111]/70">
-              {(() => { const v = side === "back" ? r?.backSize : r?.laySize; return v == null ? "" : String(Math.round(v)); })()}
-            </span>
-          </>
-        ) : (
-          <Lock />
-        )}
+        <span className={`text-[0.95rem] font-bold leading-none text-[#111] ${open ? "" : "opacity-40"}`}>
+          {fmtOdds(price)}
+        </span>
+        <span className={`mt-1 text-[0.62rem] font-semibold text-[#111]/70 ${open ? "" : "opacity-40"}`}>
+          {(() => { const v = side === "back" ? r?.backSize : r?.laySize; return v == null ? "" : String(Math.round(v)); })()}
+        </span>
+        {open ? null : <Lock />}
+
       </div>
     );
   };
