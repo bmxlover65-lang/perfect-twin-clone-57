@@ -980,3 +980,30 @@
   animation-iteration-count: infinite;
   animation-fill-mode: forwards;
 }
+
+/* Dukex list-layout boards (1 Day TP, Joker TP, 32 Cards) — measured at 393px */
+.reflist { font-family: Tahoma, Helvetica, sans-serif; background: #ededed; }
+.reflist-market { position: relative; background: #fff; margin: 0 0 5px; }
+.reflist-header { display: flex; align-items: center; justify-content: space-between; height: 24px; padding: 0 5px; background: linear-gradient(-180deg, #2e4b5e, #243a48 82%); color: #fff; font-size: 12px; font-weight: 700; line-height: 18px; text-transform: uppercase; }
+.reflist-info { display: grid; place-items: center; width: 13px; height: 13px; border-radius: 9999px; background: #fff; color: #243a48; font-size: 9px; font-weight: 700; font-style: italic; font-family: Georgia, serif; }
+.reflist-body { position: relative; }
+.reflist-row { display: grid; height: 41px; border-bottom: 1px solid #c7ccd1; background: #fff; }
+.reflist-row:last-child { border-bottom: 0; }
+.reflist-row.is-head { height: 33px; }
+.reflist-name { display: flex; align-items: center; min-width: 0; padding: 0 5px; font-size: 12px; font-weight: 700; color: #23282c; }
+.reflist-name > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reflist-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; background: #72bbef; color: #23282c; border-left: 1px solid rgba(255,255,255,.6); }
+.reflist-cell.is-lay { background: #f9c9d4; }
+.reflist-cell:disabled { cursor: not-allowed; }
+.reflist-cell:not(:disabled):active { background: #1a8ee1; color: #fff; }
+.reflist-odds { font-size: 12px; font-weight: 700; line-height: 14px; }
+.reflist-size { font-size: 10px; line-height: 12px; }
+.reflist-colhead { display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #23282c; background: #72bbef; border-left: 1px solid rgba(255,255,255,.6); }
+.reflist-colhead.is-lay { background: #f9c9d4; }
+.reflist-minmax { display: flex; align-items: center; padding: 0 12px 0 19px; }
+.reflist-minmax > span { flex: 1; display: flex; align-items: center; justify-content: center; height: 22px; border-radius: 4px; background: #dfe7e8; font-size: 10px; color: #6b757d; }
+.reflist-suspended { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; border: 2px solid #ca1010; background: #fff; opacity: .5; color: #ca1010; font-size: 25px; font-weight: 700; pointer-events: none; }
+.lucky7-result-chip.is-c9 { background: #f9a9ba; }
+.lucky7-result-chip.is-c10 { background: #4cd964; }
+.lucky7-result-chip.is-c11 { background: #ffff33; }
+.lucky7-result-chip.is-c8 { background: #72bbef; }
