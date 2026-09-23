@@ -2380,7 +2380,7 @@ function DragonTigerPanel({
               {fmtOdds(price)}
             </span>
             <span className="mt-1 text-[0.62rem] font-semibold text-[#111]/70">
-              {fmtSize(side === "back" ? r?.backSize : r?.laySize)}
+              {(() => { const v = side === "back" ? r?.backSize : r?.laySize; return v == null ? "" : String(Math.round(v)); })()}
             </span>
           </>
         ) : (
@@ -2497,7 +2497,7 @@ function DragonTigerPanel({
       <div className="bg-[#e9edf0] pb-3">
         <div className="flex items-center justify-between bg-[#ededed] px-3 py-[10px]">
           <p className="text-[0.95rem] font-bold uppercase text-[#23282c]">
-            {side} Card <span className="ml-2">{fmtOdds(cards[0]?.back)}</span>
+            {side} Card <span className="ml-2">{cards[0]?.back == null ? "" : cards[0].back.toFixed(2)}</span>
           </p>
           <span className="flex h-[18px] w-[18px] items-center justify-center rounded-full border border-[#555] text-[0.62rem] font-bold text-[#333]">
             i
@@ -2539,14 +2539,14 @@ function DragonTigerPanel({
         <div className="grid grid-cols-2 gap-[6px]">
         <div className="flex flex-col items-center gap-1">
           <span className="text-[0.8rem] font-bold text-[#23282c]">DRAGON</span>
-          <div className="flex h-[60px] w-full max-w-[160px]">
+          <div className="flex h-[60px] w-full max-w-[180px]">
           <WinCell r={dragon} side="back" rounded="l" />
           <WinCell r={dragon} side="lay" rounded="r" />
           </div>
         </div>
         <div className="flex flex-col items-center gap-1">
           <span className="text-[0.8rem] font-bold text-[#23282c]">TIGER</span>
-          <div className="flex h-[60px] w-full max-w-[160px]">
+          <div className="flex h-[60px] w-full max-w-[180px]">
           <WinCell r={tiger} side="back" rounded="l" />
           <WinCell r={tiger} side="lay" rounded="r" />
           </div>
@@ -2576,7 +2576,7 @@ function DragonTigerPanel({
             {pair.label}
           </span>
           <span className={`text-[1rem] font-bold text-white ${pair.open ? "" : "opacity-45"}`}>
-            {fmtOdds(pair.back)}
+            {pair.back == null ? "" : pair.back.toFixed(2)}
           </span>
           {!pair.open ? <Lock /> : null}
         </div>
