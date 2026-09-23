@@ -399,7 +399,7 @@ function BaccaratPanel({
         {bankerPair ? <BetPlate r={bankerPair} variant="banker-pair" /> : null}
       </div>
       <BaccaratChipRow />
-      {marketLocked ? <SuspendVeil /> : null}
+      {marketLocked ? <span data-suspended="" hidden /> : null}
     </div>
 
   );
