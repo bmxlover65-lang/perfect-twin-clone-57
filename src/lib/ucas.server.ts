@@ -99,7 +99,7 @@ function ingest(text: string) {
     if (name === "game:state" && payload?.["data"]) {
       states.set(eventId, { at: Date.now(), data: payload["data"] });
     } else if (name === "game:results") {
-      const raw = payload["data"];
+      const raw = payload?.["data"];
       const list = Array.isArray(raw)
         ? raw
         : Array.isArray((raw as { data?: unknown[] } | undefined)?.data)
