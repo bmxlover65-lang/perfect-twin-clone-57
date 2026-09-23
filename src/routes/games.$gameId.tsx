@@ -784,7 +784,7 @@ function Lucky7Recent({ results, game = "99.0030" }: { results: CasinoResult[]; 
               <button
                 type="button"
                 data-nobet=""
-                className={`lucky7-result-chip${first === "L" ? " is-low" : first === "T" ? " is-tie" : ""}`}
+                className={`lucky7-result-chip${tone === "low" ? " is-low" : tone === "tie" ? " is-tie" : ""}`}
               >
                 {first}
               </button>
