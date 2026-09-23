@@ -3385,6 +3385,12 @@ function GamePage() {
             round={String(d?.roundId ?? "")}
             disabled={suspended}
           >
+            <ChipBetProvider
+              gameId={gameId}
+              gameName={d?.eventName ?? gameId}
+              round={String(d?.roundId ?? "")}
+              disabled={suspended}
+            >
             <Fit mobileNative designWidth={900}>
               {markets.length ? (
                 <NumberPanel
@@ -3395,6 +3401,7 @@ function GamePage() {
                 />
               ) : null}
             </Fit>
+            </ChipBetProvider>
           </BetLayer>
         )}
 
@@ -3502,6 +3509,12 @@ function GamePage() {
         disabled={suspended}
         exposureLayout={["99.0016", "99.0013"].includes(gameId) ? "row" : "market"}
       >
+        <ChipBetProvider
+          gameId={gameId}
+          gameName={d?.eventName ?? gameId}
+          round={String(d?.roundId ?? "")}
+          disabled={suspended}
+        >
         <Fit designWidth={860} mobileNative>
         {gameId === "99.0014" && markets.length ? (
           <MuflisPanel markets={markets} suspended={suspended} />
