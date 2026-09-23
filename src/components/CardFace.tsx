@@ -29,7 +29,7 @@ export function CardFace({ code }: { code: string }) {
       <img
         src={CARD_BACK}
         alt="card"
-        className={`${CARD_SIZE} block object-cover`}
+        className={`${CARD_SIZE} block bg-white object-contain`}
         loading="lazy"
       />
     );
@@ -41,7 +41,7 @@ export function CardFace({ code }: { code: string }) {
       <img
         src={img}
         alt={c}
-        className={`${CARD_SIZE} block object-cover`}
+        className={`${CARD_SIZE} block bg-white object-contain`}
         loading="lazy"
       />
     );
