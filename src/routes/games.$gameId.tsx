@@ -1651,6 +1651,86 @@ function DT20Panel({
         const runners = m.runners ?? [];
         const allClosed =
           runners.length > 0 && runners.every((r) => suspended || !isOpenStatus(r.status));
+        const isWinner = (m.marketName ?? "").trim().toUpperCase() === "WINNER";
+
+        // dukex 20-20 Dragon Tiger WINNER layout: ice-blue board, big rounded
+        // rate boxes under DRAGON / TIGER labels, TIE centered below.
+        if (isWinner) {
+          const byName = (key: string) =>
+            runners.find(
+              (r) =>
+                (names[String(r.selectionId)] ?? "").toUpperCase().includes(key),
+            );
+          const dragon = byName("DRAGON");
+          const tiger = byName("TIGER");
+          const tie = byName("TIE");
+
+          const BigBox = ({ r, side }: { r: (typeof runners)[number] | undefined; side: string }) => {
+            const price = r?.price?.back?.[0]?.price;
+            const size = r?.price?.back?.[0]?.size;
+            const open = !suspended && isOpenStatus(r?.status) && Boolean(price);
+            return (
+              <div
+                {...(open
+                  ? {
+                      "data-market-plate": "",
+                      "data-market-option": "",
+                      "data-bet-label": side,
+                      "data-bet-odds": String(price),
+                    }
+                  : {})}
+                className={`flex h-[80px] w-[45%] max-w-[190px] flex-col items-center justify-center rounded-[14px] shadow-[0_2px_6px_rgba(0,0,0,0.18)] ${
+                  open ? "cursor-pointer bg-[#9CCBF2]" : "bg-[#9CCBF2]/80"
+                }`}
+              >
+                <span className="text-[1.3rem] font-extrabold leading-tight text-[#111]">
+                  {fmtOdds(price)}
+                </span>
+                <span className="mt-[2px] text-[0.8rem] text-[#111]">
+                  {size == null ? "" : fmtInt(size)}
+                </span>
+              </div>
+            );
+          };
+
+          return (
+            <div key={`${m.marketId}-${mi}`} className="border-b border-casino-market-divider">
+              <div className="flex h-[34px] items-center justify-between gap-2 bg-casino-market-header px-2">
+                <span className="truncate text-[0.8rem] font-extrabold uppercase tracking-wide text-board-header-foreground">
+                  {m.marketName}
+                </span>
+                <MarketInfo min={Math.max(100, m.min ?? 0)} max={m.max ?? 100000} />
+              </div>
+              <div className="relative bg-[#C7DCF0] px-3 pb-6 pt-2">
+                <div className="flex items-start justify-between">
+                  <div className="flex w-1/2 flex-col items-center gap-2">
+                    <span className="text-[1.05rem] font-extrabold uppercase text-[#3a4a5a]">DRAGON</span>
+                    <BigBox r={dragon} side="DRAGON" />
+                  </div>
+                  <div className="flex w-1/2 flex-col items-center gap-2">
+                    <span className="text-[1.05rem] font-extrabold uppercase text-[#3a4a5a]">TIGER</span>
+                    <BigBox r={tiger} side="TIGER" />
+                  </div>
+                </div>
+                {tie ? (
+                  <div className="mt-3 flex flex-col items-center gap-2">
+                    <span className="text-[1.05rem] font-extrabold uppercase text-[#3a4a5a]">TIE</span>
+                    <BigBox r={tie} side="TIE" />
+                  </div>
+                ) : null}
+                {allClosed ? (
+                  <span
+                    data-suspended="true"
+                    className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center border border-[#D0021B] bg-[rgba(255,255,255,0.5)]"
+                  >
+                    <span className="text-[2rem] font-bold text-[#D0021B]">SUSPENDED</span>
+                  </span>
+                ) : null}
+              </div>
+            </div>
+          );
+        }
+
         return (
           <div key={`${m.marketId}-${mi}`} className="border-b border-casino-market-divider">
             <div className="flex h-[34px] items-center justify-between gap-2 bg-casino-market-header px-2">
@@ -3762,8 +3842,10 @@ function RecentStrip({
             "11": "bg-[#8E44AD] text-white",
           };
           const tone =
-            (dragonTiger || baccarat) && isTie
-              ? "bg-baccarat-green text-board-header-foreground"
+            dragonTiger && isTie
+              ? "bg-[#F6D743] text-black"
+              : baccarat && isTie
+                ? "bg-baccarat-green text-board-header-foreground"
               : isNum && playerMatch
               ? (PLAYER32_TONE[w] ?? "bg-[#E67E22] text-white")
               : isNum
@@ -3826,7 +3908,7 @@ function RecentStrip({
                    : "h-7 min-w-7 px-1.5 text-[0.75rem]"
               } ${finalTone}`}
             >
-              {first || "-"}
+              {dragonTiger && isTie ? "Tie" : first || "-"}
             </span>
           );
 
