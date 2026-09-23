@@ -234,7 +234,7 @@ function SiteHeader() {
 function GameTopBar() {
   const w = useWallet();
   const exposure = w.bets.filter((b) => b.status === "open").reduce((t, b) => t + b.stake, 0);
-  const fmt = (n: number) => n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const btn = "flex h-[36px] w-[36px] items-center justify-center rounded-[4px] border border-[#555] bg-[#2b2b2b] text-white";
   return (
     <header className="sticky top-0 z-40 flex h-[56px] items-center gap-2 bg-[#1e1e1e] px-1.5 font-[Tahoma,Helvetica,Arial,sans-serif] text-white sm:hidden">
