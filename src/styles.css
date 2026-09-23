@@ -293,23 +293,25 @@
 
 /* RunnerBox_box */
 .lucky7-runner-box {
-  background: var(--back-1);
+  background: #72bbef;
   border-radius: 5px;
-  padding: 2px 0;
+  padding: 4px 2px;
   width: 105px;
-  height: 38.5px;
+  height: 36.8px;
   margin: 0 auto;
   box-shadow: rgba(103, 130, 139, 0.9) 0 2px 7px 1px;
   cursor: pointer;
   position: relative;
   display: flex;
+  gap: 6px;
   align-items: center;
   justify-content: center;
-  color: rgb(33, 37, 41);
+  color: #111111;
   border: 0;
   font-family: inherit;
-  font-size: 12px;
-  text-align: start;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
 }
 
 .lucky7-runner-box:active,
@@ -320,7 +322,6 @@
 
 /* RunnerBox_locked */
 .lucky7-runner-box.is-locked {
-  opacity: 0.85;
   cursor: default;
 }
 
@@ -332,23 +333,25 @@
   color: #4a5a63;
 }
 
-/* RunnerBox_icon */
+/* RunnerBox_icon — sits beside the numbers like Dukex */
 .lucky7-plate-suits {
-  position: absolute;
-  left: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
   font-size: 12px;
-  line-height: 1.1;
+  font-weight: 700;
+  line-height: 1;
+  color: #111111;
 }
 
 .lucky7-plate-suits .is-red {
-  color: var(--red-suit);
+  color: #e10000;
 }
 
 .lucky7-card-art {
   width: 20px;
+  height: 25px;
+  object-fit: contain;
   display: block;
   pointer-events: none;
 }
@@ -359,17 +362,20 @@
   flex-direction: column;
   align-items: center;
   font-weight: 600;
-  font-size: 12px;
 }
 
 .lucky7-runner-odds {
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 15.6px;
 }
 
 /* RunnerBox_vol */
 .lucky7-runner-size {
   font-size: 11px;
   font-weight: 400;
+  line-height: 13.2px;
+  opacity: 0.85;
 }
 
 /* RecentResults_wrap */
