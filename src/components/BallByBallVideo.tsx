@@ -4,9 +4,10 @@ const BASE = "https://bbb.exchange24x7.live";
 
 /**
  * Plays each round's own Ball by Ball video (the same feed Dukex uses).
- * The results list carries every round's own video path. Only play a video
- * when its result belongs to the live market round, then return to the
- * animated fallback as soon as that clip finishes.
+ * The results list carries every round's own video path. On first load the
+ * latest entry is already the previous result, so remember it without
+ * replaying it. Play only entries declared after the player mounted, then
+ * return to the animated fallback as soon as the clip finishes.
  */
 export function BallByBallVideo({ fallback }: { fallback: string }) {
   const [src, setSrc] = useState<string | null>(null);
@@ -17,25 +18,21 @@ export function BallByBallVideo({ fallback }: { fallback: string }) {
 
     const tick = async () => {
       try {
-        const [marketResponse, resultsResponse] = await Promise.all([
-          fetch(`${BASE}/api/ballbyball/market`, { cache: "no-store" }),
-          fetch(`${BASE}/api/ballbyball/results`, { cache: "no-store" }),
-        ]);
-        const [marketJson, resultsJson] = await Promise.all([
-          marketResponse.json(),
-          resultsResponse.json(),
-        ]);
-        const currentRound = String(marketJson?.data?.roundId ?? "");
+        const resultsResponse = await fetch(`${BASE}/api/ballbyball/results`, { cache: "no-store" });
+        const resultsJson = await resultsResponse.json();
         const latest = resultsJson?.data?.[0];
         const resultRound = String(latest?.roundId ?? "");
-        if (!alive || !currentRound || !resultRound || !latest?.videoUrl) return;
+        if (!alive || !resultRound || !latest?.videoUrl) return;
 
-        // Ignore the previous round during the next betting window. Dukex
-        // starts a clip only after the current round's result is declared.
-        if (resultRound === currentRound && resultRound !== lastRound.current) {
+        // Do not replay the already-completed previous round on page load.
+        if (lastRound.current === null) {
           lastRound.current = resultRound;
-          setSrc(`${BASE}${latest.videoUrl}`);
+          return;
         }
+        if (resultRound === lastRound.current) return;
+
+        lastRound.current = resultRound;
+        setSrc(`${BASE}${latest.videoUrl}`);
       } catch {
         /* ignore, retry next tick */
       }
