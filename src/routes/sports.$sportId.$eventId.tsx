@@ -663,6 +663,7 @@ function EventPage() {
   const { sportId, eventId } = Route.useParams();
   const [data, setData] = useState<OddsResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const racePrices = useRef<Record<string, number>>({});
   const closedSince = useRef<number>(0);
   const marketSeen = useRef<Map<string, number>>(new Map());
   const requestId = useRef(0);
@@ -805,6 +806,20 @@ function EventPage() {
     }
     settleFromRunners(`sports-${eventId}`, results);
 
+    // Races: the feed never names a winner, but just before the market closes
+    // the winning runner trades at ~1.01. Remember the last back price of each
+    // runner in the WIN market so the close can settle from it.
+    if (sportId === "7" || sportId === "4339") {
+      const win = allMatchOdds[0];
+      const names = win?.runnersData ?? {};
+      const prices: Record<string, number> = {};
+      for (const r of win?.oddsData?.runners ?? []) {
+        const p = Number(r.price?.back?.[0]?.price ?? 0);
+        if (p > 0) prices[names[String(r.selectionId)] ?? String(r.selectionId)] = p;
+      }
+      if (Object.keys(prices).length) racePrices.current = prices;
+    }
+
     // A single session market can vanish without a published winner (the over
     // finished, the book removed it). Refund its open bets after 45s instead of
     // leaving the stake stuck forever.
@@ -835,6 +850,12 @@ function EventPage() {
       else if (Date.now() - closedSince.current > (sportId === "4" ? 600_000 : 30_000)) {
         const side = sportId === "1" || sportId === "2" ? sideOutcome(eventId) : null;
         if (side) settleFromRunners(`sports-${eventId}`, side);
+        if (sportId === "7" || sportId === "4339") {
+          const entries = Object.entries(racePrices.current);
+          const fav = entries.filter(([, p]) => p <= 1.1);
+          if (fav.length === 1)
+            settleFromRunners(`sports-${eventId}`, entries.map(([label]) => ({ label, won: label === fav[0]![0] })));
+        }
         voidOpen(`sports-${eventId}`);
       }
     } else {
