@@ -3451,8 +3451,15 @@ function GamePage() {
       const remembered = new Map(layoutRef.current.map((h) => [h.title, h.count]));
       const padded = hands.map((h) => {
         const codes = Object.values(h.hand);
-        const want = Math.max(codes.length, remembered.get(h.title) ?? 0);
         const hand: Record<string, string> = {};
+        if (resultIsThisRound) {
+          // Round declared: show every dealt card open, drop undealt slots.
+          codes
+            .filter((c) => c && String(c).trim() && String(c) !== "0")
+            .forEach((c, i) => (hand[String(i)] = c));
+          return { title: h.title, hand };
+        }
+        const want = Math.max(codes.length, remembered.get(h.title) ?? 0);
         for (let i = 0; i < want; i += 1) hand[String(i)] = codes[i] ?? "0";
         return { title: h.title, hand };
       });
@@ -3468,7 +3475,7 @@ function GamePage() {
       for (let i = 0; i < h.count; i += 1) hand[String(i)] = "0";
       return { title: h.title, hand };
     });
-  }, [cards, d?.eventName]);
+  }, [cards, d?.eventName, resultIsThisRound, gameId]);
 
 
 
