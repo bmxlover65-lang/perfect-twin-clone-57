@@ -3568,20 +3568,6 @@ function GamePage() {
             className="absolute right-1.5 top-1.5 z-20"
             size="h-[52px] w-[52px]"
           />
-          {!bbbOpen && liveBallResult ? (
-            <div className="bbb-result-ball absolute left-1/2 top-1/2 z-20 grid h-[136px] w-[136px] -translate-x-1/2 -translate-y-1/2 place-items-center">
-              <img
-                src={ballByBallResult}
-                alt=""
-                width={768}
-                height={768}
-                className="absolute inset-0 h-full w-full object-contain"
-              />
-              <span className="relative z-[1] max-w-[104px] text-center text-[1.05rem] font-extrabold leading-tight text-board-header-foreground">
-                {liveBallResult}
-              </span>
-            </div>
-          ) : null}
         </div>
         <BetLayer
           gameId={gameId}
