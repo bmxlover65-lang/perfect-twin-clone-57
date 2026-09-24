@@ -254,66 +254,10 @@ function GameTopBar() {
   );
 }
 
-function SportsTopBar() {
-  const wallet = useWallet();
-  const exposure = wallet.bets
-    .filter((bet) => bet.status === "open" && bet.gameId.startsWith("sports-"))
-    .reduce((total, bet) => total + bet.stake, 0);
-  const fmt = (value: number) =>
-    value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const iconButton =
-    "flex h-[36px] w-[36px] items-center justify-center rounded-[3px] border border-nav-foreground/20 bg-nav text-nav-foreground";
-
-  return (
-    <header className="sticky top-0 z-40 flex h-[56px] items-center gap-2 border-b border-nav-foreground/10 bg-nav px-1.5 font-[Tahoma,Helvetica,Arial,sans-serif] text-nav-foreground sm:hidden">
-      <Link
-        to="/my-bets"
-        className="flex h-[36px] items-center gap-1.5 rounded-[3px] border border-nav-foreground/20 bg-nav px-2.5 text-[0.8rem] font-bold"
-      >
-        <span className="flex h-[19px] w-[19px] items-center justify-center rounded-full border-2 border-current text-[0.65rem]">₹</span>
-        Bets
-      </Link>
-      <div className="ml-auto text-right text-[0.7rem] font-bold leading-[1.45]">
-        <div>Main PTI {fmt(wallet.balance)}</div>
-        <div>Exposure (<span className="text-ex-suspend">{fmt(exposure)}</span>)</div>
-      </div>
-      <button type="button" aria-label="Refresh match" onClick={() => window.location.reload()} className={iconButton}>
-        <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M4 12a8 8 0 1 0 2.5-5.8" /><path d="M4 4v4h4" /></svg>
-      </button>
-      <Link to="/my-bets" aria-label="Account and bet history" className={iconButton}>
-        <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor"><path d="M12 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 12c-5 0-8 2.5-8 5.5V22h16v-2.5C20 16.5 17 14 12 14Z" /></svg>
-      </Link>
-    </header>
-  );
-}
-
-function SportsBottomNav() {
-  const items = [
-    { to: "/sports" as const, label: "Home", icon: "⌂" },
-    { to: "/sports" as const, label: "In-Play", icon: "◷" },
-    { to: "/sports" as const, label: "Sports", icon: "♕" },
-    { to: "/" as const, label: "Casino", icon: "◉" },
-    { to: "/my-bets" as const, label: "Account", icon: "◯" },
-  ];
-  return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto grid h-[62px] max-w-[430px] grid-cols-5 bg-nav text-nav-foreground sm:hidden">
-      {items.map((item) => (
-        <Link key={item.label} to={item.to} className="flex flex-col items-center justify-center text-[0.68rem] leading-tight">
-          <span className="mb-0.5 text-[1.5rem] leading-none" aria-hidden="true">{item.icon}</span>
-          {item.label}
-        </Link>
-      ))}
-    </nav>
-  );
-}
-
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const embed = useEmbed();
   const onGame = useRouterState({ select: (st) => st.location.pathname.startsWith("/games/") });
-  const onSportsMatch = useRouterState({
-    select: (st) => /^\/sports\/[^/]+\/[^/]+\/?$/.test(st.location.pathname),
-  });
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -323,15 +267,9 @@ function RootComponent() {
             <GameTopBar />
             <div className="hidden sm:block"><SiteHeader /></div>
           </>
-        ) : onSportsMatch ? (
-          <>
-            <SportsTopBar />
-            <div className="hidden sm:block"><SiteHeader /></div>
-          </>
         ) : <SiteHeader />}
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
-        {embed || !onSportsMatch ? null : <SportsBottomNav />}
         <WinCelebration />
       </div>
     </QueryClientProvider>

@@ -109,7 +109,7 @@ function InfoIcon({ light = false }: { light?: boolean }) {
 
 function Suspended({ label }: { label: string }) {
   return (
-    <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center border-2 border-ex-suspend bg-dx-page/75">
+    <div data-suspended="true" className="absolute inset-0 z-10 flex items-center justify-center border-2 border-ex-suspend bg-dx-page/75">
       <span className="text-[1.9rem] font-bold uppercase text-ex-suspend">{label}</span>
     </div>
   );
@@ -177,7 +177,9 @@ function Board({
 }) {
   const odds = market.oddsData;
   const { dim, label } = marketState(market);
-  const runners = odds?.runners ?? [];
+  const runners = (odds?.runners ?? []).filter(
+    (runner) => !/REMOVED/.test(String(runner.status ?? "").toUpperCase()),
+  );
   const cols = backOnly ? 1 : levels * 2;
   const grid =
     cols === 6
@@ -265,7 +267,7 @@ function FancyRow({ market }: { market: Market }) {
       <Cell label={`${market.marketName.trim()} No`} betOdds={no?.size ? 1 + no.size / 100 : undefined} price={no?.price} size={no?.size} side="lay" dim={dim} />
       <Cell label={`${market.marketName.trim()} Yes`} betOdds={yes?.size ? 1 + yes.size / 100 : undefined} price={yes?.price} size={yes?.size} side="back" dim={dim} />
       {dim ? (
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 flex w-[158px] items-center justify-center border border-ex-suspend bg-dx-page/75">
+        <div data-suspended="true" className="absolute inset-y-0 right-0 z-10 flex w-[158px] items-center justify-center border border-ex-suspend bg-dx-page/75">
           <span className="text-[0.85rem] font-bold uppercase text-ex-suspend">{label}</span>
         </div>
       ) : null}
