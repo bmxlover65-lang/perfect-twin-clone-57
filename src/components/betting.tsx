@@ -603,11 +603,11 @@ export function BetLayer({
       const fresh = extractPick(cellEl, rootEl);
       if (fresh && fresh.odds > 0) liveOdds = fresh.odds;
     }
-    const odds = exposureLayout === "sports" ? oddsInput : Math.min(oddsInput, liveOdds);
-    // Sports exchange Lay / No: the risk is the liability stake × (odds − 1),
+    const betOdds = exposureLayout === "sports" ? oddsInput : Math.min(oddsInput, liveOdds);
+    // Sports exchange Lay / No: the risk is the liability stake × (betOdds − 1),
     // and a win returns liability + stake. Casino boards never use this path.
-    const isLay = exposureLayout === "sports" && /\s(lay|no)$/i.test(pick.label) && odds > 1;
-    const liability = isLay ? Math.round(stake * (odds - 1)) : stake;
+    const isLay = exposureLayout === "sports" && /\s(lay|no)$/i.test(pick.label) && betOdds > 1;
+    const liability = isLay ? Math.round(stake * (betOdds - 1)) : stake;
     if (isLay && !playerSession() && liability > readWallet().balance) {
       setErr("You have Insufficient Balance.");
       return;
@@ -619,7 +619,7 @@ export function BetLayer({
       gameName,
       round,
       label: pick.label,
-      odds: isLay ? (liability + stake) / liability : odds,
+      odds: isLay ? (liability + stake) / liability : betOdds,
       stake: liability,
     });
     window.setTimeout(() => {
@@ -660,7 +660,7 @@ export function BetLayer({
               oppositeKey,
               groupKey,
               amount: isLay ? liability : stake,
-              profit: isLay ? stake : stake * Math.max(0, odds - 1),
+              profit: isLay ? stake : stake * Math.max(0, betOdds - 1),
               lay: isLay,
             },
 
@@ -674,13 +674,13 @@ export function BetLayer({
           cellKey,
           oppositeKey: oppositeKey ?? current.oppositeKey,
           amount: current.amount + (isLay ? liability : stake),
-          profit: current.profit + (isLay ? stake : stake * Math.max(0, odds - 1)),
+          profit: current.profit + (isLay ? stake : stake * Math.max(0, betOdds - 1)),
         };
         return next;
       });
     }
 
-    setSuccess(`Bet Placed · ${pickLabel} @ ${odds} · ${Math.round(stake)}`);
+    setSuccess(`Bet Placed · ${pickLabel} @ ${betOdds} · ${Math.round(stake)}`);
 
   };
 
