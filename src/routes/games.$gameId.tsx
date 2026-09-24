@@ -3256,7 +3256,7 @@ function GamePage() {
     const t = setInterval(() => {
       if (document.visibilityState === "hidden") return;
       void run();
-    }, 1500);
+    }, 700);
 
     return () => {
       alive = false;
@@ -3816,7 +3816,25 @@ function GamePage() {
           size="h-9 w-9 sm:h-14 sm:w-14"
         />
 
-        <ResultBanner result={liveResult} gameId={gameId} gameName={d?.eventName ?? null} />
+        <ResultBanner
+          result={(() => {
+            const direct = String((d as unknown as { gameResult?: string | null } | null)?.gameResult ?? "").trim();
+            if (direct && roundKey) {
+              const shown = String(applyOverride(cfg, admin, gameId, direct) ?? direct);
+              return { ...(liveResult ?? {}), round: roundKey, winner: shown } as FeedResult;
+            }
+            if (liveResult && String(liveResult.round) === roundKey) return liveResult;
+            const h = results[0];
+            if (h && String(h.roundId ?? "") === roundKey) {
+              const w = deriveWinner(h as AnyResult);
+              if (w) return { ...(liveResult ?? {}), round: roundKey, winner: String(applyOverride(cfg, admin, gameId, w) ?? w) } as FeedResult;
+            }
+            return liveResult;
+          })()}
+          round={roundKey}
+          gameId={gameId}
+          gameName={d?.eventName ?? null}
+        />
       </div>
 
 
@@ -3900,8 +3918,8 @@ function GamePage() {
 /** "RESULT DECLARED" overlay — shows the winning selection right after a round settles. */
 function lucky7Label(winner: string): string | null {
   const w = winner.trim().toUpperCase();
-  if (/^(H|HIGH)\b|HIGH\s*CARD|8\s*TO\s*K/.test(w)) return "HIGH CARD ( 8 TO K ) WIN";
-  if (/^(L|LOW)\b|LOW\s*CARD|A\s*TO\s*6/.test(w)) return "LOW CARD ( A TO 6 ) WIN";
+  if (/^(H|HIGH)\b|HIGH\s*CARD|8\s*TO\s*K/.test(w)) return "HIGH CARD (8 to K) WIN";
+  if (/^(L|LOW)\b|LOW\s*CARD|A\s*TO\s*6/.test(w)) return "LOW CARD (A to 6) WIN";
   if (/^(TIE|DRAW|7)$/.test(w) || /TIE/.test(w)) return "TIE";
   return null;
 }
@@ -3909,33 +3927,22 @@ function lucky7Label(winner: string): string | null {
 
 
 /**
- * Winner banner — driven purely by the real-time result feed: it appears with
- * the declared round and disappears when the next round opens.
+ * Winner banner — same as the original table: appears the moment the round's
+ * result is declared and stays until the next round opens.
  */
 function ResultBanner({
   result,
+  round,
   gameId,
   gameName,
 }: {
   result: FeedResult | null;
+  round?: string | null;
   gameId?: string;
   gameName?: string | null;
 }) {
   const winner = (result?.winner ?? "").trim();
-  const key = result ? `${result.round}|${winner}` : "";
-  const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    if (!key || !winner) {
-      setShow(false);
-      return;
-    }
-    setShow(true);
-    // The original result callout stays visible briefly, then clears even if
-    // the next live frame has not opened yet.
-    const t = setTimeout(() => setShow(false), 3000);
-    return () => clearTimeout(t);
-  }, [key, winner]);
+  const show = !!winner && !!result && (!round || String(result.round) === String(round));
 
   if (!show || !winner) return null;
   const l7 = gameId && LUCKY7_GAMES.includes(gameId) ? lucky7Label(winner) : null;
@@ -3953,7 +3960,7 @@ function ResultBanner({
 
   return (
     <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
-      <span className="rounded-[6px] bg-[#F26A2E] px-4 py-2 text-[1.05rem] font-bold uppercase tracking-wide text-white shadow-[0_4px_14px_rgba(0,0,0,0.45)] [animation:scale-in_0.25s_ease-out]">
+      <span className="rounded-bl-[4px] rounded-br-[18px] rounded-tl-[18px] rounded-tr-[4px] bg-[linear-gradient(90deg,#f97316_0%,#ef4444_100%)] px-[10px] py-[8px] text-[12px] font-normal leading-none text-white">
         {label}
       </span>
     </div>
