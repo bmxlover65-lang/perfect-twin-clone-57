@@ -108,7 +108,6 @@ export async function oriLiveFrame(sportId: string, exEventId: string, waitMs = 
   // First request for this event: give the stream a moment to answer.
   const until = Date.now() + waitMs;
   while (Date.now() < until) {
-    if (ready && !watched.get(exEventId)?.lastAsk) break;
     const f = fresh();
     if (f) return f;
     await new Promise((r) => setTimeout(r, 100));
