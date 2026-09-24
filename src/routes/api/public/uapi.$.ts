@@ -555,7 +555,7 @@ export async function proxy(splat: string, search: string, body?: string, origin
       if (live?.data) {
         // Timer over = card is coming out: the board must show suspended even
         // if the table's own status frame is a moment late.
-        let data = live.data as { leftSec?: number; status?: string; marketArr?: { runners?: { status?: string }[] }[] };
+        let data = live.data as { leftSec?: number; status?: string; marketArr?: { runners?: { status?: string }[] | undefined }[] | undefined };
         if (typeof data.leftSec === "number" && data.leftSec <= 0 && !/SUSPEND/i.test(String(data.status ?? ""))) {
           data = {
             ...data,
