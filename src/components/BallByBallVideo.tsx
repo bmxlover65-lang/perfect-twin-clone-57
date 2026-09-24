@@ -1,58 +1,40 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const BASE = "https://bbb.exchange24x7.live";
-const WS = "wss://bbb.exchange24x7.live/socket.io/?EIO=4&transport=websocket";
 
 /**
- * Plays each round's own Ball by Ball video (same live feed Dukex uses).
- * The feed announces the round's video the moment betting closes.
+ * Plays each round's own Ball by Ball video (the same feed Dukex uses).
+ * The results list carries every round's own video path; the moment a new
+ * round's result is declared, that round's video starts playing.
  */
 export function BallByBallVideo({ fallback }: { fallback: string }) {
   const [src, setSrc] = useState<string | null>(null);
+  const lastRound = useRef<string | null>(null);
 
   useEffect(() => {
     let alive = true;
-    let ws: WebSocket | null = null;
-    let retry: ReturnType<typeof setTimeout> | undefined;
 
-    const use = (url?: string | null) => {
-      if (alive && url) setSrc(`${BASE}${url}`);
+    const tick = async () => {
+      try {
+        const r = await fetch(`${BASE}/api/ballbyball/results`, { cache: "no-store" });
+        const j = await r.json();
+        const latest = j?.data?.[0];
+        if (!alive || !latest?.roundId || !latest?.videoUrl) return;
+        // New round declared -> play that round's own video.
+        if (latest.roundId !== lastRound.current) {
+          lastRound.current = latest.roundId;
+          setSrc(`${BASE}${latest.videoUrl}`);
+        }
+      } catch {
+        /* ignore, retry next tick */
+      }
     };
 
-    // Show the last ball's video until the next round closes.
-    fetch(`${BASE}/api/ballbyball/results`, { cache: "no-store" })
-      .then((r) => r.json())
-      .then((j) => use(j?.data?.[0]?.videoUrl))
-      .catch(() => {});
-
-    const connect = () => {
-      if (!alive) return;
-      ws = new WebSocket(WS);
-      ws.onmessage = (e) => {
-        const m = String(e.data);
-        if (m === "2") return ws?.send("3");
-        if (m.startsWith("0")) return ws?.send("40");
-        if (m.startsWith("40")) {
-          return ws?.send('42["join_market",{"marketId":"ballbyball-001"}]');
-        }
-        if (!m.startsWith("42")) return;
-        try {
-          const [ev, data] = JSON.parse(m.slice(2));
-          if (ev === "market_suspended" || ev === "market_update") use(data?.videoUrl);
-        } catch {
-          /* ignore */
-        }
-      };
-      ws.onclose = () => {
-        if (alive) retry = setTimeout(connect, 3000);
-      };
-    };
-    connect();
-
+    void tick();
+    const id = setInterval(tick, 3000);
     return () => {
       alive = false;
-      clearTimeout(retry);
-      ws?.close();
+      clearInterval(id);
     };
   }, []);
 
