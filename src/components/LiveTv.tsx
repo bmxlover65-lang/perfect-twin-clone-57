@@ -39,7 +39,7 @@ export function LiveTv({ sportId, eventId, className }: Props) {
         allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
         allowFullScreen
         loading="lazy"
-        className="aspect-video h-[340px] max-h-[340px] w-full border-0 bg-black"
+        className="block aspect-video h-auto w-full border-0 bg-black"
       />
     </div>
   );
