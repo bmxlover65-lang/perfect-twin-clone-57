@@ -1477,7 +1477,7 @@ export function BallByBallBoard({
           Back
         </span>
       </div>
-      <div className="grid grid-cols-2 items-start gap-x-[14px] gap-y-[10px] bg-bbb-field px-[11px] py-[11px] sm:gap-x-6 sm:px-6">
+      <div className="grid grid-cols-2 items-start gap-x-[14px] gap-y-[10px] px-[11px] py-[11px] sm:gap-x-6 sm:px-6" style={{ background: "linear-gradient(90deg,#bff0cf,#e3f6fb)" }}>
         {runners.map((r, index) => (
           <Plate key={r.selectionId} r={r} index={index} />
         ))}
