@@ -784,6 +784,8 @@ async function hotProxy(splat: string, search: string) {
   });
 }
 
+let lastCasinoSettle = 0;
+
 export const Route = createFileRoute("/api/public/uapi/$")({
   server: {
     handlers: {
