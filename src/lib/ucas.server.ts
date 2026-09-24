@@ -31,9 +31,9 @@ const sportsFrames = new Map<string, { at: number; data: Record<string, unknown>
 const sportsSubs = new Map<string, string>();
 const results = new Map<string, { at: number; data: unknown[] }>();
 
-async function call(path: string, init?: RequestInit): Promise<Response> {
+async function call(path: string, init?: RequestInit, timeoutMs = 8000): Promise<Response> {
   const ac = new AbortController();
-  const timer = setTimeout(() => ac.abort(), 8000);
+  const timer = setTimeout(() => ac.abort(), timeoutMs);
   try {
     return await fetch(`${BASE}${path}`, {
       ...init,
@@ -133,7 +133,9 @@ function startLoop(id: string) {
       // gateway pushes a frame, so this is an always-fresh stream.
       for (;;) {
         try {
-          const res = await call(`/socket.io/?EIO=4&transport=polling&sid=${current}`);
+          // Engine.IO long-polls are expected to stay open while waiting for
+          // the next frame; the normal request timeout caused reconnect churn.
+          const res = await call(`/socket.io/?EIO=4&transport=polling&sid=${current}`, undefined, 30_000);
           if (res.status >= 400) {
             sid = null;
             const next = await session();
@@ -218,7 +220,7 @@ export async function ucasState(eventId: string): Promise<{
 } | null> {
   const id = await ensure(eventId);
   if (!id) return null;
-  await waitFor(() => states.has(eventId), 6000);
+  await waitFor(() => states.has(eventId), 4500);
   const last = states.get(eventId);
   return last ? { data: last.data, freshnessMs: Date.now() - last.at } : null;
 }

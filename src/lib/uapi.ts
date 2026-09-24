@@ -85,20 +85,26 @@ export type Sport = { sportId: string; sportName: string };
 
 const BASE = "/api/public/uapi";
 
-async function get<T>(path: string, live = false): Promise<T> {
+async function get<T>(path: string, live = false, timeoutMs = live ? 6000 : 15000): Promise<T> {
   const separator = path.includes("?") ? "&" : "?";
   const url = live ? `${BASE}/${path}${separator}_=${Date.now()}` : `${BASE}/${path}`;
   // A request that never answers (weak mobile network) used to block every
   // later poll, freezing the board on old cards. Give up after 6s so the
   // next poll can run.
-  const res = await fetch(url, {
-    cache: live ? "no-store" : "default",
-    signal: AbortSignal.timeout(live ? 6000 : 15000),
-    headers: {
-      accept: "application/json",
-      ...(live ? { "cache-control": "no-cache" } : {}),
-    },
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      cache: live ? "no-store" : "default",
+      signal: AbortSignal.timeout(timeoutMs),
+      headers: {
+        accept: "application/json",
+        ...(live ? { "cache-control": "no-cache" } : {}),
+      },
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Live feed reconnecting";
+    throw new Error(/abort|signal timed out|timeout/i.test(message) ? "Live feed reconnecting" : message);
+  }
   const json = (await res.json().catch(() => ({}))) as T & { error?: string };
   if (!res.ok) throw new Error(json.error ?? `Request failed (${res.status})`);
   return json;
@@ -242,7 +248,9 @@ export function fetchCasinoGames() {
 export function fetchCasinoState(eventId: string) {
   // live=true: cache-buster + no-store so suspension/result frames are never
   // served from an intermediate cache (that showed up as a 1-2s lag).
-  return get<CasinoState>(`games/${encodeURIComponent(eventId)}/state`, true);
+  // A cold live-table connection includes the exchange handshake before its
+  // first frame. Give that first request enough time to complete.
+  return get<CasinoState>(`games/${encodeURIComponent(eventId)}/state`, true, 15000);
 }
 
 export function fetchCasinoResults(eventId: string) {
