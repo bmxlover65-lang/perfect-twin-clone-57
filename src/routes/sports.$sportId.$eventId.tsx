@@ -426,8 +426,8 @@ function FancyRow({ market }: { market: Market }) {
         <span className="min-w-0 flex-1">{market.marketName.trim()}</span>
         <InfoIcon text={marketInfo(market)} />
       </span>
-      <Cell label={`${market.marketName.trim()} No`} betOdds={no?.size ? 1 + no.size / 100 : undefined} price={no?.price} size={no?.size} side="lay" dim={dim} />
-      <Cell label={`${market.marketName.trim()} Yes`} betOdds={yes?.size ? 1 + yes.size / 100 : undefined} price={yes?.price} size={yes?.size} side="back" dim={dim} />
+      <Cell label={`${market.marketName.trim()} @${no?.price ?? 0} No`} betOdds={no?.size ? 1 + no.size / 100 : undefined} price={no?.price} size={no?.size} side="lay" dim={dim} />
+      <Cell label={`${market.marketName.trim()} @${yes?.price ?? 0} Yes`} betOdds={yes?.size ? 1 + yes.size / 100 : undefined} price={yes?.price} size={yes?.size} side="back" dim={dim} />
       {dim ? (
         <div data-suspended="true" className="absolute inset-y-0 right-0 z-10 flex w-[158px] items-center justify-center border border-ex-suspend bg-dx-page/75">
           <span className="text-[0.85rem] font-bold uppercase text-ex-suspend">{label}</span>
