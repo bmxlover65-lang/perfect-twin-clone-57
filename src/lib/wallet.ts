@@ -146,6 +146,9 @@ function norm(s: string) {
 
 /** "WINNER A" -> "a", "PLAYER B" -> "b" — lets side markets settle off the feed winner. */
 function sideOf(s: string) {
+  // Only pure winner labels ("PLAYER A", "WINNER B", "A") map to a side;
+  // side markets like "PAIR PLUS A" must never settle off the round winner.
+  if (!/^\s*((player|winner|team|hand)\s*)?[ab12]\s*$/i.test(s)) return "";
   const m = s.trim().toUpperCase().match(/(?:^|[^A-Z0-9])([AB12])$/);
   return m?.[1] ? m[1].toLowerCase() : "";
 }
@@ -259,8 +262,11 @@ export function settleRound(
   const settled: { ref: string; outcome: "won" | "lost" | "void"; multiplier?: number }[] = [];
   const bets = w.bets.map((b) => {
     if (b.status !== "open" || b.gameId !== gameId || b.round !== round) return b;
-    touched = true;
     const exact = resolveFromRunners(b.label, runners);
+    // Unknown selection (no runner match and not a plain winner label): keep it
+    // open rather than guess — it is refunded later if it never resolves.
+    if (exact == null && !sideOf(b.label) && !outcomeKey(b.label)) return b;
+    touched = true;
     const won = exact ?? isWin(b.label, winner);
     const payout = won ? Math.round(b.stake * b.odds) : 0;
     credited += payout;

@@ -17,7 +17,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CasinoResult } from "@/lib/uapi";
 import { endWinCelebration } from "@/components/WinCelebration";
-import { settleLatest, settleRound, type RunnerOutcome } from "@/lib/wallet";
+import { settleLatest, settleRound, voidOpen, type RunnerOutcome } from "@/lib/wallet";
 
 export const LUCKY7_GAMES = ["99.0030"];
 
@@ -174,6 +174,9 @@ export function useResultFeed({ gameId, round, open, liveWinner, results }: Opti
 
   // 2. Result history — authoritative, and carries cards / nested markets.
   useEffect(() => {
+    // Bets that never got a result (feed gap, page closed) are refunded
+    // after 15 minutes so stake is never stuck.
+    if (results.length) voidOpen(gameId, 15 * 60_000);
     results.slice(0, 6).forEach((r, idx) => {
       const row = r as AnyResult;
       const winner = deriveWinner(row, lucky7);
