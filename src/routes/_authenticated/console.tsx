@@ -68,6 +68,8 @@ import {
 import { AdminGuide } from "@/components/dash-guide";
 import { AdminKit } from "@/components/console-kit";
 import { GameControl } from "@/components/game-control";
+import { OperatorSports } from "@/components/operator-sports";
+import { myOpenRounds, mySettleRound, mySettleBet } from "@/lib/portal.functions";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -78,6 +80,7 @@ const TABS = [
   { id: "bets", label: "Bet history" },
   { id: "users", label: "Users & GGR" },
   { id: "rejected", label: "Rejected bets" },
+  { id: "sports", label: "Sports results" },
   { id: "gamecontrol", label: "Game control" },
   { id: "guide", label: "Guide / Kit" },
 ];
@@ -101,6 +104,10 @@ function ConsolePage() {
   const walletTest = useServerFn(testWalletCall);
   const assign = useServerFn(assignOperatorOwner);
   const summaryFn = useServerFn(operatorSummary);
+  const openRoundsFn = useServerFn(myOpenRounds);
+  const settleRoundFn = useServerFn(mySettleRound);
+  const settleBetFn = useServerFn(mySettleBet);
+  const [pending, setPending] = useState<{ rounds: any[]; bets: any[] }>({ rounds: [], bets: [] });
 
   const [info, setInfo] = useState<{ isAdmin: boolean; canClaimAdmin: boolean; email: string } | null>(null);
   const [ops, setOps] = useState<Operator[]>([]);
@@ -152,8 +159,9 @@ function ConsolePage() {
       setCbLogs(await logs({ data: { operatorId: id, limit: 25 } }));
       setRoundRows(await rounds({ data: { limit: 25 } }));
       setSum(await summaryFn({ data: { operatorId: id, limit: 200 } }));
+      setPending(await openRoundsFn({ data: { operatorId: id, limit: 300 } }));
     },
-    [wl, ledger, logs, rounds, summaryFn],
+    [wl, ledger, logs, rounds, summaryFn, openRoundsFn],
   );
 
   useEffect(() => {
@@ -1021,6 +1029,38 @@ function ConsolePage() {
           </Panel>
           ) : null}
 
+
+          {tab === "sports" ? (
+            sel ? (
+              <OperatorSports
+                operatorId={sel}
+                rounds={pending.rounds}
+                bets={pending.bets}
+                onSettleRound={async ({ gameId, roundId, winners, voidRound }) =>
+                  run(async () => {
+                    const res = await settleRoundFn({
+                      data: { operatorId: sel, gameId, roundId, winners, voidRound },
+                    });
+                    setNote(
+                      `${current?.name ?? ""} · ${gameId} / ${roundId}: ${res.settled} bets settled · won ${res.won} · lost ${res.lost} · void ${res.voided} · paid ₹${Math.round(res.paidOut).toLocaleString("en-IN")}`,
+                    );
+                    await loadDetail(sel);
+                  })
+                }
+                onSettleBet={async (betId, outcome) =>
+                  run(async () => {
+                    const res = await settleBetFn({ data: { operatorId: sel, betId, outcome } });
+                    setNote(`Bet settled as ${outcome} · payout ₹${Number((res as any).payout ?? 0)}`);
+                    await loadDetail(sel);
+                  })
+                }
+              />
+            ) : (
+              <Panel title="Sports results">
+                <p className="text-sm text-muted-foreground">Pehle Operators tab se ek operator chunein.</p>
+              </Panel>
+            )
+          ) : null}
 
           {tab === "gamecontrol" ? <GameControl /> : null}
 
