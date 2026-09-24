@@ -1489,7 +1489,7 @@ type ABRunner = {
 function DTLPanel({
   markets,
   suspended,
-  resultDeclared,
+  resultDeclared: _resultDeclared,
 }: {
   markets: CasinoMarket[];
   suspended: boolean;
@@ -1517,7 +1517,7 @@ function DTLPanel({
 
   const DtlLock = () => (
     <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-      <svg viewBox="0 0 24 24" className="h-6 w-6 text-white" fill="currentColor" aria-hidden="true">
+      <svg viewBox="0 0 24 24" className="h-[20px] w-[20px] text-[#e6e6e6]" fill="currentColor" aria-hidden="true">
         <path d="M12 2a5 5 0 0 0-5 5v3H6a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-1V7a5 5 0 0 0-5-5Zm-3 8V7a3 3 0 1 1 6 0v3H9Z" />
       </svg>
     </span>
@@ -1535,12 +1535,12 @@ function DTLPanel({
               "data-bet-odds": String(r?.price ?? ""),
             }
           : {})}
-        className={`relative flex h-[58px] w-[150px] items-center justify-center rounded-[2px] border border-[#5b9bd5] bg-[#333b43] ${
+        className={`relative flex h-[52px] w-[142px] items-center justify-center border ${r?.open ? "border-[#4a90d9] bg-[#343a40]" : "border-[#4d5358] bg-[#22272b]"} ${
           bettable ? "cursor-pointer" : ""
         }`}
       >
         <span
-          className={`text-[1.15rem] font-bold text-white ${r?.open ? "" : "opacity-40"}`}
+          className={`text-[15px] font-bold text-white ${r?.open ? "" : "opacity-40"}`}
         >
           {fmtOdds(r?.price)}
         </span>
@@ -1550,8 +1550,8 @@ function DTLPanel({
   };
 
   const RowLine = ({ label, r }: { label: ReactNode; r?: Row | undefined }) => (
-    <div className="flex min-h-[68px] items-center justify-between border-b border-[#1b2126] bg-[#333b43] px-3">
-      <span className="text-[1rem] font-bold text-white">{label}</span>
+    <div className="flex h-[52px] items-center justify-between bg-[#343a40] pl-[10px]">
+      <span className="text-[14px] font-bold text-white">{label}</span>
       <PriceBox r={r} />
     </div>
   );
@@ -1564,10 +1564,10 @@ function DTLPanel({
             key={t}
             type="button"
             onClick={() => setTab(t)}
-            className={`py-[14px] text-[1.05rem] capitalize ${
+            className={`h-[45px] text-[16px] capitalize ${
               tab === t
-                ? "border-b-[4px] border-[#f2c319] font-semibold text-white"
-                : "border-b-[4px] border-transparent text-white/60"
+                ? "border-b-[3px] border-[#f2c319] text-white"
+                : "border-b-[3px] border-transparent text-white/70"
             }`}
           >
             {t.toLowerCase()}
@@ -1575,17 +1575,12 @@ function DTLPanel({
         ))}
       </div>
 
-      {resultDeclared ? (
-        <div className="bg-casino-market-header px-3 py-1 text-[0.72rem] font-extrabold uppercase text-board-header-foreground">
-          Result Declared
-        </div>
-      ) : null}
 
-      <div className="relative">
+      <div className="relative flex flex-col gap-[4px] py-[4px]">
         <RowLine label="Winner" r={winner} />
         <RowLine
           label={
-            <span className="flex gap-3 text-[1.35rem] leading-none text-[#e0201c]">
+            <span className="flex gap-[8px] text-[20px] leading-none text-[#e0201c]">
               <span>♥</span>
               <span>♦</span>
             </span>
@@ -1594,7 +1589,7 @@ function DTLPanel({
         />
         <RowLine
           label={
-            <span className="flex gap-3 text-[1.35rem] leading-none text-black">
+            <span className="flex gap-[8px] text-[20px] leading-none text-white">
               <span>♣</span>
               <span>♠</span>
             </span>
@@ -1606,11 +1601,11 @@ function DTLPanel({
       </div>
 
       {cards.length ? (
-        <div className="bg-[#2b3238] px-2 pb-4 pt-3">
-          <p className="pb-3 text-center text-[1.15rem] font-bold text-white">
+        <div className="bg-[#2b3238] px-2 pb-[18px] pt-[10px]">
+          <p className="pb-[8px] text-center text-[17px] font-bold text-white">
             {fmtOdds(cards[0]?.price)}
           </p>
-          <div className="flex flex-wrap justify-center gap-[6px]">
+          <div className="mx-auto flex max-w-[330px] flex-wrap justify-center gap-x-[6px] gap-y-[9px]">
             {cards.map((r) => {
               const rank = r.label.replace(`${tab} `, "").trim();
               const bettable = r.open && Boolean(r.price);
@@ -1627,17 +1622,9 @@ function DTLPanel({
                     : {})}
                   className={bettable ? "cursor-pointer" : ""}
                 >
-                  <div
-                    className={`relative flex h-[68px] w-[46px] items-center justify-center rounded-[3px] border-2 border-[#f2c319] ${
-                      bettable ? "bg-[#f2f2f2]" : "bg-[#9a9a9a]"
-                    }`}
-                  >
-                    <span className="text-[1.35rem] font-bold leading-none text-black">{rank}</span>
-                    <span className="absolute left-[3px] top-[3px] text-[0.55rem] leading-[0.62rem] text-black">♠</span>
-                    <span className="absolute right-[3px] top-[3px] text-[0.55rem] leading-[0.62rem] text-[#e0201c]">♦</span>
-                    <span className="absolute bottom-[3px] left-[3px] text-[0.55rem] leading-[0.62rem] text-black">♣</span>
-                    <span className="absolute bottom-[3px] right-[3px] text-[0.55rem] leading-[0.62rem] text-[#e0201c]">♥</span>
-                    {bettable ? null : <DtlLock />}
+                  <div className="relative h-[53px] w-[38px] overflow-hidden rounded-[2px] border-2 border-[#f2c319] bg-white">
+                    <img src={LUCKY7_CARD_IMAGES[rank.toUpperCase()]} alt={rank} className="h-full w-full object-fill" />
+                    {bettable ? null : (<><span className="pointer-events-none absolute inset-0 bg-black/45" /><DtlLock /></>)}
                   </div>
                 </div>
               );
