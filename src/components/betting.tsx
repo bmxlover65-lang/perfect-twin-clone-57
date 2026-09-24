@@ -568,6 +568,7 @@ export function BetLayer({
     }
     if (!pick) return;
     const pickLabel = pick.label;
+    const oddsInput = odds;
 
     // The market can suspend (or the round can roll over) while the slip is
     // open — a pre-filled stake must never sneak through after that.
@@ -595,10 +596,18 @@ export function BetLayer({
       setErr("You have Insufficient Balance.");
       return;
     }
-    // Sports exchange Lay / No: the risk is the liability stake × (odds − 1),
+    // Casino: the bet always goes in at the table's live rate — the rate box can
+    // never push a bet above what the board currently offers.
+    let liveOdds = pick.odds;
+    if (exposureLayout !== "sports" && rootEl && cellEl) {
+      const fresh = extractPick(cellEl, rootEl);
+      if (fresh && fresh.odds > 0) liveOdds = fresh.odds;
+    }
+    const betOdds = exposureLayout === "sports" ? oddsInput : Math.min(oddsInput, liveOdds);
+    // Sports exchange Lay / No: the risk is the liability stake × (betOdds − 1),
     // and a win returns liability + stake. Casino boards never use this path.
-    const isLay = exposureLayout === "sports" && /\s(lay|no)$/i.test(pick.label) && odds > 1;
-    const liability = isLay ? Math.round(stake * (odds - 1)) : stake;
+    const isLay = exposureLayout === "sports" && /\s(lay|no)$/i.test(pick.label) && betOdds > 1;
+    const liability = isLay ? Math.round(stake * (betOdds - 1)) : stake;
     if (isLay && !playerSession() && liability > readWallet().balance) {
       setErr("You have Insufficient Balance.");
       return;
@@ -610,7 +619,7 @@ export function BetLayer({
       gameName,
       round,
       label: pick.label,
-      odds: isLay ? (liability + stake) / liability : odds,
+      odds: isLay ? (liability + stake) / liability : betOdds,
       stake: liability,
     });
     window.setTimeout(() => {
@@ -651,7 +660,7 @@ export function BetLayer({
               oppositeKey,
               groupKey,
               amount: isLay ? liability : stake,
-              profit: isLay ? stake : stake * Math.max(0, odds - 1),
+              profit: isLay ? stake : stake * Math.max(0, betOdds - 1),
               lay: isLay,
             },
 
@@ -665,13 +674,13 @@ export function BetLayer({
           cellKey,
           oppositeKey: oppositeKey ?? current.oppositeKey,
           amount: current.amount + (isLay ? liability : stake),
-          profit: current.profit + (isLay ? stake : stake * Math.max(0, odds - 1)),
+          profit: current.profit + (isLay ? stake : stake * Math.max(0, betOdds - 1)),
         };
         return next;
       });
     }
 
-    setSuccess(`Bet Placed · ${pickLabel} @ ${odds} · ${Math.round(stake)}`);
+    setSuccess(`Bet Placed · ${pickLabel} @ ${betOdds} · ${Math.round(stake)}`);
 
   };
 
