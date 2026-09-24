@@ -358,6 +358,8 @@ export function BetLayer({
     groupKey: string;
     amount: number;
     profit: number;
+    /** Sports only: a Lay / No bet (loses its liability if the selection wins). */
+    lay?: boolean;
   }[]>([]);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const slipRef = useRef<HTMLDivElement | null>(null);
@@ -593,6 +595,14 @@ export function BetLayer({
       setErr("You have Insufficient Balance.");
       return;
     }
+    // Sports exchange Lay / No: the risk is the liability stake × (odds − 1),
+    // and a win returns liability + stake. Casino boards never use this path.
+    const isLay = exposureLayout === "sports" && /\s(lay|no)$/i.test(pick.label) && odds > 1;
+    const liability = isLay ? Math.round(stake * (odds - 1)) : stake;
+    if (isLay && !playerSession() && liability > readWallet().balance) {
+      setErr("You have Insufficient Balance.");
+      return;
+    }
     busy.current = true;
     saveLastStake(stake);
     const ok = placeBet({
@@ -600,8 +610,8 @@ export function BetLayer({
       gameName,
       round,
       label: pick.label,
-      odds,
-      stake,
+      odds: isLay ? (liability + stake) / liability : odds,
+      stake: liability,
     });
     window.setTimeout(() => {
       busy.current = false;
@@ -640,8 +650,9 @@ export function BetLayer({
               cellKey,
               oppositeKey,
               groupKey,
-              amount: stake,
-              profit: stake * Math.max(0, odds - 1),
+              amount: isLay ? liability : stake,
+              profit: isLay ? stake : stake * Math.max(0, odds - 1),
+              lay: isLay,
             },
 
           ];
@@ -653,8 +664,8 @@ export function BetLayer({
           ...current,
           cellKey,
           oppositeKey: oppositeKey ?? current.oppositeKey,
-          amount: current.amount + stake,
-          profit: current.profit + stake * Math.max(0, odds - 1),
+          amount: current.amount + (isLay ? liability : stake),
+          profit: current.profit + (isLay ? stake : stake * Math.max(0, odds - 1)),
         };
         return next;
       });
@@ -823,18 +834,19 @@ export function BetLayer({
         chips.forEach((c) => push(c.cellKey, c.groupKey, c.label));
         chips.forEach((c) => push(c.oppositeKey, c.groupKey, null));
 
-        const own = (groupKey: string, label: string | null) =>
-          label === null
-            ? []
-            : chips.filter((c) => c.groupKey === groupKey && c.label === label);
-        const groupStakeOf = (groupKey: string) =>
-          chips.filter((c) => c.groupKey === groupKey).reduce((s, c) => s + c.amount, 0);
+        // Back chip: +profit on its own row, −stake elsewhere. Lay chip (sports
+        // only): −liability on its own row, +stake elsewhere.
+        const netOf = (groupKey: string, label: string | null) =>
+          chips
+            .filter((c) => c.groupKey === groupKey)
+            .reduce((s, c) => {
+              const mine = label !== null && c.label === label;
+              if (c.lay) return s + (mine ? -c.amount : c.profit);
+              return s + (mine ? c.profit : -c.amount);
+            }, 0);
 
         return cells.map(({ el, groupKey, label }, i) => {
-          const mine = own(groupKey, label);
-          const stakeOwn = mine.reduce((s, c) => s + c.amount, 0);
-          const profitOwn = mine.reduce((s, c) => s + c.profit, 0);
-          const net = profitOwn - (groupStakeOf(groupKey) - stakeOwn);
+          const net = netOf(groupKey, label);
           const value = exposureLayout === "market" ? Math.abs(Math.round(net)) : net;
           const pos = at(el);
 

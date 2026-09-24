@@ -103,6 +103,27 @@
   --color-ex-cashout: var(--ex-cashout);
   --color-ex-link: var(--ex-link);
   --color-ex-inplay: var(--ex-inplay);
+  --color-dx-back1: var(--dx-back1);
+  --color-dx-back2: var(--dx-back2);
+  --color-dx-back3: var(--dx-back3);
+  --color-dx-lay1: var(--dx-lay1);
+  --color-dx-lay2: var(--dx-lay2);
+  --color-dx-lay3: var(--dx-lay3);
+  --color-dx-backhead: var(--dx-backhead);
+  --color-dx-layhead: var(--dx-layhead);
+  --color-dx-title: var(--dx-title);
+  --color-dx-bar: var(--dx-bar);
+  --color-dx-pill: var(--dx-pill);
+  --color-dx-pill-active: var(--dx-pill-active);
+  --color-dx-fancy: var(--dx-fancy);
+  --color-dx-fancy-bar: var(--dx-fancy-bar);
+  --color-dx-book: var(--dx-book);
+  --color-dx-cash: var(--dx-cash);
+  --color-dx-minmax: var(--dx-minmax);
+  --color-dx-rule: var(--dx-rule);
+  --color-dx-ink: var(--dx-ink);
+  --color-dx-page: var(--dx-page);
+  --color-dx-sb: var(--dx-sb);
   --color-casino-market-header: var(--casino-market-header);
   --color-casino-market-body: var(--casino-market-body);
   --color-casino-market-rate: var(--casino-market-rate);
@@ -698,6 +719,28 @@
   --ex-cashout: #D7D7D7;
   --ex-link: #2E7BB3;
   --ex-inplay: #567D2F;
+  /* Dukex match-page palette */
+  --dx-back1: #72BBEF;
+  --dx-back2: #B7D5EB;
+  --dx-back3: #D7E8F4;
+  --dx-lay1: #FAA9BA;
+  --dx-lay2: #EFD3D9;
+  --dx-lay3: #F6E6EA;
+  --dx-backhead: #BFDDF3;
+  --dx-layhead: #F9D2DB;
+  --dx-title: #1E4A66;
+  --dx-bar: #2C4F63;
+  --dx-pill: #5B4C3C;
+  --dx-pill-active: #111111;
+  --dx-fancy: #10A5C6;
+  --dx-fancy-bar: #0B7E98;
+  --dx-book: #FAF3C8;
+  --dx-cash: #FFC107;
+  --dx-minmax: #BCDCE8;
+  --dx-rule: #C9CED3;
+  --dx-ink: #1B1B1B;
+  --dx-page: #FFFFFF;
+  --dx-sb: #F7801F;
 }
 
 
