@@ -1535,7 +1535,7 @@ function DTLPanel({
               "data-bet-odds": String(r?.price ?? ""),
             }
           : {})}
-        className={`relative flex h-[52px] w-[142px] items-center justify-center border ${r?.open ? "border-[#4a90d9] bg-[#343a40]" : "border-[#4d5358] bg-[#22272b]"} ${
+        className={`relative flex h-[58px] w-[142px] items-center justify-center border ${r?.open ? "border-[#4a90d9] bg-[#343a40]" : "border-[#4d5358] bg-[#22272b]"} ${
           bettable ? "cursor-pointer" : ""
         }`}
       >
@@ -1550,7 +1550,7 @@ function DTLPanel({
   };
 
   const RowLine = ({ label, r }: { label: ReactNode; r?: Row | undefined }) => (
-    <div className="flex h-[52px] items-center justify-between bg-[#343a40] pl-[10px]">
+    <div className="flex h-[58px] items-center justify-between bg-[#343a40] pl-[10px]">
       <span className="text-[14px] font-bold text-white">{label}</span>
       <PriceBox r={r} />
     </div>
@@ -1602,10 +1602,10 @@ function DTLPanel({
 
       {cards.length ? (
         <div className="bg-[#2b3238] px-2 pb-[18px] pt-[10px]">
-          <p className="pb-[8px] text-center text-[17px] font-bold text-white">
+          <p className="pb-[8px] text-center text-[20px] font-bold text-white">
             {fmtOdds(cards[0]?.price)}
           </p>
-          <div className="mx-auto flex max-w-[330px] flex-wrap justify-center gap-x-[6px] gap-y-[9px]">
+          <div className="mx-auto flex flex-wrap justify-center gap-x-[6px] gap-y-[9px]">
             {cards.map((r) => {
               const rank = r.label.replace(`${tab} `, "").trim();
               const bettable = r.open && Boolean(r.price);
@@ -1622,7 +1622,7 @@ function DTLPanel({
                     : {})}
                   className={bettable ? "cursor-pointer" : ""}
                 >
-                  <div className="relative h-[53px] w-[38px] overflow-hidden rounded-[2px] border-2 border-[#f2c319] bg-white">
+                  <div className="relative h-[66px] w-[47px] overflow-hidden rounded-[2px] border-2 border-[#f2c319] bg-white">
                     <img src={LUCKY7_CARD_IMAGES[rank.toUpperCase()]} alt={rank} className="h-full w-full object-fill" />
                     {bettable ? null : (<><span className="pointer-events-none absolute inset-0 bg-black/45" /><DtlLock /></>)}
                   </div>
