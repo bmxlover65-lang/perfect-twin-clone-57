@@ -2911,7 +2911,7 @@ function DragonTigerPanel({
     const bettable = Boolean(r?.open && price);
     return (
       <div className="min-w-0 text-center">
-        <p className="mb-[6px] text-[14px] font-bold text-[#111]">{fmtOdds(price)}</p>
+        <p className="mb-[8px] text-[15px] font-bold text-[#111]">{fmtOdds(price)}</p>
         <div
           {...(bettable
             ? {
@@ -2921,11 +2921,11 @@ function DragonTigerPanel({
                 "data-bet-odds": String(price ?? ""),
               }
             : {})}
-          className={`relative flex h-[40px] items-center justify-center rounded-[10px] px-2 ${
+          className={`relative flex h-[42px] items-center justify-center rounded-[12px] px-2 ${
             bettable ? "cursor-pointer" : ""
           }`}
           style={{
-            background: "linear-gradient(180deg,#8c2b3f 0%,#5f1526 100%)",
+            background: "linear-gradient(180deg,#5e1b2b 0%,#3b0e1a 100%)",
             opacity: 1,
           }}
         >
@@ -2953,27 +2953,29 @@ function DragonTigerPanel({
     const colMkt = byName(`${side} CARD COLOR`);
     return (
       <div className="bg-white px-0 pb-1 pt-2">
-        <div className="grid grid-cols-4 gap-[5px]">
+        <div className="grid grid-cols-2">
+        <div className="grid grid-cols-2 gap-[4px] border-r border-[#ddd] pr-[1px]">
           <MaroonBox r={even} label="Even" price={even?.back} />
           <MaroonBox r={odd} label="Odd" price={odd?.back} />
+          <p className="col-span-2 pt-[8px] text-right text-[11px] text-[#44525c]">
+            Min:{Math.max(100, oeMkt?.min ?? 0)} Max:{oeMkt?.max ?? 100000}
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-[4px] pl-[1px]">
           <MaroonBox
             r={red}
             price={red?.back}
-            label={<span className="text-[1rem] text-[#ff5757]">♦ ♥</span>}
+            label={<span className="text-[20px] tracking-[-4px] text-[#c0312f]">♦♥</span>}
           />
           <MaroonBox
             r={black}
             price={black?.back}
-            label={<span className="text-[1rem] text-black">♣ ♠</span>}
+            label={<span className="text-[20px] tracking-[-4px] text-black">♣♠</span>}
           />
-        </div>
-        <div className="grid grid-cols-2 pt-1">
-          <p className="text-center text-[0.62rem] font-semibold text-black/60">
-            Min:{Math.max(100, oeMkt?.min ?? 0)} Max:{oeMkt?.max ?? 100000}
-          </p>
-          <p className="text-center text-[0.62rem] font-semibold text-black/60">
+          <p className="col-span-2 pt-[8px] text-right text-[11px] text-[#44525c]">
             Min:{Math.max(100, colMkt?.min ?? 0)} Max:{colMkt?.max ?? 100000}
           </p>
+        </div>
         </div>
       </div>
     );
