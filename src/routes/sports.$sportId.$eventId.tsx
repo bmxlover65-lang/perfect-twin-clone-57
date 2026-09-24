@@ -55,8 +55,11 @@ function Cell({
   dim,
   depth = 0,
   label,
+  betOdds,
 }: {
   label?: string;
+  /** Fancy rows show the run line; the payout rate comes from the size. */
+  betOdds?: number | undefined;
   price?: number | undefined;
   size?: number | undefined;
   side: "back" | "lay";
@@ -79,7 +82,7 @@ function Cell({
   return (
     <div
       data-bet-label={label && price ? label : undefined}
-      data-bet-odds={label && price ? String(price) : undefined}
+      data-bet-odds={label && price ? String(betOdds ?? price) : undefined}
       className={`flex h-full min-h-[42px] cursor-pointer flex-col items-center justify-center border-l border-dx-page ${tone} ${
         dim ? "opacity-60" : ""
       } ${flash} text-dx-ink`}
@@ -257,8 +260,8 @@ function FancyRow({ market }: { market: Market }) {
         <span className="min-w-0 flex-1">{market.marketName.trim()}</span>
         <InfoIcon />
       </span>
-      <Cell label={`${market.marketName.trim()} No`} price={no?.price} size={no?.size} side="lay" dim={dim} />
-      <Cell label={`${market.marketName.trim()} Yes`} price={yes?.price} size={yes?.size} side="back" dim={dim} />
+      <Cell label={`${market.marketName.trim()} No`} betOdds={no?.size ? 1 + no.size / 100 : undefined} price={no?.price} size={no?.size} side="lay" dim={dim} />
+      <Cell label={`${market.marketName.trim()} Yes`} betOdds={yes?.size ? 1 + yes.size / 100 : undefined} price={yes?.price} size={yes?.size} side="back" dim={dim} />
       {dim ? (
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 flex w-[158px] items-center justify-center border border-ex-suspend bg-dx-page/75">
           <span className="text-[0.85rem] font-bold uppercase text-ex-suspend">{label}</span>
