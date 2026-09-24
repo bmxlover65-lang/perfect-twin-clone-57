@@ -4014,7 +4014,9 @@ function teenPattiHand(codes: unknown[]): [number, ...number[]] | null {
   const flush = parsed.every((card) => card.suit === parsed[0]?.suit);
   const unique = [...new Set(ranks)];
   const wheel = unique.length === 3 && unique[0] === 14 && unique[1] === 3 && unique[2] === 2;
-  const straight = unique.length === 3 && (unique[0] - unique[2] === 2 || wheel);
+  const high = unique[0] ?? 0;
+  const low = unique[2] ?? 0;
+  const straight = unique.length === 3 && (high - low === 2 || wheel);
   const straightHigh = wheel ? 3 : (unique[0] ?? 0);
   if (groups[0]?.[1] === 3) return [6, groups[0][0]];
   if (straight && flush) return [5, straightHigh];
