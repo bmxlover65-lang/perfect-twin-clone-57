@@ -403,6 +403,30 @@ export type Database = {
         }
         Relationships: []
       }
+      sports_watch: {
+        Row: {
+          event_id: string
+          gone_since: string | null
+          sport_id: string
+          state: Json
+          updated_at: string
+        }
+        Insert: {
+          event_id: string
+          gone_since?: string | null
+          sport_id: string
+          state?: Json
+          updated_at?: string
+        }
+        Update: {
+          event_id?: string
+          gone_since?: string | null
+          sport_id?: string
+          state?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
