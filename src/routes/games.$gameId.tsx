@@ -213,6 +213,8 @@ function isOpenStatus(status?: string | null) {
 
 /** Preserve a runner's first closed state until the round changes. */
 function stabilizeCasinoState(previous: CasinoState | null, incoming: CasinoState): CasinoState {
+  // Mirror the live table exactly: suspend and reopen follow the feed as-is.
+  if (incoming) return incoming;
   const prevData = previous?.data;
   const nextData = incoming.data;
   if (!prevData || !nextData || String(prevData.roundId ?? "") !== String(nextData.roundId ?? "")) {
