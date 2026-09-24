@@ -28,7 +28,7 @@ type TeamTrack = {
   players: Record<string, { runs: number; out: boolean }>;
 };
 
-export type ScoreTrack = { teams: Record<string, TeamTrack>; at: number };
+export type ScoreTrack = { teams: Record<string, TeamTrack>; at: number; status?: string };
 
 const key = (eventId: string) => `uapi_fancy_track_${eventId}`;
 
@@ -82,7 +82,7 @@ export async function pullScore(eventId: string): Promise<ScoreTrack | null> {
   const doc = rows.find((r) => r.document)?.document;
   if (!doc) return null;
   const f = plain({ mapValue: { fields: doc.fields ?? {} } }) as {
-    slider?: { slider: number; score?: { teamInfo?: Record<string, string>; scoreItems?: { teamName: string; scoreData: { iconName: string; value: string }[] }[] } }[];
+    slider?: { slider: number; score?: { statusCommentry?: string; teamInfo?: Record<string, string>; scoreItems?: { teamName: string; scoreData: { iconName: string; value: string }[] }[] } }[];
   };
   const score = f.slider?.find((s) => s.slider === 1)?.score;
   const items = score?.scoreItems ?? [];
@@ -133,6 +133,7 @@ export async function pullScore(eventId: string): Promise<ScoreTrack | null> {
     Object.assign(t, { runs, wkts, balls, maxBalls, batting, abbr });
     track.teams[it.teamName] = t;
   }
+  if (score?.statusCommentry) track.status = score.statusCommentry;
   track.at = Date.now();
   saveTrack(eventId, track);
   return track;
@@ -198,4 +199,27 @@ export function parseFancyLabel(label: string) {
   const m = label.match(/^(.*)\s@([\d.]+)\s(Yes|No)$/i);
   if (!m) return null;
   return { market: m[1]!.trim(), line: Number(m[2]), yes: m[3]!.toLowerCase() === "yes" };
+}
+
+const exch = (n: string) => n.replace(/\s*\((W|U19|A)\)\s*/i, " $1").trim();
+
+/**
+ * Final match result from the scoreboard line ("West Indies (W) won by 50 runs",
+ * "Match tied", "No result"). Team names come back in exchange form
+ * ("West Indies W") so they line up with the Match Odds / Bookmaker bets.
+ */
+export function matchOutcome(track: ScoreTrack): { results: { label: string; won: boolean }[]; void: boolean } | null {
+  const st = (track.status ?? "").trim();
+  if (!st) return null;
+  const names = Object.keys(track.teams);
+  if (/\b(tied|no result|abandoned|called off)\b/i.test(st)) return { results: [], void: true };
+  const m = st.match(/^(.+?)\s+(?:won|win|beat)\b/i);
+  if (!m) return null;
+  const w = m[1]!.toLowerCase();
+  const win = names.find((n) => {
+    const t = track.teams[n]!;
+    return n.toLowerCase().startsWith(w) || w.startsWith(n.toLowerCase()) || (t.abbr && w === t.abbr.toLowerCase());
+  });
+  if (!win) return null;
+  return { results: names.map((n) => ({ label: exch(n), won: n === win })), void: false };
 }
