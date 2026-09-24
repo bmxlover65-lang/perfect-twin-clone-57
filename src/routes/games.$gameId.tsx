@@ -3366,10 +3366,16 @@ function GamePage() {
       ? Object.values(h).some((c) => c && String(c) !== "0")
       : Boolean(h) && String(h) !== "0",
   );
-  // Prefer the live feed whenever it sends a card slot for this round (even a
-  // face-down "0"), so the table never shows the previous round's card.
-  const cards =
-    liveHasRealCard || Object.keys(liveCards).length || !Object.keys(resultCards).length
+  // The live feed sometimes never sends the last dealt card (Teen Patti's 6th
+  // card stays "0"), while the declared result for this same round has every
+  // card. Once that result is in, show its full hand.
+  const resultIsThisRound =
+    !!roundKey && String(results[0]?.roundId ?? "") === roundKey && Object.keys(resultCards).length > 0;
+  // Otherwise prefer the live feed whenever it sends a card slot for this round
+  // (even a face-down "0"), so the table never shows the previous round's card.
+  const cards = resultIsThisRound
+    ? resultCards
+    : liveHasRealCard || Object.keys(liveCards).length || !Object.keys(resultCards).length
       ? liveCards
       : resultCards;
 
