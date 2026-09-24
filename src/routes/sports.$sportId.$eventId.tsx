@@ -333,7 +333,7 @@ type RaceInfo = {
   COLOURS_FILENAME_URL?: string;
 };
 
-function RaceRunner({ name, info }: { name: string; info?: RaceInfo }) {
+function RaceRunner({ name, info }: { name: string; info?: RaceInfo | undefined }) {
   return (
     <span className="flex min-w-0 items-center gap-1 px-1.5 text-[0.8rem] font-bold leading-[1.2] text-dx-ink">
       {info?.CLOTH_NUMBER ? (
