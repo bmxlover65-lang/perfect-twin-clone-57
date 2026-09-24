@@ -2980,19 +2980,11 @@ function DragonTigerPanel({
   };
 
   const CardTile = ({ rank, locked }: { rank: string; locked: boolean }) => (
-    <div className="relative flex h-[40px] w-[32px] flex-col items-center justify-center rounded-[2px] border-2 border-[#D9A521] bg-white">
-      <span className="absolute left-[2px] top-[0px] text-[11px] font-bold leading-none text-[#111]">
-        {rank}
-      </span>
-      <span className="mt-2 grid grid-cols-2 gap-x-[1px] text-[8px] leading-[9px]">
-        <span className="text-black">♠</span>
-        <span className="text-[#e0201c]">♦</span>
-        <span className="text-black">♣</span>
-        <span className="text-[#e0201c]">♥</span>
-      </span>
+    <div className="relative h-[40px] w-[32px] overflow-hidden rounded-[2px] border-2 border-[#D9A521] bg-white">
+      <img src={LUCKY7_CARD_IMAGES[rank]} alt={rank} className="h-full w-full object-fill" />
       {locked ? (
         <>
-          <span className="pointer-events-none absolute inset-0 rounded-[3px] bg-black/35" />
+          <span className="pointer-events-none absolute inset-0 bg-black/45" />
           <Lock />
         </>
       ) : null}
