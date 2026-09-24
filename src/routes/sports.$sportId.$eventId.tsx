@@ -16,7 +16,7 @@ import { Scoreboard } from "@/components/Scoreboard";
 import { LiveTv } from "@/components/LiveTv";
 import { AppLoader } from "@/components/AppLoader";
 import { settleFancyLines, settleFromRunners, voidOpen, voidOpenWhere } from "@/lib/wallet";
-import { fancyResult, matchOutcome, pullScore, readTrack } from "@/lib/fancy-settle";
+import { fancyResult, matchOutcome, pullScore, pullSideScore, readTrack, sideOutcome } from "@/lib/fancy-settle";
 import soccerBanner from "@/assets/sports/soccer-banner.jpg.asset.json";
 import tennisBanner from "@/assets/sports/tennis-banner.jpg.asset.json";
 import cricketBanner from "@/assets/sports/cricket-banner.jpg.asset.json";
@@ -832,7 +832,11 @@ function EventPage() {
     const live = all.length;
     if (live === 0) {
       if (!closedSince.current) closedSince.current = Date.now();
-      else if (Date.now() - closedSince.current > (sportId === "4" ? 600_000 : 30_000)) voidOpen(`sports-${eventId}`);
+      else if (Date.now() - closedSince.current > (sportId === "4" ? 600_000 : 30_000)) {
+        const side = sportId === "1" || sportId === "2" ? sideOutcome(eventId) : null;
+        if (side) settleFromRunners(`sports-${eventId}`, side);
+        voidOpen(`sports-${eventId}`);
+      }
     } else {
       closedSince.current = 0;
     }
@@ -860,6 +864,15 @@ function EventPage() {
       alive = false;
       window.clearInterval(t);
     };
+  }, [sportId, eventId]);
+
+  // Soccer / tennis: remember the live score so the final result can pay
+  // Match Odds bets when the feed closes the event.
+  useEffect(() => {
+    if (sportId !== "1" && sportId !== "2") return;
+    void pullSideScore(sportId, eventId);
+    const t = window.setInterval(() => void pullSideScore(sportId, eventId), 5000);
+    return () => window.clearInterval(t);
   }, [sportId, eventId]);
 
   // Dukex keeps the media panel closed until the TV icon is pressed.
