@@ -3963,8 +3963,8 @@ function cardWinner(gameId: string, cards: unknown): string {
     return r === 7 ? "TIE" : r < 7 ? "LOW CARD" : "HIGH CARD";
   }
   if (["99.0018", "99.0019", "99.0021"].includes(gameId)) {
-    const d = cardRank((c.DRAGON as { card_1?: string } | undefined)?.card_1);
-    const t = cardRank((c.TIGER as { card_1?: string } | undefined)?.card_1);
+    const d = cardRank((c["DRAGON"] as { card_1?: string } | undefined)?.card_1);
+    const t = cardRank((c["TIGER"] as { card_1?: string } | undefined)?.card_1);
     if (!d || !t) return "";
     if (d === t) return gameId === "99.0021" ? "" : "TIE";
     return d > t ? "DRAGON" : "TIGER";
