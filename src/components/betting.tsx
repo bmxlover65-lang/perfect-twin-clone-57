@@ -9,7 +9,7 @@ export type Pick = { label: string; odds: number };
 type ExtractedPick = Pick & { element: HTMLElement };
 
 /** Quick-stake buttons in the bet slip — original site layout (4 × 2). */
-const SLIP_CHIPS = [100, 200, 500, 5000, 10000, 25000, 50000, 100000];
+const SLIP_CHIPS = [1000, 5000, 10000, 25000, 50000, 100000, 200000, 500000];
 
 const DEFAULT_STAKE = 1000;
 const LAST_STAKE_KEY = "uapi.lastStake";
@@ -290,10 +290,10 @@ function Stepper({
   min?: number;
 }) {
   const btn =
-    "flex h-9 w-10 items-center justify-center rounded-[4px] text-[1.2rem] font-bold text-[#3B5A6B] disabled:opacity-40";
+    "flex h-[40px] w-[34px] shrink-0 items-center justify-center bg-[linear-gradient(to_bottom,#fff_0%,#eee_89%)] text-[1.4rem] font-extrabold text-[#1f72ac] disabled:opacity-40";
   return (
-    <div className="flex items-center rounded-[4px] border border-[#c9d6de] bg-[#e6edf1]">
-      <button type="button" className={btn} onClick={() => onChange(Math.max(min, value - step))}>
+    <div className="flex h-[43px] min-w-0 flex-1 items-center overflow-hidden rounded-md border border-gray-400 bg-white">
+      <button type="button" className={`${btn} rounded-l-md border-r border-gray-400`} onClick={() => onChange(Math.max(min, value - step))}>
         −
       </button>
       {editable ? (
@@ -302,20 +302,21 @@ function Stepper({
           inputMode="numeric"
           min={min}
           step="1"
-          value={value}
+          value={value || ""}
+          placeholder="0"
           aria-label="Bet amount"
           onChange={(event) => onChange(Math.max(0, Math.floor(Number(event.target.value) || 0)))}
           onBlur={() => {
             if (value < min) onChange(min);
           }}
-          className="h-9 min-w-0 flex-1 bg-transparent text-center text-[0.95rem] font-extrabold text-[#20384a] outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          className="h-full min-w-0 flex-1 bg-white px-1 text-center text-sm font-bold text-gray-900 outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
       ) : (
-        <span className="flex-1 text-center text-[0.95rem] font-extrabold text-[#20384a]">
-          {decimals ? value.toFixed(decimals) : String(Math.round(value)).padStart(2, "0")}
+        <span className="min-w-0 flex-1 text-center text-sm font-bold text-gray-900">
+          {decimals ? Number(value.toFixed(decimals)).toString() : String(Math.round(value))}
         </span>
       )}
-      <button type="button" className={btn} onClick={() => onChange(value + step)}>
+      <button type="button" className={`${btn} rounded-r-md border-l border-gray-400`} onClick={() => onChange(value + step)}>
         +
       </button>
     </div>
@@ -876,61 +877,40 @@ export function BetLayer({
           style={{ top: `${anchor}px` }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="mx-auto w-full max-w-[430px] overflow-hidden border-y border-[#a8c1d2] bg-[#d8efd5] shadow-[0_10px_24px_rgba(0,0,0,0.22)]">
-            {embed ? null : (
-              <div className="flex items-center justify-between bg-[#1f3b4d] px-3 py-1.5">
-                <span className="text-[0.72rem] font-bold uppercase tracking-[0.1em] text-white/80">
-                  {pick.label}
-                </span>
-                <span className="text-[0.78rem] font-extrabold text-white">
-                  Bal {Math.round(wallet.balance).toLocaleString("en-IN")}
-                </span>
-              </div>
-            )}
-
-            <div className="px-2 pb-2 pt-2">
-              <div className="grid grid-cols-2 gap-1.5">
-                <Stepper value={odds} onChange={setOdds} step={0.01} decimals={2} />
-                <Stepper value={stake} onChange={setStake} step={100} decimals={0} editable min={100} />
-              </div>
-
-              <div className="mt-2 grid grid-cols-4 gap-2">
-                {SLIP_CHIPS.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => {
-                      setStake(c);
-                      saveLastStake(c);
-                    }}
-                    className={`h-[31px] rounded-[4px] border text-[0.88rem] font-bold active:bg-[#eef4f8] ${
-                      Math.round(stake) === c
-                        ? "border-destructive bg-destructive text-destructive-foreground ring-2 ring-destructive/35"
-                        : "border-[#c3d3de] bg-white text-[#1d2c36]"
-                    }`}
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
-
-              <div className="mt-2 grid grid-cols-2 gap-2">
+          <div className="mx-auto w-full max-w-[430px] overflow-hidden border-b-2 border-gray-300 bg-[#e3f1fb] p-1 py-2 shadow-[0_6px_14px_rgba(0,0,0,0.18)]">
+            <div className="mb-2 flex w-full items-center gap-1.5">
+              <button
+                type="button"
+                onClick={close}
+                className="flex h-[40px] w-[52px] shrink-0 items-center justify-center rounded-md border bg-white text-xs font-bold text-black"
+              >
+                Cancel
+              </button>
+              <Stepper value={odds} onChange={setOdds} step={0.01} decimals={2} />
+              <Stepper value={stake} onChange={setStake} step={100} decimals={0} editable min={100} />
+              <button
+                type="button"
+                onClick={submit}
+                disabled={stake < 100}
+                className="flex h-[40px] w-[62px] shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-gradient-to-b from-black to-yellow-500 p-1 text-xs font-bold text-white disabled:opacity-[0.65]"
+              >
+                Place Bet
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {SLIP_CHIPS.map((c) => (
                 <button
+                  key={c}
                   type="button"
-                  onClick={close}
-                  className="h-[38px] rounded-[4px] border border-[#55606a] bg-white text-[0.98rem] font-bold text-[#1d2c36]"
+                  onClick={() => {
+                    setStake(c);
+                    saveLastStake(c);
+                  }}
+                  className="basis-[calc(25%-0.5rem)] flex-grow rounded-sm border border-black bg-[#f9f9f9] px-3 py-[5px] text-[13px] font-normal text-black"
                 >
-                  Cancel
+                  {c}
                 </button>
-                <button
-                  type="button"
-                  onClick={submit}
-                  disabled={stake < 100}
-                  className="h-[38px] rounded-[4px] bg-[#2f7fbe] text-[0.98rem] font-bold text-white disabled:bg-[#5d695f] disabled:text-white/85"
-                >
-                  Place Bet
-                </button>
-              </div>
+              ))}
             </div>
           </div>
         </div>
