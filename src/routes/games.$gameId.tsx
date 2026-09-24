@@ -3816,7 +3816,19 @@ function GamePage() {
           size="h-9 w-9 sm:h-14 sm:w-14"
         />
 
-        <ResultBanner result={liveResult} round={roundKey} gameId={gameId} gameName={d?.eventName ?? null} />
+        <ResultBanner
+          result={(() => {
+            const direct = String((d as unknown as { gameResult?: string | null } | null)?.gameResult ?? "").trim();
+            if (direct && roundKey) {
+              const shown = String(applyOverride(cfg, admin, gameId, direct) ?? direct);
+              return { ...(liveResult ?? {}), round: roundKey, winner: shown } as FeedResult;
+            }
+            return liveResult;
+          })()}
+          round={roundKey}
+          gameId={gameId}
+          gameName={d?.eventName ?? null}
+        />
       </div>
 
 
