@@ -212,34 +212,9 @@ function isOpenStatus(status?: string | null) {
 }
 
 /** Preserve a runner's first closed state until the round changes. */
-function stabilizeCasinoState(previous: CasinoState | null, incoming: CasinoState): CasinoState {
+function stabilizeCasinoState(_previous: CasinoState | null, incoming: CasinoState): CasinoState {
   // Mirror the live table exactly: suspend and reopen follow the feed as-is.
-  if (incoming) return incoming;
-  const prevData = previous?.data;
-  const nextData = incoming.data;
-  if (!prevData || !nextData || String(prevData.roundId ?? "") !== String(nextData.roundId ?? "")) {
-    return incoming;
-  }
-  const previousMarkets = new Map(
-    (prevData.marketArr ?? []).map((market) => [String(market.marketId), market]),
-  );
-  const marketArr = (nextData.marketArr ?? []).map((market) => {
-    const previousMarket = previousMarkets.get(String(market.marketId));
-    if (!previousMarket) return market;
-    const previousRunners = new Map(
-      (previousMarket.runners ?? []).map((runner) => [String(runner.selectionId), runner]),
-    );
-    return {
-      ...market,
-      runners: (market.runners ?? []).map((runner) => {
-        const previousRunner = previousRunners.get(String(runner.selectionId));
-        const previousStatus = previousRunner?.status;
-        if (!previousStatus || isOpenStatus(previousStatus)) return runner;
-        return { ...runner, status: previousStatus };
-      }),
-    };
-  });
-  return { ...incoming, data: { ...nextData, marketArr } };
+  return incoming;
 }
 
 /** Original-style suspended veil: faded market background + bold red SUSPEND text. */
