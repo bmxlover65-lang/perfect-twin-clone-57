@@ -453,6 +453,9 @@ export function BetLayer({
         }),
       ];
 
+      // Mirror the live board exactly: a market is blocked only while its
+      // suspend veil is showing, and opens again the moment the feed reopens it.
+      latched.current = [];
       for (const flag of flags) {
         // A selection that carries its own live lock flag needs no latch: the
         // attribute itself says whether it is open right now, and latching it
@@ -795,7 +798,7 @@ export function BetLayer({
           const b = plate.getBoundingClientRect();
           return {
             x: (b.left + b.width / 2 - rootBox.left) / scale,
-            y: (b.bottom - rootBox.top) / scale + 7,
+            y: (b.bottom - rootBox.top) / scale + 11,
           };
         };
 
@@ -841,7 +844,7 @@ export function BetLayer({
               key={`exp-${i}`}
               className={`pointer-events-none absolute z-[60] whitespace-nowrap font-semibold leading-none text-casino-market-text ${
                 market
-                  ? "-translate-x-1/2 -translate-y-1/2 text-[0.68rem] font-bold tracking-tight"
+                  ? "-translate-x-1/2 -translate-y-1/2 text-[0.75rem] font-bold"
                   : "text-[0.78rem]"
               }`}
               style={{ left: `${pos.x}px`, top: `${pos.y}px` }}
