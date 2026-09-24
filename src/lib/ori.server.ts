@@ -101,10 +101,24 @@ export type OriOdds = {
 };
 
 export async function oriOdds(sportId: string, exEventId: string): Promise<OriOdds | null> {
-  const json = await jget<Envelope<{ data?: RawMarkets }>>(
-    `sports/${encodeURIComponent(sportId)}/${encodeURIComponent(exEventId)}/markets`,
-  );
-  const raw = json?.data?.data;
+  const { oriLiveFrame } = await import("./ori-live.server");
+  const liveFrame = await oriLiveFrame(sportId, exEventId).catch(() => null);
+  let raw: RawMarkets | undefined;
+  if (liveFrame) {
+    const f = liveFrame as Record<string, RawMarket[] | boolean | undefined>;
+    raw = {
+      matchOddsData: f["betfair"] as RawMarket[],
+      bookmakersData: f["bookmakers"] as RawMarket[],
+      fancyData: f["fancy"] as RawMarket[],
+      sportsbookData: (f["sportsbook"] ?? f["sportsBook"]) as RawMarket[],
+      isScore: Boolean(f["isScore"]),
+    };
+  } else {
+    const json = await jget<Envelope<{ data?: RawMarkets }>>(
+      `sports/${encodeURIComponent(sportId)}/${encodeURIComponent(exEventId)}/markets`,
+    );
+    raw = json?.data?.data;
+  }
   if (!raw) return null;
 
   const matchOdds = bySequence(live(raw.matchOddsData));
