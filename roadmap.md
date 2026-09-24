@@ -145,7 +145,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 
 ## Dukex mobile board parity — one by one (open + suspend photos)
 - [x] Andar Bahar (99.0025)
-- [ ] 32 Cards (99.0022)
+- [x] 32 Cards (99.0022)
 - [x] Poker (99.0007)
 - [x] DTL (99.0041)
 - [x] 1 Day Dragon Tiger (99.0007 per Dukex list; 99.0021 tile bhi check karna)

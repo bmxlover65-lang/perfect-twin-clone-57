@@ -1075,3 +1075,5 @@
 .lucky7-results.is-dt20 { padding: 3px 5px; }
 .lucky7-results.is-dt20 .lucky7-results-list { gap: 7px; }
 .lucky7-results.is-dt20 .lucky7-result-chip { height: 24px; }
+.reflist.is-32 .reflist-header { height: 23px; }
+.reflist.is-32 .reflist-row { height: 39px; }

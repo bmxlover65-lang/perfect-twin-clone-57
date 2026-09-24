@@ -1038,11 +1038,13 @@ function RefListMarket({
   suspended,
   minMax = false,
   backOnly,
+  plainOdds,
 }: {
   market: CasinoMarket;
   suspended: boolean;
   minMax?: boolean;
   backOnly?: boolean;
+  plainOdds?: boolean;
 }) {
   const names = market.runnersName ?? {};
   const runners = market.runners ?? [];
@@ -1081,7 +1083,7 @@ function RefListMarket({
                 disabled={!open || !point?.price}
                 className={`reflist-cell${side === "lay" ? " is-lay" : ""}`}
               >
-                <span className="reflist-odds">{fmtOdds(point?.price)}</span>
+                <span className="reflist-odds">{plainOdds && point?.price != null ? String(Number(point.price)) : fmtOdds(point?.price)}</span>
                 <span className="reflist-size">{point?.size == null ? "" : String(Math.round(point.size))}</span>
               </button>
             );
@@ -3411,6 +3413,10 @@ function GamePage() {
         return ja - jb || ab - bb || a.i - b.i;
       })
       .map(({ h }) => h);
+    if (gameId === "99.0022" && hands.every((h) => !Object.values(h.hand).some((c) => c && c !== "0"))) {
+      // Dukex shows the four player slots with a face-down card before dealing.
+      hands = [8, 9, 10, 11].map((n) => ({ title: `Player ${n}:${n}`, hand: { "0": "0" } }));
+    }
     if (hands.length) {
 
       const remembered = new Map(layoutRef.current.map((h) => [h.title, h.count]));
@@ -3845,7 +3851,23 @@ function GamePage() {
           <p className={`${["99.0001", "99.0013", "99.0016", "99.0018", "99.0019", "99.0022"].includes(gameId) ? "text-[0.68rem] font-extrabold" : "text-[0.6rem] font-bold sm:text-[0.72rem]"} uppercase text-white drop-shadow`}>
             RID: {d?.roundId ?? "—"}
           </p>
-          {handLayout.map((h) => (
+          {gameId === "99.0022" ? (
+            <div className="-mt-[2px] space-y-[3px]">
+              {handLayout.map((h) => {
+                const n = h.title.match(/\d+/)?.[0] ?? "";
+                return (
+                  <div key={h.title}>
+                    <p className="text-[9px] font-bold leading-[12px] text-[#ffc107]">Player {n}:{n}</p>
+                    <div className="mt-[1px] flex gap-[2px]">
+                      {(Object.values(h.hand).length ? Object.values(h.hand) : ["0"]).map((c, i) => (
+                        <span key={i} className="block h-[26px] w-[19px] overflow-hidden [&_*]:!h-full [&_*]:!w-full"><CardFace code={c || "0"} /></span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : handLayout.map((h) => (
              gameId === "99.0001"
                ? <JokerCards key={h.title} title={h.title} hand={h.hand} sideThird />
                : gameId === "99.0013"
@@ -3897,7 +3919,7 @@ function GamePage() {
         ) : gameId === "99.0001" && markets.length ? (
           <BaccaratPanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0022" && markets.length ? (
-          <div className="reflist">{[...markets].sort((a, b) => { const o = ["WINNER", "CARD COLOR", "CARD TOTAL", "LUCKY NUMBER"]; const ai = o.indexOf((a.marketName ?? "").trim().toUpperCase()); const bi = o.indexOf((b.marketName ?? "").trim().toUpperCase()); return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi); }).map((m, i) => <RefListMarket key={`${m.marketId}-${i}`} market={m} suspended={suspended} />)}</div>
+          <div className="reflist is-32">{[...markets].sort((a, b) => { const o = ["WINNER", "CARD COLOR", "CARD TOTAL", "LUCKY NUMBER"]; const ai = o.indexOf((a.marketName ?? "").trim().toUpperCase()); const bi = o.indexOf((b.marketName ?? "").trim().toUpperCase()); return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi); }).map((m, i) => <RefListMarket key={`${m.marketId}-${i}`} market={m} suspended={suspended} plainOdds />)}</div>
         ) : gameId === "99.0007" && markets.length ? (
           <PokerPanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0046" && markets.length ? (
@@ -4067,7 +4089,7 @@ function RecentStrip({
 }) {
   return (
 
-      <div className={`mt-0 flex items-center overflow-x-auto ${grey ? "bg-[#E6E6E6]" : "bg-black"} ${cardRace ? "h-[59px] gap-[9px] p-[5px]" : oneDay ? "h-[42px] gap-2 px-1.5 py-1" : joker || dragonTiger || cards32 ? "h-[40px] gap-2 px-1 py-1" : baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "mt-[5px] h-[36px] gap-[9px] px-[5px]"}`}>
+      <div className={`mt-0 flex items-center overflow-x-auto ${grey ? "bg-[#E6E6E6]" : "bg-black"} ${cardRace ? "h-[59px] gap-[9px] p-[5px]" : oneDay ? "h-[42px] gap-2 px-1.5 py-1" : cards32 ? "h-[29px] gap-[11px] px-1" : joker || dragonTiger ? "h-[40px] gap-2 px-1 py-1" : baccarat ? "h-[51px] gap-2.5 px-1 py-1.5" : "mt-[5px] h-[36px] gap-[9px] px-[5px]"}`}>
         <span className={`mr-3 shrink-0 font-['Tahoma',Helvetica,sans-serif] ${cardRace ? "mt-[8px] self-start text-[14px]" : "text-[12px]"} font-bold ${grey ? "text-black" : "text-white"}`}>Recent Result</span>
 
 
@@ -4156,7 +4178,9 @@ function RecentStrip({
               className={`flex shrink-0 items-center justify-center rounded-full font-bold ${
                 lucky7
                   ? "h-[22px] min-w-[22px] px-1.5 text-[0.7rem]"
-                  : joker || dragonTiger || cards32
+                  : cards32
+                    ? "h-[22px] min-w-[22px] px-1 text-[0.62rem]"
+                  : joker || dragonTiger
                     ? "h-6 min-w-7 px-1.5 text-[0.7rem]"
                     : oneDay || baccarat
                       ? "h-7 min-w-9 px-2 text-[0.78rem]"
