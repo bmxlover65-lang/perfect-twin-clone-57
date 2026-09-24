@@ -102,9 +102,9 @@ function Cell({
         dim ? "opacity-60" : ""
       } ${flash} text-dx-ink`}
     >
-      <span className="text-[0.8rem] font-bold leading-tight">{price ? fmtOdds(price) : "0"}</span>
-      <span className="text-[0.66rem] leading-tight">
-        {!price ? "0.00" : betOdds !== undefined ? fmtSize(size) || "0.00" : dxSize(size)}
+      <span className={`${raw ? "text-[0.85rem]" : "text-[0.8rem]"} font-bold leading-tight`}>{price ? (raw ? String(Number(price)) : fmtOdds(price)) : "0"}</span>
+      <span className={`${raw ? "text-[0.7rem]" : "text-[0.66rem]"} leading-tight`}>
+        {!price ? "0.00" : raw ? String(Number((Number(size) || 0).toFixed(2))) : betOdds !== undefined ? fmtSize(size) || "0.00" : dxSize(size)}
       </span>
     </div>
   );

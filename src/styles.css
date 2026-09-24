@@ -124,6 +124,11 @@
   --color-dx-ink: var(--dx-ink);
   --color-dx-page: var(--dx-page);
   --color-dx-sb: var(--dx-sb);
+  --color-dx-backhead-race: var(--dx-backhead-race);
+  --color-dx-layhead-race: var(--dx-layhead-race);
+  --color-dx-race-pill: var(--dx-race-pill);
+  --color-dx-race-active: var(--dx-race-active);
+  --color-dx-race-sky: var(--dx-race-sky);
   --color-casino-market-header: var(--casino-market-header);
   --color-casino-market-body: var(--casino-market-body);
   --color-casino-market-rate: var(--casino-market-rate);
@@ -741,6 +746,11 @@
   --dx-ink: #1B1B1B;
   --dx-page: #FFFFFF;
   --dx-sb: #F7801F;
+  --dx-backhead-race: #72BBEF;
+  --dx-layhead-race: #FAA9BA;
+  --dx-race-pill: #1F3B4D;
+  --dx-race-active: #9A0F52;
+  --dx-race-sky: #8E959B;
 }
 
 
