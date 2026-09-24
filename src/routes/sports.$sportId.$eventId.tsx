@@ -312,7 +312,7 @@ function Board({
                   return <Cell key={`l${i}`} label={`${runnerName(market, r.selectionId)} Lay`} price={p?.price} size={p?.size} side="lay" dim={dim} depth={i} />;
                 })}
           </div>
-          {race && info[String(r.selectionId)] ? <RaceChips info={info[String(r.selectionId)]!} /> : null}
+          {race && info[String(r.selectionId)] ? <RaceChips info={info[String(r.selectionId)] as RaceInfo} /> : null}
           </Fragment>
         ))}
       </div>
