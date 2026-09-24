@@ -7,7 +7,7 @@
 - [x] Sports match page: Universal header only; TV close behavior, every live market tab/button, merged proof image
 - [x] Sports all-match parity: dynamic sport banners, feed-driven media, rates, bets and settlement verification
 - [x] Sports Lay / No bets: correct liability, P/L and settlement
-- [ ] Sports fancy/session results: feed publishes no fancy result — bets refund when the market closes (blocked on a fancy result source)
+- [x] Sports fancy/session results: auto-settle from live cricket scoreboard (boundaries/partnership still refund)
 - [x] Sports list: match search box (all live + upcoming)
 - [ ] Zimbabwe W v West Indies W: settlement check after match ends (match still live)
 - [ ] Horse/Greyhound: Dukex side-by-side pending (Dukex race page didn't open in automation)
