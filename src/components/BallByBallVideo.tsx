@@ -4,8 +4,10 @@ const BASE = "https://bbb.exchange24x7.live";
 
 /**
  * Plays each round's own Ball by Ball video (the same feed Dukex uses).
- * The results list carries every round's own video path; the moment a new
- * round's result is declared, that round's video starts playing.
+ * The results list carries every round's own video path. On first load the
+ * latest entry is already the previous result, so remember it without
+ * replaying it. Play only entries declared after the player mounted, then
+ * return to the animated fallback as soon as the clip finishes.
  */
 export function BallByBallVideo({ fallback }: { fallback: string }) {
   const [src, setSrc] = useState<string | null>(null);
@@ -16,22 +18,28 @@ export function BallByBallVideo({ fallback }: { fallback: string }) {
 
     const tick = async () => {
       try {
-        const r = await fetch(`${BASE}/api/ballbyball/results`, { cache: "no-store" });
-        const j = await r.json();
-        const latest = j?.data?.[0];
-        if (!alive || !latest?.roundId || !latest?.videoUrl) return;
-        // New round declared -> play that round's own video.
-        if (latest.roundId !== lastRound.current) {
-          lastRound.current = latest.roundId;
-          setSrc(`${BASE}${latest.videoUrl}`);
+        const resultsResponse = await fetch(`${BASE}/api/ballbyball/results`, { cache: "no-store" });
+        const resultsJson = await resultsResponse.json();
+        const latest = resultsJson?.data?.[0];
+        const resultRound = String(latest?.roundId ?? "");
+        if (!alive || !resultRound || !latest?.videoUrl) return;
+
+        // Do not replay the already-completed previous round on page load.
+        if (lastRound.current === null) {
+          lastRound.current = resultRound;
+          return;
         }
+        if (resultRound === lastRound.current) return;
+
+        lastRound.current = resultRound;
+        setSrc(`${BASE}${latest.videoUrl}`);
       } catch {
         /* ignore, retry next tick */
       }
     };
 
     void tick();
-    const id = setInterval(tick, 3000);
+    const id = setInterval(tick, 1000);
     return () => {
       alive = false;
       clearInterval(id);
@@ -48,6 +56,9 @@ export function BallByBallVideo({ fallback }: { fallback: string }) {
       autoPlay
       muted
       playsInline
+      preload="auto"
+      onEnded={() => setSrc(null)}
+      onError={() => setSrc(null)}
       className="block h-full w-full bg-foreground object-cover"
     />
   );
