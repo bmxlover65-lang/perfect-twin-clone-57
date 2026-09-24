@@ -553,11 +553,24 @@ export async function proxy(splat: string, search: string, body?: string, origin
       const eventId = decodeURIComponent(stateMatch[1]!);
       const live = await ucasState(eventId);
       if (live?.data) {
+        // Timer over = card is coming out: the board must show suspended even
+        // if the table's own status frame is a moment late.
+        let data = live.data as { leftSec?: number; status?: string; marketArr?: { runners?: { status?: string }[] | undefined }[] | undefined };
+        if (typeof data.leftSec === "number" && data.leftSec <= 0 && !/SUSPEND/i.test(String(data.status ?? ""))) {
+          data = {
+            ...data,
+            status: "SUSPEND",
+            marketArr: data.marketArr?.map((m) => ({
+              ...m,
+              runners: m.runners?.map((r) => ({ ...r, status: "SUSPEND" })),
+            })),
+          };
+        }
         const payload = {
           eventId,
           freshnessMs: live.freshnessMs,
           stale: live.freshnessMs > 5000,
-          data: live.data,
+          data,
         };
         const text = JSON.stringify(payload);
         sportsSnapshot.set(snapshotKey, { at: Date.now(), text });
@@ -771,12 +784,22 @@ async function hotProxy(splat: string, search: string) {
   });
 }
 
+let lastCasinoSettle = 0;
+
 export const Route = createFileRoute("/api/public/uapi/$")({
   server: {
     handlers: {
       GET: async ({ request, params }) => {
         const splat = (params as { _splat?: string })._splat ?? "";
         const url = new URL(request.url);
+        // Any open casino table keeps polling state; use that heartbeat to pay
+        // out finished rounds right away (no refresh / cron wait needed).
+        if (/^games\/[^/]+\/state$/.test(splat) && Date.now() - lastCasinoSettle > 5000) {
+          lastCasinoSettle = Date.now();
+          void import("@/lib/casino-autosettle.server")
+            .then((m) => m.autoSettleCasino(url.origin))
+            .catch(() => undefined);
+        }
         // Same-origin relative URLs: the worker's internal request origin can be
         // localhost, which the browser cannot load from inside the iframe.
         if (isHotPath(splat)) return hotProxy(splat, url.search);

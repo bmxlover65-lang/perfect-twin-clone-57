@@ -25,6 +25,7 @@ import { Route as AuthenticatedUiAuditRouteImport } from './routes/_authenticate
 import { Route as GamesGameIdRouteImport } from './routes/games.$gameId'
 import { Route as SportsIndexRouteImport } from './routes/sports.index'
 import { Route as SportsSportIdEventIdRouteImport } from './routes/sports.$sportId.$eventId'
+import { Route as ApiPublicCronCasinoSettleRouteImport } from './routes/api/public/cron/casino-settle'
 import { Route as ApiPublicCronSportsSettleRouteImport } from './routes/api/public/cron/sports-settle'
 import { Route as ApiPublicUapiSplatRouteImport } from './routes/api/public/uapi.$'
 import { Route as ApiPublicV1BalanceRouteImport } from './routes/api/public/v1/balance'
@@ -118,6 +119,12 @@ const SportsSportIdEventIdRoute = SportsSportIdEventIdRouteImport.update({
   path: '/sports/$sportId/$eventId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCronCasinoSettleRoute =
+  ApiPublicCronCasinoSettleRouteImport.update({
+    id: '/api/public/cron/casino-settle',
+    path: '/api/public/cron/casino-settle',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronSportsSettleRoute =
   ApiPublicCronSportsSettleRouteImport.update({
     id: '/api/public/cron/sports-settle',
@@ -196,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/games/$gameId': typeof GamesGameIdRoute
   '/sports/': typeof SportsIndexRoute
   '/sports/$sportId/$eventId': typeof SportsSportIdEventIdRoute
+  '/api/public/cron/casino-settle': typeof ApiPublicCronCasinoSettleRoute
   '/api/public/cron/sports-settle': typeof ApiPublicCronSportsSettleRoute
   '/api/public/uapi/$': typeof ApiPublicUapiSplatRoute
   '/api/public/v1/balance': typeof ApiPublicV1BalanceRoute
@@ -225,6 +233,7 @@ export interface FileRoutesByTo {
   '/games/$gameId': typeof GamesGameIdRoute
   '/sports': typeof SportsIndexRoute
   '/sports/$sportId/$eventId': typeof SportsSportIdEventIdRoute
+  '/api/public/cron/casino-settle': typeof ApiPublicCronCasinoSettleRoute
   '/api/public/cron/sports-settle': typeof ApiPublicCronSportsSettleRoute
   '/api/public/uapi/$': typeof ApiPublicUapiSplatRoute
   '/api/public/v1/balance': typeof ApiPublicV1BalanceRoute
@@ -256,6 +265,7 @@ export interface FileRoutesById {
   '/games/$gameId': typeof GamesGameIdRoute
   '/sports/': typeof SportsIndexRoute
   '/sports/$sportId/$eventId': typeof SportsSportIdEventIdRoute
+  '/api/public/cron/casino-settle': typeof ApiPublicCronCasinoSettleRoute
   '/api/public/cron/sports-settle': typeof ApiPublicCronSportsSettleRoute
   '/api/public/uapi/$': typeof ApiPublicUapiSplatRoute
   '/api/public/v1/balance': typeof ApiPublicV1BalanceRoute
@@ -287,6 +297,7 @@ export interface FileRouteTypes {
     | '/games/$gameId'
     | '/sports/'
     | '/sports/$sportId/$eventId'
+    | '/api/public/cron/casino-settle'
     | '/api/public/cron/sports-settle'
     | '/api/public/uapi/$'
     | '/api/public/v1/balance'
@@ -316,6 +327,7 @@ export interface FileRouteTypes {
     | '/games/$gameId'
     | '/sports'
     | '/sports/$sportId/$eventId'
+    | '/api/public/cron/casino-settle'
     | '/api/public/cron/sports-settle'
     | '/api/public/uapi/$'
     | '/api/public/v1/balance'
@@ -346,6 +358,7 @@ export interface FileRouteTypes {
     | '/games/$gameId'
     | '/sports/'
     | '/sports/$sportId/$eventId'
+    | '/api/public/cron/casino-settle'
     | '/api/public/cron/sports-settle'
     | '/api/public/uapi/$'
     | '/api/public/v1/balance'
@@ -374,6 +387,7 @@ export interface RootRouteChildren {
   GamesGameIdRoute: typeof GamesGameIdRoute
   SportsIndexRoute: typeof SportsIndexRoute
   SportsSportIdEventIdRoute: typeof SportsSportIdEventIdRoute
+  ApiPublicCronCasinoSettleRoute: typeof ApiPublicCronCasinoSettleRoute
   ApiPublicCronSportsSettleRoute: typeof ApiPublicCronSportsSettleRoute
   ApiPublicUapiSplatRoute: typeof ApiPublicUapiSplatRoute
   ApiPublicV1BalanceRoute: typeof ApiPublicV1BalanceRoute
@@ -499,6 +513,13 @@ declare module '@tanstack/react-router' {
       path: '/sports/$sportId/$eventId'
       fullPath: '/sports/$sportId/$eventId'
       preLoaderRoute: typeof SportsSportIdEventIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/cron/casino-settle': {
+      id: '/api/public/cron/casino-settle'
+      path: '/api/public/cron/casino-settle'
+      fullPath: '/api/public/cron/casino-settle'
+      preLoaderRoute: typeof ApiPublicCronCasinoSettleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/cron/sports-settle': {
@@ -629,6 +650,7 @@ const rootRouteChildren: RootRouteChildren = {
   GamesGameIdRoute: GamesGameIdRoute,
   SportsIndexRoute: SportsIndexRoute,
   SportsSportIdEventIdRoute: SportsSportIdEventIdRoute,
+  ApiPublicCronCasinoSettleRoute: ApiPublicCronCasinoSettleRoute,
   ApiPublicCronSportsSettleRoute: ApiPublicCronSportsSettleRoute,
   ApiPublicUapiSplatRoute: ApiPublicUapiSplatRoute,
   ApiPublicV1BalanceRoute: ApiPublicV1BalanceRoute,
