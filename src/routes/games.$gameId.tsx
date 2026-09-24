@@ -3175,7 +3175,7 @@ function GamePage() {
     const t = setInterval(() => {
       if (document.visibilityState === "hidden") return;
       void load();
-    }, 800);
+    }, 350);
     const a = setInterval(() => setAge((v) => v + 1), 1000);
     const wake = () => {
       if (document.visibilityState === "visible") void load();
