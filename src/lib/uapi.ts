@@ -87,8 +87,12 @@ const BASE = "/api/public/uapi";
 async function get<T>(path: string, live = false): Promise<T> {
   const separator = path.includes("?") ? "&" : "?";
   const url = live ? `${BASE}/${path}${separator}_=${Date.now()}` : `${BASE}/${path}`;
+  // A request that never answers (weak mobile network) used to block every
+  // later poll, freezing the board on old cards. Give up after 6s so the
+  // next poll can run.
   const res = await fetch(url, {
     cache: live ? "no-store" : "default",
+    signal: AbortSignal.timeout(live ? 6000 : 15000),
     headers: {
       accept: "application/json",
       ...(live ? { "cache-control": "no-cache" } : {}),

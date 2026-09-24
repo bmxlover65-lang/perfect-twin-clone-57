@@ -3136,7 +3136,7 @@ function GamePage() {
       setError(null);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to load live state";
-      if (/unknown game|valid eventid required|\(40\d\)/i.test(msg)) {
+      if (/unknown game|valid eventid required/i.test(msg)) {
         feedDead.current = true;
         return;
       }
