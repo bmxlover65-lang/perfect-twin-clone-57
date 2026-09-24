@@ -578,9 +578,10 @@ function EventPage() {
   const matchOdds = allMatchOdds.filter((m) => !isLineMarket(m));
   const lines = allMatchOdds.filter(isLineMarket);
   const bookmakers = data?.bookmakers ?? [];
+  const rawFancy = data?.fancy ?? [];
   // Finished sessions (the over already bowled, market settled/void) are
   // removed from the board, exactly like the reference book does.
-  const fancy = (data?.fancy ?? []).filter((m) => {
+  const fancy = rawFancy.filter((m) => {
     const raw = String(m.oddsData?.status ?? "").toUpperCase();
     if (/CLOSE|SETTLE|RESULT|REMOVED/.test(raw)) return false;
     const extra = m as unknown as { isSettlement?: number; isVoid?: number; isClosed?: number };
@@ -600,7 +601,9 @@ function EventPage() {
   useEffect(() => {
     if (!data) return;
     const results: { label: string; won: boolean }[] = [];
-    for (const m of [...matchOdds, ...overUnder, ...bookmakers, ...fancy, ...sportsbook]) {
+    // Read result frames from the raw groups before closed markets are removed
+    // from the visible board, otherwise a one-frame WINNER can be missed.
+    for (const m of [...allMatchOdds, ...bookmakers, ...rawFancy, ...allSportsbook]) {
       const names = m.runnersData ?? {};
       for (const r of m.oddsData?.runners ?? []) {
         const st = String(r.status ?? "").toUpperCase();
@@ -637,7 +640,7 @@ function EventPage() {
     } else {
       closedSince.current = 0;
     }
-  }, [data, eventId, matchOdds, overUnder, bookmakers, fancy, sportsbook]);
+  }, [data, eventId, allMatchOdds, bookmakers, rawFancy, allSportsbook, matchOdds, overUnder, fancy, sportsbook]);
 
 
   // Dukex keeps the media panel closed until the TV icon is pressed.
@@ -672,7 +675,8 @@ function EventPage() {
   const showFancy = visibleFancy.length > 0 || visibleSportsbook.length > 0;
   const hasPanels = !eventId.startsWith("sf:");
   const hasTv = hasPanels && data?.tv !== false;
-  const hasScoreboard = hasPanels && Boolean(data?.isScore);
+  const hasScoreboard =
+    hasPanels && (data?.isScore === true || (data?.isScore !== false && ["1", "2", "4"].includes(sportId)));
 
   return (
     <div className="sports-theme mx-auto max-w-[1200px] bg-dx-page pb-6">
