@@ -553,11 +553,24 @@ export async function proxy(splat: string, search: string, body?: string, origin
       const eventId = decodeURIComponent(stateMatch[1]!);
       const live = await ucasState(eventId);
       if (live?.data) {
+        // Timer over = card is coming out: the board must show suspended even
+        // if the table's own status frame is a moment late.
+        let data = live.data as { leftSec?: number; status?: string; marketArr?: { runners?: { status?: string }[] }[] };
+        if (typeof data.leftSec === "number" && data.leftSec <= 0 && !/SUSPEND/i.test(String(data.status ?? ""))) {
+          data = {
+            ...data,
+            status: "SUSPEND",
+            marketArr: data.marketArr?.map((m) => ({
+              ...m,
+              runners: m.runners?.map((r) => ({ ...r, status: "SUSPEND" })),
+            })),
+          };
+        }
         const payload = {
           eventId,
           freshnessMs: live.freshnessMs,
           stale: live.freshnessMs > 5000,
-          data: live.data,
+          data,
         };
         const text = JSON.stringify(payload);
         sportsSnapshot.set(snapshotKey, { at: Date.now(), text });
