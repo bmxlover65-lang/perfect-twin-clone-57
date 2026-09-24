@@ -108,16 +108,55 @@ function Cell({
   );
 }
 
-function InfoIcon({ light = false }: { light?: boolean }) {
+function InfoIcon({ light = false, text }: { light?: boolean; text?: string }) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const close = () => setOpen(false);
+    const t = setTimeout(() => document.addEventListener("click", close, { once: true }), 0);
+    return () => {
+      clearTimeout(t);
+      document.removeEventListener("click", close);
+    };
+  }, [open]);
   return (
-    <span
-      className={`flex h-[15px] w-[15px] shrink-0 items-center justify-center rounded-full border text-[0.6rem] font-bold leading-none ${
-        light ? "border-dx-page text-dx-page" : "border-dx-ink text-dx-ink"
-      }`}
-    >
-      i
+    <span className="relative inline-flex shrink-0" data-nobet="">
+      <button
+        type="button"
+        aria-label="Market info"
+        aria-expanded={open}
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((v) => !v);
+        }}
+        className={`flex h-[15px] w-[15px] items-center justify-center rounded-full border text-[0.6rem] font-bold leading-none ${
+          light ? "border-dx-page text-dx-page" : "border-dx-ink text-dx-ink"
+        }`}
+      >
+        i
+      </button>
+      {open ? (
+        <span
+          role="tooltip"
+          className="absolute left-0 top-[19px] z-30 w-[190px] rounded-md border border-dx-rule bg-dx-page p-2 text-left text-[0.66rem] font-semibold leading-snug text-dx-ink shadow-lg"
+        >
+          {text ?? "Bets are matched at the shown rate. Suspended markets do not accept bets."}
+        </span>
+      ) : null}
     </span>
   );
+}
+
+function marketInfo(market: Market): string {
+  const m = market as Market & { min?: number; max?: number };
+  const delay = market.oddsData?.betDelay;
+  return [
+    m.min || m.max ? `Min ${m.min ?? 0} · Max ${m.max ?? 0}` : null,
+    delay ? `Bet delay ${delay}s` : null,
+    "Suspended markets do not accept bets. Settled on the official result.",
+  ]
+    .filter(Boolean)
+    .join(" · ");
 }
 
 function Suspended({ label }: { label: string }) {
@@ -275,7 +314,7 @@ function FancyRow({ market }: { market: Market }) {
     >
       <span className="flex min-w-0 items-center gap-1 px-1.5 text-[0.72rem] font-bold leading-tight text-dx-ink">
         <span className="min-w-0 flex-1">{market.marketName.trim()}</span>
-        <InfoIcon />
+        <InfoIcon text={marketInfo(market)} />
       </span>
       <Cell label={`${market.marketName.trim()} No`} betOdds={no?.size ? 1 + no.size / 100 : undefined} price={no?.price} size={no?.size} side="lay" dim={dim} />
       <Cell label={`${market.marketName.trim()} Yes`} betOdds={yes?.size ? 1 + yes.size / 100 : undefined} price={yes?.price} size={yes?.size} side="back" dim={dim} />
@@ -345,7 +384,7 @@ function FancySection({ markets, sportsbook }: { markets: Market[]; sportsbook: 
             onClick={() => setHead("fancy")}
             className="flex items-center gap-1.5 rounded-tr-[10px] bg-dx-fancy px-2"
           >
-            Fancy Bet <InfoIcon light />
+            Fancy Bet <InfoIcon light text="Fancy / session bets: No = runs below the line, Yes = at or above. Settled on the official score." />
           </button>
         ) : null}
         {sportsbook.length ? (
@@ -354,7 +393,7 @@ function FancySection({ markets, sportsbook }: { markets: Market[]; sportsbook: 
             onClick={() => setHead("sb")}
             className="flex items-center gap-1.5 rounded-tr-[10px] bg-dx-sb px-2"
           >
-            Sportsbook <InfoIcon light />
+            Sportsbook <InfoIcon light text="Sportsbook markets pay the decimal rate shown. Settled on the official result." />
           </button>
         ) : null}
       </div>
