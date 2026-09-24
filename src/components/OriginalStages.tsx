@@ -5,6 +5,7 @@ import { SuccessToast } from "@/components/betting";
 import { cancelBet, cashOut, placeBet } from "@/lib/wallet";
 import { playerSession } from "@/lib/player";
 import luckyBg from "@/assets/lucky-bg.gif.asset.json";
+import luckyTrophy from "@/assets/luckyresult.gif.asset.json";
 import dreamBg from "@/assets/dream/dreambg.png.asset.json";
 import dreamHub from "@/assets/dream/wheelhub3.png.asset.json";
 import balloonImg from "@/assets/balloon/balloon.png.asset.json";
@@ -153,9 +154,11 @@ export function LuckyWheel({
           <RoundTimer leftSec={leftSec} suspended={suspended} className="absolute right-2 top-2" />
 
           {showWin && winner ? (
-            <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-[#F2C500] px-4 py-1 text-[0.8rem] font-extrabold uppercase text-black">
-              {winner} wins
-            </span>
+            <img
+              src={luckyTrophy.url}
+              alt=""
+              className="pointer-events-none absolute left-1/2 top-[6px] h-[92px] w-[92px] -translate-x-1/2 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
+            />
           ) : null}
         </div>
       </div>
