@@ -3475,7 +3475,7 @@ function GamePage() {
       for (let i = 0; i < h.count; i += 1) hand[String(i)] = "0";
       return { title: h.title, hand };
     });
-  }, [cards, d?.eventName]);
+  }, [cards, d?.eventName, resultIsThisRound, gameId]);
 
 
 
