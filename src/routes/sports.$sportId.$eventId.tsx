@@ -103,7 +103,9 @@ function Cell({
       } ${flash} text-dx-ink`}
     >
       <span className="text-[0.8rem] font-bold leading-tight">{price ? fmtOdds(price) : "0"}</span>
-      <span className="text-[0.66rem] leading-tight">{price ? fmtSize(size) || "0.00" : "0.00"}</span>
+      <span className="text-[0.66rem] leading-tight">
+        {!price ? "0.00" : betOdds !== undefined ? fmtSize(size) || "0.00" : dxSize(size)}
+      </span>
     </div>
   );
 }
@@ -206,6 +208,14 @@ function MarketTitle({ name, matched }: { name: string; matched?: number | undef
       </span>
     </header>
   );
+}
+
+/** Dukex prints cell volumes with two decimals: 474.92, 8.43K, 5.00M. */
+function dxSize(v?: number): string {
+  const n = Number(v) || 0;
+  if (n >= 1e6) return `${(n / 1e6).toFixed(2)}M`;
+  if (n >= 1e3) return `${(n / 1e3).toFixed(2)}K`;
+  return n.toFixed(2);
 }
 
 /** Dukex prints matched volume short (€2M, €15M). */
