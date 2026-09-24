@@ -3120,12 +3120,33 @@ function GamePage() {
   }, [gameId]);
 
   const inFlight = useRef(false);
+  const roundClock = useRef<{ round: string; feed: number; endAt: number } | null>(null);
 
   const load = useCallback(async () => {
     if (feedDead.current || inFlight.current) return;
     inFlight.current = true;
     try {
       const s = await fetchCasinoState(gameId);
+      // Some tables (Dragon Tiger) repeat the same leftSec for the whole round
+      // instead of counting down. Anchor a local end time per round and count
+      // down from it whenever the feed value hasn't moved.
+      if (s?.data && s.data.roundId && typeof s.data.leftSec === "number") {
+        const now = Date.now();
+        const round = String(s.data.roundId);
+        const feed = s.data.leftSec;
+        const c = roundClock.current;
+        if (!c || c.round !== round || c.feed !== feed) {
+          let endAt = now + feed * 1000;
+          const started = s.data.updatedAt ? Date.parse(s.data.updatedAt) : NaN;
+          if (c?.round === round && c.feed !== feed) endAt = now + feed * 1000;
+          else if (Number.isFinite(started)) {
+            const guess = started + feed * 1000;
+            if (guess <= now + feed * 1000 + 2000 && guess >= now - 1000) endAt = guess;
+          }
+          roundClock.current = { round, feed, endAt };
+        }
+        s.data.leftSec = Math.max(0, Math.round((roundClock.current!.endAt - now) / 1000));
+      }
       setState((previous) => stabilizeCasinoState(previous, s));
       try {
         if (s?.data) sessionStorage.setItem(cacheKey, JSON.stringify(s));
@@ -3823,13 +3844,19 @@ function GamePage() {
               const shown = String(applyOverride(cfg, admin, gameId, direct) ?? direct);
               return { ...(liveResult ?? {}), round: roundKey, winner: shown } as FeedResult;
             }
-            if (liveResult && String(liveResult.round) === roundKey) return liveResult;
-            const h = results[0];
-            if (h && String(h.roundId ?? "") === roundKey) {
+            // Cards on the table decide the round the instant the last one
+            // lands — same moment Dukex shows its pop-up.
+            const fromCards = roundKey ? cardWinner(gameId, (d as { cardsArr?: unknown } | null)?.cardsArr) : "";
+            if (fromCards) {
+              return { ...(liveResult ?? {}), round: roundKey, winner: String(applyOverride(cfg, admin, gameId, fromCards) ?? fromCards) } as FeedResult;
+            }
+            const h = results.find((r) => String(r.roundId ?? "") === roundKey);
+            if (h) {
               const w = deriveWinner(h as AnyResult);
               if (w) return { ...(liveResult ?? {}), round: roundKey, winner: String(applyOverride(cfg, admin, gameId, w) ?? w) } as FeedResult;
             }
-            return liveResult;
+            if (liveResult && String(liveResult.round) === roundKey && liveResult.winner?.trim()) return liveResult;
+            return null;
           })()}
           round={roundKey}
           gameId={gameId}
@@ -3916,6 +3943,35 @@ function GamePage() {
 
 
 /** "RESULT DECLARED" overlay — shows the winning selection right after a round settles. */
+/**
+ * Winner read straight off the dealt cards, for tables where one or two cards
+ * decide the round. The result history can lag the table by 10s+, while
+ * Dukex shows the pop-up the moment the last card lands.
+ */
+function cardRank(code: unknown): number {
+  const c = String(code ?? "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+  if (c.length < 2 || c === "0") return 0;
+  const r = c.slice(1);
+  const map: Record<string, number> = { A: 1, T: 10, J: 11, Q: 12, K: 13 };
+  return map[r] ?? (Number(r) || 0);
+}
+function cardWinner(gameId: string, cards: unknown): string {
+  const c = (cards ?? {}) as Record<string, { card_1?: string } | string>;
+  if (gameId === "99.0030") {
+    const r = cardRank((c as { card?: string }).card);
+    if (!r) return "";
+    return r === 7 ? "TIE" : r < 7 ? "LOW CARD" : "HIGH CARD";
+  }
+  if (["99.0018", "99.0019", "99.0021"].includes(gameId)) {
+    const d = cardRank((c["DRAGON"] as { card_1?: string } | undefined)?.card_1);
+    const t = cardRank((c["TIGER"] as { card_1?: string } | undefined)?.card_1);
+    if (!d || !t) return "";
+    if (d === t) return gameId === "99.0021" ? "" : "TIE";
+    return d > t ? "DRAGON" : "TIGER";
+  }
+  return "";
+}
+
 function lucky7Label(winner: string): string | null {
   const w = winner.trim().toUpperCase();
   if (/^(H|HIGH)\b|HIGH\s*CARD|8\s*TO\s*K/.test(w)) return "HIGH CARD (8 to K) WIN";
