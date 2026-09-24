@@ -865,7 +865,7 @@ function EventPage() {
         Date.now() - closedSince.current > 20_000 &&
         !readWallet().bets.some((b) => b.status === "open" && b.gameId === `sports-${eventId}`)
       ) {
-        window.location.replace(`/sports?sport=${sportId}`);
+        window.location.replace("/sports");
       }
     } else {
       closedSince.current = 0;
