@@ -2965,12 +2965,12 @@ function DragonTigerPanel({
           <MaroonBox
             r={red}
             price={red?.back}
-            label={<span className="text-[20px] tracking-[-4px] text-[#c0312f]">♦♥</span>}
+            label={<span className="text-[22px] tracking-[-2px] text-[#c0312f] opacity-100">♦♥</span>}
           />
           <MaroonBox
             r={black}
             price={black?.back}
-            label={<span className="text-[20px] tracking-[-4px] text-black">♣♠</span>}
+            label={<span className="text-[22px] tracking-[-2px] text-black">♣♠</span>}
           />
           <p className="col-span-2 pt-[8px] text-right text-[11px] text-[#44525c]">
             Min:{Math.max(100, colMkt?.min ?? 0)} Max:{colMkt?.max ?? 100000}
