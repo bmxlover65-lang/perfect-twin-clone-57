@@ -43,6 +43,13 @@
       "when": 1788806731940,
       "tag": "0005_operator_bet_passthrough",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790255737578,
+      "tag": "0006_sports_watch",
+      "breakpoints": true
     }
   ]
 }
