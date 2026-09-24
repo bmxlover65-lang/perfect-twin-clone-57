@@ -107,10 +107,10 @@ export async function oriOdds(sportId: string, exEventId: string): Promise<OriOd
   if (liveFrame) {
     const f = liveFrame as Record<string, RawMarket[] | boolean | undefined>;
     raw = {
-      matchOddsData: f["betfair"] as RawMarket[] | undefined,
-      bookmakersData: f["bookmakers"] as RawMarket[] | undefined,
-      fancyData: f["fancy"] as RawMarket[] | undefined,
-      sportsbookData: (f["sportsbook"] ?? f["sportsBook"]) as RawMarket[] | undefined,
+      matchOddsData: f["betfair"] as RawMarket[],
+      bookmakersData: f["bookmakers"] as RawMarket[],
+      fancyData: f["fancy"] as RawMarket[],
+      sportsbookData: (f["sportsbook"] ?? f["sportsBook"]) as RawMarket[],
       isScore: Boolean(f["isScore"]),
     };
   } else {
