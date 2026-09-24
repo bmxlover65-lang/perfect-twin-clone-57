@@ -94,6 +94,7 @@ function SportsPage() {
   const [sports, setSports] = useState<Sport[]>(FALLBACK_SPORTS);
   const [sportId, setSportId] = useState("4");
   const [filter, setFilter] = useState<Filter>("inplay");
+  const [query, setQuery] = useState("");
   const [events, setEvents] = useState<UEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -276,7 +277,17 @@ function SportsPage() {
     () => sportEventsAll.filter((e) => !isLive(e) && dayOffset(e.eventTime) >= 1),
     [sportEventsAll, isLive],
   );
-  const list = filter === "inplay" ? inplay : filter === "today" ? today : tomorrow;
+  const tabList = filter === "inplay" ? inplay : filter === "today" ? today : tomorrow;
+  const q = query.trim().toLowerCase();
+  // Searching looks across every match of the sport (live, today, upcoming).
+  const list = q
+    ? sportEventsAll.filter((e) =>
+        [e.eventName, ...(e.runners ?? []).map((_, i) => runnerName(e, i))]
+          .join(" ")
+          .toLowerCase()
+          .includes(q),
+      )
+    : tabList;
 
   // If the selected tab has nothing, show the first tab that does.
   useEffect(() => {
@@ -373,6 +384,17 @@ function SportsPage() {
           </Button>
         ))}
       </div>
+
+      <input
+        type="search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search match or team…"
+        aria-label="Search matches"
+        className="mt-4 w-full rounded-full border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+      />
+
+
 
       {error ? (
         <p className="mt-5 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-destructive">
