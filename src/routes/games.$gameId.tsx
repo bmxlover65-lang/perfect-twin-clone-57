@@ -3855,16 +3855,14 @@ function GamePage() {
             <div className="-mt-[2px] space-y-[3px]">
               {handLayout.map((h) => {
                 const n = h.title.match(/\d+/)?.[0] ?? "";
-                const code = Object.values(h.hand).find((c) => c && c !== "0");
                 return (
                   <div key={h.title}>
                     <p className="text-[9px] font-bold leading-[12px] text-[#ffc107]">Player {n}:{n}</p>
                     <div className="mt-[1px] flex gap-[2px]">
                       {(Object.values(h.hand).length ? Object.values(h.hand) : ["0"]).map((c, i) => (
-                        <img key={i} src={cardSrc(c && c !== "0" ? c : undefined)} alt="" className="h-[26px] w-[19px] rounded-[1px]" />
+                        <span key={i} className="block h-[26px] w-[19px] overflow-hidden [&_*]:!h-full [&_*]:!w-full"><CardFace code={c || "0"} /></span>
                       ))}
                     </div>
-                    {code ? null : null}
                   </div>
                 );
               })}
