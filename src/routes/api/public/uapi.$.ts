@@ -790,6 +790,14 @@ export const Route = createFileRoute("/api/public/uapi/$")({
       GET: async ({ request, params }) => {
         const splat = (params as { _splat?: string })._splat ?? "";
         const url = new URL(request.url);
+        // Any open casino table keeps polling state; use that heartbeat to pay
+        // out finished rounds right away (no refresh / cron wait needed).
+        if (/^games\/[^/]+\/state$/.test(splat) && Date.now() - lastCasinoSettle > 5000) {
+          lastCasinoSettle = Date.now();
+          void import("@/lib/casino-autosettle.server")
+            .then((m) => m.autoSettleCasino(url.origin))
+            .catch(() => undefined);
+        }
         // Same-origin relative URLs: the worker's internal request origin can be
         // localhost, which the browser cannot load from inside the iframe.
         if (isHotPath(splat)) return hotProxy(splat, url.search);
