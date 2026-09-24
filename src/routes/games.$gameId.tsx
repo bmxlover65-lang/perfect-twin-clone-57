@@ -3851,7 +3851,25 @@ function GamePage() {
           <p className={`${["99.0001", "99.0013", "99.0016", "99.0018", "99.0019", "99.0022"].includes(gameId) ? "text-[0.68rem] font-extrabold" : "text-[0.6rem] font-bold sm:text-[0.72rem]"} uppercase text-white drop-shadow`}>
             RID: {d?.roundId ?? "—"}
           </p>
-          {handLayout.map((h) => (
+          {gameId === "99.0022" ? (
+            <div className="-mt-[2px] space-y-[3px]">
+              {handLayout.map((h) => {
+                const n = h.title.match(/\d+/)?.[0] ?? "";
+                const code = Object.values(h.hand).find((c) => c && c !== "0");
+                return (
+                  <div key={h.title}>
+                    <p className="text-[9px] font-bold leading-[12px] text-[#ffc107]">Player {n}:{n}</p>
+                    <div className="mt-[1px] flex gap-[2px]">
+                      {(Object.values(h.hand).length ? Object.values(h.hand) : ["0"]).map((c, i) => (
+                        <img key={i} src={cardSrc(c && c !== "0" ? c : undefined)} alt="" className="h-[26px] w-[19px] rounded-[1px]" />
+                      ))}
+                    </div>
+                    {code ? null : null}
+                  </div>
+                );
+              })}
+            </div>
+          ) : handLayout.map((h) => (
              gameId === "99.0001"
                ? <JokerCards key={h.title} title={h.title} hand={h.hand} sideThird />
                : gameId === "99.0013"
