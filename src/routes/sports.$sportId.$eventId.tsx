@@ -30,6 +30,8 @@ export const Route = createFileRoute("/sports/$sportId/$eventId")({
         },
         { property: "og:title", content: title },
         { property: "og:description", content: "Live exchange odds, TV and scoreboard." },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
       ],
     };
   },
@@ -278,6 +280,25 @@ type FancyFlags = {
   isSuperFancy?: boolean;
   isLineMarket?: boolean;
 };
+
+type MarketFlags = FancyFlags & {
+  popular?: boolean;
+  tableFlag?: string;
+};
+
+function isPopularMarket(market: Market): boolean {
+  return Boolean((market as MarketFlags).popular);
+}
+
+function marketGroupName(market: Market): string {
+  const flags = market as MarketFlags;
+  const name = market.marketName.trim();
+  const type = `${market.marketType ?? ""} ${flags.tableFlag ?? ""}`.toUpperCase();
+  if (/BOOKMAKER/.test(type) || /^BOOKMAKER$/i.test(name)) return "Bookmaker";
+  if (/MATCH_ODDS/.test(type) || /^MATCH ODDS$/i.test(name)) return "Match Odds";
+  if (/FANCY|LINE|KHADO|METER|BALL/.test(type) || fancyTab(market) !== "Fancy") return "Fancy";
+  return name;
+}
 
 /** Dukex groups session markets into tabs; derive each one's tab. */
 function fancyTab(m: Market): string {
@@ -571,17 +592,23 @@ function EventPage() {
   }, [data, eventId, matchOdds, overUnder, bookmakers, fancy, sportsbook]);
 
 
+  // Dukex keeps the media panel closed until the TV icon is pressed.
   const [showTv, setShowTv] = useState(false);
   const [view, setView] = useState("All");
 
   if (!data && !error) return <AppLoader />;
 
-  const named = [...matchOdds, ...bookmakers, ...overUnder].map((m) => m.marketName.trim());
-  const views = ["All", "Popular", ...Array.from(new Set(named))];
-  if (fancy.length) views.push("Fancy");
-  const pick = (m: Market, popular: boolean) =>
-    view === "All" || (view === "Popular" && popular) || view === m.marketName.trim();
-  const showFancy = view === "All" || view === "Fancy";
+  const allMarkets = [...matchOdds, ...bookmakers, ...overUnder, ...fancy, ...sportsbook];
+  const categoryNames = allMarkets.map(marketGroupName);
+  const views = ["All", "Popular", ...Array.from(new Set(categoryNames))];
+  const pick = (m: Market) =>
+    view === "All" ||
+    (view === "Popular" && isPopularMarket(m)) ||
+    view === marketGroupName(m) ||
+    view === m.marketName.trim();
+  const visibleFancy = fancy.filter(pick);
+  const visibleSportsbook = sportsbook.filter(pick);
+  const showFancy = visibleFancy.length > 0 || visibleSportsbook.length > 0;
   const hasPanels = !eventId.startsWith("sf:");
 
   return (
@@ -597,7 +624,8 @@ function EventPage() {
         {hasPanels ? (
           <button
             type="button"
-            aria-label="Live TV"
+            aria-label={showTv ? "Close live TV" : "Open live TV"}
+            aria-expanded={showTv}
             onClick={() => setShowTv((v) => !v)}
             className={`absolute right-3 ${showTv ? "text-dx-cash" : "text-ex-suspend"}`}
           >
@@ -622,18 +650,20 @@ function EventPage() {
         <p className="px-2 py-1 text-[0.7rem] text-ex-suspend">Feed reconnecting… showing last prices</p>
       ) : null}
 
-      {hasPanels ? (
-        <div className="grid gap-0 lg:grid-cols-2">
-          {showTv ? (
+      {hasPanels && showTv ? (
+        <div className="grid gap-0 lg:grid-cols-2" data-nobet="">
+          <div className="overflow-hidden bg-dx-ink">
             <LiveTv sportId={sportId} eventId={eventId} className="overflow-hidden bg-dx-ink" />
-          ) : null}
+          </div>
           {data?.inPlay && (sportId === "4" || sportId === "1") ? (
             <div className="overflow-hidden bg-dx-ink">
               <Scoreboard sportId={sportId} eventId={eventId} />
             </div>
-          ) : data?.inPlay ? null : (
+          ) : null}
+        </div>
+      ) : hasPanels && !data?.inPlay ? (
+        <div data-nobet="">
             <PreMatch openDate={(data as unknown as { openDate?: string } | null)?.openDate} />
-          )}
         </div>
       ) : null}
 
@@ -659,12 +689,12 @@ function EventPage() {
         exposureLayout="sports"
       >
         <div>
-          {matchOdds.filter((m) => pick(m, true)).map((m) => <Board key={m.marketId} market={m} />)}
-          {bookmakers.filter((m) => pick(m, true)).map((m) => <Board key={m.marketId} market={m} book />)}
-          {showFancy && (fancy.length || sportsbook.length) ? (
-            <FancySection markets={fancy} sportsbook={sportsbook} />
+          {matchOdds.filter(pick).map((m) => <Board key={m.marketId} market={m} />)}
+          {bookmakers.filter(pick).map((m) => <Board key={m.marketId} market={m} book />)}
+          {showFancy ? (
+            <FancySection markets={visibleFancy} sportsbook={visibleSportsbook} />
           ) : null}
-          {overUnder.filter((m) => pick(m, false)).map((m) => <Board key={m.marketId} market={m} />)}
+          {overUnder.filter(pick).map((m) => <Board key={m.marketId} market={m} />)}
           {data && !matchOdds.length && !bookmakers.length && !fancy.length && !sportsbook.length ? (
             <p className="px-2 py-6 text-center text-[0.8rem] text-ex-muted">No open markets right now.</p>
           ) : null}
