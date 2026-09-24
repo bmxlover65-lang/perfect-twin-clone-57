@@ -368,6 +368,36 @@ export function settleFromRunners(
   pushSettle(settled);
 }
 
+/**
+ * Settle fancy (Yes/No line) bets once the real score gives a final number.
+ * `resolve(market)` returns the result, or null while still undecided.
+ */
+export function settleFancyLines(gameId: string, resolve: (market: string) => number | null) {
+  const w = readWallet();
+  let credited = 0;
+  let touched = false;
+  const settled: { ref: string; outcome: "won" | "lost" | "void"; multiplier?: number }[] = [];
+  const bets = w.bets.map((b) => {
+    if (b.status !== "open" || b.gameId !== gameId) return b;
+    const m = b.label.match(/^(.*)\s@([\d.]+)\s(Yes|No)$/i);
+    if (!m) return b;
+    const result = resolve(m[1]!.trim());
+    if (result === null) return b;
+    touched = true;
+    const line = Number(m[2]);
+    const won = m[3]!.toLowerCase() === "yes" ? result >= line : result < line;
+    const payout = won ? Math.round(b.stake * b.odds) : 0;
+    credited += payout;
+    settled.push({ ref: b.id, outcome: won ? "won" : "lost", multiplier: b.odds });
+    return { ...b, status: won ? ("won" as const) : ("lost" as const), payout };
+  });
+  if (!touched) return;
+  const session = playerSession();
+  write({ balance: session ? w.balance : w.balance + credited, bets });
+  celebrateIfWon(credited);
+  pushSettle(settled);
+}
+
 
 /**
  * Refund (void) open bets that the upstream feed can no longer resolve —

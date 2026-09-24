@@ -12,3 +12,4 @@
 - [ ] Zimbabwe W v West Indies W: settlement check after match ends (match still live)
 - [ ] Horse/Greyhound: Dukex side-by-side pending (Dukex race page didn't open in automation)
 - [x] Admin + Operator: sports result declare (Back/Lay aware), sports report, admin "Sports results" tab
+- [x] Fancy auto-settle from live cricket score (over runs, only-over, fall of wicket, player runs)

@@ -15,7 +15,8 @@ import { createFeedState, mergeFeed } from "@/lib/feed-merge";
 import { Scoreboard } from "@/components/Scoreboard";
 import { LiveTv } from "@/components/LiveTv";
 import { AppLoader } from "@/components/AppLoader";
-import { settleFromRunners, voidOpen, voidOpenWhere } from "@/lib/wallet";
+import { settleFancyLines, settleFromRunners, voidOpen, voidOpenWhere } from "@/lib/wallet";
+import { fancyResult, pullScore, readTrack } from "@/lib/fancy-settle";
 import soccerBanner from "@/assets/sports/soccer-banner.jpg.asset.json";
 import tennisBanner from "@/assets/sports/tennis-banner.jpg.asset.json";
 import cricketBanner from "@/assets/sports/cricket-banner.jpg.asset.json";
@@ -426,8 +427,8 @@ function FancyRow({ market }: { market: Market }) {
         <span className="min-w-0 flex-1">{market.marketName.trim()}</span>
         <InfoIcon text={marketInfo(market)} />
       </span>
-      <Cell label={`${market.marketName.trim()} No`} betOdds={no?.size ? 1 + no.size / 100 : undefined} price={no?.price} size={no?.size} side="lay" dim={dim} />
-      <Cell label={`${market.marketName.trim()} Yes`} betOdds={yes?.size ? 1 + yes.size / 100 : undefined} price={yes?.price} size={yes?.size} side="back" dim={dim} />
+      <Cell label={`${market.marketName.trim()} @${no?.price ?? 0} No`} betOdds={no?.size ? 1 + no.size / 100 : undefined} price={no?.price} size={no?.size} side="lay" dim={dim} />
+      <Cell label={`${market.marketName.trim()} @${yes?.price ?? 0} Yes`} betOdds={yes?.size ? 1 + yes.size / 100 : undefined} price={yes?.price} size={yes?.size} side="back" dim={dim} />
       {dim ? (
         <div data-suspended="true" className="absolute inset-y-0 right-0 z-10 flex w-[158px] items-center justify-center border border-ex-suspend bg-dx-page/75">
           <span className="text-[0.85rem] font-bold uppercase text-ex-suspend">{label}</span>
@@ -815,8 +816,13 @@ function EventPage() {
       const name = (m.marketName ?? "").trim();
       if (name) marketSeen.current.set(name.toUpperCase(), now);
     }
+    // Settle any fancy line the real score has already decided first.
+    if (sportId === "4") {
+      const track = readTrack(eventId);
+      settleFancyLines(`sports-${eventId}`, (mk) => fancyResult(track, mk));
+    }
     for (const [name, at] of marketSeen.current) {
-      if (now - at < 45_000) continue;
+      if (now - at < 120_000) continue;
       marketSeen.current.delete(name);
       voidOpenWhere(`sports-${eventId}`, (label) => label.toUpperCase().startsWith(name));
     }
@@ -830,8 +836,26 @@ function EventPage() {
     } else {
       closedSince.current = 0;
     }
-  }, [data, eventId, allMatchOdds, bookmakers, rawFancy, allSportsbook, matchOdds, overUnder, fancy, sportsbook]);
+  }, [data, eventId, sportId, allMatchOdds, bookmakers, rawFancy, allSportsbook, matchOdds, overUnder, fancy, sportsbook]);
 
+
+  // Real fancy results: follow the live cricket score ball by ball and settle
+  // each Yes/No line the moment its final number is known.
+  useEffect(() => {
+    if (sportId !== "4") return;
+    let alive = true;
+    const tick = async () => {
+      const track = await pullScore(eventId);
+      if (!alive || !track) return;
+      settleFancyLines(`sports-${eventId}`, (mk) => fancyResult(track, mk));
+    };
+    void tick();
+    const t = window.setInterval(tick, 3000);
+    return () => {
+      alive = false;
+      window.clearInterval(t);
+    };
+  }, [sportId, eventId]);
 
   // Dukex keeps the media panel closed until the TV icon is pressed.
   const [showTv, setShowTv] = useState(false);
