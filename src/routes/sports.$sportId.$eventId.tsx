@@ -463,7 +463,9 @@ function EventBanner({
     return () => clearInterval(t);
   }, []);
   const at = openDate ? Date.parse(openDate) : NaN;
-  const left = Number.isFinite(at) ? Math.max(0, Math.floor((at - now) / 1000)) : 0;
+  // Before the start it counts down; once the match is on it keeps running
+  // (time since start), so the clock is never frozen at 00:00:00.
+  const left = Number.isFinite(at) ? Math.abs(Math.floor((at - now) / 1000)) : 0;
   const pad = (n: number) => String(n).padStart(2, "0");
   const banner = SPORT_BANNERS[sportId] ?? soccerBanner;
   const status = suspended ? "Suspended" : inPlay ? "Live now" : "Upcoming";
@@ -500,7 +502,7 @@ function EventBanner({
         <span className="shrink-0 text-right text-[0.68rem] font-semibold">
           <span className="block">Game time {gameTime}</span>
           <span className="block text-[0.95rem] font-bold text-dx-cash">
-            Count Down {pad(Math.floor(left / 3600))}:{pad(Math.floor((left % 3600) / 60))}:{pad(left % 60)}
+            Count Down {left >= 86400 ? `${Math.floor(left / 86400)}d ` : ""}{pad(Math.floor((left % 86400) / 3600))}:{pad(Math.floor((left % 3600) / 60))}:{pad(left % 60)}
           </span>
         </span>
       </div>
