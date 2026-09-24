@@ -3875,10 +3875,10 @@ function GamePage() {
         ) : null}
         <div
           ref={overlayRef}
-          className={`pointer-events-none absolute left-1 top-1 z-20 max-w-[calc(100%-0.5rem)] origin-top-left overflow-visible sm:left-3 sm:top-3 sm:max-w-[calc(100%-1.5rem)] ${["99.0001", "99.0013", "99.0016", "99.0019", "99.0022"].includes(gameId) ? "space-y-1.5" : "space-y-1"}`}
-          style={{ transform: ["99.0001", "99.0013", "99.0016", "99.0019", "99.0022"].includes(gameId) ? undefined : `scale(${overlayScale})` }}
+          className={`pointer-events-none absolute left-1 top-1 z-20 max-w-[calc(100%-0.5rem)] origin-top-left overflow-visible sm:left-3 sm:top-3 sm:max-w-[calc(100%-1.5rem)] ${["99.0001", "99.0013", "99.0016", "99.0018", "99.0019", "99.0022"].includes(gameId) ? "space-y-1.5" : "space-y-1"}`}
+          style={{ transform: ["99.0001", "99.0013", "99.0016", "99.0018", "99.0019", "99.0022"].includes(gameId) ? undefined : `scale(${overlayScale})` }}
         >
-          <p className={`${["99.0001", "99.0013", "99.0016", "99.0019", "99.0022"].includes(gameId) ? "text-[0.68rem] font-extrabold" : "text-[0.6rem] font-bold sm:text-[0.72rem]"} uppercase text-white drop-shadow`}>
+          <p className={`${["99.0001", "99.0013", "99.0016", "99.0018", "99.0019", "99.0022"].includes(gameId) ? "text-[0.68rem] font-extrabold" : "text-[0.6rem] font-bold sm:text-[0.72rem]"} uppercase text-white drop-shadow`}>
             RID: {d?.roundId ?? "—"}
           </p>
           {handLayout.map((h) => (
@@ -3888,7 +3888,7 @@ function GamePage() {
               ? <OneDayCards key={h.title} title={h.title} hand={h.hand} />
               : gameId === "99.0016"
                 ? <JokerCards key={h.title} title={h.title} hand={h.hand} />
-                : gameId === "99.0019"
+                : (gameId === "99.0019" || gameId === "99.0018")
                   ? <JokerCards key={h.title} title={h.title} hand={h.hand} />
               : <Cards key={h.title} title={h.title} hand={h.hand} />
           ))}
