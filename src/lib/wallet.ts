@@ -348,13 +348,18 @@ export function settleFromRunners(
   const settled: { ref: string; outcome: "won" | "lost" | "void"; multiplier?: number }[] = [];
   const bets = w.bets.map((b) => {
     if (b.status !== "open" || b.gameId !== gameId) return b;
-    const hit = results.find((r) => isWin(b.label, r.label));
+    // Sports cells tag the side ("Runner Back" / "Runner Lay", fancy "Yes" / "No").
+    // A Lay / No bet wins when the selection loses.
+    const lay = /\s(lay|no)$/i.test(b.label);
+    const base = b.label.replace(/\s(back|lay|yes|no)$/i, "");
+    const hit = results.find((r) => isWin(base, r.label));
     if (!hit) return b;
     touched = true;
-    const payout = hit.won ? Math.round(b.stake * b.odds) : 0;
+    const won = lay ? !hit.won : hit.won;
+    const payout = won ? Math.round(b.stake * b.odds) : 0;
     credited += payout;
-    settled.push({ ref: b.id, outcome: hit.won ? "won" : "lost", multiplier: b.odds });
-    return { ...b, status: hit.won ? ("won" as const) : ("lost" as const), payout };
+    settled.push({ ref: b.id, outcome: won ? "won" : "lost", multiplier: b.odds });
+    return { ...b, status: won ? ("won" as const) : ("lost" as const), payout };
   });
   if (!touched) return;
   const session = playerSession();

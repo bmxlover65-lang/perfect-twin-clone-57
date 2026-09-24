@@ -54,7 +54,9 @@ function Cell({
   side,
   dim,
   depth = 0,
+  label,
 }: {
+  label?: string;
   price?: number | undefined;
   size?: number | undefined;
   side: "back" | "lay";
@@ -76,6 +78,8 @@ function Cell({
   const tone = (side === "back" ? BACK_TONE : LAY_TONE)[depth] ?? BACK_TONE[0];
   return (
     <div
+      data-bet-label={label && price ? label : undefined}
+      data-bet-odds={label && price ? String(price) : undefined}
       className={`flex h-full min-h-[42px] cursor-pointer flex-col items-center justify-center border-l border-dx-page ${tone} ${
         dim ? "opacity-60" : ""
       } ${flash} text-dx-ink`}
@@ -220,13 +224,13 @@ function Board({
             </span>
             {backOrder.map((i) => {
               const p = r.price?.back?.[i];
-              return <Cell key={`b${i}`} price={p?.price} size={p?.size} side="back" dim={dim} depth={i} />;
+              return <Cell key={`b${i}`} label={`${runnerName(market, r.selectionId)} Back`} price={p?.price} size={p?.size} side="back" dim={dim} depth={i} />;
             })}
             {backOnly
               ? null
               : layOrder.map((i) => {
                   const p = r.price?.lay?.[i];
-                  return <Cell key={`l${i}`} price={p?.price} size={p?.size} side="lay" dim={dim} depth={i} />;
+                  return <Cell key={`l${i}`} label={`${runnerName(market, r.selectionId)} Lay`} price={p?.price} size={p?.size} side="lay" dim={dim} depth={i} />;
                 })}
           </div>
         ))}
@@ -253,8 +257,8 @@ function FancyRow({ market }: { market: Market }) {
         <span className="min-w-0 flex-1">{market.marketName.trim()}</span>
         <InfoIcon />
       </span>
-      <Cell price={no?.price} size={no?.size} side="lay" dim={dim} />
-      <Cell price={yes?.price} size={yes?.size} side="back" dim={dim} />
+      <Cell label={`${market.marketName.trim()} No`} price={no?.price} size={no?.size} side="lay" dim={dim} />
+      <Cell label={`${market.marketName.trim()} Yes`} price={yes?.price} size={yes?.size} side="back" dim={dim} />
       {dim ? (
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 flex w-[158px] items-center justify-center border border-ex-suspend bg-dx-page/75">
           <span className="text-[0.85rem] font-bold uppercase text-ex-suspend">{label}</span>
