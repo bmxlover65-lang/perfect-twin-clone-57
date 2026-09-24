@@ -81,7 +81,7 @@ export async function pullScore(eventId: string): Promise<ScoreTrack | null> {
   const rows = (await res.json()) as { document?: { fields?: Record<string, FsVal> } }[];
   const doc = rows.find((r) => r.document)?.document;
   if (!doc) return null;
-  const f = plain({ mapValue: { fields: doc.fields } }) as {
+  const f = plain({ mapValue: { fields: doc.fields ?? {} } }) as {
     slider?: { slider: number; score?: { teamInfo?: Record<string, string>; scoreItems?: { teamName: string; scoreData: { iconName: string; value: string }[] }[] } }[];
   };
   const score = f.slider?.find((s) => s.slider === 1)?.score;
@@ -100,9 +100,13 @@ export async function pullScore(eventId: string): Promise<ScoreTrack | null> {
     const maxBalls = ov.includes("/") ? Number(ov.split("/")[1]) * 6 : 0;
     const batting = get("bat-ball") === "bat";
     const abbr = info["team1Name"] === it.teamName ? info["team1Abbreviation"] ?? "" : info["team2Abbreviation"] ?? "";
+    const fresh = !track.teams[it.teamName];
+    // First sighting: take the current score as the baseline — wickets that
+    // fell before we started watching have no known fall score.
     const t: TeamTrack =
       track.teams[it.teamName] ??
-      { name: it.teamName, abbr, runs: 0, wkts: 0, balls: 0, maxBalls, batting, done: false, overs: {}, falls: {}, players: {} };
+      { name: it.teamName, abbr, runs, wkts, balls, maxBalls, batting, done: false, overs: {}, falls: {}, players: {} };
+    if (fresh && (wkts >= 10 || (maxBalls > 0 && balls >= maxBalls) || (!batting && balls > 0))) t.done = true;
 
     // Over boundary: exact end of an over -> total after that over.
     if (balls > 0 && balls % 6 === 0 && t.overs[String(balls / 6)] === undefined) t.overs[String(balls / 6)] = runs;
@@ -174,9 +178,10 @@ export function fancyResult(track: ScoreTrack, market: string): number | null {
   if (m) {
     const t = findTeam(track, m[2]!);
     if (!t) return null;
-    const v = t.falls[m[1]!];
+    const k = Number(m[1]);
+    const v = t.falls[String(k)];
     if (v !== undefined) return v;
-    return t.done ? t.runs : null;
+    return t.done && k > t.wkts ? t.runs : null;
   }
   m = name.match(/^(.+?)\s+Runs(?:\s+Open\s+Valid)?$/i);
   if (m) {
