@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 
 import {
   fetchOdds,
@@ -587,7 +587,7 @@ function EventBanner({
           <span className="block text-[0.95rem] font-bold text-dx-cash">
             {started
               ? "Bet Started"
-              : `Count Down ${left >= 86400 ? `${Math.floor(left / 86400)}d ` : ""}${pad(Math.floor((left % 86400) / 3600))}:${pad(Math.floor((left % 3600) / 60))}:${pad(left % 60)}`}
+              : `${sportId === "7" || sportId === "4339" ? "Time Remaining" : "Count Down"} ${left >= 86400 ? `${Math.floor(left / 86400)}d ` : ""}${pad(Math.floor((left % 86400) / 3600))}:${pad(Math.floor((left % 3600) / 60))}:${pad(left % 60)}`}
           </span>
         </span>
       </div>
