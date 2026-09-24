@@ -438,18 +438,12 @@ function PokerPanel({
         data-bet-label={label}
         data-bet-odds={point?.price ?? ""}
         disabled={locked || !point?.price}
-        className={`relative h-[62px] w-[190px] max-w-[96%] overflow-hidden rounded-bl-[6px] rounded-br-[42px] rounded-tl-[42px] rounded-tr-[6px] bg-background shadow-[0_4px_6px_color-mix(in_oklab,var(--foreground)_22%,transparent)] ${
-          locked ? "opacity-70" : ""
-        }`}
+        className="relative h-[40px] w-[148px] max-w-[96%] overflow-hidden rounded-bl-[4px] rounded-br-[30px] rounded-tl-[30px] rounded-tr-[4px] bg-[#fff] shadow-[0_3px_4px_rgba(0,0,0,0.3)]"
       >
-        <span
-          className={`absolute inset-y-0 left-[14px] right-[14px] -skew-x-[28deg] ${
-            locked ? "bg-muted" : "bg-poker-gold"
-          }`}
-        />
-        <span className="relative flex h-full flex-col items-center justify-center text-poker-plate-text">
-          <span className="text-[1.3rem] font-extrabold leading-none">{fmtOdds(point?.price)}</span>
-          <span className="mt-[3px] text-[0.72rem] font-medium leading-none opacity-70">
+        <span className="absolute inset-y-0 left-[14px] right-[14px] -skew-x-[30deg] bg-[#5c4d3c]" />
+        <span className="relative flex h-full flex-col items-center justify-center text-[#2c3e50]">
+          <span className="text-[15px] font-bold leading-none">{fmtOdds(point?.price)}</span>
+          <span className="mt-[1px] text-[10px] leading-none">
             {point?.size == null ? "" : String(Math.round(point.size))}
           </span>
         </span>
@@ -459,10 +453,10 @@ function PokerPanel({
 
 
   return (
-    <div className="bg-poker-panel px-2 pb-2 pt-2">
-      <div className="mb-3 grid h-[56px] grid-cols-2 gap-5 px-1">
-        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold text-[1.1rem] font-extrabold uppercase text-poker-plate-text">PLAYER A</div>
-        <div className="flex items-center justify-center rounded-[10px] bg-poker-gold text-[1.1rem] font-extrabold uppercase text-poker-plate-text">PLAYER B</div>
+    <div className="bg-[#ebebeb] pt-[10px]" style={{ fontFamily: "Tahoma, Arial, sans-serif" }}>
+      <div className="mb-[9px] flex justify-between px-[14px]">
+        <div className="flex h-[42px] w-[147px] items-center justify-center rounded-[7px] bg-[#5c4d3c] text-[14px] font-bold uppercase text-[#2c3e50] shadow-[0_2px_3px_rgba(0,0,0,0.25)]">PLAYER A</div>
+        <div className="flex h-[42px] w-[147px] items-center justify-center rounded-[7px] bg-[#5c4d3c] text-[14px] font-bold uppercase text-[#2c3e50] shadow-[0_2px_3px_rgba(0,0,0,0.25)]">PLAYER B</div>
       </div>
       {[...markets].sort((x, y) => { const o = ["WINNER", "ONE PAIR", "TWO PAIR", "THREE OF A KIND", "STRAIGHT", "STRAIGHT FLUSH", "FLUSH", "FULL HOUSE", "FOUR OF A KIND"]; const xi = o.indexOf((x.marketName ?? "").trim().toUpperCase()); const yi = o.indexOf((y.marketName ?? "").trim().toUpperCase()); return (xi < 0 ? 99 : xi) - (yi < 0 ? 99 : yi); }).map((m) => {
           const names = m.runnersName ?? {};
@@ -473,16 +467,12 @@ function PokerPanel({
             suspended ||
             runners.every((r) => !isOpenStatus(r.status));
           return (
-            <section key={m.marketId} className={`relative mb-2 overflow-hidden rounded-bl-[6px] rounded-br-[52px] rounded-tl-[52px] rounded-tr-[6px] bg-background pb-3 shadow-[0_2px_6px_color-mix(in_oklab,var(--foreground)_22%,transparent)] ${isSusp ? "border-2 border-casino-suspend-text" : "border border-border"}`}>
-              <header className="mx-2 mt-2 flex h-[34px] items-center justify-center rounded-bl-[4px] rounded-br-[30px] rounded-tl-[30px] rounded-tr-[4px] border border-border bg-background px-2 shadow-[0_2px_4px_color-mix(in_oklab,var(--foreground)_16%,transparent)]">
-                <h3 className={`truncate text-[0.92rem] font-extrabold uppercase ${isSusp ? "text-foreground/45" : "text-foreground"}`}>
-                  {m.marketName}
-                </h3>
-                <span className="absolute right-5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-foreground/50 text-[0.62rem] font-bold text-foreground/60">
-                  i
-                </span>
+            <section key={m.marketId} className="relative mb-[2px] h-[106px] overflow-hidden rounded-t-[8px] bg-[#fff] pt-[6px]">
+              <header className="mx-[11px] flex h-[26px] items-center justify-center rounded-bl-[4px] rounded-br-[22px] rounded-tl-[22px] rounded-tr-[4px] bg-[#fff] shadow-[0_3px_3px_rgba(0,0,0,0.3)]">
+                <h3 className="truncate text-[12px] font-bold uppercase text-[#000]">{m.marketName}</h3>
+                <span className="ml-[10px] flex h-[11px] w-[11px] shrink-0 items-center justify-center rounded-full border border-[#555] text-[8px] leading-none text-[#555]">i</span>
               </header>
-              <div className="relative grid h-[78px] grid-cols-2 items-center pt-1">
+              <div className="relative mt-[12px] grid grid-cols-2 items-center px-[10px]">
                 {[a, b].map((r, index) => (
                   <div key={r ? String(r.selectionId) : index} className="min-w-0 text-center">
                     <Plate
@@ -492,11 +482,6 @@ function PokerPanel({
                     />
                   </div>
                 ))}
-                {isSusp ? (
-                  <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-[1.7rem] font-bold text-casino-suspend-text">
-                    SUSPENDED
-                  </span>
-                ) : null}
               </div>
             </section>
           );
