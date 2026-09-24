@@ -27,6 +27,8 @@ let pumping: Promise<void> | null = null;
 
 const subscribed = new Set<string>();
 const states = new Map<string, Frame>();
+const sportsFrames = new Map<string, { at: number; data: Record<string, unknown> }>();
+const sportsSubs = new Map<string, string>();
 const results = new Map<string, { at: number; data: unknown[] }>();
 
 async function call(path: string, init?: RequestInit): Promise<Response> {
@@ -65,6 +67,7 @@ async function handshake(): Promise<string | null> {
     await call(`/socket.io/?EIO=4&transport=polling&sid=${id}`).catch(() => null);
     subscribed.clear();
     warmed = "";
+    for (const [ev, sp] of sportsSubs) void post(id, sportsSub(sp, ev));
     sid = id;
     sidAt = Date.now();
     return id;
@@ -95,6 +98,12 @@ function ingest(text: string) {
     }
     if (!Array.isArray(parsed)) continue;
     const [name, payload] = parsed as [string, Record<string, unknown> | undefined];
+    if (name === "auraOddsUpdate") {
+      const a = payload?.["auraMarketOdds"] as Record<string, unknown> | undefined;
+      const id = a ? String(a["eventId"] ?? (a["betfair"] as { exEventId?: string }[] | undefined)?.[0]?.exEventId ?? "") : "";
+      if (a && id) sportsFrames.set(id, { at: Date.now(), data: a });
+      continue;
+    }
     const eventId = typeof payload?.["eventId"] === "string" ? (payload["eventId"] as string) : "";
     if (!eventId) continue;
     if (name === "game:state" && payload?.["data"]) {
@@ -220,4 +229,25 @@ export async function ucasResults(eventId: string): Promise<unknown[]> {
   if (!id) return results.get(eventId)?.data ?? [];
   await waitFor(() => results.has(eventId), 4000);
   return results.get(eventId)?.data ?? [];
+}
+
+function sportsSub(sportId: string, ev: string) {
+  return `42${JSON.stringify(["subscribeToAuraOdds", { eventId: sportId, matchId: ev, marketId: ev, inPlay: true }])}`;
+}
+
+/** Live sports odds frame (same stream the reference board uses). */
+export async function ucasSportsOdds(sportId: string, exEventId: string, waitMs = 1500) {
+  const id = await session();
+  if (!id) return null;
+  startLoop(id);
+  if (!sportsSubs.has(exEventId)) {
+    sportsSubs.set(exEventId, sportId);
+    await post(id, sportsSub(sportId, exEventId));
+  }
+  const fresh = () => {
+    const f = sportsFrames.get(exEventId);
+    return f && Date.now() - f.at < 15_000 ? f.data : null;
+  };
+  await waitFor(() => Boolean(fresh()), waitMs);
+  return fresh();
 }
