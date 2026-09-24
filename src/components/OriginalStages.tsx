@@ -104,6 +104,12 @@ export function LuckyWheel({
         alt=""
         className="h-[430px] w-full object-cover opacity-90"
       />
+      {roundId ? (
+        <span className="absolute left-[10px] top-[6px] z-10 font-['Tahoma',sans-serif] text-[11px] font-bold text-white">
+          RID: {roundId}
+        </span>
+      ) : null}
+
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="relative">
           <svg
