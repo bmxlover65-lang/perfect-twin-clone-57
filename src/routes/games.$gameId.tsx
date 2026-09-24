@@ -2931,7 +2931,7 @@ function DragonTigerPanel({
         >
           <span
             className={`text-[12px] font-bold uppercase text-white ${
-              r && !r.open ? "opacity-40" : ""
+              r && !r.open && typeof label === "string" ? "opacity-40" : ""
             }`}
           >
             {label}
@@ -2965,12 +2965,12 @@ function DragonTigerPanel({
           <MaroonBox
             r={red}
             price={red?.back}
-            label={<span className="text-[22px] tracking-[-2px] text-[#c0312f] opacity-100">♦♥</span>}
+            label={<span className="text-[22px] leading-none tracking-[7px] pl-[7px] text-[#a3242f]">♦♥</span>}
           />
           <MaroonBox
             r={black}
             price={black?.back}
-            label={<span className="text-[22px] tracking-[-2px] text-black">♣♠</span>}
+            label={<span className="text-[22px] leading-none tracking-[7px] pl-[7px] text-black">♣♠</span>}
           />
           <p className="col-span-2 pt-[8px] text-right text-[11px] text-[#44525c]">
             Min:{Math.max(100, colMkt?.min ?? 0)} Max:{colMkt?.max ?? 100000}
