@@ -3823,13 +3823,16 @@ function GamePage() {
               const shown = String(applyOverride(cfg, admin, gameId, direct) ?? direct);
               return { ...(liveResult ?? {}), round: roundKey, winner: shown } as FeedResult;
             }
-            if (liveResult && String(liveResult.round) === roundKey) return liveResult;
-            const h = results[0];
-            if (h && String(h.roundId ?? "") === roundKey) {
+            // The result history declares the winner the moment the last card
+            // lands (same instant Dukex shows it), so check it before anything
+            // that could still be empty for this round.
+            const h = results.find((r) => String(r.roundId ?? "") === roundKey);
+            if (h) {
               const w = deriveWinner(h as AnyResult);
               if (w) return { ...(liveResult ?? {}), round: roundKey, winner: String(applyOverride(cfg, admin, gameId, w) ?? w) } as FeedResult;
             }
-            return liveResult;
+            if (liveResult && String(liveResult.round) === roundKey && liveResult.winner?.trim()) return liveResult;
+            return null;
           })()}
           round={roundKey}
           gameId={gameId}
