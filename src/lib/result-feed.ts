@@ -124,23 +124,29 @@ export function useResultFeed({ gameId, round, open, liveWinner, results }: Opti
   const [current, setCurrent] = useState<FeedResult | null>(null);
 
   const declared = useRef(new Map<string, FeedResult>());
-  const settled = useRef(new Set<string>());
+  // A live-only settlement can resolve the main winner, but side markets need
+  // the authoritative runner list. Track the quality per round so history can
+  // still enrich a round after the fallback has run.
+  const settled = useRef(new Map<string, "flat" | "full">());
   const celebRound = useRef("");
   const booted = useRef(false);
 
   // A fresh table starts clean.
   useEffect(() => {
     declared.current = new Map();
-    settled.current = new Set();
+    settled.current = new Map();
     celebRound.current = "";
     booted.current = false;
     setCurrent(null);
   }, [gameId]);
 
   const settleNow = (rid: string, winner: string, row?: AnyResult) => {
-    if (settled.current.has(rid)) return;
-    settled.current.add(rid);
-    settleRound(gameId, rid, winner, runnersOf(row));
+    const runners = runnersOf(row);
+    const quality = runners.length ? "full" : "flat";
+    const previous = settled.current.get(rid);
+    if (previous === "full" || (previous === "flat" && quality === "flat")) return;
+    settleRound(gameId, rid, winner, runners);
+    settled.current.set(rid, quality);
   };
 
   const publish = (next: FeedResult) => {
@@ -177,7 +183,7 @@ export function useResultFeed({ gameId, round, open, liveWinner, results }: Opti
     // Bets that never got a result (feed gap, page closed) are refunded
     // after 15 minutes so stake is never stuck.
     if (results.length) voidOpen(gameId, 15 * 60_000);
-    results.slice(0, 6).forEach((r, idx) => {
+    results.forEach((r, idx) => {
       const row = r as AnyResult;
       const winner = deriveWinner(row, lucky7);
       const rid = String(row.roundId ?? "");
@@ -186,7 +192,7 @@ export function useResultFeed({ gameId, round, open, liveWinner, results }: Opti
         if (idx === 0 && winner) {
           const key = String(row._id ?? winner);
           if (!settled.current.has(key)) {
-            settled.current.add(key);
+            settled.current.set(key, "flat");
             settleLatest(gameId, key, winner);
           }
           if (booted.current) setCurrent({ round: key, winner, at: Date.now(), source: "history", row });
