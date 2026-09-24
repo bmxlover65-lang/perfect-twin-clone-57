@@ -834,7 +834,7 @@ export function BetLayer({
           const stakeOwn = mine.reduce((s, c) => s + c.amount, 0);
           const profitOwn = mine.reduce((s, c) => s + c.profit, 0);
           const net = profitOwn - (groupStakeOf(groupKey) - stakeOwn);
-          const value = exposureLayout === "market" ? Math.round(net) : net;
+          const value = exposureLayout === "market" ? Math.abs(Math.round(net)) : net;
           const pos = at(el);
 
 
@@ -849,7 +849,7 @@ export function BetLayer({
               }`}
               style={{ left: `${pos.x}px`, top: `${pos.y}px` }}
             >
-              {exposureLayout === "sports" ? null : `${net >= 0 ? "P" : "L"} : `}
+              {exposureLayout === "sports" ? null : exposureLayout === "market" ? `${net >= 0 ? "P" : "L"} ` : `${net >= 0 ? "P" : "L"} : `}
               <strong className={net >= 0 ? "text-live-win" : "text-live-lose"}>
                 {exposureLayout === "sports" ? "➜ " : null}
                 {value.toLocaleString("en-IN", {
