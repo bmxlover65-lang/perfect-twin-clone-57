@@ -215,8 +215,8 @@ function Board({
               book ? "bg-dx-book" : "bg-dx-page"
             } ${grid}`}
           >
-            <span className="flex min-w-0 items-start px-1.5 pt-[13px] text-[0.8rem] font-bold text-dx-ink">
-              <span className="truncate">{runnerName(market, r.selectionId)}</span>
+            <span className="flex min-w-0 items-start px-1.5 pt-[7px] text-[0.8rem] font-bold leading-[1.2] text-dx-ink">
+              <span className="line-clamp-2 break-words">{runnerName(market, r.selectionId)}</span>
             </span>
             {backOrder.map((i) => {
               const p = r.price?.back?.[i];
@@ -620,11 +620,11 @@ function EventPage() {
           {showTv ? (
             <LiveTv sportId={sportId} eventId={eventId} className="overflow-hidden bg-dx-ink" />
           ) : null}
-          {data?.inPlay ? (
+          {data?.inPlay && (sportId === "4" || sportId === "1") ? (
             <div className="overflow-hidden bg-dx-ink">
               <Scoreboard sportId={sportId} eventId={eventId} />
             </div>
-          ) : (
+          ) : data?.inPlay ? null : (
             <PreMatch openDate={(data as unknown as { openDate?: string } | null)?.openDate} />
           )}
         </div>
