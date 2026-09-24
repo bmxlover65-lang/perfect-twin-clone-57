@@ -2869,7 +2869,7 @@ function DragonTigerPanel({
     rounded: "l" | "r";
   }) => {
     const open = Boolean(r?.open);
-    const bg = side === "back" ? (open ? "rgb(167,216,253)" : "#d8e5ec") : open ? "rgb(249,201,212)" : "#eadde0";
+    const bg = side === "back" ? (open ? "rgb(167,216,253)" : "#5b7f99") : open ? "rgb(249,201,212)" : "#9a7880";
     const price = side === "back" ? r?.back : r?.lay;
     const bettable = open && side === "back" && Boolean(price);
     return (
@@ -2926,7 +2926,7 @@ function DragonTigerPanel({
           }`}
           style={{
             background: "linear-gradient(180deg,#8c2b3f 0%,#5f1526 100%)",
-            opacity: r && !r.open ? 0.75 : 1,
+            opacity: 1,
           }}
         >
           <span
@@ -3076,7 +3076,7 @@ function DragonTigerPanel({
           }`}
           style={{
             background: "linear-gradient(180deg,#8c2b3f 0%,#5f1526 100%)",
-            opacity: pair.open ? 1 : 0.8,
+            opacity: 1,
           }}
         >
           <span className={`text-[12px] font-bold uppercase text-white ${pair.open ? "" : "opacity-45"}`}>
