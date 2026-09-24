@@ -72,6 +72,7 @@ export type OddsResponse = {
   betDelay?: number;
   totalMatched?: number;
   updatedAt?: string;
+  openDate?: string;
   stale?: boolean;
   matchOdds?: Market[];
   bookmakers?: Market[];

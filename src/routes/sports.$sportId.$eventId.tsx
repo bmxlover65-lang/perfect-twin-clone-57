@@ -16,6 +16,11 @@ import { Scoreboard } from "@/components/Scoreboard";
 import { LiveTv } from "@/components/LiveTv";
 import { AppLoader } from "@/components/AppLoader";
 import { settleFromRunners, voidOpen, voidOpenWhere } from "@/lib/wallet";
+import soccerBanner from "@/assets/sports/soccer-banner.jpg.asset.json";
+import tennisBanner from "@/assets/sports/tennis-banner.jpg.asset.json";
+import cricketBanner from "@/assets/sports/cricket-banner.jpg.asset.json";
+import horseBanner from "@/assets/sports/horse-banner.jpg.asset.json";
+import greyhoundBanner from "@/assets/sports/greyhound-banner.jpg.asset.json";
 
 export const Route = createFileRoute("/sports/$sportId/$eventId")({
   head: ({ params }) => {
@@ -44,6 +49,14 @@ const SPORT_NAMES: Record<string, string> = {
   "4": "Cricket",
   "7": "Horse Racing",
   "4339": "Greyhound Racing",
+};
+
+const SPORT_BANNERS: Record<string, { url: string }> = {
+  "1": soccerBanner,
+  "2": tennisBanner,
+  "4": cricketBanner,
+  "7": horseBanner,
+  "4339": greyhoundBanner,
 };
 
 /* Dukex ladder tones: best price is the strongest colour. */
@@ -391,7 +404,17 @@ function isLineMarket(m: Market) {
   return /OVER|UNDER|TOTAL|HANDICAP|LINE/.test(name);
 }
 
-function PreMatch({ openDate }: { openDate?: string | undefined }) {
+function EventBanner({
+  sportId,
+  eventName,
+  openDate,
+  inPlay,
+}: {
+  sportId: string;
+  eventName: string;
+  openDate?: string | undefined;
+  inPlay?: boolean | undefined;
+}) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -400,17 +423,38 @@ function PreMatch({ openDate }: { openDate?: string | undefined }) {
   const at = openDate ? Date.parse(openDate) : NaN;
   const left = Number.isFinite(at) ? Math.max(0, Math.floor((at - now) / 1000)) : null;
   const pad = (n: number) => String(n).padStart(2, "0");
+  const banner = SPORT_BANNERS[sportId] ?? soccerBanner;
   return (
-    <div className="flex items-center justify-between bg-dx-bar px-3 py-3 text-dx-page">
-      <span className="text-[0.8rem] font-bold uppercase tracking-wide">Suspended</span>
-      <span className="text-right text-[0.72rem] font-semibold">
-        {Number.isFinite(at) ? `Game time ${new Date(at).toLocaleString()}` : "Starting soon"}
-        {left !== null ? (
-          <span className="block text-[0.95rem] font-bold text-dx-cash">
-            {pad(Math.floor(left / 3600))}:{pad(Math.floor((left % 3600) / 60))}:{pad(left % 60)}
+    <div className="relative h-[92px] overflow-hidden bg-dx-ink text-dx-page" data-nobet="">
+      <img
+        src={banner.url}
+        alt=""
+        aria-hidden="true"
+        width={1536}
+        height={512}
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 bg-dx-ink/55" />
+      <div className="relative grid h-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3">
+        <div className="min-w-0">
+          <span className="block text-[0.72rem] font-bold uppercase text-dx-cash">
+            {inPlay ? "Live now" : "Suspended"}
           </span>
-        ) : null}
-      </span>
+          <span className="line-clamp-2 text-[0.82rem] font-bold leading-tight">{eventName}</span>
+        </div>
+        <span className="shrink-0 text-right text-[0.68rem] font-semibold">
+          {inPlay
+            ? "In-Play"
+            : Number.isFinite(at)
+              ? `Game time ${new Date(at).toLocaleString()}`
+              : "Starting soon"}
+          {!inPlay && left !== null ? (
+            <span className="block text-[0.95rem] font-bold text-dx-cash">
+              Count Down {pad(Math.floor(left / 3600))}:{pad(Math.floor((left % 3600) / 60))}:{pad(left % 60)}
+            </span>
+          ) : null}
+        </span>
+      </div>
     </div>
   );
 }
@@ -534,9 +578,10 @@ function EventPage() {
   const matchOdds = allMatchOdds.filter((m) => !isLineMarket(m));
   const lines = allMatchOdds.filter(isLineMarket);
   const bookmakers = data?.bookmakers ?? [];
+  const rawFancy = data?.fancy ?? [];
   // Finished sessions (the over already bowled, market settled/void) are
   // removed from the board, exactly like the reference book does.
-  const fancy = (data?.fancy ?? []).filter((m) => {
+  const fancy = rawFancy.filter((m) => {
     const raw = String(m.oddsData?.status ?? "").toUpperCase();
     if (/CLOSE|SETTLE|RESULT|REMOVED/.test(raw)) return false;
     const extra = m as unknown as { isSettlement?: number; isVoid?: number; isClosed?: number };
@@ -556,7 +601,9 @@ function EventPage() {
   useEffect(() => {
     if (!data) return;
     const results: { label: string; won: boolean }[] = [];
-    for (const m of [...matchOdds, ...overUnder, ...bookmakers, ...fancy, ...sportsbook]) {
+    // Read result frames from the raw groups before closed markets are removed
+    // from the visible board, otherwise a one-frame WINNER can be missed.
+    for (const m of [...allMatchOdds, ...bookmakers, ...rawFancy, ...allSportsbook]) {
       const names = m.runnersData ?? {};
       for (const r of m.oddsData?.runners ?? []) {
         const st = String(r.status ?? "").toUpperCase();
@@ -572,7 +619,9 @@ function EventPage() {
     // leaving the stake stuck forever.
     const all = [...matchOdds, ...overUnder, ...bookmakers, ...fancy, ...sportsbook];
     const now = Date.now();
-    for (const m of all) {
+    // Only session/fancy markets disappear as part of normal play. Main odds,
+    // racing and tennis markets must never be refunded because of one slow frame.
+    for (const m of fancy) {
       const name = (m.marketName ?? "").trim();
       if (name) marketSeen.current.set(name.toUpperCase(), now);
     }
@@ -591,7 +640,7 @@ function EventPage() {
     } else {
       closedSince.current = 0;
     }
-  }, [data, eventId, matchOdds, overUnder, bookmakers, fancy, sportsbook]);
+  }, [data, eventId, allMatchOdds, bookmakers, rawFancy, allSportsbook, matchOdds, overUnder, fancy, sportsbook]);
 
 
   // Dukex keeps the media panel closed until the TV icon is pressed.
@@ -625,6 +674,9 @@ function EventPage() {
   const visibleSportsbook = sportsbook.filter(pick);
   const showFancy = visibleFancy.length > 0 || visibleSportsbook.length > 0;
   const hasPanels = !eventId.startsWith("sf:");
+  const hasTv = hasPanels && data?.tv !== false;
+  const hasScoreboard =
+    hasPanels && (data?.isScore === true || (data?.isScore !== false && ["1", "2", "4"].includes(sportId)));
 
   return (
     <div className="sports-theme mx-auto max-w-[1200px] bg-dx-page pb-6">
@@ -636,7 +688,7 @@ function EventPage() {
           {SPORT_NAMES[sportId] ?? `Sport ${sportId}`}
           {data?.eventName ? ` > ${data.eventName}` : ""}
         </span>
-        {hasPanels ? (
+        {hasTv ? (
           <button
             type="button"
             aria-label={showTv ? "Close live TV" : "Open live TV"}
@@ -665,20 +717,25 @@ function EventPage() {
         <p className="px-2 py-1 text-[0.7rem] text-ex-suspend">Feed reconnecting… showing last prices</p>
       ) : null}
 
-      {hasPanels && showTv ? (
+      {hasPanels && !showTv ? (
+        <EventBanner
+          sportId={sportId}
+          eventName={data?.eventName ?? SPORT_NAMES[sportId] ?? "Live event"}
+          openDate={data?.openDate}
+          inPlay={data?.inPlay}
+        />
+      ) : null}
+
+      {hasTv && showTv ? (
         <div className="grid gap-0 lg:grid-cols-2" data-nobet="">
           <div className="overflow-hidden bg-dx-ink">
             <LiveTv sportId={sportId} eventId={eventId} className="overflow-hidden bg-dx-ink" />
           </div>
-          {data?.inPlay && (sportId === "4" || sportId === "1") ? (
+          {data?.inPlay && hasScoreboard ? (
             <div className="overflow-hidden bg-dx-ink">
               <Scoreboard sportId={sportId} eventId={eventId} />
             </div>
           ) : null}
-        </div>
-      ) : hasPanels && !data?.inPlay ? (
-        <div data-nobet="">
-            <PreMatch openDate={(data as unknown as { openDate?: string } | null)?.openDate} />
         </div>
       ) : null}
 
@@ -710,7 +767,7 @@ function EventPage() {
             <FancySection markets={visibleFancy} sportsbook={visibleSportsbook} />
           ) : null}
           {overUnder.filter(pick).map((m) => <Board key={m.marketId} market={m} />)}
-          {data && !matchOdds.length && !bookmakers.length && !fancy.length && !sportsbook.length ? (
+          {data && !matchOdds.length && !bookmakers.length && !fancy.length && !sportsbook.length && !overUnder.length ? (
             <p className="px-2 py-6 text-center text-[0.8rem] text-ex-muted">No open markets right now.</p>
           ) : null}
           <p className="px-2 pt-1 text-right text-[0.6rem] text-ex-muted">
