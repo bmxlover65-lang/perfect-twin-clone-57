@@ -73,7 +73,11 @@ export function mergeFeed(state: FeedState, payload: OddsResponse): OddsResponse
         const prev = state.markets.get(key);
         const matched = matchedOf(market);
         const dim = isDead(market);
-        const older = prev && !dim && (stale ? matched <= prev.matched : matched < prev.matched);
+        // Thin Bookmaker/Fancy lines commonly keep totalMatched at zero. Their
+        // price/status frame is still live, so volume cannot be used to reject
+        // it as an older generation.
+        const comparableVolume = matched > 0 && (prev?.matched ?? 0) > 0;
+        const older = prev && !dim && comparableVolume && (stale ? matched <= prev.matched : matched < prev.matched);
         if (older) return;
         // Live frames carry prices only; keep race card details from the full frame.
         const extra = (prev?.market as { racingInfo?: unknown } | undefined)?.racingInfo;

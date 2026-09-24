@@ -384,7 +384,11 @@ function freshestMarkets(splat: string, text: string): string {
       const key = `${splat}|${id}`;
       const matched = Number(market?.oddsData?.totalMatched ?? 0);
       const prev = marketGenerations.get(key);
-      const older = prev && (olderGeneration ? matched <= prev.matched : matched < prev.matched);
+      // Fancy and thin Bookmaker markets often have no matched-volume counter.
+      // Their prices still move, so never freeze a zero-volume frame behind
+      // the generation guard.
+      const comparableVolume = matched > 0 && (prev?.matched ?? 0) > 0;
+      const older = prev && comparableVolume && (olderGeneration ? matched <= prev.matched : matched < prev.matched);
       // A suspension (ball running / market closed) must never be held back by
       // the generation filter — the reference board suspends instantly.
       if (older && !marketIsDead(market) && now - prev.at < 25_000) {

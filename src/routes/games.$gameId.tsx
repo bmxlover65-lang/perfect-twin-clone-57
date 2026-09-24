@@ -3161,6 +3161,12 @@ function GamePage() {
         feedDead.current = true;
         return;
       }
+      // A brief reconnect must not erase an already-rendered board or leak a
+      // browser timeout message above the live video. The next poll retries.
+      if (/reconnecting|abort|signal timed out|timeout/i.test(msg)) {
+        setError(null);
+        return;
+      }
       setError(msg);
     } finally {
       inFlight.current = false;
