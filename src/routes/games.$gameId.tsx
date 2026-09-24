@@ -3192,6 +3192,7 @@ function GamePage() {
 
 
   const roundKey = state?.data?.roundId ? String(state.data.roundId) : "";
+  const stateCardResult = cardWinner(gameId, state?.data?.cardsArr);
 
   // Single real-time result stream: live frame + result history merged, and it
   // owns settlement, the winner banner and the celebration lifecycle.
@@ -3199,9 +3200,9 @@ function GamePage() {
     gameId,
     round: roundKey,
     open: isOpenStatus(String(state?.data?.status ?? "")),
-    liveWinner: String(
-      (state?.data as unknown as { gameResult?: string | null } | undefined)?.gameResult ?? "",
-    ),
+    liveWinner:
+      String((state?.data as unknown as { gameResult?: string | null } | undefined)?.gameResult ?? "").trim() ||
+      stateCardResult,
     results,
   });
 
@@ -3998,6 +3999,42 @@ function cardRank(code: unknown): number {
   const map: Record<string, number> = { A: 1, T: 10, J: 11, Q: 12, K: 13 };
   return map[r] ?? (Number(r) || 0);
 }
+
+function teenPattiHand(codes: unknown[]): [number, ...number[]] | null {
+  const parsed = codes.map((code) => {
+    const clean = String(code ?? "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+    const rank = cardRank(code);
+    return { rank: rank === 1 ? 14 : rank, suit: clean.slice(0, 1) };
+  });
+  if (parsed.length !== 3 || parsed.some((card) => !card.rank || !card.suit)) return null;
+  const ranks = parsed.map((card) => card.rank).sort((a, b) => b - a);
+  const counts = new Map<number, number>();
+  ranks.forEach((rank) => counts.set(rank, (counts.get(rank) ?? 0) + 1));
+  const groups = [...counts.entries()].sort((a, b) => b[1] - a[1] || b[0] - a[0]);
+  const flush = parsed.every((card) => card.suit === parsed[0]?.suit);
+  const unique = [...new Set(ranks)];
+  const wheel = unique.length === 3 && unique[0] === 14 && unique[1] === 3 && unique[2] === 2;
+  const high = unique[0] ?? 0;
+  const low = unique[2] ?? 0;
+  const straight = unique.length === 3 && (high - low === 2 || wheel);
+  const straightHigh = wheel ? 3 : (unique[0] ?? 0);
+  if (groups[0]?.[1] === 3) return [6, groups[0][0]];
+  if (straight && flush) return [5, straightHigh];
+  if (straight) return [4, straightHigh];
+  if (flush) return [3, ...ranks];
+  if (groups[0]?.[1] === 2) return [2, groups[0][0], groups[1]?.[0] ?? 0];
+  return [1, ...ranks];
+}
+
+function compareHands(a: [number, ...number[]], b: [number, ...number[]]): number {
+  const length = Math.max(a.length, b.length);
+  for (let i = 0; i < length; i += 1) {
+    const difference = (a[i] ?? 0) - (b[i] ?? 0);
+    if (difference) return difference;
+  }
+  return 0;
+}
+
 function cardWinner(gameId: string, cards: unknown): string {
   const c = (cards ?? {}) as Record<string, { card_1?: string } | string>;
   if (gameId === "99.0030") {
@@ -4011,6 +4048,18 @@ function cardWinner(gameId: string, cards: unknown): string {
     if (!d || !t) return "";
     if (d === t) return gameId === "99.0021" ? "" : "TIE";
     return d > t ? "DRAGON" : "TIGER";
+  }
+  if (gameId === "99.0010") {
+    const hand = (key: string) => {
+      const raw = c[key];
+      if (!raw || typeof raw !== "object") return null;
+      return teenPattiHand(Object.values(raw));
+    };
+    const a = hand("PLAYER_A") ?? hand("PLAYER A");
+    const b = hand("PLAYER_B") ?? hand("PLAYER B");
+    if (!a || !b) return "";
+    const result = compareHands(a, b);
+    return result > 0 ? "PLAYER A" : result < 0 ? "PLAYER B" : "TIE";
   }
   return "";
 }
