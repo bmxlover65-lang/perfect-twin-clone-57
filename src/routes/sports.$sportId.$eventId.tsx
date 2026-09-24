@@ -386,7 +386,7 @@ function RaceRunner({ name, info }: { name: string; info?: RaceInfo | undefined 
       {silkSrc(info) ? (
         <img src={silkSrc(info)} referrerPolicy="no-referrer" alt="" width={24} height={22} className="h-[22px] w-6 shrink-0 object-contain" loading="lazy" />
       ) : null}
-      <span className="truncate">{name}</span>
+      <span className="max-w-[5.8rem] truncate">{name}</span>
     </span>
   );
 }
@@ -402,7 +402,7 @@ function RaceChips({ info }: { info: RaceInfo }) {
   return (
     <div className="flex flex-nowrap gap-[5px] overflow-hidden border-b border-dx-rule bg-dx-page px-[3px] py-[3px]" data-nobet="">
       {chips.map(([k, v]) => (
-        <span key={k} className="whitespace-nowrap rounded-[2px] bg-dx-rule px-[3px] py-[1px] text-[0.62rem] text-dx-ink">
+        <span key={k} className="whitespace-nowrap rounded-[2px] bg-dx-minmax px-[3px] py-[1px] text-[0.62rem] text-dx-ink">
           <b>{k} :</b> {v}
         </span>
       ))}
