@@ -3,6 +3,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Panel, dashBtn as btn, dashGhost as ghost, dashInput as input } from "@/components/dash";
 import { fetchEvents, fetchSports, type Sport, type UEvent } from "@/lib/uapi";
 import { AppLoader } from "@/components/AppLoader";
+import { useServerFn } from "@tanstack/react-start";
+import { mySportsReport } from "@/lib/portal.functions";
+
+/** "India Back" → { runner: "India", side: "Back" } (exchange bet labels). */
+const splitSide = (sel: string) => {
+  const m = String(sel).trim().match(/^(.*?)\s+(back|lay|yes|no)$/i);
+  return m ? { runner: m[1]!.trim(), side: m[2]! } : { runner: String(sel).trim(), side: "Back" };
+};
+const isLaySide = (side: string) => /^(lay|no)$/i.test(side);
 
 const FALLBACK_SPORTS: Sport[] = [
   { sportId: "4", sportName: "Cricket" },
@@ -41,6 +50,13 @@ export function OperatorSports({ operatorId, rounds, bets, onSettleRound, onSett
   const [winners, setWinners] = useState<Record<string, string[]>>({});
   const [manual, setManual] = useState<Record<string, string>>({});
   const [copied, setCopied] = useState("");
+  const reportFn = useServerFn(mySportsReport);
+  const [report, setReport] = useState<Awaited<ReturnType<typeof mySportsReport>> | null>(null);
+
+  useEffect(() => {
+    if (!operatorId) return;
+    void reportFn({ data: { operatorId } }).then(setReport).catch(() => setReport(null));
+  }, [operatorId, rounds, bets, reportFn]);
 
   useEffect(() => {
     let alive = true;
@@ -206,7 +222,7 @@ export function OperatorSports({ operatorId, rounds, bets, onSettleRound, onSett
                   </span>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {r.selections.map((s: string) => (
+                  {([...new Set(r.selections.map((x: string) => splitSide(x).runner))] as string[]).map((s) => (
                     <button
                       key={s}
                       onClick={() => toggle(s)}
@@ -220,6 +236,10 @@ export function OperatorSports({ operatorId, rounds, bets, onSettleRound, onSett
                     </button>
                   ))}
                 </div>
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  Jeetne wala select karein: uspar Back/Yes bets jeetengi, Lay/No bets haarengi. Baaki sab par
+                  Back haarega aur Lay jeetega.
+                </p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <input
                     value={manual[key] ?? ""}
@@ -262,7 +282,18 @@ export function OperatorSports({ operatorId, rounds, bets, onSettleRound, onSett
                   <td className="p-2">
                     {b.game_id} / {b.round_id}
                   </td>
-                  <td className="p-2">{b.selection}</td>
+                  <td className="p-2">
+                    {splitSide(b.selection).runner}{" "}
+                    <span
+                      className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${
+                        isLaySide(splitSide(b.selection).side)
+                          ? "bg-destructive/15 text-destructive"
+                          : "bg-primary/15 text-primary"
+                      }`}
+                    >
+                      {splitSide(b.selection).side.toUpperCase()}
+                    </span>
+                  </td>
                   <td className="p-2 text-right">{Number(b.odds).toFixed(2)}</td>
                   <td className="p-2 text-right">{Number(b.stake).toLocaleString("en-IN")}</td>
                   <td className="p-2">
@@ -286,6 +317,65 @@ export function OperatorSports({ operatorId, rounds, bets, onSettleRound, onSett
             </tbody>
           </table>
         </div>
+      </Panel>
+
+      <Panel title="Sports report — bets, jeet-haar, payout">
+        {report ? (
+          <>
+            <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+              {[
+                ["Total bets", String(report.totals.bets)],
+                ["Open", `${report.totals.open} · ${inr(report.totals.openStake)}`],
+                ["Won / Lost / Void", `${report.totals.won} / ${report.totals.lost} / ${report.totals.void}`],
+                ["Settled stake", inr(report.totals.staked)],
+                ["Paid to players", inr(report.totals.paid)],
+                ["Profit / Loss (GGR)", inr(report.totals.ggr)],
+              ].map(([k, v]) => (
+                <div key={k} className="rounded-lg border border-border p-2">
+                  <div className="text-muted-foreground">{k}</div>
+                  <div className="font-bold text-foreground">{v}</div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead className="text-muted-foreground">
+                  <tr>
+                    <th className="p-2 text-left">Time</th>
+                    <th className="p-2 text-left">User</th>
+                    <th className="p-2 text-left">Event</th>
+                    <th className="p-2 text-left">Selection</th>
+                    <th className="p-2 text-right">Stake</th>
+                    <th className="p-2 text-left">Status</th>
+                    <th className="p-2 text-right">Payout</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.recent.map((b: any) => (
+                    <tr key={b.id} className="border-t border-border">
+                      <td className="p-2">{new Date(b.created_at).toLocaleString()}</td>
+                      <td className="p-2 font-mono">{b.operator_user_id}</td>
+                      <td className="p-2 font-mono">{b.round_id}</td>
+                      <td className="p-2">{b.selection}</td>
+                      <td className="p-2 text-right">{inr(Number(b.stake))}</td>
+                      <td className="p-2 uppercase">{b.status}</td>
+                      <td className="p-2 text-right">{inr(Number(b.payout))}</td>
+                    </tr>
+                  ))}
+                  {!report.recent.length ? (
+                    <tr>
+                      <td className="p-3 text-muted-foreground" colSpan={7}>
+                        Abhi tak koi sports bet nahi.
+                      </td>
+                    </tr>
+                  ) : null}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : (
+          <AppLoader compact />
+        )}
       </Panel>
 
       <Panel title="Sports API (apne server se)">

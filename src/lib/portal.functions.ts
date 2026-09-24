@@ -445,3 +445,30 @@ export const mySettleBet = createServerFn({ method: "POST" })
       ...(data.multiplier !== undefined ? { multiplier: data.multiplier } : {}),
     });
   });
+
+/** Sports bets report for one operator: totals + recent settled/open bets. */
+export const mySportsReport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ operatorId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("bets")
+      .select("id, game_id, round_id, operator_user_id, selection, odds, stake, payout, status, created_at, settled_at")
+      .eq("operator_id", data.operatorId)
+      .order("created_at", { ascending: false })
+      .limit(1000);
+    if (error) throw new Error(error.message);
+    const sports = (rows ?? []).filter((b) => !/^\d+\.\d/.test(String(b.game_id).trim()));
+    const t = { bets: 0, open: 0, won: 0, lost: 0, void: 0, staked: 0, paid: 0, openStake: 0 };
+    for (const b of sports) {
+      t.bets++;
+      const st = String(b.status) as "open" | "won" | "lost" | "void";
+      if (st in t) (t as any)[st]++;
+      if (st === "open") t.openStake += Number(b.stake);
+      else if (st !== "void") {
+        t.staked += Number(b.stake);
+        t.paid += Number(b.payout);
+      }
+    }
+    return { totals: { ...t, ggr: t.staked - t.paid }, recent: sports.slice(0, 50) };
+  });
