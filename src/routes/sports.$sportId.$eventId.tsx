@@ -409,11 +409,13 @@ function EventBanner({
   eventName,
   openDate,
   inPlay,
+  suspended,
 }: {
   sportId: string;
   eventName: string;
   openDate?: string | undefined;
   inPlay?: boolean | undefined;
+  suspended?: boolean | undefined;
 }) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -421,11 +423,21 @@ function EventBanner({
     return () => clearInterval(t);
   }, []);
   const at = openDate ? Date.parse(openDate) : NaN;
-  const left = Number.isFinite(at) ? Math.max(0, Math.floor((at - now) / 1000)) : null;
+  const left = Number.isFinite(at) ? Math.max(0, Math.floor((at - now) / 1000)) : 0;
   const pad = (n: number) => String(n).padStart(2, "0");
   const banner = SPORT_BANNERS[sportId] ?? soccerBanner;
+  const status = suspended ? "Suspended" : inPlay ? "Live now" : "Upcoming";
+  const gameTime = Number.isFinite(at)
+    ? new Date(at).toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })
+    : "—";
   return (
-    <div className="relative h-[92px] overflow-hidden bg-dx-ink text-dx-page" data-nobet="">
+    <div className="relative h-[92px] overflow-hidden bg-dx-ink text-dx-page" data-nobet="" data-event-banner="">
       <img
         src={banner.url}
         alt=""
@@ -437,22 +449,19 @@ function EventBanner({
       <div className="absolute inset-0 bg-dx-ink/55" />
       <div className="relative grid h-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3">
         <div className="min-w-0">
-          <span className="block text-[0.72rem] font-bold uppercase text-dx-cash">
-            {inPlay ? "Live now" : "Suspended"}
+          <span
+            data-banner-status=""
+            className={`block text-[0.72rem] font-bold uppercase ${suspended ? "text-ex-suspend" : "text-dx-cash"}`}
+          >
+            {status}
           </span>
           <span className="line-clamp-2 text-[0.82rem] font-bold leading-tight">{eventName}</span>
         </div>
         <span className="shrink-0 text-right text-[0.68rem] font-semibold">
-          {inPlay
-            ? "In-Play"
-            : Number.isFinite(at)
-              ? `Game time ${new Date(at).toLocaleString()}`
-              : "Starting soon"}
-          {!inPlay && left !== null ? (
-            <span className="block text-[0.95rem] font-bold text-dx-cash">
-              Count Down {pad(Math.floor(left / 3600))}:{pad(Math.floor((left % 3600) / 60))}:{pad(left % 60)}
-            </span>
-          ) : null}
+          <span className="block">Game time {gameTime}</span>
+          <span className="block text-[0.95rem] font-bold text-dx-cash">
+            Count Down {pad(Math.floor(left / 3600))}:{pad(Math.floor((left % 3600) / 60))}:{pad(left % 60)}
+          </span>
         </span>
       </div>
     </div>
@@ -723,6 +732,7 @@ function EventPage() {
           eventName={data?.eventName ?? SPORT_NAMES[sportId] ?? "Live event"}
           openDate={data?.openDate}
           inPlay={data?.inPlay}
+          suspended={matchOdds.length > 0 && matchOdds.every((m) => marketState(m).dim)}
         />
       ) : null}
 
