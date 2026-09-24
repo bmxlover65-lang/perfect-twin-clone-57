@@ -3344,8 +3344,12 @@ function GamePage() {
   // When the live feed has already cleared the table for the next round but the
   // settled round is still on screen, show the cards from the declared result so
   // players see the real dealt cards instead of face-down placeholders.
+  const currentResult = useMemo(
+    () => results.find((row) => String(row.roundId ?? "") === roundKey),
+    [results, roundKey],
+  );
   const resultCards = useMemo(() => {
-    const raw = (results[0]?.cards ?? {}) as Record<string, unknown>;
+    const raw = (currentResult?.cards ?? {}) as Record<string, unknown>;
     const out: Record<string, Record<string, string>> = {};
     for (const [k, v] of Object.entries(raw)) {
       if (Array.isArray(v)) {
@@ -3359,7 +3363,7 @@ function GamePage() {
       }
     }
     return out;
-  }, [results]);
+  }, [currentResult]);
 
   const liveHasRealCard = Object.values(liveCards).some((h) =>
     h && typeof h === "object"
@@ -3370,7 +3374,7 @@ function GamePage() {
   // card stays "0"), while the declared result for this same round has every
   // card. Once that result is in, show its full hand.
   const resultIsThisRound =
-    !!roundKey && String(results[0]?.roundId ?? "") === roundKey && Object.keys(resultCards).length > 0;
+    !!currentResult && Object.keys(resultCards).length > 0;
   // Otherwise prefer the live feed whenever it sends a card slot for this round
   // (even a face-down "0"), so the table never shows the previous round's card.
   const rawCards = resultIsThisRound
