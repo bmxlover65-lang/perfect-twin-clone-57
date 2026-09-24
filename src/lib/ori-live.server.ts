@@ -30,7 +30,6 @@ function subMsg(sportId: string, id: string) {
 }
 
 function onText(text: string) {
-  if (!text.startsWith('42')) console.log('[ori-live] msg', text.slice(0, 80));
   if (text === "2") return sock?.send("3");
   if (text.startsWith("0")) return sock?.send(`40${JSON.stringify({ token: "" })}`);
   if (text.startsWith("40")) {
@@ -58,13 +57,11 @@ function reset() {
 }
 
 async function open(): Promise<void> {
-  console.log('[ori-live] open');
   const url = `https://${HOST}/socket.io/?EIO=4&transport=websocket`;
   // Edge runtime: outbound WebSocket via fetch upgrade (lets us set Origin).
   try {
     const res = await fetch(url, { headers: { ...HEADERS, Upgrade: "websocket" } });
     const ws = (res as unknown as { webSocket?: WebSocket & { accept: () => void } }).webSocket;
-    console.log('[ori-live] upgrade', res.status, Boolean(ws));
     if (ws) {
       ws.accept();
       ws.addEventListener("message", (e) => onText(String(e.data)));
@@ -73,8 +70,7 @@ async function open(): Promise<void> {
       sock = { send: (s) => ws.send(s), close: () => ws.close() };
       return;
     }
-  } catch (e) {
-    console.log('[ori-live] upgrade failed', String(e));
+  } catch {
     /* fall through to the standard constructor (dev server) */
   }
   const Ctor = (globalThis as { WebSocket?: new (u: string, o?: unknown) => WebSocket }).WebSocket;

@@ -711,7 +711,8 @@ function EventPage() {
         socket.onmessage = (event) => {
           try {
             const message = JSON.parse(String(event.data)) as { type?: string; data?: OddsResponse };
-            if (message.type !== "odds" || !message.data) return;
+            // Stale relay frames used to override the live board; HTTP now carries the live stream.
+            if (message.type !== "odds" || !message.data || true) return;
             lastSocketMessage.current = Date.now();
             setData(mergeFeed(feed.current, message.data));
             setAge(0);
