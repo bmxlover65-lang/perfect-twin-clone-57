@@ -50,6 +50,7 @@ import {
   type BbbRunner,
 } from "@/components/OriginalStages";
 import ballByBallBanner from "@/assets/games/ballbyball.gif.asset.json";
+import { BallByBallVideo } from "@/components/BallByBallVideo";
 import ballByBallResult from "@/assets/ball-by-ball-result.png";
 import casinoStageMark from "@/assets/universe-casino-loader.gif.asset.json";
 import chip1k from "@/assets/chips/chips1k.svg.asset.json";
@@ -3557,12 +3558,7 @@ function GamePage() {
 
         </div>
         <div className="relative aspect-video overflow-hidden bg-secondary">
-          <img
-            src={ballByBallBanner.url}
-            alt="Ball by Ball"
-            loading="eager"
-            className="block h-full w-full object-cover"
-          />
+          <BallByBallVideo fallback={ballByBallBanner.url} />
           <RoundTimer
             leftSec={viewLeft}
 
