@@ -101,8 +101,8 @@ export type OriOdds = {
 };
 
 export async function oriOdds(sportId: string, exEventId: string): Promise<OriOdds | null> {
-  const { oriLiveFrame } = await import("./ori-live.server");
-  const liveFrame = await oriLiveFrame(sportId, exEventId).catch(() => null);
+  const { ucasSportsOdds } = await import("./ucas.server");
+  const liveFrame = await ucasSportsOdds(sportId, exEventId).catch(() => null);
   let raw: RawMarkets | undefined;
   if (liveFrame) {
     const f = liveFrame as Record<string, RawMarket[] | boolean | undefined>;
