@@ -78,7 +78,7 @@ export function LuckyWheel({
     const base = Math.ceil(rot / 360) * 360;
     setShowWin(false);
     setSpin(true);
-    setRot(base + 360 * 6 - seg);
+    setRot(base + 360 * 4 - seg);
     try {
       const audio = new Audio("/wheel-spin.mp3");
       audio.volume = 0.6;
@@ -89,12 +89,16 @@ export function LuckyWheel({
     const t = window.setTimeout(() => {
       setSpin(false);
       setShowWin(true);
-    }, 6200);
+    }, 4100);
     return () => window.clearTimeout(t);
   }, [suspended, winner, roundId, rot, step]);
 
   useEffect(() => {
-    if (!suspended) setShowWin(false);
+    if (!suspended) {
+      setShowWin(false);
+      setSpin(false);
+      setRot(0);
+    }
   }, [suspended]);
 
   return (
@@ -117,7 +121,7 @@ export function LuckyWheel({
             className="h-[400px] w-[400px] max-w-full drop-shadow-[0_0_18px_rgba(0,0,0,0.6)]"
             style={{
               transform: `rotate(${rot}deg)`,
-              transition: spin ? "transform 6s cubic-bezier(0.12,0.7,0.12,1)" : "none",
+              transition: spin ? "transform 4s cubic-bezier(0.12,0.7,0.12,1)" : "none",
             }}
           >
             {LUCKY_ORDER.map((n, i) => {
@@ -162,7 +166,7 @@ export function LuckyWheel({
             <img
               src={luckyTrophy.url}
               alt=""
-              className="pointer-events-none absolute left-1/2 top-[6px] h-[92px] w-[92px] -translate-x-1/2 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
+              className="pointer-events-none absolute left-1/2 top-[22px] h-[64px] w-[64px] -translate-x-1/2 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
             />
           ) : null}
         </div>
