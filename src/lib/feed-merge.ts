@@ -75,7 +75,12 @@ export function mergeFeed(state: FeedState, payload: OddsResponse): OddsResponse
         const dim = isDead(market);
         const older = prev && !dim && (stale ? matched <= prev.matched : matched < prev.matched);
         if (older) return;
-        state.markets.set(key, { at: now, matched, order: i, market });
+        // Live frames carry prices only; keep race card details from the full frame.
+        const extra = (prev?.market as { racingInfo?: unknown } | undefined)?.racingInfo;
+        const next = extra && !(market as { racingInfo?: unknown }).racingInfo
+          ? ({ ...market, racingInfo: extra } as typeof market)
+          : market;
+        state.markets.set(key, { at: now, matched, order: i, market: next });
       }
     });
   }
