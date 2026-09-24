@@ -463,20 +463,18 @@ function EventBanner({
     return () => clearInterval(t);
   }, []);
   const at = openDate ? Date.parse(openDate) : NaN;
-  // Before the start it counts down; once the match is on it keeps running
-  // (time since start), so the clock is never frozen at 00:00:00.
-  const left = Number.isFinite(at) ? Math.abs(Math.floor((at - now) / 1000)) : 0;
+  // Same as the reference: live countdown until the start, then "Bet Started".
+  const left = Number.isFinite(at) ? Math.max(0, Math.floor((at - now) / 1000)) : 0;
+  const started = inPlay || (Number.isFinite(at) && left === 0);
   const pad = (n: number) => String(n).padStart(2, "0");
   const banner = SPORT_BANNERS[sportId] ?? soccerBanner;
-  const status = suspended ? "Suspended" : inPlay ? "Live now" : "Upcoming";
+  const status = suspended ? "Suspended" : inPlay ? "Open" : "Upcoming";
   const gameTime = Number.isFinite(at)
-    ? new Date(at).toLocaleString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      })
+    ? (() => {
+        const d = new Date(at);
+        const h = d.getHours() % 12 || 12;
+        return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(h)}:${pad(d.getMinutes())}:${pad(d.getSeconds())} ${d.getHours() < 12 ? "AM" : "PM"}`;
+      })()
     : "—";
   return (
     <div className="relative h-[92px] overflow-hidden bg-dx-ink text-dx-page" data-nobet="" data-event-banner="">
@@ -502,7 +500,9 @@ function EventBanner({
         <span className="shrink-0 text-right text-[0.68rem] font-semibold">
           <span className="block">Game time {gameTime}</span>
           <span className="block text-[0.95rem] font-bold text-dx-cash">
-            Count Down {left >= 86400 ? `${Math.floor(left / 86400)}d ` : ""}{pad(Math.floor((left % 86400) / 3600))}:{pad(Math.floor((left % 3600) / 60))}:{pad(left % 60)}
+            {started
+              ? "Bet Started"
+              : `Count Down ${left >= 86400 ? `${Math.floor(left / 86400)}d ` : ""}${pad(Math.floor((left % 86400) / 3600))}:${pad(Math.floor((left % 3600) / 60))}:${pad(left % 60)}`}
           </span>
         </span>
       </div>
