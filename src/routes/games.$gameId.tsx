@@ -3256,7 +3256,7 @@ function GamePage() {
     const t = setInterval(() => {
       if (document.visibilityState === "hidden") return;
       void run();
-    }, 1500);
+    }, 700);
 
     return () => {
       alive = false;
@@ -3822,6 +3822,12 @@ function GamePage() {
             if (direct && roundKey) {
               const shown = String(applyOverride(cfg, admin, gameId, direct) ?? direct);
               return { ...(liveResult ?? {}), round: roundKey, winner: shown } as FeedResult;
+            }
+            if (liveResult && String(liveResult.round) === roundKey) return liveResult;
+            const h = results[0];
+            if (h && String(h.roundId ?? "") === roundKey) {
+              const w = deriveWinner(h as AnyResult);
+              if (w) return { ...(liveResult ?? {}), round: roundKey, winner: String(applyOverride(cfg, admin, gameId, w) ?? w) } as FeedResult;
             }
             return liveResult;
           })()}
