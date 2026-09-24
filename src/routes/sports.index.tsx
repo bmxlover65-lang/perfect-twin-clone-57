@@ -253,6 +253,11 @@ function SportsPage() {
   // or REMOVED) carry no prices any more, so they must not stay in the list.
   const isSettled = (e: UEvent) => {
     if (/CLOSE|SETTLE|RESULT|COMPLETE|ABANDON/i.test(String(e.status ?? ""))) return true;
+    // Football is over ~2h after kick-off, tennis rarely runs past 5h; a
+    // listing still hanging on after that is a finished match.
+    const started = e.eventTime ? new Date(e.eventTime).getTime() : NaN;
+    const maxMs = e.sportId === "1" ? 3 * 3600_000 : e.sportId === "2" ? 6 * 3600_000 : 0;
+    if (maxMs && Number.isFinite(started) && Date.now() - started > maxMs) return true;
     const runners = e.runners ?? [];
     if (!runners.length) return false;
     if (runners.some((r) => /WIN|LOSE|LOSS/i.test(String(r.status ?? "")))) return true;
