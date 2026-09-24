@@ -568,6 +568,7 @@ export function BetLayer({
     }
     if (!pick) return;
     const pickLabel = pick.label;
+    const oddsInput = odds;
 
     // The market can suspend (or the round can roll over) while the slip is
     // open — a pre-filled stake must never sneak through after that.
@@ -595,6 +596,14 @@ export function BetLayer({
       setErr("You have Insufficient Balance.");
       return;
     }
+    // Casino: the bet always goes in at the table's live rate — the rate box can
+    // never push a bet above what the board currently offers.
+    let liveOdds = pick.odds;
+    if (exposureLayout !== "sports" && rootEl && cellEl) {
+      const fresh = extractPick(cellEl, rootEl);
+      if (fresh && fresh.odds > 0) liveOdds = fresh.odds;
+    }
+    const odds = exposureLayout === "sports" ? oddsInput : Math.min(oddsInput, liveOdds);
     // Sports exchange Lay / No: the risk is the liability stake × (odds − 1),
     // and a win returns liability + stake. Casino boards never use this path.
     const isLay = exposureLayout === "sports" && /\s(lay|no)$/i.test(pick.label) && odds > 1;
