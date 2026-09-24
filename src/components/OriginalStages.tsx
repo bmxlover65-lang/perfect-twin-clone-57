@@ -1456,9 +1456,7 @@ export function BallByBallBoard({
           </span>
         </button>
         <div className="flex items-center gap-2">
-          <span className="text-[0.56rem] font-medium text-board-header-foreground">
-            Min/Max: {min} - {max}
-          </span>
+          
           <button
             type="button"
             aria-label="Open Ball by Ball rules"
@@ -1469,7 +1467,7 @@ export function BallByBallBoard({
           </button>
         </div>
       </div>
-      <div className="grid h-[26px] grid-cols-2 border-b border-casino-market-divider bg-casino-market-body">
+      <div className="grid h-[30px] grid-cols-2 border-b border-casino-market-divider bg-secondary">
         <span className="flex items-center justify-center text-[0.86rem] font-semibold">
           Back
         </span>
