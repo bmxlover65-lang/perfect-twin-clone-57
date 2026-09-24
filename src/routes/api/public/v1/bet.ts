@@ -106,6 +106,40 @@ export const Route = createFileRoute("/api/public/v1/bet")({
           );
         }
 
+        // Casino: the live table must be open for this exact round. Once the
+        // card is out (suspended / timer over / new round) the bet is refused.
+        if (/^\d+\.\d/.test(b.gameId)) {
+          const { ucasState } = await import("@/lib/ucas.server");
+          const live = (await ucasState(b.gameId).catch(() => null)) as
+            | { data: { roundId?: string; status?: string; leftSec?: number } }
+            | null;
+          const d = live?.data;
+          const closed =
+            d &&
+            ((d.roundId && String(d.roundId) !== b.roundId) ||
+              /SUSPEND|CLOSE|RESULT/i.test(String(d.status ?? "")) ||
+              (typeof d.leftSec === "number" && d.leftSec <= 0));
+          if (closed) {
+            await logReject({
+              operator_id: auth.operator.id,
+              operator_user_id: b.userId,
+              game_id: b.gameId,
+              round_id: b.roundId,
+              market: b.market ?? null,
+              selection: b.selection,
+              odds: b.odds,
+              stake: b.stake,
+              code: "round_closed",
+              message: "Betting is closed for this round",
+              ip: auth.ip,
+            });
+            return Response.json(
+              { status: "error", code: "round_closed", message: "Betting is closed for this round" },
+              { status: 409 },
+            );
+          }
+        }
+
         const reference = b.reference ?? crypto.randomUUID();
 
         // Idempotency: same operator + reference returns the existing bet.
