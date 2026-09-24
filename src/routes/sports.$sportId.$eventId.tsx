@@ -231,8 +231,11 @@ function Board({
   levels = 3,
   backOnly = false,
   book = false,
+  race = false,
 }: {
   market: Market;
+  /** Horse / greyhound: best Back/Lay only, cloth number, silks and runner info chips. */
+  race?: boolean;
   levels?: 1 | 3;
   backOnly?: boolean;
   /** Bookmaker rows use the pale yellow runner column like Dukex. */
@@ -240,9 +243,11 @@ function Board({
 }) {
   const odds = market.oddsData;
   const { dim, label } = marketState(market);
-  const runners = (odds?.runners ?? []).filter(
-    (runner) => !/REMOVED/.test(String(runner.status ?? "").toUpperCase()),
-  );
+  const runners = (odds?.runners ?? [])
+    .filter((runner) => !/REMOVED/.test(String(runner.status ?? "").toUpperCase()))
+    .sort((a, b) => race ? Number((a as { sortPriority?: number }).sortPriority ?? 0) - Number((b as { sortPriority?: number }).sortPriority ?? 0) : 0);
+  if (race) levels = 1;
+  const info = ((market as unknown as { racingInfo?: Record<string, RaceInfo> }).racingInfo ?? {}) as Record<string, RaceInfo>;
   const cols = backOnly ? 1 : levels * 2;
   const grid =
     cols === 6
@@ -282,16 +287,20 @@ function Board({
       </div>
       <div className="relative">
         {runners.map((r) => (
+          <Fragment key={String(r.selectionId)}>
           <div
-            key={String(r.selectionId)}
             data-runner-row
             className={`relative grid min-h-[48px] items-stretch border-b border-dx-rule ${
               book ? "bg-dx-book" : "bg-dx-page"
             } ${grid}`}
           >
+            {race ? (
+              <RaceRunner name={runnerName(market, r.selectionId)} info={info[String(r.selectionId)]} />
+            ) : (
             <span className="flex min-w-0 items-start px-1.5 pt-[7px] text-[0.8rem] font-bold leading-[1.2] text-dx-ink">
               <span className="line-clamp-2 break-words">{runnerName(market, r.selectionId)}</span>
             </span>
+            )}
             {backOrder.map((i) => {
               const p = r.price?.back?.[i];
               return <Cell key={`b${i}`} label={`${runnerName(market, r.selectionId)} Back`} price={p?.price} size={p?.size} side="back" dim={dim} depth={i} />;
@@ -303,11 +312,60 @@ function Board({
                   return <Cell key={`l${i}`} label={`${runnerName(market, r.selectionId)} Lay`} price={p?.price} size={p?.size} side="lay" dim={dim} depth={i} />;
                 })}
           </div>
+          {race && info[String(r.selectionId)] ? <RaceChips info={info[String(r.selectionId)]!} /> : null}
+          </Fragment>
         ))}
       </div>
         {dim ? <Suspended label={label} /> : null}
       </div>
     </article>
+  );
+}
+
+type RaceInfo = {
+  CLOTH_NUMBER?: string;
+  STALL_DRAW?: string;
+  JOCKEY_NAME?: string;
+  TRAINER_NAME?: string;
+  AGE?: string;
+  WEIGHT_VALUE?: string;
+  WEIGHT_UNITS?: string;
+  COLOURS_FILENAME_URL?: string;
+};
+
+function RaceRunner({ name, info }: { name: string; info?: RaceInfo }) {
+  return (
+    <span className="flex min-w-0 items-center gap-1 px-1.5 text-[0.8rem] font-bold leading-[1.2] text-dx-ink">
+      {info?.CLOTH_NUMBER ? (
+        <span className="w-5 shrink-0 text-center text-[0.72rem] leading-tight">
+          {info.CLOTH_NUMBER}
+          {info.STALL_DRAW ? <span className="block text-[0.6rem] font-semibold">({info.STALL_DRAW})</span> : null}
+        </span>
+      ) : null}
+      {info?.COLOURS_FILENAME_URL ? (
+        <img src={info.COLOURS_FILENAME_URL} alt="" width={24} height={22} className="h-[22px] w-6 shrink-0 object-contain" loading="lazy" />
+      ) : null}
+      <span className="truncate">{name}</span>
+    </span>
+  );
+}
+
+function RaceChips({ info }: { info: RaceInfo }) {
+  const chips = [
+    info.JOCKEY_NAME && `Jockey : ${info.JOCKEY_NAME}`,
+    info.TRAINER_NAME && `Trainer : ${info.TRAINER_NAME}`,
+    info.AGE && `Age : ${info.AGE}`,
+    info.WEIGHT_VALUE && `Weight : ${info.WEIGHT_VALUE} ${info.WEIGHT_UNITS ?? ""}`.trim(),
+  ].filter(Boolean) as string[];
+  if (!chips.length) return null;
+  return (
+    <div className="flex flex-wrap gap-1 border-b border-dx-rule bg-dx-page px-1 py-[3px]" data-nobet="">
+      {chips.map((c) => (
+        <span key={c} className="whitespace-nowrap rounded-[2px] bg-dx-minmax px-1 py-[1px] text-[0.56rem] font-semibold text-dx-ink">
+          {c}
+        </span>
+      ))}
+    </div>
   );
 }
 
@@ -840,7 +898,7 @@ function EventPage() {
         exposureLayout="sports"
       >
         <div>
-          {matchOdds.filter(pick).map((m) => <Board key={m.marketId} market={m} />)}
+          {matchOdds.filter(pick).map((m) => <Board key={m.marketId} market={m} race={sportId === "7" || sportId === "4339"} />)}
           {bookmakers.filter(pick).map((m) => <Board key={m.marketId} market={m} book />)}
           {showFancy ? (
             <FancySection markets={visibleFancy} sportsbook={visibleSportsbook} />
