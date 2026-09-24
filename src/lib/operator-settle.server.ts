@@ -2,6 +2,17 @@ import type { Operator } from "./operator-auth.server";
 
 export type SettleOutcome = "won" | "lost" | "void";
 
+/** Casino ids look like 88.0023 — everything else is a sports market. */
+const isSportsGame = (gameId: string) => !/^\d+\.\d/.test(String(gameId).trim());
+
+export function splitSide(selection: string): { runner: string; side: "back" | "lay" } {
+  const s = String(selection).trim();
+  const m = s.match(/^(.*?)\s+(back|lay|yes|no)$/i);
+  if (!m) return { runner: s, side: "back" };
+  const w = m[2]!.toLowerCase();
+  return { runner: m[1]!.trim(), side: w === "lay" || w === "no" ? "lay" : "back" };
+}
+
 type BetRow = {
   id: string;
   operator_user_id: string;
@@ -102,13 +113,20 @@ export async function settleOperatorRound(input: {
     .eq("status", "open");
 
   const winners = input.winners.map((w) => w.trim().toLowerCase()).filter(Boolean);
+  const sports = isSportsGame(input.gameId);
   const results = [];
   for (const bet of (bets ?? []) as BetRow[]) {
-    const outcome: SettleOutcome = input.voidRound
-      ? "void"
-      : winners.includes(String(bet.selection).trim().toLowerCase())
-        ? "won"
-        : "lost";
+    let outcome: SettleOutcome;
+    if (input.voidRound) outcome = "void";
+    else if (sports) {
+      // Exchange labels: "<runner> Back|Lay|Yes|No". Back/Yes wins when the
+      // runner is declared a winner; Lay/No wins when it is not.
+      const { runner, side } = splitSide(bet.selection);
+      const hit = winners.includes(runner.toLowerCase());
+      outcome = (side === "lay" ? !hit : hit) ? "won" : "lost";
+    } else {
+      outcome = winners.includes(String(bet.selection).trim().toLowerCase()) ? "won" : "lost";
+    }
     results.push(await closeBet(operator, bet, outcome));
   }
 
