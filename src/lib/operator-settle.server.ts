@@ -48,6 +48,17 @@ async function closeBet(operator: Operator, bet: BetRow, outcome: SettleOutcome,
         ? Math.round(Number(bet.stake))
         : 0;
 
+  // Claim the bet atomically so two settle runs can never pay it twice.
+  const { data: claimed } = await supabaseAdmin
+    .from("bets")
+    .update({ status: outcome, settled_at: new Date().toISOString() })
+    .eq("id", bet.id)
+    .eq("status", "open")
+    .select("id");
+  if (!claimed?.length) {
+    return { betId: bet.id, userId: bet.operator_user_id, outcome, payout: 0, paid: true, balance: null, duplicate: true };
+  }
+
   let balance: number | null = null;
   let paid = true;
   if (payout > 0) {
