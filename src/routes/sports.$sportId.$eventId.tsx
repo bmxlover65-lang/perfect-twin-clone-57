@@ -85,7 +85,7 @@ function Cell({
     <div
       data-bet-label={label && price ? label : undefined}
       data-bet-odds={label && price ? String(betOdds ?? price) : undefined}
-      className={`flex h-full min-h-[42px] cursor-pointer flex-col items-center justify-center border-l border-dx-page ${tone} ${
+      className={`relative flex h-full min-h-[42px] cursor-pointer flex-col items-center justify-center overflow-hidden border-l border-dx-page ${tone} ${
         dim ? "opacity-60" : ""
       } ${flash} text-dx-ink`}
     >
@@ -600,12 +600,25 @@ function EventPage() {
 
   if (!data && !error) return <AppLoader />;
 
-  const allMarkets = [...matchOdds, ...bookmakers, ...overUnder, ...fancy, ...sportsbook];
-  const categoryNames = allMarkets.map(marketGroupName);
-  const views = ["All", "Popular", ...Array.from(new Set(categoryNames))];
+  const marketCategories = new Map<string, string>();
+  matchOdds.forEach((market) => marketCategories.set(market.marketId, "Match Odds"));
+  bookmakers.forEach((market) => marketCategories.set(market.marketId, "Bookmaker"));
+  fancy.forEach((market) => marketCategories.set(market.marketId, "Fancy"));
+  sportsbook.forEach((market) => marketCategories.set(market.marketId, "Sportsbook"));
+  overUnder.forEach((market) => marketCategories.set(market.marketId, market.marketName.trim()));
+  const views = [
+    "All",
+    "Popular",
+    ...(matchOdds.length ? ["Match Odds"] : []),
+    ...(bookmakers.length ? ["Bookmaker"] : []),
+    ...(fancy.length ? ["Fancy"] : []),
+    ...(sportsbook.length ? ["Sportsbook"] : []),
+    ...Array.from(new Set(overUnder.map((market) => market.marketName.trim()))),
+  ];
   const pick = (m: Market) =>
     view === "All" ||
     (view === "Popular" && isPopularMarket(m)) ||
+    view === marketCategories.get(m.marketId) ||
     view === marketGroupName(m) ||
     view === m.marketName.trim();
   const visibleFancy = fancy.filter(pick);
