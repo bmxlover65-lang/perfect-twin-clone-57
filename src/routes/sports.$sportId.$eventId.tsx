@@ -331,7 +331,15 @@ type RaceInfo = {
   WEIGHT_VALUE?: string;
   WEIGHT_UNITS?: string;
   COLOURS_FILENAME_URL?: string;
+  COLOURS_FILENAME?: string;
 };
+
+function silkSrc(info?: RaceInfo): string | undefined {
+  const f = info?.COLOURS_FILENAME ?? "";
+  if (f.startsWith("data:")) return f;
+  if (/^[A-Za-z0-9+/=]{40,}$/.test(f)) return `data:image/png;base64,${f}`;
+  return info?.COLOURS_FILENAME_URL || undefined;
+}
 
 function RaceRunner({ name, info }: { name: string; info?: RaceInfo | undefined }) {
   return (
@@ -342,8 +350,8 @@ function RaceRunner({ name, info }: { name: string; info?: RaceInfo | undefined 
           {info.STALL_DRAW ? <span className="block text-[0.6rem] font-semibold">({info.STALL_DRAW})</span> : null}
         </span>
       ) : null}
-      {info?.COLOURS_FILENAME_URL ? (
-        <img src={info.COLOURS_FILENAME_URL} alt="" width={24} height={22} className="h-[22px] w-6 shrink-0 object-contain" loading="lazy" />
+      {silkSrc(info) ? (
+        <img src={silkSrc(info)} referrerPolicy="no-referrer" alt="" width={24} height={22} className="h-[22px] w-6 shrink-0 object-contain" loading="lazy" />
       ) : null}
       <span className="truncate">{name}</span>
     </span>
