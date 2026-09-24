@@ -188,7 +188,7 @@ function playDreamSpin() {
     const start = ctx.currentTime;
     let t = 0;
     let gap = 0.045;
-    while (t < 6) {
+    while (t < 4) {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = "square";
@@ -260,7 +260,7 @@ export function DreamWheel({
     const t = window.setTimeout(() => {
       setSpin(false);
       setShowWin(true);
-    }, 6200);
+    }, 4100);
     return () => window.clearTimeout(t);
   }, [suspended, winner, roundId, rot, step]);
 
@@ -290,7 +290,7 @@ export function DreamWheel({
           className="relative"
           style={{
             transform: `rotate(${rot}deg)`,
-            transition: spin ? "transform 6s cubic-bezier(0.12,0.7,0.12,1)" : "none",
+            transition: spin ? "transform 4s cubic-bezier(0.12,0.7,0.12,1)" : "none",
           }}
         >
           <svg viewBox="0 0 400 400" className="h-[400px] w-[400px] max-w-full drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)] sm:h-[600px] sm:w-[600px]">
@@ -339,9 +339,42 @@ export function DreamWheel({
 
 
         {showWin && winner ? (
-          <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-[#F2C500] px-4 py-1 text-[0.8rem] font-extrabold uppercase text-black">
-            {winner}x wins
-          </span>
+          <div className="pointer-events-none absolute inset-0">
+            {/* dark wedges flanking the winning fan, like Dukex */}
+            <div
+              className="absolute left-1/2 top-0 h-[52%] w-[46%] origin-bottom -translate-x-[105%]"
+              style={{
+                clipPath: "polygon(50% 100%, 0 0, 100% 0)",
+                background: "linear-gradient(to bottom, rgba(0,0,0,0.85), rgba(0,0,0,0.15))",
+                transform: "translateX(-104%) rotate(-14deg)",
+                transformOrigin: "bottom center",
+              }}
+            />
+            <div
+              className="absolute left-1/2 top-0 h-[52%] w-[46%] origin-bottom"
+              style={{
+                clipPath: "polygon(50% 100%, 0 0, 100% 0)",
+                background: "linear-gradient(to bottom, rgba(0,0,0,0.85), rgba(0,0,0,0.15))",
+                transform: "translateX(4%) rotate(14deg)",
+                transformOrigin: "bottom center",
+              }}
+            />
+            {/* golden spotlight fan on the winning segment */}
+            <div
+              className="absolute left-1/2 top-0 h-[52%] w-[34%] -translate-x-1/2"
+              style={{
+                clipPath: "polygon(50% 100%, 4% 0, 96% 0)",
+                background:
+                  "linear-gradient(to bottom, rgba(255,222,89,0.98) 0%, rgba(255,200,40,0.55) 70%, rgba(255,190,20,0.15) 100%)",
+              }}
+            />
+            <span
+              className="absolute left-1/2 top-[3%] -translate-x-1/2 text-[2.8rem] font-black leading-none text-[#FFDE59]"
+              style={{ textShadow: "0 2px 8px rgba(0,0,0,0.65)" }}
+            >
+              {winner}
+            </span>
+          </div>
         ) : null}
       </div>
     </div>
