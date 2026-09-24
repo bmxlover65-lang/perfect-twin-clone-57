@@ -71,7 +71,10 @@ function Cell({
   depth = 0,
   label,
   betOdds,
+  raw = false,
 }: {
+  /** Race boards print rates exactly like Dukex: 9.6, 108.72, 102.3. */
+  raw?: boolean;
   label?: string;
   /** Fancy rows show the run line; the payout rate comes from the size. */
   betOdds?: number | undefined;
@@ -102,9 +105,9 @@ function Cell({
         dim ? "opacity-60" : ""
       } ${flash} text-dx-ink`}
     >
-      <span className="text-[0.8rem] font-bold leading-tight">{price ? fmtOdds(price) : "0"}</span>
-      <span className="text-[0.66rem] leading-tight">
-        {!price ? "0.00" : betOdds !== undefined ? fmtSize(size) || "0.00" : dxSize(size)}
+      <span className={`${raw ? "text-[0.85rem]" : "text-[0.8rem]"} font-bold leading-tight`}>{price ? (raw ? String(Number(price)) : fmtOdds(price)) : "0"}</span>
+      <span className={`${raw ? "text-[0.7rem]" : "text-[0.66rem]"} leading-tight`}>
+        {!price ? "0.00" : raw ? String(Number((Number(size) || 0).toFixed(2))) : betOdds !== undefined ? fmtSize(size) || "0.00" : dxSize(size)}
       </span>
     </div>
   );
@@ -190,7 +193,22 @@ function marketState(market: Market): { status: string; dim: boolean; label: str
   return { status, dim, label: closed ? "Closed" : ballRunning ? "Ball Running" : "Suspended" };
 }
 
-function MarketTitle({ name, matched }: { name: string; matched?: number | undefined }) {
+function MarketTitle({ name, matched, race = false }: { name: string; matched?: number | undefined; race?: boolean }) {
+  if (race) {
+    const n = Number(matched) || 0;
+    const m = n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${(n / 1e3).toFixed(1)}K` : String(Math.round(n));
+    return (
+      <header className="flex h-[30px] items-stretch border-b border-dx-rule bg-dx-page text-dx-ink">
+        <span className="flex items-center gap-2 rounded-tr-[12px] bg-dx-title px-2.5 text-[0.8rem] font-bold text-dx-page">
+          <span className="max-w-[190px] truncate">{name.trim()}</span>
+          <InfoIcon light />
+        </span>
+        <span className="ml-auto flex items-center pr-2.5 text-[0.82rem]">
+          Matched&nbsp;<b>€ {m}</b>
+        </span>
+      </header>
+    );
+  }
   return (
     <header className="flex h-[26px] items-stretch border-b border-dx-rule bg-dx-page text-dx-ink">
       <span className="flex items-center gap-1.5 rounded-tr-[10px] bg-dx-title px-2 text-[0.72rem] font-bold text-dx-page">
@@ -253,7 +271,9 @@ function Board({
     cols === 6
       ? "grid-cols-[minmax(0,2.3fr)_repeat(6,minmax(0,1fr))]"
       : cols === 2
-        ? "grid-cols-[minmax(0,1fr)_76px_76px]"
+        ? race
+          ? "grid-cols-[minmax(0,1fr)_79px_79px]"
+          : "grid-cols-[minmax(0,1fr)_76px_76px]"
         : "grid-cols-[minmax(0,1fr)_90px]";
   const backOrder = levels === 3 ? [2, 1, 0] : [0];
   const layOrder = levels === 3 ? [0, 1, 2] : [0];
@@ -262,8 +282,20 @@ function Board({
 
   return (
     <article className="mb-3 bg-dx-page">
-      <MarketTitle name={market.marketName} matched={odds?.totalMatched} />
+      <MarketTitle name={market.marketName} matched={odds?.totalMatched} race={race} />
       <div className="relative">
+      {race ? (
+        <div className={`grid h-[34px] border-b border-dx-rule text-dx-ink ${grid}`}>
+          <div className="flex items-center px-2.5">
+            <span className="flex h-[22px] w-full items-center justify-center gap-3 rounded-[2px] bg-dx-minmax text-[0.72rem] font-bold">
+              <span className="text-dx-title">Min/Max</span>
+              <span>{min}-{max >= 1000 ? `${(max / 1000).toFixed(1)}K` : max}</span>
+            </span>
+          </div>
+          <div className="flex items-center justify-center bg-dx-backhead-race text-[0.92rem] font-bold">Back</div>
+          <div className="flex items-center justify-center bg-dx-layhead-race text-[0.92rem] font-bold">Lay</div>
+        </div>
+      ) : (
       <div className={`grid h-[26px] border-b border-dx-rule text-[0.72rem] text-dx-ink ${grid}`}>
         <div className="flex items-center px-1.5">
           <span className="whitespace-nowrap rounded-[3px] bg-dx-minmax px-1 py-[1px] text-[0.56rem] font-semibold text-dx-title">
@@ -285,12 +317,13 @@ function Board({
           </div>
         )}
       </div>
+      )}
       <div className="relative">
         {runners.map((r) => (
           <Fragment key={String(r.selectionId)}>
           <div
             data-runner-row
-            className={`relative grid min-h-[48px] items-stretch border-b border-dx-rule ${
+            className={`relative grid ${race ? "min-h-[50px]" : "min-h-[48px]"} items-stretch border-b border-dx-rule ${
               book ? "bg-dx-book" : "bg-dx-page"
             } ${grid}`}
           >
@@ -303,13 +336,13 @@ function Board({
             )}
             {backOrder.map((i) => {
               const p = r.price?.back?.[i];
-              return <Cell key={`b${i}`} label={`${runnerName(market, r.selectionId)} Back`} price={p?.price} size={p?.size} side="back" dim={dim} depth={i} />;
+              return <Cell key={`b${i}`} label={`${runnerName(market, r.selectionId)} Back`} price={p?.price} size={p?.size} side="back" dim={dim} depth={i} raw={race} />;
             })}
             {backOnly
               ? null
               : layOrder.map((i) => {
                   const p = r.price?.lay?.[i];
-                  return <Cell key={`l${i}`} label={`${runnerName(market, r.selectionId)} Lay`} price={p?.price} size={p?.size} side="lay" dim={dim} depth={i} />;
+                  return <Cell key={`l${i}`} label={`${runnerName(market, r.selectionId)} Lay`} price={p?.price} size={p?.size} side="lay" dim={dim} depth={i} raw={race} />;
                 })}
           </div>
           {race && info[String(r.selectionId)] ? <RaceChips info={info[String(r.selectionId)] as RaceInfo} /> : null}
@@ -343,7 +376,7 @@ function silkSrc(info?: RaceInfo): string | undefined {
 
 function RaceRunner({ name, info }: { name: string; info?: RaceInfo | undefined }) {
   return (
-    <span className="flex min-w-0 items-center gap-1 px-1.5 text-[0.8rem] font-bold leading-[1.2] text-dx-ink">
+    <span className="flex min-w-0 items-center gap-1 px-2 text-[0.8rem] font-bold leading-[1.2] text-dx-ink">
       {info?.CLOTH_NUMBER ? (
         <span className="w-5 shrink-0 text-center text-[0.72rem] leading-tight">
           {info.CLOTH_NUMBER}
@@ -353,24 +386,24 @@ function RaceRunner({ name, info }: { name: string; info?: RaceInfo | undefined 
       {silkSrc(info) ? (
         <img src={silkSrc(info)} referrerPolicy="no-referrer" alt="" width={24} height={22} className="h-[22px] w-6 shrink-0 object-contain" loading="lazy" />
       ) : null}
-      <span className="truncate">{name}</span>
+      <span className="max-w-[5.8rem] truncate">{name}</span>
     </span>
   );
 }
 
 function RaceChips({ info }: { info: RaceInfo }) {
   const chips = [
-    info.JOCKEY_NAME && `Jockey : ${info.JOCKEY_NAME}`,
-    info.TRAINER_NAME && `Trainer : ${info.TRAINER_NAME}`,
-    info.AGE && `Age : ${info.AGE}`,
-    info.WEIGHT_VALUE && `Weight : ${info.WEIGHT_VALUE} ${info.WEIGHT_UNITS ?? ""}`.trim(),
-  ].filter(Boolean) as string[];
+    info.JOCKEY_NAME && ["Jockey", info.JOCKEY_NAME],
+    info.TRAINER_NAME && ["Trainer", info.TRAINER_NAME],
+    info.AGE && ["Age", info.AGE],
+    info.WEIGHT_VALUE && ["Weight", `${info.WEIGHT_VALUE} ${info.WEIGHT_UNITS ?? ""}`.trim()],
+  ].filter(Boolean) as [string, string][];
   if (!chips.length) return null;
   return (
-    <div className="flex flex-wrap gap-1 border-b border-dx-rule bg-dx-page px-1 py-[3px]" data-nobet="">
-      {chips.map((c) => (
-        <span key={c} className="whitespace-nowrap rounded-[2px] bg-dx-minmax px-1 py-[1px] text-[0.56rem] font-semibold text-dx-ink">
-          {c}
+    <div className="flex flex-nowrap gap-[5px] overflow-hidden border-b border-dx-rule bg-dx-page px-[3px] py-[3px]" data-nobet="">
+      {chips.map(([k, v]) => (
+        <span key={k} className="whitespace-nowrap rounded-[2px] bg-dx-minmax px-[3px] py-[1px] text-[0.62rem] text-dx-ink">
+          <b>{k} :</b> {v}
         </span>
       ))}
     </div>
@@ -569,6 +602,19 @@ function EventBanner({
         return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(h)}:${pad(d.getMinutes())}:${pad(d.getSeconds())} ${d.getHours() < 12 ? "AM" : "PM"}`;
       })()
     : "—";
+  const clock = `${left >= 86400 ? `${Math.floor(left / 86400)}d ` : ""}${pad(Math.floor((left % 86400) / 3600))}:${pad(Math.floor((left % 3600) / 60))}:${pad(left % 60)}`;
+  if (sportId === "7" || sportId === "4339") {
+    return (
+      <div className="relative h-[90px] bg-gradient-to-b from-dx-race-sky to-dx-page px-2 pt-1.5 text-[0.78rem] font-bold text-dx-page" data-nobet="" data-event-banner="">
+        <div className="flex items-start justify-between">
+          <span data-banner-status="" className={`uppercase ${suspended ? "text-ex-suspend" : ""}`}>{suspended ? "Suspended" : "Open"}</span>
+          <span className="text-dx-cash">Game time <span className="text-dx-page">{gameTime}</span></span>
+        </div>
+        <p className="mt-4 text-center">Time Remaining <span className="text-dx-cash">{clock}</span></p>
+        <p className={`mt-2 text-center text-dx-cash ${started ? "" : "opacity-50"}`}>Bet Started</p>
+      </div>
+    );
+  }
   return (
     <div className="relative h-[92px] overflow-hidden bg-dx-ink text-dx-page" data-nobet="" data-event-banner="">
       <img
@@ -818,12 +864,38 @@ function EventPage() {
   const visibleSportsbook = sportsbook.filter(pick);
   const showFancy = visibleFancy.length > 0 || visibleSportsbook.length > 0;
   const hasPanels = !eventId.startsWith("sf:");
+  const isRace = sportId === "7" || sportId === "4339";
   const hasTv = hasPanels && data?.tv !== false;
   const hasScoreboard =
     hasPanels && (data?.isScore === true || (data?.isScore !== false && ["1", "2", "4"].includes(sportId)));
 
   return (
     <div className="sports-theme mx-auto max-w-[1200px] bg-dx-page pb-6">
+      {isRace && hasPanels && !showTv ? (
+        <EventBanner
+          sportId={sportId}
+          eventName={data?.eventName ?? SPORT_NAMES[sportId] ?? "Live event"}
+          openDate={data?.openDate ?? (allMatchOdds[0] as { eventTime?: string } | undefined)?.eventTime}
+          inPlay={data?.inPlay}
+          suspended={matchOdds.length > 0 && matchOdds.every((m) => marketState(m).dim)}
+        />
+      ) : null}
+      {isRace ? (
+        <div className="relative flex h-[36px] items-center justify-center bg-dx-bar text-[1rem] font-bold text-dx-page">
+          {SPORT_NAMES[sportId] ?? "Racing"}
+          {hasTv ? (
+            <button
+              type="button"
+              aria-label={showTv ? "Close live TV" : "Open live TV"}
+              aria-expanded={showTv}
+              onClick={() => setShowTv((v) => !v)}
+              className="absolute right-3 text-dx-page"
+            >
+              <TvIcon />
+            </button>
+          ) : null}
+        </div>
+      ) : (<>
       <div className="relative flex h-[34px] items-center justify-center bg-dx-bar text-[0.95rem] font-bold text-dx-page">
         <Link to="/sports" className="absolute left-3 text-[0.8rem] font-semibold text-dx-page/80">
           ‹ Back
@@ -856,12 +928,13 @@ function EventPage() {
           <BalanceChip />
         </span>
       </div>
+      </>)}
 
       {error || data?.stale ? (
         <p className="px-2 py-1 text-[0.7rem] text-ex-suspend">Feed reconnecting… showing last prices</p>
       ) : null}
 
-      {hasPanels && !showTv ? (
+      {!isRace && hasPanels && !showTv ? (
         <EventBanner
           sportId={sportId}
           eventName={data?.eventName ?? SPORT_NAMES[sportId] ?? "Live event"}
@@ -891,10 +964,12 @@ function EventPage() {
             type="button"
             onClick={() => setView(v)}
             className={`whitespace-nowrap rounded-full px-3 py-2 text-[0.8rem] font-semibold text-dx-page ${
-              view === v ? "bg-dx-pill-active" : "bg-dx-pill"
+              isRace
+                ? view === v ? "bg-dx-race-active" : "bg-dx-race-pill"
+                : view === v ? "bg-dx-pill-active" : "bg-dx-pill"
             }`}
           >
-            {v}
+            {isRace && v === "Match Odds" ? (matchOdds[0]?.marketName.trim() ?? v) : v}
           </button>
         ))}
       </div>
