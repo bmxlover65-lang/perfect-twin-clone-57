@@ -148,6 +148,7 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [ ] 32 Cards (99.0022)
 - [ ] Poker (99.0007)
 - [ ] DTL (99.0041)
-- [x] Dragon Tiger (99.0018) done; [ ] 1 Day Dragon Tiger (99.0021)
-- [ ] 20-20 Dragon Tiger (99.0019)
+- [ ] 1 Day Dragon Tiger (99.0007 per Dukex list; 99.0021 tile bhi check karna)
+- [x] Dragon Tiger (99.0018) — board + video-area sizes matched
+- [x] 20-20 Dragon Tiger (99.0019) — board + Recent Result matched, lobby tiles fixed
 - [ ] Lucky 7 suspend check (99.0030)
