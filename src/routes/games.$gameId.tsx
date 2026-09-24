@@ -3120,12 +3120,33 @@ function GamePage() {
   }, [gameId]);
 
   const inFlight = useRef(false);
+  const roundClock = useRef<{ round: string; feed: number; endAt: number } | null>(null);
 
   const load = useCallback(async () => {
     if (feedDead.current || inFlight.current) return;
     inFlight.current = true;
     try {
       const s = await fetchCasinoState(gameId);
+      // Some tables (Dragon Tiger) repeat the same leftSec for the whole round
+      // instead of counting down. Anchor a local end time per round and count
+      // down from it whenever the feed value hasn't moved.
+      if (s?.data && s.data.roundId && typeof s.data.leftSec === "number") {
+        const now = Date.now();
+        const round = String(s.data.roundId);
+        const feed = s.data.leftSec;
+        const c = roundClock.current;
+        if (!c || c.round !== round || c.feed !== feed) {
+          let endAt = now + feed * 1000;
+          const started = s.data.updatedAt ? Date.parse(s.data.updatedAt) : NaN;
+          if (c?.round === round && c.feed !== feed) endAt = now + feed * 1000;
+          else if (Number.isFinite(started)) {
+            const guess = started + feed * 1000;
+            if (guess <= now + feed * 1000 + 2000 && guess >= now - 1000) endAt = guess;
+          }
+          roundClock.current = { round, feed, endAt };
+        }
+        s.data.leftSec = Math.max(0, Math.round((roundClock.current!.endAt - now) / 1000));
+      }
       setState((previous) => stabilizeCasinoState(previous, s));
       try {
         if (s?.data) sessionStorage.setItem(cacheKey, JSON.stringify(s));
