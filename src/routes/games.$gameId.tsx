@@ -3373,11 +3373,37 @@ function GamePage() {
     !!roundKey && String(results[0]?.roundId ?? "") === roundKey && Object.keys(resultCards).length > 0;
   // Otherwise prefer the live feed whenever it sends a card slot for this round
   // (even a face-down "0"), so the table never shows the previous round's card.
-  const cards = resultIsThisRound
+  const rawCards = resultIsThisRound
     ? resultCards
     : liveHasRealCard || Object.keys(liveCards).length || !Object.keys(resultCards).length
       ? liveCards
       : resultCards;
+  // The live feed sometimes flips already-dealt cards back to "0"/blank mid-round.
+  // Remember every card seen for this round so an opened card never closes again.
+  const seenCardsRef = useRef<{ round: string; hands: Record<string, Record<string, string>> }>({ round: "", hands: {} });
+  const cards = useMemo(() => {
+    const seen = seenCardsRef.current;
+    if (seen.round !== roundKey) {
+      seen.round = roundKey ?? "";
+      seen.hands = {};
+    }
+    const out: Record<string, any> = {};
+    for (const [k, v] of Object.entries(rawCards as Record<string, any>)) {
+      if (!v || typeof v !== "object") {
+        out[k] = v;
+        continue;
+      }
+      const prev = (seen.hands[k] ||= {});
+      const hand: Record<string, string> = {};
+      for (const [slot, c] of Object.entries(v as Record<string, string>)) {
+        const s = String(c ?? "").trim();
+        if (s && s !== "0") prev[slot] = s;
+        hand[slot] = prev[slot] ?? s;
+      }
+      out[k] = hand;
+    }
+    return out as typeof rawCards;
+  }, [rawCards, roundKey]);
 
 
 
