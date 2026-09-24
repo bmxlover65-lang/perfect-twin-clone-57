@@ -16,7 +16,7 @@ import { Scoreboard } from "@/components/Scoreboard";
 import { LiveTv } from "@/components/LiveTv";
 import { AppLoader } from "@/components/AppLoader";
 import { settleFancyLines, settleFromRunners, voidOpen, voidOpenWhere } from "@/lib/wallet";
-import { fancyResult, pullScore, readTrack } from "@/lib/fancy-settle";
+import { fancyResult, matchOutcome, pullScore, readTrack } from "@/lib/fancy-settle";
 import soccerBanner from "@/assets/sports/soccer-banner.jpg.asset.json";
 import tennisBanner from "@/assets/sports/tennis-banner.jpg.asset.json";
 import cricketBanner from "@/assets/sports/cricket-banner.jpg.asset.json";
@@ -832,7 +832,7 @@ function EventPage() {
     const live = all.length;
     if (live === 0) {
       if (!closedSince.current) closedSince.current = Date.now();
-      else if (Date.now() - closedSince.current > 30_000) voidOpen(`sports-${eventId}`);
+      else if (Date.now() - closedSince.current > (sportId === "4" ? 600_000 : 30_000)) voidOpen(`sports-${eventId}`);
     } else {
       closedSince.current = 0;
     }
@@ -848,6 +848,11 @@ function EventPage() {
       const track = await pullScore(eventId);
       if (!alive || !track) return;
       settleFancyLines(`sports-${eventId}`, (mk) => fancyResult(track, mk));
+      // Match over: the scoreboard names the winner — pay Match Odds /
+      // Bookmaker bets from it (tie / no result refunds).
+      const out = matchOutcome(track);
+      if (out?.void) voidOpen(`sports-${eventId}`);
+      else if (out) settleFromRunners(`sports-${eventId}`, out.results);
     };
     void tick();
     const t = window.setInterval(tick, 3000);
