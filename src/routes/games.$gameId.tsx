@@ -621,8 +621,6 @@ function RankCardLabel({ rank }: { rank: string }) {
 /** Suit glyphs printed inside the rate plate (Lucky Color / Lucky Card Suit — original style). */
 function labelSuits(label: string): string[] {
   const up = label.trim().toUpperCase();
-  if (up === "RED") return ["♥", "♦"];
-  if (up === "BLACK") return ["♠", "♣"];
   if (up.startsWith("HEART")) return ["♥"];
   if (up.startsWith("DIAMOND")) return ["♦"];
   if (up.startsWith("SPADE")) return ["♠"];

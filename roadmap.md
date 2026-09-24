@@ -151,4 +151,4 @@ Lucky 0-9, Heads & Tails, Aviator, Ball by Ball).
 - [x] 1 Day Dragon Tiger (99.0007 per Dukex list; 99.0021 tile bhi check karna)
 - [x] Dragon Tiger (99.0018) — board + video-area sizes matched
 - [x] 20-20 Dragon Tiger (99.0019) — board + Recent Result matched, lobby tiles fixed
-- [ ] Lucky 7 suspend check (99.0030)
+- [x] Lucky 7 suspend check (99.0030)

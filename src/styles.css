@@ -1077,3 +1077,5 @@
 .lucky7-results.is-dt20 .lucky7-result-chip { height: 24px; }
 .reflist.is-32 .reflist-header { height: 23px; }
 .reflist.is-32 .reflist-row { height: 39px; }
+.lucky7-board:not(.is-dt20) .lucky7-runner:nth-child(n+3) { padding-top: 7px; }
+.lucky7-board:not(.is-dt20) .lucky7-market-row { padding-bottom: 7px; }
