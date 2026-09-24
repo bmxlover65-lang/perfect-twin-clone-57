@@ -15,7 +15,7 @@ import { createFeedState, mergeFeed } from "@/lib/feed-merge";
 import { Scoreboard } from "@/components/Scoreboard";
 import { LiveTv } from "@/components/LiveTv";
 import { AppLoader } from "@/components/AppLoader";
-import { settleFancyLines, settleFromRunners, voidOpen, voidOpenWhere } from "@/lib/wallet";
+import { readWallet, settleFancyLines, settleFromRunners, voidOpen, voidOpenWhere } from "@/lib/wallet";
 import { fancyResult, matchOutcome, pullScore, pullSideScore, readTrack, sideOutcome } from "@/lib/fancy-settle";
 import soccerBanner from "@/assets/sports/soccer-banner.jpg.asset.json";
 import tennisBanner from "@/assets/sports/tennis-banner.jpg.asset.json";
@@ -857,6 +857,15 @@ function EventPage() {
             settleFromRunners(`sports-${eventId}`, entries.map(([label]) => ({ label, won: label === fav[0]![0] })));
         }
         voidOpen(`sports-${eventId}`);
+      }
+      // Match is over: once nothing of ours is still waiting on it, leave the
+      // page so a finished match never stays on screen.
+      if (
+        closedSince.current &&
+        Date.now() - closedSince.current > 20_000 &&
+        !readWallet().bets.some((b) => b.status === "open" && b.gameId === `sports-${eventId}`)
+      ) {
+        window.location.replace(`/sports?sport=${sportId}`);
       }
     } else {
       closedSince.current = 0;

@@ -252,8 +252,12 @@ function SportsPage() {
   // Races and matches the feed has already settled (every runner WINNER/LOSER
   // or REMOVED) carry no prices any more, so they must not stay in the list.
   const isSettled = (e: UEvent) => {
+    if (/CLOSE|SETTLE|RESULT|COMPLETE|ABANDON/i.test(String(e.status ?? ""))) return true;
     const runners = e.runners ?? [];
     if (!runners.length) return false;
+    if (runners.some((r) => /WIN|LOSE|LOSS/i.test(String(r.status ?? "")))) return true;
+    // Result known: one side frozen at 1.01 while the match is still listed.
+    if (e.inPlay && runners.some((r) => r.backPrice > 0 && r.backPrice <= 1.01 && r.layPrice <= 1.02)) return true;
     return runners.every((r) => /WIN|LOSE|LOSS|REMOVED|CLOSED|SETTLED/i.test(String(r.status ?? "")));
   };
   const sportEventsAll = useMemo(
