@@ -3676,7 +3676,9 @@ function GamePage() {
                 admin,
                 gameId,
                 (d as unknown as { gameResult?: string })?.gameResult ??
-                  results[0]?.winner ??
+                  (String(results[0]?.roundId ?? "") === String(d?.roundId ?? "-")
+                    ? results[0]?.winner
+                    : undefined) ??
                   null,
               )}
               roundId={d?.roundId ? String(d.roundId) : undefined}
@@ -3691,7 +3693,9 @@ function GamePage() {
               admin,
               gameId,
               (d as unknown as { gameResult?: string })?.gameResult ??
-                results[0]?.winner ??
+                (String(results[0]?.roundId ?? "") === String(d?.roundId ?? "-")
+                    ? results[0]?.winner
+                    : undefined) ??
                 null,
             )}
             roundId={d?.roundId ? String(d.roundId) : undefined}
