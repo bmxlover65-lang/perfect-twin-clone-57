@@ -121,8 +121,9 @@ function InfoIcon({ light = false, text }: { light?: boolean; text?: string }) {
   }, [open]);
   return (
     <span className="relative inline-flex shrink-0" data-nobet="">
-      <button
-        type="button"
+      <span
+        role="button"
+        tabIndex={0}
         aria-label="Market info"
         aria-expanded={open}
         onClick={(e) => {
@@ -134,7 +135,7 @@ function InfoIcon({ light = false, text }: { light?: boolean; text?: string }) {
         }`}
       >
         i
-      </button>
+      </span>
       {open ? (
         <span
           role="tooltip"
@@ -769,7 +770,7 @@ function EventPage() {
         <EventBanner
           sportId={sportId}
           eventName={data?.eventName ?? SPORT_NAMES[sportId] ?? "Live event"}
-          openDate={data?.openDate}
+          openDate={data?.openDate ?? (allMatchOdds[0] as { eventTime?: string } | undefined)?.eventTime ?? (bookmakers[0] as { eventTime?: string } | undefined)?.eventTime}
           inPlay={data?.inPlay}
           suspended={matchOdds.length > 0 && matchOdds.every((m) => marketState(m).dim)}
         />
