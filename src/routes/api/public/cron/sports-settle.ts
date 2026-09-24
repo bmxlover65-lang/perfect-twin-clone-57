@@ -11,7 +11,9 @@ export const Route = createFileRoute("/api/public/cron/sports-settle")({
         if (!allowed.includes(key)) return new Response("Unauthorized", { status: 401 });
         const origin = new URL(request.url).origin;
         const out = await autoSettleSports(origin);
-        return Response.json({ ok: true, ...out });
+        const { autoSettleCasino } = await import("@/lib/casino-autosettle.server");
+        const casino = await autoSettleCasino(origin).catch(() => ({ casinoRounds: 0 }));
+        return Response.json({ ok: true, ...out, ...casino });
       },
     },
   },
