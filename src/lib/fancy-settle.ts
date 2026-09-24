@@ -223,3 +223,63 @@ export function matchOutcome(track: ScoreTrack): { results: { label: string; won
   if (!win) return null;
   return { results: names.map((n) => ({ label: exch(n), won: n === win })), void: false };
 }
+
+/* ---------- Soccer / Tennis final result from the live scoreboard ---------- */
+
+const cleanTeam = (s: string) => s.replace(/[{}()]/g, "").replace(/\s+/g, " ").trim();
+
+/** Pull the soccer (goals) or tennis (sets) score and remember the latest one. */
+export async function pullSideScore(sportId: string, eventId: string): Promise<void> {
+  const coll = sportId === "1" ? "soccerScore" : sportId === "2" ? "tennisScore" : "";
+  if (!coll) return;
+  const res = await fetch(FS_URL, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      structuredQuery: {
+        from: [{ collectionId: coll }],
+        where: { fieldFilter: { field: { fieldPath: "eventId" }, op: "EQUAL", value: { stringValue: eventId } } },
+      },
+    }),
+  }).catch(() => null);
+  if (!res?.ok) return;
+  const rows = (await res.json()) as { document?: { fields?: Record<string, FsVal> } }[];
+  const doc = rows.find((r) => r.document)?.document;
+  if (!doc) return;
+  const f = plain({ mapValue: { fields: doc.fields ?? {} } }) as {
+    slider?: { slider: number; score?: { scoreItems?: { teamName: string; scoreData: { iconName: string; value: string }[] }[] } }[];
+  };
+  const items = f.slider?.find((s) => Number(s.slider) === 1)?.score?.scoreItems ?? [];
+  if (items.length !== 2) return;
+  const icon = sportId === "1" ? "goal" : "sets";
+  const sides = items.map((it) => ({
+    name: cleanTeam(it.teamName),
+    v: Number(it.scoreData.find((d) => d.iconName === icon)?.value ?? NaN),
+  }));
+  if (sides.some((s) => !Number.isFinite(s.v))) return;
+  try {
+    localStorage.setItem(`uapi_side_score_${eventId}`, JSON.stringify({ sportId, sides, at: Date.now() }));
+  } catch { /* ignore */ }
+}
+
+/**
+ * Final Match Odds result from the last score seen, used once the feed closes
+ * the event. Soccer: more goals wins, level = "The Draw". Tennis: more sets
+ * wins (needs a completed match — at least 2 sets and not level).
+ */
+export function sideOutcome(eventId: string): { label: string; won: boolean }[] | null {
+  let s: { sportId: string; sides: { name: string; v: number }[] } | null = null;
+  try {
+    s = JSON.parse(localStorage.getItem(`uapi_side_score_${eventId}`) ?? "null");
+  } catch { return null; }
+  if (!s || s.sides.length !== 2) return null;
+  const [a, b] = s.sides as [{ name: string; v: number }, { name: string; v: number }];
+  if (s.sportId === "2" && (a.v === b.v || Math.max(a.v, b.v) < 2)) return null;
+  const draw = a.v === b.v;
+  const out = [
+    { label: a.name, won: a.v > b.v },
+    { label: b.name, won: b.v > a.v },
+  ];
+  if (s.sportId === "1") out.push({ label: "The Draw", won: draw });
+  return out;
+}
