@@ -60,6 +60,7 @@ export async function walletCall(
         "x-universal-operator": operator.id,
       },
       body,
+      signal: AbortSignal.timeout(10_000),
     });
     statusCode = res.status;
     const text = await res.text();
