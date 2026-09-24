@@ -3642,28 +3642,6 @@ function GamePage() {
   if (isOriginal) {
     return (
       <div className={shell("max-w-[1240px]")}>
-        {embed ? null : (
-
-          <Link to="/" className="text-sm text-[#2563EB] hover:underline">
-
-            ← Back to lobby
-
-          </Link>
-
-        )}
-        {embed ? null : (
-          <div className="mt-2">
-            <p className="text-[0.7rem] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-              Live · Universe Original
-            </p>
-            <h1 className="text-[1.35rem] font-extrabold uppercase text-foreground">
-              {cleanGameName(d?.eventName) ?? fallbackGameName}
-            </h1>
-            <p className="mt-1 flex flex-wrap items-center gap-2 text-[0.8rem] font-bold text-foreground/80">
-              <span>RID: {d?.roundId ?? "—"}</span>
-            </p>
-          </div>
-        )}
 
 
         {error ? <p className="mt-3 text-sm text-live-lose">{error}</p> : null}
