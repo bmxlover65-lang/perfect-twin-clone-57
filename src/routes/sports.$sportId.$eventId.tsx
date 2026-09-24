@@ -108,16 +108,56 @@ function Cell({
   );
 }
 
-function InfoIcon({ light = false }: { light?: boolean }) {
+function InfoIcon({ light = false, text }: { light?: boolean; text?: string }) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const close = () => setOpen(false);
+    const t = setTimeout(() => document.addEventListener("click", close, { once: true }), 0);
+    return () => {
+      clearTimeout(t);
+      document.removeEventListener("click", close);
+    };
+  }, [open]);
   return (
-    <span
-      className={`flex h-[15px] w-[15px] shrink-0 items-center justify-center rounded-full border text-[0.6rem] font-bold leading-none ${
-        light ? "border-dx-page text-dx-page" : "border-dx-ink text-dx-ink"
-      }`}
-    >
-      i
+    <span className="relative inline-flex shrink-0" data-nobet="">
+      <span
+        role="button"
+        tabIndex={0}
+        aria-label="Market info"
+        aria-expanded={open}
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((v) => !v);
+        }}
+        className={`flex h-[15px] w-[15px] items-center justify-center rounded-full border text-[0.6rem] font-bold leading-none ${
+          light ? "border-dx-page text-dx-page" : "border-dx-ink text-dx-ink"
+        }`}
+      >
+        i
+      </span>
+      {open ? (
+        <span
+          role="tooltip"
+          className="absolute left-0 top-[19px] z-30 w-[190px] rounded-md border border-dx-rule bg-dx-page p-2 text-left text-[0.66rem] font-semibold leading-snug text-dx-ink shadow-lg"
+        >
+          {text ?? "Bets are matched at the shown rate. Suspended markets do not accept bets."}
+        </span>
+      ) : null}
     </span>
   );
+}
+
+function marketInfo(market: Market): string {
+  const m = market as Market & { min?: number; max?: number };
+  const delay = market.oddsData?.betDelay;
+  return [
+    m.min || m.max ? `Min ${m.min ?? 0} · Max ${m.max ?? 0}` : null,
+    delay ? `Bet delay ${delay}s` : null,
+    "Suspended markets do not accept bets. Settled on the official result.",
+  ]
+    .filter(Boolean)
+    .join(" · ");
 }
 
 function Suspended({ label }: { label: string }) {
@@ -275,7 +315,7 @@ function FancyRow({ market }: { market: Market }) {
     >
       <span className="flex min-w-0 items-center gap-1 px-1.5 text-[0.72rem] font-bold leading-tight text-dx-ink">
         <span className="min-w-0 flex-1">{market.marketName.trim()}</span>
-        <InfoIcon />
+        <InfoIcon text={marketInfo(market)} />
       </span>
       <Cell label={`${market.marketName.trim()} No`} betOdds={no?.size ? 1 + no.size / 100 : undefined} price={no?.price} size={no?.size} side="lay" dim={dim} />
       <Cell label={`${market.marketName.trim()} Yes`} betOdds={yes?.size ? 1 + yes.size / 100 : undefined} price={yes?.price} size={yes?.size} side="back" dim={dim} />
@@ -345,7 +385,7 @@ function FancySection({ markets, sportsbook }: { markets: Market[]; sportsbook: 
             onClick={() => setHead("fancy")}
             className="flex items-center gap-1.5 rounded-tr-[10px] bg-dx-fancy px-2"
           >
-            Fancy Bet <InfoIcon light />
+            Fancy Bet <InfoIcon light text="Fancy / session bets: No = runs below the line, Yes = at or above. Settled on the official score." />
           </button>
         ) : null}
         {sportsbook.length ? (
@@ -354,7 +394,7 @@ function FancySection({ markets, sportsbook }: { markets: Market[]; sportsbook: 
             onClick={() => setHead("sb")}
             className="flex items-center gap-1.5 rounded-tr-[10px] bg-dx-sb px-2"
           >
-            Sportsbook <InfoIcon light />
+            Sportsbook <InfoIcon light text="Sportsbook markets pay the decimal rate shown. Settled on the official result." />
           </button>
         ) : null}
       </div>
@@ -409,11 +449,13 @@ function EventBanner({
   eventName,
   openDate,
   inPlay,
+  suspended,
 }: {
   sportId: string;
   eventName: string;
   openDate?: string | undefined;
   inPlay?: boolean | undefined;
+  suspended?: boolean | undefined;
 }) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -421,11 +463,21 @@ function EventBanner({
     return () => clearInterval(t);
   }, []);
   const at = openDate ? Date.parse(openDate) : NaN;
-  const left = Number.isFinite(at) ? Math.max(0, Math.floor((at - now) / 1000)) : null;
+  const left = Number.isFinite(at) ? Math.max(0, Math.floor((at - now) / 1000)) : 0;
   const pad = (n: number) => String(n).padStart(2, "0");
   const banner = SPORT_BANNERS[sportId] ?? soccerBanner;
+  const status = suspended ? "Suspended" : inPlay ? "Live now" : "Upcoming";
+  const gameTime = Number.isFinite(at)
+    ? new Date(at).toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })
+    : "—";
   return (
-    <div className="relative h-[92px] overflow-hidden bg-dx-ink text-dx-page" data-nobet="">
+    <div className="relative h-[92px] overflow-hidden bg-dx-ink text-dx-page" data-nobet="" data-event-banner="">
       <img
         src={banner.url}
         alt=""
@@ -437,22 +489,19 @@ function EventBanner({
       <div className="absolute inset-0 bg-dx-ink/55" />
       <div className="relative grid h-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3">
         <div className="min-w-0">
-          <span className="block text-[0.72rem] font-bold uppercase text-dx-cash">
-            {inPlay ? "Live now" : "Suspended"}
+          <span
+            data-banner-status=""
+            className={`block text-[0.72rem] font-bold uppercase ${suspended ? "text-ex-suspend" : "text-dx-cash"}`}
+          >
+            {status}
           </span>
           <span className="line-clamp-2 text-[0.82rem] font-bold leading-tight">{eventName}</span>
         </div>
         <span className="shrink-0 text-right text-[0.68rem] font-semibold">
-          {inPlay
-            ? "In-Play"
-            : Number.isFinite(at)
-              ? `Game time ${new Date(at).toLocaleString()}`
-              : "Starting soon"}
-          {!inPlay && left !== null ? (
-            <span className="block text-[0.95rem] font-bold text-dx-cash">
-              Count Down {pad(Math.floor(left / 3600))}:{pad(Math.floor((left % 3600) / 60))}:{pad(left % 60)}
-            </span>
-          ) : null}
+          <span className="block">Game time {gameTime}</span>
+          <span className="block text-[0.95rem] font-bold text-dx-cash">
+            Count Down {pad(Math.floor(left / 3600))}:{pad(Math.floor((left % 3600) / 60))}:{pad(left % 60)}
+          </span>
         </span>
       </div>
     </div>
@@ -721,8 +770,9 @@ function EventPage() {
         <EventBanner
           sportId={sportId}
           eventName={data?.eventName ?? SPORT_NAMES[sportId] ?? "Live event"}
-          openDate={data?.openDate}
+          openDate={data?.openDate ?? (allMatchOdds[0] as { eventTime?: string } | undefined)?.eventTime ?? (bookmakers[0] as { eventTime?: string } | undefined)?.eventTime}
           inPlay={data?.inPlay}
+          suspended={matchOdds.length > 0 && matchOdds.every((m) => marketState(m).dim)}
         />
       ) : null}
 
