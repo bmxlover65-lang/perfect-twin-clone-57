@@ -555,8 +555,8 @@
   --poker-panel: oklch(0.95 0.004 250);
   --poker-muted: oklch(0.62 0.01 250);
   --bbb-field: oklch(0.9 0.065 156);
-  --bbb-runs-top: oklch(0.92 0.155 104);
-  --bbb-runs-bottom: oklch(0.82 0.17 101);
+  --bbb-runs-top: #f5e85a;
+  --bbb-runs-bottom: #d6c32a;
   --bbb-four-top: oklch(0.87 0.16 150);
   --bbb-four-bottom: oklch(0.69 0.18 151);
   --bbb-six-top: oklch(0.79 0.12 282);
@@ -665,8 +665,8 @@
   --casino-suspend-veil: oklch(0.9 0.03 226 / 0.62);
   --casino-suspend-text: oklch(0.58 0.15 15);
   --bbb-field: oklch(0.9 0.065 156);
-  --bbb-runs-top: oklch(0.92 0.155 104);
-  --bbb-runs-bottom: oklch(0.82 0.17 101);
+  --bbb-runs-top: #f5e85a;
+  --bbb-runs-bottom: #d6c32a;
   --bbb-four-top: oklch(0.87 0.16 150);
   --bbb-four-bottom: oklch(0.69 0.18 151);
   --bbb-six-top: oklch(0.79 0.12 282);

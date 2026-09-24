@@ -1365,11 +1365,10 @@ export type BbbRunner = {
 /** Recent-result bubble colours, matching the live reference board. */
 function resultTone(label: string) {
   const l = label.toUpperCase();
-  if (l.startsWith("W")) return "#D32F2F";
-  if (l.startsWith("EX")) return "#7E57C2";
-  if (l.startsWith("4") || l.startsWith("6")) return "#2E9E4F";
-  if (l.startsWith("0")) return "#9AA1A8";
-  return "#2F6FD0";
+  if (l.startsWith("W")) return "linear-gradient(180deg,#f07070,#d93a3a)";
+  if (l.startsWith("6")) return "linear-gradient(180deg,#a9a6ff,#7c79ee)";
+  if (l.startsWith("4")) return "linear-gradient(180deg,#6fd69a,#35a866)";
+  return "linear-gradient(180deg,#f5e85a,#dcc92c)";
 }
 
 /** Reference shows 11 / 12.2 rather than 11.00 / 12.20. */
@@ -1400,19 +1399,19 @@ const Plate = ({ r, index }: { r: BbbRunner; index: number }) => (
       data-bet-label={r.label}
       data-bet-odds={r.backPrice ?? undefined}
       data-suspended={open(r.status) ? undefined : "true"}
-      className={`bbb-rate-plate relative flex h-[68px] min-w-0 items-center gap-1 overflow-hidden rounded-[7px] px-2 text-casino-market-text sm:h-[70px] sm:px-2.5 ${plateTone(r.label)}`}
+      className={`bbb-rate-plate relative flex h-[65px] min-w-0 items-center gap-1 overflow-hidden rounded-[8px] pl-[7px] pr-1 font-[Arial,Helvetica,sans-serif] text-casino-market-text ${plateTone(r.label)}`}
       style={{ animationDelay: `${index * 80}ms` }}
     >
-      <span className="pointer-events-none absolute bottom-0 left-[42%] top-0 z-[1] border-l-[3px] border-dashed border-casino-market-text" />
-      <span className="relative z-[1] flex w-[42%] shrink-0 flex-col items-center justify-center leading-none">
-        <span className="text-[0.72rem] font-extrabold sm:text-[0.76rem]">
-          {r.backPrice ? fmtPrice(r.backPrice) : "—"}
+      <span className="pointer-events-none absolute bottom-0 left-[36%] top-0 z-[1] border-l-[4px] border-dashed border-casino-market-text" />
+      <span className="relative z-[1] flex w-[36%] shrink-0 flex-col items-start justify-center leading-none">
+        <span className="text-[15px] font-bold">
+          {r.backPrice ? r.backPrice.toFixed(2) : "—"}
         </span>
-        <span className="mt-0.5 text-[0.62rem] font-medium sm:text-[0.65rem]">
-          {r.backSize ? Math.round(r.backSize).toLocaleString("en-US", { useGrouping: false }) : ""}
+        <span className="mt-[6px] text-[11px] font-normal">
+          {r.backSize ? Math.round(r.backSize).toLocaleString("en-US") : ""}
         </span>
       </span>
-      <span className="relative z-[1] flex min-w-0 flex-1 items-center justify-center gap-1 break-words text-center text-[0.78rem] font-extrabold uppercase leading-[0.86rem] sm:text-[0.82rem] sm:leading-[0.9rem]">
+      <span className="relative z-[1] flex min-w-0 flex-1 items-center justify-center gap-1 break-words text-center text-[16px] font-bold uppercase leading-[19px]">
         <span className={r.label.length > 9 ? "min-w-0 break-words" : "whitespace-nowrap"}>
           {r.label}
         </span>
@@ -1457,9 +1456,7 @@ export function BallByBallBoard({
           </span>
         </button>
         <div className="flex items-center gap-2">
-          <span className="text-[0.56rem] font-medium text-board-header-foreground">
-            Min/Max: {min} - {max}
-          </span>
+          
           <button
             type="button"
             aria-label="Open Ball by Ball rules"
@@ -1470,7 +1467,7 @@ export function BallByBallBoard({
           </button>
         </div>
       </div>
-      <div className="grid h-[26px] grid-cols-2 border-b border-casino-market-divider bg-casino-market-body">
+      <div className="grid h-[30px] grid-cols-2 border-b border-casino-market-divider bg-secondary">
         <span className="flex items-center justify-center text-[0.86rem] font-semibold">
           Back
         </span>
@@ -1478,27 +1475,24 @@ export function BallByBallBoard({
           Back
         </span>
       </div>
-      <div className="grid grid-cols-2 items-start gap-x-[40px] gap-y-[10px] bg-bbb-field px-[22px] py-[10px] sm:gap-x-12 sm:px-6">
+      <div className="grid grid-cols-2 items-start gap-x-[14px] gap-y-[10px] px-[11px] py-[11px] sm:gap-x-6 sm:px-6" style={{ background: "linear-gradient(90deg,#bff0cf,#e3f6fb)" }}>
         {runners.map((r, index) => (
           <Plate key={r.selectionId} r={r} index={index} />
         ))}
       </div>
 
-      <div className="border-y border-casino-market-divider bg-secondary px-5 py-2 text-center text-[0.74rem] font-medium leading-[0.9rem] text-secondary-foreground">
-        {news ?? "Results are based on stream only. Score board may be different or updated later"}
-      </div>
 
       {recent && recent.length ? (
-        <div className="flex h-[34px] items-center gap-1 overflow-hidden bg-background px-2">
-          <p className="shrink-0 text-[0.56rem] font-bold">Recent Result</p>
-          <div className="flex min-w-0 items-center gap-1 overflow-x-auto">
+        <div className="flex h-[34px] items-center gap-[7px] overflow-hidden bg-foreground px-[7px]">
+          <p className="shrink-0 text-[13px] font-bold text-background">Recent Result</p>
+          <div className="flex min-w-0 items-center gap-[7px] overflow-x-auto">
             {recent.slice(0, 14).map((w, i) => (
               <span
                 key={`${w}-${i}`}
-                className="grid h-[20px] w-[20px] shrink-0 place-items-center rounded-full text-[0.62rem] font-extrabold text-white"
+                className="grid h-[26px] w-[36px] shrink-0 place-items-center rounded-full text-[13px] font-bold text-casino-market-text"
                 style={{ background: resultTone(w) }}
               >
-                {w}
+                {w === "EX" ? "E" : w}
               </span>
             ))}
           </div>

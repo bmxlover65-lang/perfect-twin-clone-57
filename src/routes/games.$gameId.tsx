@@ -3547,22 +3547,11 @@ function GamePage() {
 
     return (
       <div className={shell("max-w-[620px]")}>
-        <div className="bg-secondary px-2 py-1">
-          {embed ? null : (
-
-            <Link to="/" className="text-sm text-[#2563EB] hover:underline">
-
-              ← Back to lobby
-
-            </Link>
-
-          )}
-        </div>
-        <div className="grid h-[26px] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 bg-casino-market-header px-2">
-          <span className="truncate text-[0.7rem] font-bold uppercase text-board-header-foreground">
-            {d?.eventName ?? "Ball By Ball"}
+        <div className="grid h-[38px] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 bg-casino-market-header px-[10px]">
+          <span className="truncate text-[16px] font-bold text-board-header-foreground">
+            Ball By Ball
           </span>
-          <span className="shrink-0 text-[0.55rem] font-bold text-board-header-foreground">
+          <span className="shrink-0 text-[11px] font-bold text-board-header-foreground">
             {viewRound || "—"}
           </span>
 
