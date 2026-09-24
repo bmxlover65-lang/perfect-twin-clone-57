@@ -3413,7 +3413,7 @@ function GamePage() {
         return ja - jb || ab - bb || a.i - b.i;
       })
       .map(({ h }) => h);
-    if (!hands.length && gameId === "99.0022") {
+    if (gameId === "99.0022" && hands.every((h) => !Object.values(h.hand).some((c) => c && c !== "0"))) {
       // Dukex shows the four player slots with a face-down card before dealing.
       hands = [8, 9, 10, 11].map((n) => ({ title: `Player ${n}:${n}`, hand: { "0": "0" } }));
     }
