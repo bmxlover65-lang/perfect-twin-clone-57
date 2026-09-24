@@ -103,7 +103,9 @@ function Cell({
       } ${flash} text-dx-ink`}
     >
       <span className="text-[0.8rem] font-bold leading-tight">{price ? fmtOdds(price) : "0"}</span>
-      <span className="text-[0.66rem] leading-tight">{price ? fmtSize(size) || "0.00" : "0.00"}</span>
+      <span className="text-[0.66rem] leading-tight">
+        {!price ? "0.00" : betOdds !== undefined ? fmtSize(size) || "0.00" : dxSize(size)}
+      </span>
     </div>
   );
 }
@@ -206,6 +208,14 @@ function MarketTitle({ name, matched }: { name: string; matched?: number | undef
       </span>
     </header>
   );
+}
+
+/** Dukex prints cell volumes with two decimals: 474.92, 8.43K, 5.00M. */
+function dxSize(v?: number): string {
+  const n = Number(v) || 0;
+  if (n >= 1e6) return `${(n / 1e6).toFixed(2)}M`;
+  if (n >= 1e3) return `${(n / 1e3).toFixed(2)}K`;
+  return n.toFixed(2);
 }
 
 /** Dukex prints matched volume short (€2M, €15M). */
@@ -367,14 +377,47 @@ function fancyTab(m: Market): string {
   return "Fancy";
 }
 
-const FANCY_TAB_ORDER = ["Fancy", "Line Market", "Ball by Ball", "Meter", "Khado", "Odd/Even"];
+// Dukex always shows the full filter bar, even when a filter is empty.
+const FANCY_TABS = ["Fancy", "Line Market", "Ball by Ball", "Meter", "Khado"];
+const SB_TABS = ["Match", "Odds/Evens", "Batsman", "Bowler", "Extra"];
+
+function sbTab(m: Market): string {
+  const n = m.marketName.toUpperCase();
+  if (/ODD|EVEN/.test(n)) return "Odds/Evens";
+  if (/BOWLER|WICKETS? BY|DISMISS/.test(n)) return "Bowler";
+  if (/BATSMAN|BATTER|RUNS BY|PLAYER|TOP BAT/.test(n)) return "Batsman";
+  if (/EXTRA|WIDE|NO ?BALL|BOUNDAR|SIX|FOUR|DIGIT/.test(n)) return "Extra";
+  return "Match";
+}
+
+function FilterBar({ tabs, active, onPick, tone }: { tabs: string[]; active: string; onPick: (t: string) => void; tone: string }) {
+  return (
+    <div className={`flex justify-center px-2 py-1 ${tone}`}>
+      <div className="flex gap-0 overflow-x-auto rounded-[4px] bg-dx-minmax/40 p-[2px]">
+        {["ALL", ...tabs].map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => onPick(t)}
+            className={`whitespace-nowrap rounded-[3px] px-2 py-[3px] text-[0.68rem] font-semibold ${
+              active === t ? "bg-dx-page text-dx-ink" : "text-dx-page"
+            }`}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function FancySection({ markets, sportsbook }: { markets: Market[]; sportsbook: Market[] }) {
-  const tabs = FANCY_TAB_ORDER.filter((t) => markets.some((m) => fancyTab(m) === t));
   const [tab, setTab] = useState("ALL");
+  const [sb, setSb] = useState("ALL");
   const [head, setHead] = useState<"fancy" | "sb">(markets.length ? "fancy" : "sb");
-  const active = tab !== "ALL" && tabs.includes(tab) ? tab : "ALL";
+  const active = tab;
   const shown = active === "ALL" ? markets : markets.filter((m) => fancyTab(m) === active);
+  const sbShown = sb === "ALL" ? sportsbook : sportsbook.filter((m) => sbTab(m) === sb);
 
   return (
     <section className="mb-3 bg-dx-page">
@@ -400,24 +443,7 @@ function FancySection({ markets, sportsbook }: { markets: Market[]; sportsbook: 
       </div>
       {head === "fancy" ? (
         <>
-          {tabs.length ? (
-            <div className="flex justify-center bg-dx-fancy-bar px-2 py-1">
-              <div className="flex gap-0 overflow-x-auto rounded-[4px] bg-dx-minmax/40 p-[2px]">
-                {["ALL", ...tabs].map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => setTab(t)}
-                    className={`whitespace-nowrap rounded-[3px] px-2 py-[3px] text-[0.68rem] font-semibold ${
-                      active === t ? "bg-dx-page text-dx-ink" : "text-dx-page"
-                    }`}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : null}
+          <FilterBar tabs={FANCY_TABS} active={active} onPick={setTab} tone="bg-dx-fancy-bar" />
           <div className="grid h-[22px] grid-cols-[minmax(0,1fr)_79px_79px] text-[0.66rem] font-semibold text-dx-ink">
             <span />
             <span className="flex items-center justify-center bg-dx-lay1">No</span>
@@ -429,7 +455,8 @@ function FancySection({ markets, sportsbook }: { markets: Market[]; sportsbook: 
         </>
       ) : (
         <div>
-          {sportsbook.map((m) => (
+          <FilterBar tabs={SB_TABS} active={sb} onPick={setSb} tone="bg-dx-sb" />
+          {sbShown.map((m) => (
             <Board key={m.marketId} market={m} levels={1} backOnly />
           ))}
         </div>
