@@ -39,8 +39,8 @@ function hashStr(s: string) {
 const LUCKY_ORDER = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 function segColor(n: number) {
-  if (n === 0) return "#3FB65B";
-  return n % 2 === 1 ? "#E7503C" : "#151515";
+  if (n === 0) return "#1E6B2E";
+  return n % 2 === 1 ? "#FF1A1A" : "#000000";
 }
 
 function polar(cx: number, cy: number, r: number, deg: number) {
@@ -125,15 +125,14 @@ export function LuckyWheel({
                   <path
                     d={`M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1} Z`}
                     fill={segColor(n)}
-                    stroke="#F2C500"
-                    strokeWidth={2}
+                    stroke="none"
                   />
                   <text
                     x={tx}
                     y={ty}
                     fill="#fff"
-                    fontSize={30}
-                    fontWeight={800}
+                    fontSize={40}
+                    fontWeight={900}
                     textAnchor="middle"
                     dominantBaseline="central"
                     transform={`rotate(${a0 + step / 2} ${tx} ${ty})`}
@@ -148,7 +147,7 @@ export function LuckyWheel({
           <span className="pointer-events-none absolute left-1/2 top-1/2 flex h-[86px] w-[86px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-[#F2C500] bg-[#151515] text-[2.2rem] font-black leading-none text-[#F2C500]">
             U
           </span>
-          <span className="pointer-events-none absolute left-1/2 top-[-4px] -translate-x-1/2 text-[1.4rem] leading-none text-[#F2C500]">
+          <span className="pointer-events-none absolute left-1/2 top-[-14px] -translate-x-1/2 text-[2.6rem] leading-none text-[#F2C500]">
             ▼
           </span>
           <RoundTimer leftSec={leftSec} suspended={suspended} className="absolute right-2 top-2" />
