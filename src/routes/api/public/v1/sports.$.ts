@@ -51,7 +51,14 @@ const handler = async ({ request, params }: { request: Request; params: unknown 
     const text = await res.text();
     return new Response(text, {
       status: res.status,
-      headers: { "content-type": "application/json", "cache-control": "no-store" },
+      headers: {
+        "content-type": "application/json",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "cdn-cache-control": "no-store",
+        "surrogate-control": "no-store",
+        pragma: "no-cache",
+        expires: "0",
+      },
     });
   };
 

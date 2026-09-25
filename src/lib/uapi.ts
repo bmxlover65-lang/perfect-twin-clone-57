@@ -127,9 +127,9 @@ export function fetchOdds(sportId: string, exEventId: string) {
 }
 
 export async function sportsSocketUrl(sportId: string, exEventId: string) {
-  const { sessionToken } = await fetchSessionToken();
-  const params = new URLSearchParams({ sportId, exEventId, sessionToken });
-  return `wss://universeapi.shop/public/ws/sports?${params.toString()}`;
+  const params = new URLSearchParams({ sportId, exEventId });
+  const scheme = window.location.protocol === "https:" ? "wss:" : "ws:";
+  return `${scheme}//${window.location.host}/ws/sports?${params.toString()}`;
 }
 
 export function fetchSessionToken() {
