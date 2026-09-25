@@ -192,7 +192,7 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
     import("./aura.server")
       .then((m) => Promise.race([
         m.auraOdds(sportId, exEventId),
-        new Promise<null>((r) => setTimeout(() => r(null), 2000)),
+        new Promise<null>((r) => setTimeout(() => r(null), 4500)),
       ]))
       .catch(() => null),
   ]);
