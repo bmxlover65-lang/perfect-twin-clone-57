@@ -222,9 +222,9 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
     fancy,
     sportsbook,
   };
-  // The live response must not wait on shared-storage I/O. Local state is
-  // updated synchronously inside writeShared; persistence continues outside
-  // the price-delivery path.
-  if (liveFrame) void writeShared(sportId, exEventId, { at: liveFrame.receivedAt, odds: result });
+  // Must be awaited: the hosting cuts off unawaited work once the response is
+  // sent, so fire-and-forget writes never reached the shared store and every
+  // copy kept serving its own old frame. The write is a single quick call.
+  if (liveFrame) await writeShared(sportId, exEventId, { at: liveFrame.receivedAt, odds: result });
   return result;
 }

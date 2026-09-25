@@ -701,7 +701,9 @@ const HOT_REFRESH_MS = 250;
 const HOT_IDLE_MS = 20_000;
 
 function isHotPath(splat: string) {
-  return /^sports\/[^/]+\/[^/]+\/odds$/.test(splat) || /^sports\/[^/]+\/events$/.test(splat);
+  // Odds skip this per-copy cache: each copy held its own old frame. Odds now
+  // read the shared newest frame (database watermark) on every request.
+  return /^sports\/[^/]+\/events$/.test(splat);
 }
 
 async function refreshHot(key: string, splat: string, search: string) {
