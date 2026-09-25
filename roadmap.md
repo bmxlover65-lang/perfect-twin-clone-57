@@ -1,6 +1,6 @@
 # Roadmap
 
-- [x] Live rates: restore sports socket updates, stop zero-volume Fancy/Bookmaker freezing, and prevent casino cold-start timeout/loading lock
+- [x] Live rates: switch the match page to the first-party socket and verify 100ms push updates after publish
 - [ ] Dream Catcher (88.0020): Dukex compare — winner fan overlay done, side-by-side photo pending (in progress)
 - [ ] Ball by Ball (dukex.biz/ballByBall/3035): ab live — Dukex se compare, side-by-side photo, board match
 - [x] Ball by Ball: current result ka naya video chalana; video end/error par banner dikhana, frozen frame nahi

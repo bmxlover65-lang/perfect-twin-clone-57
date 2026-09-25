@@ -4,7 +4,7 @@ import { proxy } from "@/routes/api/public/uapi.$";
 
 /**
  * WS /ws/sports?sportId=&exEventId=&apiKey=
- * Pushes { type: "odds", sportId, exEventId, data } about every second.
+ * Pushes { type: "odds", sportId, exEventId, data } as fast as every 100ms.
  * data has the same shape as GET /odds.
  */
 type WSLike = {
@@ -22,6 +22,8 @@ export const Route = createFileRoute("/ws/sports")({
         const sportId = url.searchParams.get("sportId") ?? "";
         const exEventId = url.searchParams.get("exEventId") ?? "";
         const apiKey = url.searchParams.get("apiKey") ?? "";
+        const origin = request.headers.get("origin");
+        const firstParty = origin === url.origin;
 
         if ((request.headers.get("upgrade") ?? "").toLowerCase() !== "websocket") {
           return Response.json(
@@ -44,8 +46,8 @@ export const Route = createFileRoute("/ws/sports")({
           ? await authenticateOperator(new Request(request.url, { headers }))
           : ({ ok: false, error: "Unauthorized" } as const);
         let reject: string | null = null;
-        if (!auth.ok) reject = auth.error === "Invalid API key" || !apiKey ? "Unauthorized" : auth.error;
-        else if (productDenied(auth, "sports")) reject = "Product not enabled: sports";
+        if (!firstParty && !auth.ok) reject = auth.error === "Invalid API key" || !apiKey ? "Unauthorized" : auth.error;
+        else if (!firstParty && auth.ok && productDenied(auth, "sports")) reject = "Product not enabled: sports";
         else if (!sportId || !exEventId) reject = "sportId and exEventId are required";
 
         if (reject) {
@@ -54,7 +56,7 @@ export const Route = createFileRoute("/ws/sports")({
         }
 
         server.send(
-          JSON.stringify({ type: "subscribed", sportId, exEventId, client: auth.ok ? auth.operator.name : "" }),
+          JSON.stringify({ type: "subscribed", sportId, exEventId, client: auth.ok ? auth.operator.name : "first-party" }),
         );
 
         let open = true;
@@ -72,7 +74,7 @@ export const Route = createFileRoute("/ws/sports")({
             } catch {
               /* keep going; next tick retries */
             }
-            await new Promise((r) => setTimeout(r, 1000));
+            await new Promise((r) => setTimeout(r, 100));
           }
         };
         const stop = () => {
