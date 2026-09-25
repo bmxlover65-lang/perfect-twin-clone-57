@@ -1104,7 +1104,7 @@ function EventPage() {
             <p className="px-2 py-6 text-center text-[0.8rem] text-ex-muted">No open markets right now.</p>
           ) : null}
           <p className="px-2 pt-1 text-right text-[0.6rem] text-ex-muted">
-            updated {age}s ago · delay {data?.betDelay ?? 0}s
+            updated {Math.max(age, data?.updatedAt ? Math.max(0, Math.floor((Date.now() - Date.parse(data.updatedAt)) / 1000)) || 0 : 0)}s ago · delay {data?.betDelay ?? 0}s
           </p>
         </div>
       </BetLayer>
