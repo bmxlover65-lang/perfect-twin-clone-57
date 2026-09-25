@@ -729,6 +729,8 @@ async function refreshHot(key: string, splat: string, search: string) {
           if (Number.isFinite(stamped)) sourceAt = stamped;
         } catch { /* provider response may not be JSON */ }
       }
+      // Never let an older exchange frame replace a newer one.
+      if (prev?.text && sourceAt < prev.at) return;
       hot.set(key, {
         at: sourceAt,
         text,
@@ -777,11 +779,14 @@ async function hotProxy(splat: string, search: string) {
   const key = sportsSnapshotKey(splat, search);
   const entry = hot.get(key);
   if (entry) entry.lastAccess = Date.now();
+  const isOdds = /^sports\/[^/]+\/[^/]+\/odds$/.test(splat);
   if (!entry || !entry.text) {
-    await refreshHot(key, splat, search);
+    await Promise.race([refreshHot(key, splat, search), new Promise((r) => setTimeout(r, 4000))]);
+  } else if (isOdds && Date.now() - entry.at > 3_000) {
+    // This isolate's copy is old (other isolates may hold newer ticks). Wait
+    // briefly for a real refresh instead of replaying a minutes-old frame.
+    await Promise.race([refreshHot(key, splat, search), new Promise((r) => setTimeout(r, 2500))]);
   } else if (Date.now() - entry.at > HOT_REFRESH_MS * 3) {
-    // Respond from the last frame immediately while the provider reconnects;
-    // never make each viewer wait on another cold exchange handshake.
     void refreshHot(key, splat, search);
   }
   startHot(key, splat, search);
