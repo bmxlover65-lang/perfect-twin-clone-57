@@ -308,14 +308,19 @@ export async function auraOdds(sportId: string, exEventId: string): Promise<AnyR
   if (namespaceReady) subscribeMatch(exEventId);
   // The first frame for a match is often an empty ladder; prices arrive in
   // the following frames. Keep waiting (within the deadline) until a frame
-  // actually carries markets.
+  // actually carries markets. And when the cached frame is more than a few
+  // seconds old, wait for a genuinely newer one — serverless isolates only
+  // process socket messages while a request is running, so a cached frame
+  // can otherwise be replayed forever.
   const hasMarkets = (d: AnyRec) =>
     ["betfair", "bookmakers", "fancy", "sportsbook", "sportsBook"].some(
       (k) => Array.isArray(d[k]) && (d[k] as AnyRec[]).length > 0,
     );
   let hit = oddsByMatch.get(exEventId);
+  const prevAt = hit?.at ?? 0;
+  const needNewer = Date.now() - prevAt > 3_000;
   const deadline = Date.now() + 5000;
-  while ((!hit || !hasMarkets(hit.data)) && Date.now() < deadline) {
+  while ((!hit || !hasMarkets(hit.data) || (needNewer && hit.at <= prevAt)) && Date.now() < deadline) {
     await new Promise((r) => setTimeout(r, 100));
     hit = oddsByMatch.get(exEventId);
   }
