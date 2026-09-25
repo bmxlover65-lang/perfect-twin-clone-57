@@ -119,6 +119,37 @@ export const Route = createFileRoute("/api/public/v1/bet")({
             ((d.roundId && String(d.roundId) !== b.roundId) ||
               /SUSPEND|CLOSE|RESULT/i.test(String(d.status ?? "")) ||
               (typeof d.leftSec === "number" && d.leftSec <= 0));
+          // Odds may never exceed the best rate currently on the live table.
+          const prices: number[] = [];
+          const walk = (v: unknown, k = "") => {
+            if (Array.isArray(v)) v.forEach((x) => walk(x, k));
+            else if (v && typeof v === "object")
+              for (const [kk, vv] of Object.entries(v)) walk(vv, kk);
+            else if (/^(price|rate|odds|b|b1|back)$/i.test(k)) {
+              const n = Number(v);
+              if (Number.isFinite(n) && n > 1 && n < 10_000) prices.push(n);
+            }
+          };
+          walk(d);
+          const maxRate = prices.length ? Math.max(...prices) : null;
+          if (!closed && maxRate !== null && b.odds > maxRate * 1.0001) {
+            await logReject({
+              operator_id: auth.operator.id,
+              operator_user_id: b.userId,
+              game_id: b.gameId,
+              round_id: b.roundId,
+              selection: b.selection,
+              odds: b.odds,
+              stake: b.stake,
+              code: "odds_changed",
+              message: "Odds are higher than the live table rate",
+              ip: auth.ip,
+            });
+            return Response.json(
+              { status: "error", code: "odds_changed", message: "Odds are higher than the live table rate" },
+              { status: 409 },
+            );
+          }
           if (closed) {
             await logReject({
               operator_id: auth.operator.id,
