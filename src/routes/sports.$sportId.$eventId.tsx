@@ -738,7 +738,7 @@ function EventPage() {
     const t = setInterval(() => {
       if (typeof document !== "undefined" && document.hidden) return;
       if (Date.now() - lastSocketMessage.current > 900) void load();
-    }, 300);
+    }, 100);
 
     const onVisible = () => {
       if (document.visibilityState === "visible") void load();
