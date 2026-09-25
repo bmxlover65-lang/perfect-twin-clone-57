@@ -740,7 +740,7 @@ function EventPage() {
     const t = setInterval(() => {
       if (typeof document !== "undefined" && document.hidden) return;
       void load();
-    }, 150);
+    }, 100);
 
     const onVisible = () => {
       if (document.visibilityState === "visible") void load();
