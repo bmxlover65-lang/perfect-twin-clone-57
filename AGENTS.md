@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+Sports odds freshness is measured from the exchange frame's `updatedAt`, never the hot-cache refresh time; a cached fallback must remain marked stale because replaying it is not a new market tick.
