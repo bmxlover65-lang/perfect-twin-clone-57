@@ -811,8 +811,11 @@ function EventPage() {
   // Totals / handicap markets arrive inside the sportsbook list too; the
   // reference board shows every one of them in the Over/Under section.
   const allSportsbook = data?.sportsbook ?? [];
-  const sportsbook = allSportsbook.filter((m) => !isLineMarket(m));
-  const sportsbookLines = allSportsbook.filter(isLineMarket);
+  // Cricket: Dukex keeps every sportsbook market (incl. "Over Last Digit")
+  // inside the Sportsbook tab, not as separate boards.
+  const cricket = sportId === "4";
+  const sportsbook = cricket ? allSportsbook : allSportsbook.filter((m) => !isLineMarket(m));
+  const sportsbookLines = cricket ? [] : allSportsbook.filter(isLineMarket);
   const overUnder = [...lines, ...sportsbookLines];
 
 
@@ -968,8 +971,10 @@ function EventPage() {
     view === marketGroupName(m) ||
     view === m.marketName.trim();
   const visibleFancy = fancy.filter(pick);
-  const visibleSportsbook = sportsbook.filter(pick);
-  const showFancy = visibleFancy.length > 0 || visibleSportsbook.length > 0;
+  const visibleToss = sportsbook.filter(isTossMarket).filter(pick);
+  const visibleSportsbook = sportsbook.filter((m) => !isTossMarket(m)).filter(pick);
+  const showFancy =
+    (sportId === "4" && view === "All") || visibleFancy.length > 0 || visibleSportsbook.length > 0;
   const hasPanels = !eventId.startsWith("sf:");
   const isRace = sportId === "7" || sportId === "4339";
   const hasTv = hasPanels && data?.tv !== false;
@@ -1088,8 +1093,9 @@ function EventPage() {
         exposureLayout="sports"
       >
         <div>
-          {matchOdds.filter(pick).map((m) => <Board key={m.marketId} market={m} levels={1} race={sportId === "7" || sportId === "4339"} />)}
+          {matchOdds.filter(pick).map((m) => <Board key={m.marketId} market={m} levels={sportId === "4" ? 3 : 1} race={sportId === "7" || sportId === "4339"} />)}
           {bookmakers.filter(pick).map((m) => <Board key={m.marketId} market={m} book />)}
+          {visibleToss.map((m) => <TossBoard key={m.marketId} market={m} />)}
           {showFancy ? (
             <FancySection markets={visibleFancy} sportsbook={visibleSportsbook} />
           ) : null}
