@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 
 import {
+  fetchEvents,
   fetchOdds,
   fmtOdds,
   fmtSize,
@@ -665,6 +666,7 @@ function EventPage() {
   const [error, setError] = useState<string | null>(null);
   const racePrices = useRef<Record<string, number>>({});
   const closedSince = useRef<number>(0);
+  const jumping = useRef(false);
   const marketSeen = useRef<Map<string, number>>(new Map());
   const requestId = useRef(0);
   const inFlight = useRef(false);
@@ -860,14 +862,21 @@ function EventPage() {
         }
         voidOpen(`sports-${eventId}`);
       }
-      // Match is over: once nothing of ours is still waiting on it, leave the
-      // page so a finished match never stays on screen.
+      // Old/finished link: jump straight to the match that is live right now
+      // in the same sport, so a stale link always opens the current game.
       if (
         closedSince.current &&
-        Date.now() - closedSince.current > 20_000 &&
+        Date.now() - closedSince.current > 6_000 &&
+        !jumping.current &&
         !readWallet().bets.some((b) => b.status === "open" && b.gameId === `sports-${eventId}`)
       ) {
-        window.location.replace("/sports");
+        jumping.current = true;
+        void fetchEvents(sportId, true)
+          .then((r) => r.events.find((e) => e.inPlay && String(e.exEventId) !== eventId))
+          .catch(() => undefined)
+          .then((next) => {
+            window.location.replace(next ? `/sports/${sportId}/${next.exEventId}` : "/sports");
+          });
       }
     } else {
       closedSince.current = 0;
