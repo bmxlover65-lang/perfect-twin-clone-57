@@ -39,17 +39,9 @@ export const whoAmI = createServerFn({ method: "GET" })
 export const bootstrapAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { count } = await supabaseAdmin
-      .from("user_roles")
-      .select("id", { count: "exact", head: true })
-      .eq("role", "admin");
-    if ((count ?? 0) > 0) throw new Error("Admin already exists");
-    const { error } = await supabaseAdmin
-      .from("user_roles")
-      .insert({ user_id: context.userId, role: "admin" });
-    if (error) throw new Error(error.message);
-    return { ok: true };
+    // Self-service admin claim is disabled; admins are granted by existing admins only.
+    void context;
+    throw new Error("Admin already exists");
   });
 
 /** Attach an operator row to a login so that owner can use the operator panel. */
@@ -436,6 +428,12 @@ export const mySettleBet = createServerFn({ method: "POST" })
       .eq("id", data.operatorId)
       .single();
     if (error || !op) throw new Error("Operator not found");
+    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (!isAdmin) {
+      const { data: owned } = await context.supabase
+        .from("operators").select("id").eq("id", data.operatorId).eq("owner_id", context.userId).maybeSingle();
+      if (!owned) throw new Error("Forbidden");
+    }
 
     const { settleOperatorBet } = await import("@/lib/operator-settle.server");
     return settleOperatorBet({

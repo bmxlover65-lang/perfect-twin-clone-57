@@ -55,6 +55,18 @@ export const Route = createFileRoute("/api/public/v1/cashout")({
           );
         }
 
+        // Cashout multiplier must be backed by the recorded crash round.
+        const { data: cr } = await supabaseAdmin
+          .from("balloon_rounds")
+          .select("crash")
+          .eq("round_id", String(bet.round_id))
+          .maybeSingle();
+        if (!cr || (cr.crash !== null && multiplier > Number(cr.crash))) {
+          return Response.json(
+            { status: "error", code: "invalid_multiplier", message: "Multiplier not valid for this round" },
+            { status: 409 },
+          );
+        }
         const payout = Math.round(Number(bet.stake) * multiplier);
         const credit = await walletCall(auth.operator, "credit", {
           userId,
