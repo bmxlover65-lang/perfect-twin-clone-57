@@ -253,17 +253,10 @@ export async function ucasSportsOdds(sportId: string, exEventId: string, waitMs 
     const f = sportsFrames.get(exEventId);
     return f && Date.now() - f.at < 15_000 ? f : null;
   };
-  await waitFor(() => Boolean(fresh()), waitMs);
-  // A frame held by an idle worker instance can be several seconds old while
-  // another instance already served a newer one. Give this instance's stream a
-  // short moment to deliver a current frame so callers never step backwards.
-  const f0 = fresh();
-  if (f0 && Date.now() - f0.at > 2_500) {
-    await waitFor(() => {
-      const f = sportsFrames.get(exEventId);
-      return Boolean(f && f.at > f0.at);
-    }, 900);
-  }
+  // A connected relay must answer from its current frame immediately. Waiting
+  // for a newer frame here added up to 900ms to every request even though the
+  // exchange had not changed its prices. Only a cold subscription waits.
+  if (!fresh()) await waitFor(() => Boolean(fresh()), waitMs);
   const frame = fresh();
   return frame ? { data: frame.data, receivedAt: frame.at } : null;
 }

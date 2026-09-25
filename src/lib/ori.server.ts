@@ -108,6 +108,9 @@ const localShared = new Map<string, Shared>();
 async function readShared(s: string, e: string): Promise<Shared | null> {
   const k = `${s}|${e}`;
   const local = localShared.get(k) ?? null;
+  // A WebSocket relay calls this many times per second. Once its own exchange
+  // stream is warm, never put a database read in the hot path.
+  if (local && Date.now() - local.at < 15_000) return local;
   let remote: Shared | null = null;
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -136,10 +139,23 @@ async function writeShared(s: string, e: string, v: Shared) {
 
 export async function oriOdds(sportId: string, exEventId: string): Promise<OriOdds | null> {
   const shared = await readShared(sportId, exEventId);
-  // Another instance got a frame within the last second — serve it instantly.
-  if (shared && Date.now() - shared.at < 1_000) return shared.odds;
+  // Cold worker instances can answer from the newest shared exchange frame
+  // immediately while their own subscription warms in the background.
+  if (shared && Date.now() - shared.at < 2_500) {
+    void warmOddsStream(sportId, exEventId);
+    return shared.odds;
+  }
   const own = await oriOddsInner(sportId, exEventId, shared);
   return own;
+}
+
+async function warmOddsStream(sportId: string, exEventId: string) {
+  const { ucasSportsOdds } = await import("./ucas.server");
+  const frame = await ucasSportsOdds(sportId, exEventId, 0).catch(() => null);
+  if (!frame) return;
+  const local = localShared.get(`${sportId}|${exEventId}`);
+  if (local && local.at >= frame.receivedAt) return;
+  await oriOddsInner(sportId, exEventId, local ?? null);
 }
 
 async function oriOddsInner(sportId: string, exEventId: string, shared: Shared | null): Promise<OriOdds | null> {
