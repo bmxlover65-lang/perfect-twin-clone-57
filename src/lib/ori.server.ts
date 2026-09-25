@@ -101,21 +101,20 @@ export type OriOdds = {
 };
 
 // Worker instances don't share memory, so each one can hold a different
-// (sometimes older) frame. The newest live frame is shared through the edge
-// cache so every request returns the newest rate and never steps backwards.
+// (sometimes older) frame. The newest live frame is shared through the database so every request returns the newest rate and never steps backwards.
 type Shared = { at: number; odds: OriOdds };
-const edgeCache = () => (globalThis as unknown as { caches?: { default?: Cache } }).caches?.default ?? null;
-const cacheKey = (s: string, e: string) => `https://odds-cache.internal/${encodeURIComponent(s)}/${encodeURIComponent(e)}`;
 const localShared = new Map<string, Shared>();
 
 async function readShared(s: string, e: string): Promise<Shared | null> {
-  const local = localShared.get(`${s}|${e}`) ?? null;
+  const k = `${s}|${e}`;
+  const local = localShared.get(k) ?? null;
   let remote: Shared | null = null;
   try {
-    const r = await edgeCache()?.match(cacheKey(s, e));
-    if (r) remote = (await r.json()) as Shared;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin.from("sports_odds_live").select("at, odds").eq("key", k).maybeSingle();
+    if (data) remote = { at: Number(data.at), odds: data.odds as unknown as OriOdds };
   } catch {
-    /* cache unavailable */
+    /* shared store unavailable */
   }
   if (!local) return remote;
   if (!remote) return local;
@@ -123,14 +122,15 @@ async function readShared(s: string, e: string): Promise<Shared | null> {
 }
 
 async function writeShared(s: string, e: string, v: Shared) {
-  localShared.set(`${s}|${e}`, v);
+  const k = `${s}|${e}`;
+  const prev = localShared.get(k);
+  if (prev && prev.at >= v.at) return;
+  localShared.set(k, v);
   try {
-    await edgeCache()?.put(
-      cacheKey(s, e),
-      new Response(JSON.stringify(v), { headers: { "content-type": "application/json", "cache-control": "max-age=60" } }),
-    );
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.rpc("put_sports_odds", { _key: k, _at: v.at, _odds: v.odds as never });
   } catch {
-    /* cache unavailable */
+    /* shared store unavailable */
   }
 }
 
