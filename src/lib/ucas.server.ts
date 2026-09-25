@@ -254,6 +254,16 @@ export async function ucasSportsOdds(sportId: string, exEventId: string, waitMs 
     return f && Date.now() - f.at < 15_000 ? f : null;
   };
   await waitFor(() => Boolean(fresh()), waitMs);
+  // A frame held by an idle worker instance can be several seconds old while
+  // another instance already served a newer one. Give this instance's stream a
+  // short moment to deliver a current frame so callers never step backwards.
+  const f0 = fresh();
+  if (f0 && Date.now() - f0.at > 2_500) {
+    await waitFor(() => {
+      const f = sportsFrames.get(exEventId);
+      return Boolean(f && f.at > f0.at);
+    }, 900);
+  }
   const frame = fresh();
   return frame ? { data: frame.data, receivedAt: frame.at } : null;
 }
