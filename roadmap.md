@@ -1,5 +1,6 @@
 # Roadmap
 
+- [x] Uploaded Girona comparison: preserve exchange-frame age and warn on stale sports frames; preview verified on the same Girona match (live Dukex recheck after publishing remains open below)
 - [ ] Live rates: reject stale cross-worker sports frames; verify on published site after release against Dukex on the same live match
 - [ ] Swaraj247: their developer must enable the supplied WebSocket authority and deploy the integration; verify against Dukex after rollout
 - [ ] Dream Catcher (88.0020): Dukex compare — winner fan overlay done, side-by-side photo pending (in progress)

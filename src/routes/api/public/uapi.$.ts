@@ -719,8 +719,18 @@ async function refreshHot(key: string, splat: string, search: string) {
       const text = await res.text();
       if (!text) return;
       const prev = hot.get(key);
+      // A cached fallback is not a successful refresh. Preserve its original
+      // exchange timestamp, rather than resetting the age on each 250ms tick.
+      let sourceAt = Date.now();
+      if (/^sports\/[^/]+\/[^/]+\/odds$/.test(splat)) {
+        try {
+          const payload = JSON.parse(text) as { updatedAt?: string; stale?: boolean };
+          const stamped = Date.parse(payload.updatedAt ?? "");
+          if (Number.isFinite(stamped)) sourceAt = stamped;
+        } catch { /* provider response may not be JSON */ }
+      }
       hot.set(key, {
-        at: Date.now(),
+        at: sourceAt,
         text,
         contentType: res.headers.get("content-type") ?? "application/json",
         lastAccess: prev?.lastAccess ?? Date.now(),
@@ -767,19 +777,30 @@ async function hotProxy(splat: string, search: string) {
   const key = sportsSnapshotKey(splat, search);
   const entry = hot.get(key);
   if (entry) entry.lastAccess = Date.now();
-  if (!entry || !entry.text || Date.now() - entry.at > HOT_REFRESH_MS * 3) {
+  if (!entry || !entry.text) {
     await refreshHot(key, splat, search);
+  } else if (Date.now() - entry.at > HOT_REFRESH_MS * 3) {
+    // Respond from the last frame immediately while the provider reconnects;
+    // never make each viewer wait on another cold exchange handshake.
+    void refreshHot(key, splat, search);
   }
   startHot(key, splat, search);
   const fresh = hot.get(key);
   if (!fresh?.text) return proxy(splat, search, undefined, "");
   fresh.lastAccess = Date.now();
-  return new Response(fresh.text, {
+  let text = fresh.text;
+  const age = Date.now() - fresh.at;
+  if (/^sports\/[^/]+\/[^/]+\/odds$/.test(splat) && age > 5_000) {
+    try {
+      text = JSON.stringify({ ...JSON.parse(text) as Record<string, unknown>, stale: true });
+    } catch { /* keep the original provider response */ }
+  }
+  return new Response(text, {
     status: 200,
     headers: {
       "content-type": fresh.contentType,
       "cache-control": "no-store",
-      "x-feed-age-ms": String(Date.now() - fresh.at),
+      "x-feed-age-ms": String(age),
     },
   });
 }

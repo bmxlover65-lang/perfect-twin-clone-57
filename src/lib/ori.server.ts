@@ -102,6 +102,7 @@ export type OriOdds = {
   betDelay: number;
   totalMatched: number;
   updatedAt: string;
+  stale?: boolean;
   matchOdds: RawMarket[];
   bookmakers: RawMarket[];
   fancy: RawMarket[];
@@ -173,10 +174,10 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
   // A shared frame is already safe to return if this isolate's subscription is
   // cold; don't make the caller wait the full cold-start window to confirm it.
   const liveFrame = await ucasSportsOdds(sportId, exEventId, shared ? 300 : 1500).catch(() => null);
-  if (shared && (!liveFrame || liveFrame.receivedAt < shared.at) && Date.now() - shared.at < 4_000) {
-    // Our frame is older than one already served (or we only have the slow
-    // REST copy) — return the newer shared frame instead.
-    return shared.odds;
+  if (shared && (!liveFrame || liveFrame.receivedAt < shared.at)) {
+    // Never replace a known exchange frame with a cold isolate's old frame or
+    // an undated REST copy. An outage must not masquerade as fresh odds.
+    return { ...shared.odds, stale: Date.now() - shared.at > 5_000 };
   }
   let raw: RawMarkets | undefined;
   if (liveFrame) {
@@ -215,6 +216,7 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
     // WebSocket relay compares payloads and must not mistake a regenerated
     // timestamp for a price update.
     updatedAt: new Date(liveFrame?.receivedAt ?? Date.now()).toISOString(),
+    stale: !liveFrame,
     matchOdds,
     bookmakers,
     fancy,
