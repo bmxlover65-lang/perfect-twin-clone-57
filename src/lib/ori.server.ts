@@ -76,7 +76,11 @@ export async function oriEvents(
   for (const row of rows.slice(0, 24)) {
     const eventId = String(row["exEventId"] ?? row["eventId"] ?? "");
     if (eventId && (inPlay === true || Boolean(row["inPlay"]))) {
-      void warmOddsStream(sportId, eventId);
+       void warmOddsStream(sportId, eventId, {
+         competitionId: String(row["competitionId"] ?? row["tournamentId"] ?? ""),
+         sport: String(row["sportName"] ?? ""),
+         inPlay: Boolean(row["inPlay"]),
+       });
     }
   }
   return rows;
@@ -160,9 +164,9 @@ export async function oriOdds(sportId: string, exEventId: string): Promise<OriOd
   return own;
 }
 
-async function warmOddsStream(sportId: string, exEventId: string) {
+async function warmOddsStream(sportId: string, exEventId: string, meta?: { competitionId: string; sport: string; inPlay: boolean }) {
   const { ucasSportsOdds } = await import("./ucas.server");
-  const frame = await ucasSportsOdds(sportId, exEventId, 0).catch(() => null);
+  const frame = await ucasSportsOdds(sportId, exEventId, 0, meta).catch(() => null);
   if (!frame) return;
   const local = localShared.get(`${sportId}|${exEventId}`);
   if (local && local.at >= frame.receivedAt) return;
