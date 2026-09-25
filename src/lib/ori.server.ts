@@ -116,9 +116,11 @@ const localShared = new Map<string, Shared>();
 async function readShared(s: string, e: string): Promise<Shared | null> {
   const k = `${s}|${e}`;
   const local = localShared.get(k) ?? null;
-  // A WebSocket relay calls this many times per second. Once its own exchange
-  // stream is warm, never put a database read in the hot path.
-  if (local && Date.now() - local.at < 15_000) return local;
+  // Worker instances do not share memory. A 15-second local shortcut served
+  // yesterday's *generation* to one client while another isolate had already
+  // received the next exchange frame. Check the shared watermark once the
+  // local frame is a second old, but coalesce simultaneous reads in an isolate.
+  if (local && Date.now() - local.at < 1_000) return local;
   let remote: Shared | null = null;
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -127,9 +129,9 @@ async function readShared(s: string, e: string): Promise<Shared | null> {
   } catch {
     /* shared store unavailable */
   }
-  if (!local) return remote;
-  if (!remote) return local;
-  return remote.at > local.at ? remote : local;
+  const newest = !local ? remote : !remote ? local : remote.at > local.at ? remote : local;
+  if (newest && newest !== local) localShared.set(k, newest);
+  return newest;
 }
 
 async function writeShared(s: string, e: string, v: Shared) {
@@ -149,7 +151,7 @@ export async function oriOdds(sportId: string, exEventId: string): Promise<OriOd
   const shared = await readShared(sportId, exEventId);
   // Cold worker instances can answer from the newest shared exchange frame
   // immediately while their own subscription warms in the background.
-  if (shared && Date.now() - shared.at < 4_000) {
+  if (shared && Date.now() - shared.at < 1_000) {
     void warmOddsStream(sportId, exEventId);
     return shared.odds;
   }
@@ -171,7 +173,7 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
   // A shared frame is already safe to return if this isolate's subscription is
   // cold; don't make the caller wait the full cold-start window to confirm it.
   const liveFrame = await ucasSportsOdds(sportId, exEventId, shared ? 300 : 1500).catch(() => null);
-  if (shared && (!liveFrame || liveFrame.receivedAt < shared.at) && Date.now() - shared.at < 30_000) {
+  if (shared && (!liveFrame || liveFrame.receivedAt < shared.at) && Date.now() - shared.at < 4_000) {
     // Our frame is older than one already served (or we only have the slow
     // REST copy) — return the newer shared frame instead.
     return shared.odds;
