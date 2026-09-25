@@ -192,6 +192,7 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
     return { ...shared.odds, stale: false };
   }
   let raw: RawMarkets | undefined;
+  let fromRest = !liveFrame;
   if (liveFrame) {
     const f = liveFrame.data as Record<string, RawMarket[] | boolean | undefined>;
     raw = {
@@ -209,7 +210,10 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
         [...(runner.price?.back ?? []), ...(runner.price?.lay ?? [])].some((point) => Number(point.price) > 0)));
     if (!socketHasPrices) {
       const rest = await jget<Envelope<{ data?: RawMarkets }>>(`sports/${encodeURIComponent(sportId)}/${encodeURIComponent(exEventId)}/markets`, 1800);
-      if (rest?.data?.data) raw = rest.data.data;
+      if (rest?.data?.data) {
+        raw = rest.data.data;
+        fromRest = true;
+      }
     }
   } else {
     const json = await jget<Envelope<{ data?: RawMarkets }>>(
@@ -241,8 +245,8 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
     // timestamp for a price update.
     // REST has no market-tick timestamp. Keep the last known exchange tick
     // when available; a fetched snapshot is useful but cannot claim freshness.
-    updatedAt: new Date(liveFrame?.receivedAt ?? shared?.at ?? Date.now()).toISOString(),
-    stale: !liveFrame,
+    updatedAt: new Date(fromRest ? shared?.at ?? Date.now() : liveFrame?.receivedAt ?? Date.now()).toISOString(),
+    stale: fromRest,
     matchOdds,
     bookmakers,
     fancy,
@@ -251,6 +255,6 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
   // Must be awaited: the hosting cuts off unawaited work once the response is
   // sent, so fire-and-forget writes never reached the shared store and every
   // copy kept serving its own old frame. The write is a single quick call.
-  if (liveFrame && hasPrices(result)) await writeShared(sportId, exEventId, { at: liveFrame.receivedAt, odds: result });
+  if (liveFrame && !fromRest && hasPrices(result)) await writeShared(sportId, exEventId, { at: liveFrame.receivedAt, odds: result });
   return result;
 }
