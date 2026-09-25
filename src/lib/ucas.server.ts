@@ -29,6 +29,7 @@ const subscribed = new Set<string>();
 const states = new Map<string, Frame>();
 const sportsFrames = new Map<string, { at: number; data: Record<string, unknown> }>();
 const sportsSubs = new Map<string, string>();
+const sportsRetryAt = new Map<string, number>();
 const results = new Map<string, { at: number; data: unknown[] }>();
 
 async function call(path: string, init?: RequestInit, timeoutMs = 8000): Promise<Response> {
@@ -67,7 +68,9 @@ async function handshake(): Promise<string | null> {
     await call(`/socket.io/?EIO=4&transport=polling&sid=${id}`).catch(() => null);
     subscribed.clear();
     warmed = "";
-    for (const [ev, sp] of sportsSubs) void post(id, sportsSub(sp, ev));
+    // Reattach every watched event before declaring the new session ready.
+    // Fire-and-forget subscriptions were cancelled when the request ended.
+    await Promise.all([...sportsSubs].map(([ev, sp]) => post(id, sportsSub(sp, ev))));
     sid = id;
     sidAt = Date.now();
     return id;
@@ -133,6 +136,9 @@ function startLoop(id: string) {
       // gateway pushes a frame, so this is an always-fresh stream.
       for (;;) {
         try {
+           // A stale subscription may have forced a fresh handshake in a
+           // different request. Never keep polling the orphaned session.
+           if (sid && current !== sid) current = sid;
           // Engine.IO long-polls are expected to stay open while waiting for
           // the next frame; the normal request timeout caused reconnect churn.
           const res = await call(`/socket.io/?EIO=4&transport=polling&sid=${current}`, undefined, 30_000);
@@ -152,7 +158,12 @@ function startLoop(id: string) {
           }
           ingest(await res.text());
           if (sid) current = sid;
-        } catch {
+          } catch {
+            // A dead poll must not retain a seemingly valid sid for five
+            // minutes: the next iteration needs to establish a new session.
+            if (sid === current) sid = null;
+            const next = await session();
+            if (next) current = next;
           await new Promise((r) => setTimeout(r, 500));
         }
       }
@@ -248,6 +259,18 @@ export async function ucasSportsOdds(sportId: string, exEventId: string, waitMs 
   if (!sportsSubs.has(exEventId)) {
     sportsSubs.set(exEventId, sportId);
     await post(id, sportsSub(sportId, exEventId));
+  }
+  const previous = sportsFrames.get(exEventId);
+  if (previous && Date.now() - previous.at > 8_000 && Date.now() - (sportsRetryAt.get(exEventId) ?? 0) > 5_000) {
+    sportsRetryAt.set(exEventId, Date.now());
+    // A silent event is not a fresh tick. Re-subscribe to recover a dropped
+    // channel, and rotate the socket when it has stopped delivering entirely.
+    if (Date.now() - previous.at > 15_000) {
+      if (sid === id) sid = null;
+      await session();
+    } else {
+      await post(id, sportsSub(sportId, exEventId));
+    }
   }
   const fresh = () => {
     const f = sportsFrames.get(exEventId);
