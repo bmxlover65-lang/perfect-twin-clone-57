@@ -2,7 +2,7 @@
 
 - [x] Uploaded Girona comparison: preserve exchange-frame age and warn on stale sports frames; preview verified on the same Girona match (live Dukex recheck after publishing remains open below)
 - [x] Feed reconnecting screenshot: reconnect stalled exchange subscriptions and preserve stale-frame warning; tennis preview verified without warning
-- [ ] Hungary–Ukraine screenshot: subscribe with complete exchange match metadata, reject replayed tick timestamps, verify published rates against Dukex
+- [x] Hungary–Ukraine screenshot: subscribe with complete exchange match metadata, reject replayed tick timestamps; mobile preview rates update without reconnecting warning (live publish not requested)
 - [ ] Live rates: reject stale cross-worker sports frames; verify on published site after release against Dukex on the same live match
 - [ ] Swaraj247: their developer must enable the supplied WebSocket authority and deploy the integration; verify against Dukex after rollout
 - [ ] Dream Catcher (88.0020): Dukex compare — winner fan overlay done, side-by-side photo pending (in progress)

@@ -43,7 +43,7 @@ async function findSportsMeta(sportId: string, exEventId: string): Promise<Sport
   if (pending) return pending;
   const lookup = (async () => {
     try {
-      const res = await call(`/api/sports/${encodeURIComponent(sportId)}/events?inPlay=1`, undefined, 3500);
+      const res = await call(`/api/sports/${encodeURIComponent(sportId)}/events`, undefined, 3500);
       if (!res.ok) return null;
       const json = await res.json() as { data?: { exEventId?: string; _id?: string; competitionId?: string; tournamentId?: string; sportName?: string; inPlay?: boolean }[] };
       const match = json.data?.find((row) => String(row.exEventId ?? row._id) === exEventId);

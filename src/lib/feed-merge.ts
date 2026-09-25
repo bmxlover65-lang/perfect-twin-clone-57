@@ -13,16 +13,17 @@ import type { Market, OddsResponse } from "@/lib/uapi";
 const GROUPS = ["matchOdds", "bookmakers", "fancy", "sportsbook"] as const;
 type Group = (typeof GROUPS)[number];
 
-type Slot = { at: number; matched: number; order: number; market: Market };
+type Slot = { at: number; frameAt: number; matched: number; order: number; market: Market };
 
 export type FeedState = {
   markets: Map<string, Slot>;
   bestScore: number;
   bestAt: number;
+  latestFrameAt: number;
 };
 
 export function createFeedState(): FeedState {
-  return { markets: new Map(), bestScore: -1, bestAt: 0 };
+  return { markets: new Map(), bestScore: -1, bestAt: 0, latestFrameAt: 0 };
 }
 
 const KEEP_MS = 25_000;
@@ -47,6 +48,21 @@ function isDead(m: Market): boolean {
 
 export function mergeFeed(state: FeedState, payload: OddsResponse): OddsResponse {
   const now = Date.now();
+  const timestamp = Date.parse(payload.updatedAt ?? "");
+  const frameAt = Number.isFinite(timestamp) ? timestamp : 0;
+
+  // HTTP and WebSocket can arrive out of order from different workers. A
+  // replayed older snapshot must never overwrite even a single newer market.
+  if (frameAt && frameAt < state.latestFrameAt) {
+    const out: OddsResponse = { ...payload, updatedAt: new Date(state.latestFrameAt).toISOString() };
+    for (const g of GROUPS) {
+      const rows = [...state.markets].filter(([key]) => key.startsWith(`${g}|`)).map(([, slot]) => slot);
+      rows.sort((a, b) => a.order - b.order);
+      out[g] = rows.map((slot) => slot.market);
+    }
+    return out;
+  }
+  if (frameAt) state.latestFrameAt = frameAt;
 
   let score = 0;
   for (const g of GROUPS) for (const m of payload[g] ?? []) score += matchedOf(m);
@@ -77,14 +93,17 @@ export function mergeFeed(state: FeedState, payload: OddsResponse): OddsResponse
         // price/status frame is still live, so volume cannot be used to reject
         // it as an older generation.
         const comparableVolume = matched > 0 && (prev?.matched ?? 0) > 0;
-        const older = prev && !dim && comparableVolume && (stale ? matched <= prev.matched : matched < prev.matched);
+        const older = prev && !dim && (
+          (frameAt && prev.frameAt && frameAt < prev.frameAt) ||
+          (!frameAt && comparableVolume && (stale ? matched <= prev.matched : matched < prev.matched))
+        );
         if (older) return;
         // Live frames carry prices only; keep race card details from the full frame.
         const extra = (prev?.market as { racingInfo?: unknown } | undefined)?.racingInfo;
         const next = extra && !(market as { racingInfo?: unknown }).racingInfo
           ? ({ ...market, racingInfo: extra } as typeof market)
           : market;
-        state.markets.set(key, { at: now, matched, order: i, market: next });
+        state.markets.set(key, { at: now, frameAt, matched, order: i, market: next });
       }
     });
   }
