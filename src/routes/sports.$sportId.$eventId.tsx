@@ -735,10 +735,12 @@ function EventPage() {
     // WebSocket is the fastest source. HTTP automatically takes over whenever
     // socket updates stop, and the server then serves its last-good snapshot if
     // the provider itself is unavailable.
+    // Always poll too: a socket can keep sending an old snapshot from a stale
+    // server copy. mergeFeed keeps whichever frame is newest.
     const t = setInterval(() => {
       if (typeof document !== "undefined" && document.hidden) return;
-      if (Date.now() - lastSocketMessage.current > 900) void load();
-    }, 100);
+      void load();
+    }, 150);
 
     const onVisible = () => {
       if (document.visibilityState === "visible") void load();
