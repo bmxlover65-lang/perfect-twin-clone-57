@@ -238,7 +238,10 @@ function sportsSub(sportId: string, ev: string) {
 }
 
 /** Live sports odds frame (same stream the reference board uses). */
-export async function ucasSportsOdds(sportId: string, exEventId: string, waitMs = 1500) {
+export async function ucasSportsOdds(sportId: string, exEventId: string, waitMs = 1500): Promise<{
+  data: Record<string, unknown>;
+  receivedAt: number;
+} | null> {
   const id = await session();
   if (!id) return null;
   startLoop(id);
@@ -248,8 +251,9 @@ export async function ucasSportsOdds(sportId: string, exEventId: string, waitMs 
   }
   const fresh = () => {
     const f = sportsFrames.get(exEventId);
-    return f && Date.now() - f.at < 15_000 ? f.data : null;
+    return f && Date.now() - f.at < 15_000 ? f : null;
   };
   await waitFor(() => Boolean(fresh()), waitMs);
-  return fresh();
+  const frame = fresh();
+  return frame ? { data: frame.data, receivedAt: frame.at } : null;
 }

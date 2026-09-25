@@ -4,7 +4,8 @@ import { proxy } from "@/routes/api/public/uapi.$";
 
 /**
  * WS /ws/sports?sportId=&exEventId=&apiKey=
- * Pushes { type: "odds", sportId, exEventId, data } as fast as every 100ms.
+ * Pushes { type: "odds", sportId, exEventId, data } whenever the exchange
+ * sends a genuinely changed frame. The 100ms loop only minimizes relay delay.
  * data has the same shape as GET /odds.
  */
 type WSLike = {

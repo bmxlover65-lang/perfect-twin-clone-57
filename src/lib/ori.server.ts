@@ -105,7 +105,7 @@ export async function oriOdds(sportId: string, exEventId: string): Promise<OriOd
   const liveFrame = await ucasSportsOdds(sportId, exEventId).catch(() => null);
   let raw: RawMarkets | undefined;
   if (liveFrame) {
-    const f = liveFrame as Record<string, RawMarket[] | boolean | undefined>;
+    const f = liveFrame.data as Record<string, RawMarket[] | boolean | undefined>;
     raw = {
       matchOddsData: f["betfair"] as RawMarket[],
       bookmakersData: f["bookmakers"] as RawMarket[],
@@ -136,7 +136,10 @@ export async function oriOdds(sportId: string, exEventId: string): Promise<OriOd
     isScore: Boolean(raw.isScore),
     betDelay: Number(head?.oddsData?.betDelay ?? 0),
     totalMatched: Number(head?.oddsData?.totalMatched ?? 0),
-    updatedAt: new Date().toISOString(),
+    // Keep this stable until the exchange sends a genuinely new frame. The
+    // WebSocket relay compares payloads and must not mistake a regenerated
+    // timestamp for a price update.
+    updatedAt: new Date(liveFrame?.receivedAt ?? Date.now()).toISOString(),
     matchOdds,
     bookmakers,
     fancy,
