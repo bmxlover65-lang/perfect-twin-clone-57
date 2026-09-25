@@ -24,6 +24,7 @@ import { Route as AuthenticatedOperatorRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedUiAuditRouteImport } from './routes/_authenticated/ui-audit'
 import { Route as GamesGameIdRouteImport } from './routes/games.$gameId'
 import { Route as SportsIndexRouteImport } from './routes/sports.index'
+import { Route as WsSportsRouteImport } from './routes/ws.sports'
 import { Route as SportsSportIdEventIdRouteImport } from './routes/sports.$sportId.$eventId'
 import { Route as ApiPublicCronCasinoSettleRouteImport } from './routes/api/public/cron/casino-settle'
 import { Route as ApiPublicCronSportsSettleRouteImport } from './routes/api/public/cron/sports-settle'
@@ -114,6 +115,11 @@ const SportsIndexRoute = SportsIndexRouteImport.update({
   path: '/sports/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WsSportsRoute = WsSportsRouteImport.update({
+  id: '/ws/sports',
+  path: '/ws/sports',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SportsSportIdEventIdRoute = SportsSportIdEventIdRouteImport.update({
   id: '/sports/$sportId/$eventId',
   path: '/sports/$sportId/$eventId',
@@ -201,6 +207,7 @@ export interface FileRoutesByFullPath {
   '/operator': typeof AuthenticatedOperatorRoute
   '/ui-audit': typeof AuthenticatedUiAuditRoute
   '/games/$gameId': typeof GamesGameIdRoute
+  '/ws/sports': typeof WsSportsRoute
   '/sports/': typeof SportsIndexRoute
   '/sports/$sportId/$eventId': typeof SportsSportIdEventIdRoute
   '/api/public/cron/casino-settle': typeof ApiPublicCronCasinoSettleRoute
@@ -231,6 +238,7 @@ export interface FileRoutesByTo {
   '/operator': typeof AuthenticatedOperatorRoute
   '/ui-audit': typeof AuthenticatedUiAuditRoute
   '/games/$gameId': typeof GamesGameIdRoute
+  '/ws/sports': typeof WsSportsRoute
   '/sports': typeof SportsIndexRoute
   '/sports/$sportId/$eventId': typeof SportsSportIdEventIdRoute
   '/api/public/cron/casino-settle': typeof ApiPublicCronCasinoSettleRoute
@@ -263,6 +271,7 @@ export interface FileRoutesById {
   '/_authenticated/operator': typeof AuthenticatedOperatorRoute
   '/_authenticated/ui-audit': typeof AuthenticatedUiAuditRoute
   '/games/$gameId': typeof GamesGameIdRoute
+  '/ws/sports': typeof WsSportsRoute
   '/sports/': typeof SportsIndexRoute
   '/sports/$sportId/$eventId': typeof SportsSportIdEventIdRoute
   '/api/public/cron/casino-settle': typeof ApiPublicCronCasinoSettleRoute
@@ -295,6 +304,7 @@ export interface FileRouteTypes {
     | '/operator'
     | '/ui-audit'
     | '/games/$gameId'
+    | '/ws/sports'
     | '/sports/'
     | '/sports/$sportId/$eventId'
     | '/api/public/cron/casino-settle'
@@ -325,6 +335,7 @@ export interface FileRouteTypes {
     | '/operator'
     | '/ui-audit'
     | '/games/$gameId'
+    | '/ws/sports'
     | '/sports'
     | '/sports/$sportId/$eventId'
     | '/api/public/cron/casino-settle'
@@ -356,6 +367,7 @@ export interface FileRouteTypes {
     | '/_authenticated/operator'
     | '/_authenticated/ui-audit'
     | '/games/$gameId'
+    | '/ws/sports'
     | '/sports/'
     | '/sports/$sportId/$eventId'
     | '/api/public/cron/casino-settle'
@@ -385,6 +397,7 @@ export interface RootRouteChildren {
   SportsDocsRoute: typeof SportsDocsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   GamesGameIdRoute: typeof GamesGameIdRoute
+  WsSportsRoute: typeof WsSportsRoute
   SportsIndexRoute: typeof SportsIndexRoute
   SportsSportIdEventIdRoute: typeof SportsSportIdEventIdRoute
   ApiPublicCronCasinoSettleRoute: typeof ApiPublicCronCasinoSettleRoute
@@ -506,6 +519,13 @@ declare module '@tanstack/react-router' {
       path: '/sports'
       fullPath: '/sports/'
       preLoaderRoute: typeof SportsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ws/sports': {
+      id: '/ws/sports'
+      path: '/ws/sports'
+      fullPath: '/ws/sports'
+      preLoaderRoute: typeof WsSportsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sports/$sportId/$eventId': {
@@ -648,6 +668,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   GamesGameIdRoute: GamesGameIdRoute,
+  WsSportsRoute: WsSportsRoute,
   SportsIndexRoute: SportsIndexRoute,
   SportsSportIdEventIdRoute: SportsSportIdEventIdRoute,
   ApiPublicCronCasinoSettleRoute: ApiPublicCronCasinoSettleRoute,
