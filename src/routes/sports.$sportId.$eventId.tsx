@@ -74,7 +74,9 @@ function Cell({
   label,
   betOdds,
   raw = false,
+  toss = false,
 }: {
+  toss?: boolean;
   /** Race boards print rates exactly like Dukex: 9.6, 108.72, 102.3. */
   raw?: boolean;
   label?: string;
@@ -98,7 +100,7 @@ function Cell({
     return () => clearTimeout(t);
   }, [price]);
 
-  const tone = (side === "back" ? BACK_TONE : LAY_TONE)[depth] ?? BACK_TONE[0];
+  const tone = toss ? "bg-dx-toss-cell" : (side === "back" ? BACK_TONE : LAY_TONE)[depth] ?? BACK_TONE[0];
   return (
     <div
       data-bet-label={label && price ? label : undefined}
@@ -512,35 +514,61 @@ function FilterBar({ tabs, active, onPick, tone }: { tabs: string[]; active: str
   );
 }
 
+function isTossMarket(m: Market) {
+  return /TOSS/i.test(m.marketName ?? "");
+}
+
+/** Dukex "Which team will win the toss": two side-by-side green Back cards. */
+function TossBoard({ market }: { market: Market }) {
+  const { dim, label } = marketState(market);
+  const runners = market.oddsData?.runners ?? [];
+  return (
+    <article className="mb-3 bg-dx-page">
+      <MarketTitle name={market.marketName} matched={market.oddsData?.totalMatched} />
+      <div className="relative grid grid-cols-2 gap-[18px] bg-dx-toss px-9 py-1.5">
+        {runners.map((r) => {
+          const p = r.price?.back?.[0];
+          return (
+            <div key={String(r.selectionId)} className="flex flex-col items-center">
+              <span className="mb-0.5 text-[0.75rem] font-bold text-dx-ink">{runnerName(market, r.selectionId)}</span>
+              <div className="w-full overflow-hidden rounded-[3px] border border-dx-page">
+                <Cell label={`${runnerName(market, r.selectionId)} Back`} price={p?.price} size={p?.size} side="back" dim={dim} depth={0} toss />
+              </div>
+            </div>
+          );
+        })}
+        {dim ? <Suspended label={label} /> : null}
+      </div>
+    </article>
+  );
+}
+
 function FancySection({ markets, sportsbook }: { markets: Market[]; sportsbook: Market[] }) {
   const [tab, setTab] = useState("ALL");
   const [sb, setSb] = useState("ALL");
-  const [head, setHead] = useState<"fancy" | "sb">(markets.length ? "fancy" : "sb");
+  const [head, setHead] = useState<"fancy" | "sb">("fancy");
   const active = tab;
   const shown = active === "ALL" ? markets : markets.filter((m) => fancyTab(m) === active);
   const sbShown = sb === "ALL" ? sportsbook : sportsbook.filter((m) => sbTab(m) === sb);
+  const empty = <p className="py-5 text-center text-[0.75rem] text-ex-muted">No market odds available</p>;
 
   return (
     <section className="mb-3 bg-dx-page">
-      <div className="flex h-[26px] items-stretch border-b-2 border-dx-fancy text-[0.68rem] font-bold text-dx-page">
-        {markets.length ? (
-          <button
-            type="button"
-            onClick={() => setHead("fancy")}
-            className="flex items-center gap-1.5 rounded-tr-[10px] bg-dx-fancy px-2"
-          >
-            Fancy Bet <InfoIcon light text="Fancy / session bets: No = runs below the line, Yes = at or above. Settled on the official score." />
-          </button>
-        ) : null}
-        {sportsbook.length ? (
-          <button
-            type="button"
-            onClick={() => setHead("sb")}
-            className="flex items-center gap-1.5 rounded-tr-[10px] bg-dx-sb px-2"
-          >
-            Sportsbook <InfoIcon light text="Sportsbook markets pay the decimal rate shown. Settled on the official result." />
-          </button>
-        ) : null}
+      <div className={`flex h-[30px] items-stretch border-b-2 ${head === "fancy" ? "border-dx-fancy" : "border-dx-sb"} text-[0.7rem] font-bold text-dx-page`}>
+        <button
+          type="button"
+          onClick={() => setHead("fancy")}
+          className="mr-1 flex items-center gap-1.5 rounded-tr-[10px] bg-dx-fancy px-2"
+        >
+          Fancy Bet <InfoIcon light text="Fancy / session bets: No = runs below the line, Yes = at or above. Settled on the official score." />
+        </button>
+        <button
+          type="button"
+          onClick={() => setHead("sb")}
+          className="flex items-center gap-1.5 rounded-tr-[10px] bg-dx-sb px-2"
+        >
+          Sportsbook <InfoIcon light text="Sportsbook markets pay the decimal rate shown. Settled on the official result." />
+        </button>
       </div>
       {head === "fancy" ? (
         <>
@@ -550,16 +578,12 @@ function FancySection({ markets, sportsbook }: { markets: Market[]; sportsbook: 
             <span className="flex items-center justify-center bg-dx-lay1">No</span>
             <span className="flex items-center justify-center bg-dx-back1">Yes</span>
           </div>
-          {shown.map((m) => (
-            <FancyRow key={m.marketId} market={m} />
-          ))}
+          {shown.length ? shown.map((m) => <FancyRow key={m.marketId} market={m} />) : empty}
         </>
       ) : (
         <div>
           <FilterBar tabs={SB_TABS} active={sb} onPick={setSb} tone="bg-dx-sb" />
-          {sbShown.map((m) => (
-            <Board key={m.marketId} market={m} levels={1} backOnly />
-          ))}
+          {sbShown.length ? sbShown.map((m) => <Board key={m.marketId} market={m} levels={1} backOnly />) : empty}
         </div>
       )}
     </section>
@@ -787,8 +811,11 @@ function EventPage() {
   // Totals / handicap markets arrive inside the sportsbook list too; the
   // reference board shows every one of them in the Over/Under section.
   const allSportsbook = data?.sportsbook ?? [];
-  const sportsbook = allSportsbook.filter((m) => !isLineMarket(m));
-  const sportsbookLines = allSportsbook.filter(isLineMarket);
+  // Cricket: Dukex keeps every sportsbook market (incl. "Over Last Digit")
+  // inside the Sportsbook tab, not as separate boards.
+  const cricket = sportId === "4";
+  const sportsbook = cricket ? allSportsbook : allSportsbook.filter((m) => !isLineMarket(m));
+  const sportsbookLines = cricket ? [] : allSportsbook.filter(isLineMarket);
   const overUnder = [...lines, ...sportsbookLines];
 
 
@@ -944,8 +971,10 @@ function EventPage() {
     view === marketGroupName(m) ||
     view === m.marketName.trim();
   const visibleFancy = fancy.filter(pick);
-  const visibleSportsbook = sportsbook.filter(pick);
-  const showFancy = visibleFancy.length > 0 || visibleSportsbook.length > 0;
+  const visibleToss = sportsbook.filter(isTossMarket).filter(pick);
+  const visibleSportsbook = sportsbook.filter((m) => !isTossMarket(m)).filter(pick);
+  const showFancy =
+    (sportId === "4" && view === "All") || visibleFancy.length > 0 || visibleSportsbook.length > 0;
   const hasPanels = !eventId.startsWith("sf:");
   const isRace = sportId === "7" || sportId === "4339";
   const hasTv = hasPanels && data?.tv !== false;
@@ -1064,8 +1093,9 @@ function EventPage() {
         exposureLayout="sports"
       >
         <div>
-          {matchOdds.filter(pick).map((m) => <Board key={m.marketId} market={m} levels={1} race={sportId === "7" || sportId === "4339"} />)}
+          {matchOdds.filter(pick).map((m) => <Board key={m.marketId} market={m} levels={sportId === "4" ? 3 : 1} race={sportId === "7" || sportId === "4339"} />)}
           {bookmakers.filter(pick).map((m) => <Board key={m.marketId} market={m} book />)}
+          {visibleToss.map((m) => <TossBoard key={m.marketId} market={m} />)}
           {showFancy ? (
             <FancySection markets={visibleFancy} sportsbook={visibleSportsbook} />
           ) : null}
