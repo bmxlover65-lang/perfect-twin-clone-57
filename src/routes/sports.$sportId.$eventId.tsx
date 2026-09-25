@@ -512,35 +512,61 @@ function FilterBar({ tabs, active, onPick, tone }: { tabs: string[]; active: str
   );
 }
 
+function isTossMarket(m: Market) {
+  return /TOSS/i.test(m.marketName ?? "");
+}
+
+/** Dukex "Which team will win the toss": two side-by-side green Back cards. */
+function TossBoard({ market }: { market: Market }) {
+  const { dim, label } = marketState(market);
+  const runners = market.oddsData?.runners ?? [];
+  return (
+    <article className="mb-3 bg-dx-page">
+      <MarketTitle name={market.marketName} matched={market.oddsData?.totalMatched} />
+      <div className="relative grid grid-cols-2 gap-[18px] bg-dx-toss px-9 py-1.5">
+        {runners.map((r) => {
+          const p = r.price?.back?.[0];
+          return (
+            <div key={String(r.selectionId)} className="flex flex-col items-center">
+              <span className="mb-0.5 text-[0.75rem] font-bold text-dx-ink">{runnerName(market, r.selectionId)}</span>
+              <div className="w-full overflow-hidden rounded-[3px] border border-dx-page">
+                <Cell label={`${runnerName(market, r.selectionId)} Back`} price={p?.price} size={p?.size} side="back" dim={dim} depth={0} toss />
+              </div>
+            </div>
+          );
+        })}
+        {dim ? <Suspended label={label} /> : null}
+      </div>
+    </article>
+  );
+}
+
 function FancySection({ markets, sportsbook }: { markets: Market[]; sportsbook: Market[] }) {
   const [tab, setTab] = useState("ALL");
   const [sb, setSb] = useState("ALL");
-  const [head, setHead] = useState<"fancy" | "sb">(markets.length ? "fancy" : "sb");
+  const [head, setHead] = useState<"fancy" | "sb">("fancy");
   const active = tab;
   const shown = active === "ALL" ? markets : markets.filter((m) => fancyTab(m) === active);
   const sbShown = sb === "ALL" ? sportsbook : sportsbook.filter((m) => sbTab(m) === sb);
+  const empty = <p className="py-5 text-center text-[0.75rem] text-ex-muted">No market odds available</p>;
 
   return (
     <section className="mb-3 bg-dx-page">
-      <div className="flex h-[26px] items-stretch border-b-2 border-dx-fancy text-[0.68rem] font-bold text-dx-page">
-        {markets.length ? (
-          <button
-            type="button"
-            onClick={() => setHead("fancy")}
-            className="flex items-center gap-1.5 rounded-tr-[10px] bg-dx-fancy px-2"
-          >
-            Fancy Bet <InfoIcon light text="Fancy / session bets: No = runs below the line, Yes = at or above. Settled on the official score." />
-          </button>
-        ) : null}
-        {sportsbook.length ? (
-          <button
-            type="button"
-            onClick={() => setHead("sb")}
-            className="flex items-center gap-1.5 rounded-tr-[10px] bg-dx-sb px-2"
-          >
-            Sportsbook <InfoIcon light text="Sportsbook markets pay the decimal rate shown. Settled on the official result." />
-          </button>
-        ) : null}
+      <div className={`flex h-[30px] items-stretch border-b-2 ${head === "fancy" ? "border-dx-fancy" : "border-dx-sb"} text-[0.7rem] font-bold text-dx-page`}>
+        <button
+          type="button"
+          onClick={() => setHead("fancy")}
+          className="mr-1 flex items-center gap-1.5 rounded-tr-[10px] bg-dx-fancy px-2"
+        >
+          Fancy Bet <InfoIcon light text="Fancy / session bets: No = runs below the line, Yes = at or above. Settled on the official score." />
+        </button>
+        <button
+          type="button"
+          onClick={() => setHead("sb")}
+          className="flex items-center gap-1.5 rounded-tr-[10px] bg-dx-sb px-2"
+        >
+          Sportsbook <InfoIcon light text="Sportsbook markets pay the decimal rate shown. Settled on the official result." />
+        </button>
       </div>
       {head === "fancy" ? (
         <>
@@ -550,16 +576,12 @@ function FancySection({ markets, sportsbook }: { markets: Market[]; sportsbook: 
             <span className="flex items-center justify-center bg-dx-lay1">No</span>
             <span className="flex items-center justify-center bg-dx-back1">Yes</span>
           </div>
-          {shown.map((m) => (
-            <FancyRow key={m.marketId} market={m} />
-          ))}
+          {shown.length ? shown.map((m) => <FancyRow key={m.marketId} market={m} />) : empty}
         </>
       ) : (
         <div>
           <FilterBar tabs={SB_TABS} active={sb} onPick={setSb} tone="bg-dx-sb" />
-          {sbShown.map((m) => (
-            <Board key={m.marketId} market={m} levels={1} backOnly />
-          ))}
+          {sbShown.length ? sbShown.map((m) => <Board key={m.marketId} market={m} levels={1} backOnly />) : empty}
         </div>
       )}
     </section>
