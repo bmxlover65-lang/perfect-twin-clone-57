@@ -71,6 +71,14 @@ export async function oriEvents(
   );
   const rows = json?.data;
   if (!Array.isArray(rows)) return null;
+  // The list is opened before a match page. Subscribe to visible live events
+  // now so the first odds request already has an exchange frame available.
+  for (const row of rows.slice(0, 24)) {
+    const eventId = String(row["exEventId"] ?? row["eventId"] ?? "");
+    if (eventId && (inPlay === true || Boolean(row["inPlay"]))) {
+      void warmOddsStream(sportId, eventId);
+    }
+  }
   return rows;
 }
 
@@ -141,7 +149,7 @@ export async function oriOdds(sportId: string, exEventId: string): Promise<OriOd
   const shared = await readShared(sportId, exEventId);
   // Cold worker instances can answer from the newest shared exchange frame
   // immediately while their own subscription warms in the background.
-  if (shared && Date.now() - shared.at < 2_500) {
+  if (shared && Date.now() - shared.at < 4_000) {
     void warmOddsStream(sportId, exEventId);
     return shared.odds;
   }
@@ -160,7 +168,9 @@ async function warmOddsStream(sportId: string, exEventId: string) {
 
 async function oriOddsInner(sportId: string, exEventId: string, shared: Shared | null): Promise<OriOdds | null> {
   const { ucasSportsOdds } = await import("./ucas.server");
-  const liveFrame = await ucasSportsOdds(sportId, exEventId).catch(() => null);
+  // A shared frame is already safe to return if this isolate's subscription is
+  // cold; don't make the caller wait the full cold-start window to confirm it.
+  const liveFrame = await ucasSportsOdds(sportId, exEventId, shared ? 300 : 1500).catch(() => null);
   if (shared && (!liveFrame || liveFrame.receivedAt < shared.at) && Date.now() - shared.at < 30_000) {
     // Our frame is older than one already served (or we only have the slow
     // REST copy) — return the newer shared frame instead.
