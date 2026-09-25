@@ -61,15 +61,18 @@ export const Route = createFileRoute("/ws/sports")({
         );
 
         let open = true;
-        let last = "";
+        let lastUpdatedAt = "";
         const path = `sports/${encodeURIComponent(sportId)}/${encodeURIComponent(exEventId)}/odds`;
         const tick = async () => {
           while (open) {
             try {
               const res = await proxy(path, "", undefined, "");
               const text = await res.text();
-              if (res.ok && text !== last) {
-                last = text;
+              const updatedAt = res.ok
+                ? String((JSON.parse(text) as { updatedAt?: string }).updatedAt ?? "")
+                : "";
+              if (res.ok && updatedAt && updatedAt !== lastUpdatedAt) {
+                lastUpdatedAt = updatedAt;
                 server.send(`{"type":"odds","sportId":${JSON.stringify(sportId)},"exEventId":${JSON.stringify(exEventId)},"data":${text}}`);
               }
             } catch {
