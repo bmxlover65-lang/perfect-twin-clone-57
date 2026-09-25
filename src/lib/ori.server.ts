@@ -184,7 +184,25 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
   const { ucasSportsOdds } = await import("./ucas.server");
   // A shared frame is already safe to return if this isolate's subscription is
   // cold; don't make the caller wait the full cold-start window to confirm it.
-  const liveFrame = await ucasSportsOdds(sportId, exEventId, shared ? 300 : 1500).catch(() => null);
+  // Ask the long-poll gateway and the Aura WebSocket at the same time; the
+  // newest frame wins. The long-poll gateway can silently drop a match, while
+  // the WebSocket keeps streaming it (and vice versa).
+  const [liveFrame, aura] = await Promise.all([
+    ucasSportsOdds(sportId, exEventId, shared ? 300 : 1500).catch(() => null),
+    import("./aura.server")
+      .then((m) => Promise.race([
+        m.auraOdds(sportId, exEventId),
+        new Promise<null>((r) => setTimeout(() => r(null), 5200)),
+      ]))
+      .catch(() => null),
+  ]);
+  const auraFrame = aura && hasPrices(aura as unknown as OriOdds) ? (aura as unknown as OriOdds) : null;
+  const auraAt = auraFrame ? Date.parse(auraFrame.updatedAt) || 0 : 0;
+  if (auraFrame && auraAt >= (liveFrame?.receivedAt ?? 0) && auraAt >= (shared?.at ?? 0)) {
+    const result: OriOdds = { ...auraFrame, stale: Date.now() - auraAt > 5_000 };
+    await writeShared(sportId, exEventId, { at: auraAt, odds: result });
+    return result;
+  }
   if (shared && hasPrices(shared.odds) && liveFrame && liveFrame.receivedAt < shared.at) {
     return { ...shared.odds, stale: Date.now() - shared.at > 5_000 };
   }
