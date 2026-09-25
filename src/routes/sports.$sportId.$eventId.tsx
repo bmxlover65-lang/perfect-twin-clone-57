@@ -74,7 +74,9 @@ function Cell({
   label,
   betOdds,
   raw = false,
+  toss = false,
 }: {
+  toss?: boolean;
   /** Race boards print rates exactly like Dukex: 9.6, 108.72, 102.3. */
   raw?: boolean;
   label?: string;
@@ -98,7 +100,7 @@ function Cell({
     return () => clearTimeout(t);
   }, [price]);
 
-  const tone = (side === "back" ? BACK_TONE : LAY_TONE)[depth] ?? BACK_TONE[0];
+  const tone = toss ? "bg-dx-toss-cell" : (side === "back" ? BACK_TONE : LAY_TONE)[depth] ?? BACK_TONE[0];
   return (
     <div
       data-bet-label={label && price ? label : undefined}

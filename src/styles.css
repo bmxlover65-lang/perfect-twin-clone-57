@@ -104,6 +104,8 @@
   --color-ex-link: var(--ex-link);
   --color-ex-inplay: var(--ex-inplay);
   --color-dx-back1: var(--dx-back1);
+  --color-dx-toss: var(--dx-toss);
+  --color-dx-toss-cell: var(--dx-toss-cell);
   --color-dx-back2: var(--dx-back2);
   --color-dx-back3: var(--dx-back3);
   --color-dx-lay1: var(--dx-lay1);
@@ -726,6 +728,8 @@
   --ex-inplay: #567D2F;
   /* Dukex match-page palette */
   --dx-back1: #72BBEF;
+  --dx-toss: #bfe8cf;
+  --dx-toss-cell: #6fdc95;
   --dx-back2: #B7D5EB;
   --dx-back3: #D7E8F4;
   --dx-lay1: #FAA9BA;
