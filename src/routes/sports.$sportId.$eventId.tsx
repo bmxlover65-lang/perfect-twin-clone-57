@@ -1055,12 +1055,12 @@ function EventPage() {
         exposureLayout="sports"
       >
         <div>
-          {matchOdds.filter(pick).map((m) => <Board key={m.marketId} market={m} race={sportId === "7" || sportId === "4339"} />)}
+          {matchOdds.filter(pick).map((m) => <Board key={m.marketId} market={m} levels={1} race={sportId === "7" || sportId === "4339"} />)}
           {bookmakers.filter(pick).map((m) => <Board key={m.marketId} market={m} book />)}
           {showFancy ? (
             <FancySection markets={visibleFancy} sportsbook={visibleSportsbook} />
           ) : null}
-          {overUnder.filter(pick).map((m) => <Board key={m.marketId} market={m} />)}
+          {overUnder.filter(pick).map((m) => <Board key={m.marketId} market={m} levels={1} />)}
           {data && !matchOdds.length && !bookmakers.length && !fancy.length && !sportsbook.length && !overUnder.length ? (
             <p className="px-2 py-6 text-center text-[0.8rem] text-ex-muted">No open markets right now.</p>
           ) : null}
