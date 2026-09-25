@@ -32,6 +32,39 @@ const sportsSubs = new Map<string, string>();
 const sportsRetryAt = new Map<string, number>();
 const results = new Map<string, { at: number; data: unknown[] }>();
 
+type SportsMeta = { competitionId: string; sport: string; inPlay: boolean };
+const sportsMeta = new Map<string, SportsMeta>();
+const sportsMetaPending = new Map<string, Promise<SportsMeta | null>>();
+
+async function findSportsMeta(sportId: string, exEventId: string): Promise<SportsMeta | null> {
+  const cached = sportsMeta.get(exEventId);
+  if (cached) return cached;
+  const pending = sportsMetaPending.get(exEventId);
+  if (pending) return pending;
+  const lookup = (async () => {
+    try {
+      const res = await call(`/api/sports/${encodeURIComponent(sportId)}/events`, undefined, 3500);
+      if (!res.ok) return null;
+      const json = await res.json() as { data?: { exEventId?: string; _id?: string; competitionId?: string; tournamentId?: string; sportName?: string; inPlay?: boolean }[] };
+      const match = json.data?.find((row) => String(row.exEventId ?? row._id) === exEventId);
+      if (!match) return null;
+      const meta = {
+        competitionId: String(match.competitionId ?? match.tournamentId ?? ""),
+        sport: String(match.sportName ?? ""),
+        inPlay: Boolean(match.inPlay),
+      };
+      sportsMeta.set(exEventId, meta);
+      return meta;
+    } catch {
+      return null;
+    } finally {
+      sportsMetaPending.delete(exEventId);
+    }
+  })();
+  sportsMetaPending.set(exEventId, lookup);
+  return lookup;
+}
+
 async function call(path: string, init?: RequestInit, timeoutMs = 8000): Promise<Response> {
   const ac = new AbortController();
   const timer = setTimeout(() => ac.abort(), timeoutMs);
@@ -104,7 +137,14 @@ function ingest(text: string) {
     if (name === "auraOddsUpdate") {
       const a = payload?.["auraMarketOdds"] as Record<string, unknown> | undefined;
       const id = a ? String(a["eventId"] ?? (a["betfair"] as { exEventId?: string }[] | undefined)?.[0]?.exEventId ?? "") : "";
-      if (a && id) sportsFrames.set(id, { at: Date.now(), data: a });
+       if (a && id) {
+         // The exchange timestamp is the actual market tick. Replayed packets
+         // after reconnecting must not become a fresh frame on receipt.
+         const tick = Number(a["updatedAt"]);
+         const at = Number.isFinite(tick) && tick > 1_600_000_000_000 && tick < Date.now() + 5_000
+           ? tick : Date.now();
+         if (at >= (sportsFrames.get(id)?.at ?? 0)) sportsFrames.set(id, { at, data: a });
+       }
       continue;
     }
     const eventId = typeof payload?.["eventId"] === "string" ? (payload["eventId"] as string) : "";
@@ -245,14 +285,20 @@ export async function ucasResults(eventId: string): Promise<unknown[]> {
 }
 
 function sportsSub(sportId: string, ev: string) {
-  return `42${JSON.stringify(["subscribeToAuraOdds", { eventId: sportId, matchId: ev, marketId: ev, inPlay: true }])}`;
+  const meta = sportsMeta.get(ev);
+  return `42${JSON.stringify(["subscribeToAuraOdds", {
+    eventId: sportId, eventType: sportId, competitionId: meta?.competitionId ?? "",
+    matchId: ev, marketId: ev, sport: meta?.sport ?? "", inPlay: meta?.inPlay ?? true,
+  }])}`;
 }
 
 /** Live sports odds frame (same stream the reference board uses). */
-export async function ucasSportsOdds(sportId: string, exEventId: string, waitMs = 1500): Promise<{
+export async function ucasSportsOdds(sportId: string, exEventId: string, waitMs = 1500, meta?: SportsMeta): Promise<{
   data: Record<string, unknown>;
   receivedAt: number;
 } | null> {
+  if (meta) sportsMeta.set(exEventId, meta);
+  else await findSportsMeta(sportId, exEventId);
   const id = await session();
   if (!id) return null;
   startLoop(id);
