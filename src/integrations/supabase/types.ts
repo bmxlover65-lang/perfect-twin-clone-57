@@ -403,6 +403,24 @@ export type Database = {
         }
         Relationships: []
       }
+      sports_odds_live: {
+        Row: {
+          at: number
+          key: string
+          odds: Json
+        }
+        Insert: {
+          at: number
+          key: string
+          odds: Json
+        }
+        Update: {
+          at?: number
+          key?: string
+          odds?: Json
+        }
+        Relationships: []
+      }
       sports_watch: {
         Row: {
           event_id: string
@@ -515,6 +533,10 @@ export type Database = {
         Returns: boolean
       }
       owns_operator: { Args: { _operator_id: string }; Returns: boolean }
+      put_sports_odds: {
+        Args: { _at: number; _key: string; _odds: Json }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "operator"

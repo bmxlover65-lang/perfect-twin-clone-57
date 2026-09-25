@@ -100,9 +100,56 @@ export type OriOdds = {
   sportsbook: RawMarket[];
 };
 
+// Worker instances don't share memory, so each one can hold a different
+// (sometimes older) frame. The newest live frame is shared through the database so every request returns the newest rate and never steps backwards.
+type Shared = { at: number; odds: OriOdds };
+const localShared = new Map<string, Shared>();
+
+async function readShared(s: string, e: string): Promise<Shared | null> {
+  const k = `${s}|${e}`;
+  const local = localShared.get(k) ?? null;
+  let remote: Shared | null = null;
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin.from("sports_odds_live").select("at, odds").eq("key", k).maybeSingle();
+    if (data) remote = { at: Number(data.at), odds: data.odds as unknown as OriOdds };
+  } catch {
+    /* shared store unavailable */
+  }
+  if (!local) return remote;
+  if (!remote) return local;
+  return remote.at > local.at ? remote : local;
+}
+
+async function writeShared(s: string, e: string, v: Shared) {
+  const k = `${s}|${e}`;
+  const prev = localShared.get(k);
+  if (prev && prev.at >= v.at) return;
+  localShared.set(k, v);
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.rpc("put_sports_odds", { _key: k, _at: v.at, _odds: v.odds as never });
+  } catch {
+    /* shared store unavailable */
+  }
+}
+
 export async function oriOdds(sportId: string, exEventId: string): Promise<OriOdds | null> {
+  const shared = await readShared(sportId, exEventId);
+  // Another instance got a frame within the last second — serve it instantly.
+  if (shared && Date.now() - shared.at < 1_000) return shared.odds;
+  const own = await oriOddsInner(sportId, exEventId, shared);
+  return own;
+}
+
+async function oriOddsInner(sportId: string, exEventId: string, shared: Shared | null): Promise<OriOdds | null> {
   const { ucasSportsOdds } = await import("./ucas.server");
   const liveFrame = await ucasSportsOdds(sportId, exEventId).catch(() => null);
+  if (shared && (!liveFrame || liveFrame.receivedAt < shared.at) && Date.now() - shared.at < 30_000) {
+    // Our frame is older than one already served (or we only have the slow
+    // REST copy) — return the newer shared frame instead.
+    return shared.odds;
+  }
   let raw: RawMarkets | undefined;
   if (liveFrame) {
     const f = liveFrame.data as Record<string, RawMarket[] | boolean | undefined>;
@@ -128,7 +175,7 @@ export async function oriOdds(sportId: string, exEventId: string): Promise<OriOd
   if (!matchOdds.length && !bookmakers.length && !fancy.length && !sportsbook.length) return null;
 
   const head = matchOdds[0] ?? bookmakers[0];
-  return {
+  const result: OriOdds = {
     exEventId,
     eventName: String((head?.["eventName"] as string) ?? ""),
     sportId,
@@ -145,4 +192,6 @@ export async function oriOdds(sportId: string, exEventId: string): Promise<OriOd
     fancy,
     sportsbook,
   };
+  if (liveFrame) await writeShared(sportId, exEventId, { at: liveFrame.receivedAt, odds: result });
+  return result;
 }
