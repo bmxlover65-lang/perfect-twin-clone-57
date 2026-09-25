@@ -158,7 +158,7 @@ export async function oriOdds(sportId: string, exEventId: string): Promise<OriOd
   // immediately while their own subscription warms in the background.
   if (shared && Date.now() - shared.at < 1_000) {
     void warmOddsStream(sportId, exEventId);
-    return shared.odds;
+    return { ...shared.odds, stale: false };
   }
   const own = await oriOddsInner(sportId, exEventId, shared);
   return own;
@@ -178,10 +178,11 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
   // A shared frame is already safe to return if this isolate's subscription is
   // cold; don't make the caller wait the full cold-start window to confirm it.
   const liveFrame = await ucasSportsOdds(sportId, exEventId, shared ? 300 : 1500).catch(() => null);
-  if (shared && (!liveFrame || liveFrame.receivedAt < shared.at)) {
-    // Never replace a known exchange frame with a cold isolate's old frame or
-    // an undated REST copy. An outage must not masquerade as fresh odds.
+  if (shared && liveFrame && liveFrame.receivedAt < shared.at) {
     return { ...shared.odds, stale: Date.now() - shared.at > 5_000 };
+  }
+  if (shared && !liveFrame && Date.now() - shared.at <= 5_000) {
+    return { ...shared.odds, stale: false };
   }
   let raw: RawMarkets | undefined;
   if (liveFrame) {
@@ -199,13 +200,15 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
     );
     raw = json?.data?.data;
   }
-  if (!raw) return null;
+  if (!raw) return shared ? { ...shared.odds, stale: true } : null;
 
   const matchOdds = bySequence(live(raw.matchOddsData));
   const bookmakers = bySequence(live(raw.bookmakersData));
   const fancy = bySequence(live(raw.fancyData));
   const sportsbook = bySequence(live(raw.sportsbookData));
-  if (!matchOdds.length && !bookmakers.length && !fancy.length && !sportsbook.length) return null;
+  if (!matchOdds.length && !bookmakers.length && !fancy.length && !sportsbook.length) {
+    return shared ? { ...shared.odds, stale: true } : null;
+  }
 
   const head = matchOdds[0] ?? bookmakers[0];
   const result: OriOdds = {
@@ -219,7 +222,9 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
     // Keep this stable until the exchange sends a genuinely new frame. The
     // WebSocket relay compares payloads and must not mistake a regenerated
     // timestamp for a price update.
-    updatedAt: new Date(liveFrame?.receivedAt ?? Date.now()).toISOString(),
+    // REST has no market-tick timestamp. Keep the last known exchange tick
+    // when available; a fetched snapshot is useful but cannot claim freshness.
+    updatedAt: new Date(liveFrame?.receivedAt ?? shared?.at ?? Date.now()).toISOString(),
     stale: !liveFrame,
     matchOdds,
     bookmakers,
