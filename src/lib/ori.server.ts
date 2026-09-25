@@ -118,6 +118,13 @@ export type OriOdds = {
 type Shared = { at: number; odds: OriOdds };
 const localShared = new Map<string, Shared>();
 
+function hasPrices(odds: OriOdds): boolean {
+  return [...odds.matchOdds, ...odds.bookmakers, ...odds.fancy, ...odds.sportsbook].some((market) => {
+    const runners = (market.oddsData as { runners?: { price?: { back?: { price?: number }[]; lay?: { price?: number }[] } }[] } | undefined)?.runners ?? [];
+    return runners.some((runner) => [...(runner.price?.back ?? []), ...(runner.price?.lay ?? [])].some((point) => Number(point.price) > 0));
+  });
+}
+
 async function readShared(s: string, e: string): Promise<Shared | null> {
   const k = `${s}|${e}`;
   const local = localShared.get(k) ?? null;
@@ -156,7 +163,7 @@ export async function oriOdds(sportId: string, exEventId: string): Promise<OriOd
   const shared = await readShared(sportId, exEventId);
   // Cold worker instances can answer from the newest shared exchange frame
   // immediately while their own subscription warms in the background.
-  if (shared && Date.now() - shared.at < 1_000) {
+  if (shared && hasPrices(shared.odds) && Date.now() - shared.at < 1_000) {
     void warmOddsStream(sportId, exEventId);
     return { ...shared.odds, stale: false };
   }
@@ -178,10 +185,10 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
   // A shared frame is already safe to return if this isolate's subscription is
   // cold; don't make the caller wait the full cold-start window to confirm it.
   const liveFrame = await ucasSportsOdds(sportId, exEventId, shared ? 300 : 1500).catch(() => null);
-  if (shared && liveFrame && liveFrame.receivedAt < shared.at) {
+  if (shared && hasPrices(shared.odds) && liveFrame && liveFrame.receivedAt < shared.at) {
     return { ...shared.odds, stale: Date.now() - shared.at > 5_000 };
   }
-  if (shared && !liveFrame && Date.now() - shared.at <= 5_000) {
+  if (shared && hasPrices(shared.odds) && !liveFrame && Date.now() - shared.at <= 5_000) {
     return { ...shared.odds, stale: false };
   }
   let raw: RawMarkets | undefined;
@@ -194,6 +201,16 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
       sportsbookData: (f["sportsbook"] ?? f["sportsBook"]) as RawMarket[],
       isScore: Boolean(f["isScore"]),
     };
+    // Some exchange socket frames contain an empty, suspended ladder while
+    // the direct markets endpoint still has open prices. Check the source
+    // before replacing a usable board with a zero-only frame.
+    const socketHasPrices = [...(raw.matchOddsData ?? []), ...(raw.bookmakersData ?? []), ...(raw.fancyData ?? []), ...(raw.sportsbookData ?? [])].some((market) =>
+      ((market.oddsData as { runners?: { price?: { back?: { price?: number }[]; lay?: { price?: number }[] } }[] } | undefined)?.runners ?? []).some((runner) =>
+        [...(runner.price?.back ?? []), ...(runner.price?.lay ?? [])].some((point) => Number(point.price) > 0)));
+    if (!socketHasPrices) {
+      const rest = await jget<Envelope<{ data?: RawMarkets }>>(`sports/${encodeURIComponent(sportId)}/${encodeURIComponent(exEventId)}/markets`, 1800);
+      if (rest?.data?.data) raw = rest.data.data;
+    }
   } else {
     const json = await jget<Envelope<{ data?: RawMarkets }>>(
       `sports/${encodeURIComponent(sportId)}/${encodeURIComponent(exEventId)}/markets`,
@@ -234,6 +251,6 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
   // Must be awaited: the hosting cuts off unawaited work once the response is
   // sent, so fire-and-forget writes never reached the shared store and every
   // copy kept serving its own old frame. The write is a single quick call.
-  if (liveFrame) await writeShared(sportId, exEventId, { at: liveFrame.receivedAt, odds: result });
+  if (liveFrame && hasPrices(result)) await writeShared(sportId, exEventId, { at: liveFrame.receivedAt, odds: result });
   return result;
 }
