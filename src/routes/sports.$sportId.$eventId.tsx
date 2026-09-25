@@ -1042,7 +1042,7 @@ function EventPage() {
       </div>
       </>)}
 
-      {error || data?.stale ? (
+      {(error || data?.stale || (data?.updatedAt && age > 5 && Date.now() - Date.parse(data.updatedAt) > 5_000)) ? (
         <p className="px-2 py-1 text-[0.7rem] text-ex-suspend">Feed reconnecting… showing last prices</p>
       ) : null}
 
