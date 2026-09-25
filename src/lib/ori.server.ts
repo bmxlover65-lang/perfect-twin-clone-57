@@ -208,6 +208,9 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
     fancy,
     sportsbook,
   };
-  if (liveFrame) await writeShared(sportId, exEventId, { at: liveFrame.receivedAt, odds: result });
+  // The live response must not wait on shared-storage I/O. Local state is
+  // updated synchronously inside writeShared; persistence continues outside
+  // the price-delivery path.
+  if (liveFrame) void writeShared(sportId, exEventId, { at: liveFrame.receivedAt, odds: result });
   return result;
 }
