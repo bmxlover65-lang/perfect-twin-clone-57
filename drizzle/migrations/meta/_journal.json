@@ -50,6 +50,13 @@
       "when": 1790255737578,
       "tag": "0006_sports_watch",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790346111638,
+      "tag": "0007_sports_odds_live",
+      "breakpoints": true
     }
   ]
 }
