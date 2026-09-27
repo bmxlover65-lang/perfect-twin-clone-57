@@ -497,18 +497,37 @@ async function oriResponse(splat: string, search: string): Promise<Response | nu
   // as /odds, in the exchange envelope shape.
   const mk = /^sports\/([^/]+)\/([^/]+)\/markets$/.exec(splat);
   if (mk) {
-    const data = await oriOdds(decodeURIComponent(mk[1]!), decodeURIComponent(mk[2]!));
-    if (!data) return null;
+    const sid = decodeURIComponent(mk[1]!);
+    const eid = decodeURIComponent(mk[2]!);
+    const data = await oriOdds(sid, eid);
+    // A stale live frame still lists fancy sessions that already finished
+    // (e.g. "49 Over Runs" after the innings ended). The exchange's own
+    // market list is authoritative for which markets still exist.
+    type Rows = Record<string, unknown>[];
+    type RestM = { matchOddsData?: Rows; bookmakersData?: Rows; fancyData?: Rows; sportsbookData?: Rows; isScore?: boolean };
+    let rest = null as RestM | null;
+    if (!data || data.stale) {
+      try {
+        const r = await fetch(`https://ori.exchange24x7.live/api/sports/${encodeURIComponent(sid)}/${encodeURIComponent(eid)}/markets`, {
+          headers: { accept: "application/json", origin: "https://dukex.biz", referer: "https://dukex.biz/" },
+          cache: "no-store",
+          signal: AbortSignal.timeout(1500),
+        });
+        if (r.ok) rest = ((await r.json()) as { data?: { data?: RestM } })?.data?.data ?? null;
+      } catch { /* keep live frame */ }
+    }
+    if (!data && !rest) return null;
+    const alive = (rows?: Rows) => (rows ?? []).filter((m) => Number(m["isSettlement"] ?? 0) !== 1 && Number(m["isVoid"] ?? 0) !== 1);
     return jsonOut({
       data: {
-        matchOddsData: data.matchOdds,
-        bookmakersData: data.bookmakers,
-        fancyData: data.fancy,
-        sportsbookData: data.sportsbook,
-        isScore: data.isScore,
+        matchOddsData: rest ? alive(rest.matchOddsData) : data!.matchOdds,
+        bookmakersData: rest ? alive(rest.bookmakersData) : data!.bookmakers,
+        fancyData: rest ? alive(rest.fancyData) : data!.fancy,
+        sportsbookData: rest ? alive(rest.sportsbookData) : data!.sportsbook,
+        isScore: rest ? Boolean(rest.isScore) : data!.isScore,
       },
-      updatedAt: data.updatedAt,
-      stale: data.stale,
+      updatedAt: data?.updatedAt ?? "",
+      stale: data?.stale ?? true,
     });
   }
 
