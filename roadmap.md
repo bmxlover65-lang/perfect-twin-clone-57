@@ -10,6 +10,7 @@
 - [ ] Ball by Ball (dukex.biz/ballByBall/3035): ab live — Dukex se compare, side-by-side photo, board match
 - [x] Ball by Ball: current result ka naya video chalana; video end/error par banner dikhana, frozen frame nahi
 - [x] Sports match page: Dukex-style boards, tabs, suspended look, pre-match countdown
+- [x] Mobile match view: compact betting header, single best Back/Lay price, matching market spacing and bottom navigation based on the supplied 360px comparison
 - [x] Sports match page: Universal header only; TV close behavior, every live market tab/button, merged proof image
 - [x] Sports all-match parity: dynamic sport banners, feed-driven media, rates, bets and settlement verification
 - [x] Sports Lay / No bets: correct liability, P/L and settlement
