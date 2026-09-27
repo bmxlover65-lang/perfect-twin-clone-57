@@ -249,7 +249,7 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
   if (auraFrame && auraAt >= (liveFrame?.receivedAt ?? 0) && auraAt >= (shared?.at ?? 0)) {
     const result: OriOdds = { ...auraFrame, stale: Date.now() - auraAt > 3_000 };
     await writeShared(sportId, exEventId, { at: auraAt, odds: result });
-    return result;
+    return result.stale ? reconcileStaleMarkets(sportId, exEventId, result) : result;
   }
   if (shared && hasPrices(shared.odds) && liveFrame && liveFrame.receivedAt < shared.at) {
     const fallback = { ...shared.odds, stale: Date.now() - shared.at > 3_000 };

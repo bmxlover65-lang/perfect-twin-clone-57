@@ -55,10 +55,10 @@ export async function autoSettleCasino(origin: string) {
     if (!byGame.has(g.gameId)) {
       const res = await fetch(`${origin}/api/public/uapi/games/${encodeURIComponent(g.gameId)}/results?_=${Date.now()}`, {
         cache: "no-store",
-        signal: AbortSignal.timeout(15_000),
+        signal: AbortSignal.timeout(8_000),
       }).catch(() => null);
       const json = (await res?.json().catch(() => null)) as { data?: ResultRow[] } | null;
-      byGame.set(g.gameId, json?.data ?? []);
+      byGame.set(g.gameId, Array.isArray(json?.data) ? json.data : []);
     }
     const row = byGame.get(g.gameId)?.find((r) => String(r.roundId) === String(g.roundId));
     for (const bet of g.bets) {
