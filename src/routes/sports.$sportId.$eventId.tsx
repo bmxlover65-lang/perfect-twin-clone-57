@@ -424,7 +424,7 @@ function FancyRow({ market }: { market: Market }) {
   return (
     <div
       data-runner-row
-      className="relative grid min-h-[44px] grid-cols-[minmax(0,1fr)_79px_79px] border-b border-dx-rule bg-dx-page"
+       className="relative grid min-h-[44px] grid-cols-[minmax(0,1fr)_60px_60px] border-b border-dx-rule bg-dx-page sm:grid-cols-[minmax(0,1fr)_79px_79px]"
     >
       <span className="flex min-w-0 items-center gap-1 px-1.5 text-[0.72rem] font-bold leading-tight text-dx-ink">
         <span className="min-w-0 flex-1">{market.marketName.trim()}</span>
@@ -433,7 +433,7 @@ function FancyRow({ market }: { market: Market }) {
       <Cell label={`${market.marketName.trim()} @${no?.price ?? 0} No`} betOdds={no?.size ? 1 + no.size / 100 : undefined} price={no?.price} size={no?.size} side="lay" dim={dim} />
       <Cell label={`${market.marketName.trim()} @${yes?.price ?? 0} Yes`} betOdds={yes?.size ? 1 + yes.size / 100 : undefined} price={yes?.price} size={yes?.size} side="back" dim={dim} />
       {dim ? (
-        <div data-suspended="true" className="absolute inset-y-0 right-0 z-10 flex w-[158px] items-center justify-center border border-ex-suspend bg-dx-page/75">
+         <div data-suspended="true" className="absolute inset-y-0 right-0 z-10 flex w-[120px] items-center justify-center border border-ex-suspend bg-dx-page/75 sm:w-[158px]">
           <span className="text-[0.85rem] font-bold uppercase text-ex-suspend">{label}</span>
         </div>
       ) : null}
@@ -573,7 +573,7 @@ function FancySection({ markets, sportsbook }: { markets: Market[]; sportsbook: 
       {head === "fancy" ? (
         <>
           <FilterBar tabs={FANCY_TABS} active={active} onPick={setTab} tone="bg-dx-fancy-bar" />
-          <div className="grid h-[22px] grid-cols-[minmax(0,1fr)_79px_79px] text-[0.66rem] font-semibold text-dx-ink">
+           <div className="grid h-[22px] grid-cols-[minmax(0,1fr)_60px_60px] text-[0.66rem] font-semibold text-dx-ink sm:grid-cols-[minmax(0,1fr)_79px_79px]">
             <span />
             <span className="flex items-center justify-center bg-dx-lay1">No</span>
             <span className="flex items-center justify-center bg-dx-back1">Yes</span>
@@ -1114,7 +1114,7 @@ function EventPage() {
           </p>
         </div>
       </BetLayer>
-       <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto grid h-[54px] max-w-[430px] grid-cols-5 border-t border-dx-rule bg-dx-bar text-dx-page sm:hidden" aria-label="Sports navigation" data-nobet="">
+       <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto grid h-[54px] max-w-[430px] grid-cols-5 border-t border-dx-rule bg-dx-pill-active text-dx-page sm:hidden" aria-label="Sports navigation" data-nobet="">
          {[
            { to: "/", icon: "⌂", label: "Home" },
            { to: "/sports", icon: "◷", label: "In-Play" },

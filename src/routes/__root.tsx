@@ -258,7 +258,7 @@ function SportsTopBar() {
   const wallet = useWallet();
   const exposure = wallet.bets.filter((bet) => bet.status === "open").reduce((sum, bet) => sum + bet.stake, 0);
   return (
-    <header className="sports-theme sticky top-0 z-40 flex h-[52px] items-center justify-between gap-2 bg-dx-bar px-2 font-[Tahoma,Helvetica,Arial,sans-serif] text-dx-page sm:hidden">
+    <header className="sports-theme sticky top-0 z-40 flex h-[52px] items-center justify-between gap-2 bg-dx-pill-active px-2 font-[Tahoma,Helvetica,Arial,sans-serif] text-dx-page sm:hidden">
       <Link to="/my-bets" className="flex h-8 items-center gap-1 rounded-[3px] border border-dx-rule px-2 text-[0.78rem] font-bold" aria-label="My bets">
         <span aria-hidden="true">◉</span> Bets
       </Link>
