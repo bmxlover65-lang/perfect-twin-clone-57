@@ -169,7 +169,7 @@ export async function oriOdds(sportId: string, exEventId: string): Promise<OriOd
   const shared = await readShared(sportId, exEventId);
   // Cold worker instances can answer from the newest shared exchange frame
   // immediately while their own subscription warms in the background.
-  if (shared && hasPrices(shared.odds) && Date.now() - shared.at < 1_000) {
+  if (shared && hasPrices(shared.odds) && Date.now() - shared.at < 500) {
     void warmOddsStream(sportId, exEventId);
     return { ...shared.odds, stale: false };
   }
@@ -227,15 +227,15 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
   const auraFrame = aura && hasPrices(aura as unknown as OriOdds) ? (aura as unknown as OriOdds) : null;
   const auraAt = auraFrame ? Date.parse(auraFrame.updatedAt) || 0 : 0;
   if (auraFrame && auraAt >= (liveFrame?.receivedAt ?? 0) && auraAt >= (shared?.at ?? 0)) {
-    const result: OriOdds = { ...auraFrame, stale: Date.now() - auraAt > 5_000 };
+    const result: OriOdds = { ...auraFrame, stale: Date.now() - auraAt > 3_000 };
     await writeShared(sportId, exEventId, { at: auraAt, odds: result });
     return result;
   }
   if (shared && hasPrices(shared.odds) && liveFrame && liveFrame.receivedAt < shared.at) {
-    return { ...shared.odds, stale: Date.now() - shared.at > 5_000 };
+    return { ...shared.odds, stale: Date.now() - shared.at > 3_000 };
   }
-  if (shared && hasPrices(shared.odds) && !liveFrame && Date.now() - shared.at <= 5_000) {
-    return { ...shared.odds, stale: Date.now() - shared.at > 5_000 };
+  if (shared && hasPrices(shared.odds) && !liveFrame && Date.now() - shared.at <= 3_000) {
+    return { ...shared.odds, stale: Date.now() - shared.at > 3_000 };
   }
   let raw: RawMarkets | undefined;
   let fromRest = !liveFrame;
@@ -292,7 +292,7 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
     // REST has no market-tick timestamp. Keep the last known exchange tick
     // when available; a fetched snapshot is useful but cannot claim freshness.
     updatedAt: fromRest ? shared?.odds.updatedAt ?? "" : new Date(liveFrame?.receivedAt ?? 0).toISOString(),
-    stale: fromRest,
+    stale: fromRest || Date.now() - (liveFrame?.receivedAt ?? 0) > 3_000,
     matchOdds,
     bookmakers,
     fancy,

@@ -324,7 +324,7 @@ export async function auraOdds(sportId: string, exEventId: string): Promise<AnyR
   let hit = oddsByMatch.get(exEventId);
   const prevAt = hit?.at ?? 0;
   const needNewer = Date.now() - prevAt > 3_000;
-  const deadline = Date.now() + 5000;
+  const deadline = Date.now() + 1900;
   while ((!hit || !hasMarkets(hit.data) || (needNewer && hit.at <= prevAt)) && Date.now() < deadline) {
     await new Promise((r) => setTimeout(r, 100));
     hit = oddsByMatch.get(exEventId);
