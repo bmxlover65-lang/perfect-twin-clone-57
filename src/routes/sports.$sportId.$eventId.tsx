@@ -988,7 +988,7 @@ function EventPage() {
     hasPanels && (data?.isScore === true || (data?.isScore !== false && ["1", "2", "4"].includes(sportId)));
 
   return (
-    <div className="sports-theme mx-auto max-w-[1200px] bg-dx-page pb-20 font-[Tahoma,Helvetica,Arial,sans-serif] sm:pb-6">
+    <div className="sports-theme mx-auto max-w-[1200px] bg-dx-page pb-6">
       {isRace && hasPanels && !showTv ? (
         <EventBanner
           sportId={sportId}
@@ -1014,7 +1014,7 @@ function EventPage() {
           ) : null}
         </div>
       ) : (<>
-       <div className="relative hidden h-[34px] items-center justify-center bg-dx-bar text-[0.95rem] font-bold text-dx-page sm:flex">
+       <div className="relative flex h-[34px] items-center justify-center bg-dx-bar text-[0.95rem] font-bold text-dx-page">
         <Link to="/sports" className="absolute left-3 text-[0.8rem] font-semibold text-dx-page/80">
           ‹ Back
         </Link>
@@ -1035,7 +1035,7 @@ function EventPage() {
         ) : null}
       </div>
 
-       <div className="hidden items-center justify-between gap-2 border-b border-dx-rule px-2 py-1.5 sm:flex">
+       <div className="flex items-center justify-between gap-2 border-b border-dx-rule px-2 py-1.5">
         <h1 className="min-w-0 truncate text-[0.82rem] font-bold text-dx-ink">
           {data?.eventName ?? "Loading event…"}
         </h1>
@@ -1075,13 +1075,13 @@ function EventPage() {
         </div>
       ) : null}
 
-       <div className="flex gap-1 overflow-x-auto bg-dx-pill px-1 py-1 max-sm:h-[42px] sm:gap-1.5 sm:bg-dx-page sm:py-1.5">
+       <div className="flex gap-1.5 overflow-x-auto px-1 py-1.5">
         {views.map((v) => (
           <button
             key={v}
             type="button"
             onClick={() => setView(v)}
-             className={`whitespace-nowrap rounded-full px-3 py-2 text-[0.72rem] font-semibold text-dx-page sm:text-[0.8rem] ${
+             className={`whitespace-nowrap rounded-full px-3 py-2 text-[0.8rem] font-semibold text-dx-page ${
               isRace
                 ? view === v ? "bg-dx-race-active" : "bg-dx-race-pill"
                 : view === v ? "bg-dx-pill-active" : "bg-dx-pill"
@@ -1114,15 +1114,6 @@ function EventPage() {
           </p>
         </div>
       </BetLayer>
-       <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto grid h-[54px] max-w-[430px] grid-cols-5 border-t border-dx-rule bg-dx-pill-active text-dx-page sm:hidden" aria-label="Sports navigation" data-nobet="">
-         {[
-           { to: "/", icon: "⌂", label: "Home" },
-           { to: "/sports", icon: "◷", label: "In-Play" },
-           { to: "/sports", icon: "♜", label: "Sports" },
-           { to: "/", icon: "♧", label: "Casino" },
-           { to: "/my-bets", icon: "◉", label: "Account" },
-         ].map((item) => <Link key={item.label} to={item.to} className="flex flex-col items-center justify-center text-[0.62rem] font-bold leading-tight"><span aria-hidden="true" className="text-[1.35rem] leading-none">{item.icon}</span>{item.label}</Link>)}
-       </nav>
     </div>
   );
 }
