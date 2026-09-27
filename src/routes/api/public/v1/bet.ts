@@ -111,7 +111,7 @@ export const Route = createFileRoute("/api/public/v1/bet")({
         if (/^\d+\.\d/.test(b.gameId)) {
           const { ucasState } = await import("@/lib/ucas.server");
           const live = (await ucasState(b.gameId).catch(() => null)) as
-            | { data: { roundId?: string; status?: string; leftSec?: number } }
+            | { freshnessMs: number; data: { roundId?: string; status?: string; leftSec?: number } }
             | null;
           const d = live?.data;
           const closed =

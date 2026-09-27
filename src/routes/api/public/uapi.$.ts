@@ -527,7 +527,7 @@ async function oriResponse(splat: string, search: string): Promise<Response | nu
         bookmakersData: rest ? alive(rest.bookmakersData) : data!.bookmakers,
         // A failed membership check must never advertise an expired session
         // from an old exchange frame as an active fancy market.
-        fancyData: rest ? alive(rest.fancyData) : data?.stale ? [] : alive(data?.fancy as Rows[] | undefined),
+        fancyData: rest ? alive(rest.fancyData) : data?.stale ? [] : alive(data?.fancy as Rows | undefined),
         sportsbookData: rest ? alive(rest.sportsbookData) : data!.sportsbook,
         isScore: rest ? Boolean(rest.isScore) : data!.isScore,
       },

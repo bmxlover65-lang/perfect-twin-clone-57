@@ -89,7 +89,9 @@ export async function oriEvents(
 /** Drop settled / voided markets so the board never shows a dead line. */
 function live(rows: RawMarket[] | undefined): RawMarket[] {
   return (rows ?? []).filter(
-    (m) => Number(m["isSettlement"] ?? 0) !== 1 && Number(m["isVoid"] ?? 0) !== 1,
+    (m) => Number(m["isSettlement"] ?? 0) !== 1 && Number(m["isVoid"] ?? 0) !== 1 &&
+      Number(m["isClosed"] ?? 0) !== 1 &&
+      !/CLOSE|SETTLE|RESULT|REMOVED/i.test(String(m.oddsData?.status ?? "")),
   );
 }
 

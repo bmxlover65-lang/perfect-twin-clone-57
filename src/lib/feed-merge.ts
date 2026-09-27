@@ -45,6 +45,12 @@ function isDead(m: Market): boolean {
   });
 }
 
+function terminal(m: Market): boolean {
+  const flags = m as Market & { isSettlement?: number; isVoid?: number; isClosed?: number };
+  return Boolean(flags.isSettlement || flags.isVoid || flags.isClosed) ||
+    /CLOSE|SETTLE|RESULT|REMOVED/.test(String(m.oddsData?.status ?? "").toUpperCase());
+}
+
 
 export function mergeFeed(state: FeedState, payload: OddsResponse): OddsResponse {
   const now = Date.now();
@@ -91,6 +97,10 @@ export function mergeFeed(state: FeedState, payload: OddsResponse): OddsResponse
     list.forEach((market, i) => {
       const key = keyOf(g, market);
       if (!key.endsWith("|")) {
+        if (terminal(market)) {
+          state.markets.delete(key);
+          return;
+        }
         present.add(key);
         const prev = state.markets.get(key);
         const matched = matchedOf(market);
