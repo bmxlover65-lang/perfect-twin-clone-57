@@ -131,12 +131,15 @@ async function readShared(s: string, e: string): Promise<Shared | null> {
   // Worker instances do not share memory. A 15-second local shortcut served
   // yesterday's *generation* to one client while another isolate had already
   // received the next exchange frame. Check the shared watermark once the
-  // local frame is a second old, but coalesce simultaneous reads in an isolate.
-  if (local && Date.now() - local.at < 1_000) return local;
+  // local frame is 200ms old, but coalesce simultaneous reads in an isolate.
+  if (local && Date.now() - local.at < 200) return local;
   let remote: Shared | null = null;
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data } = await supabaseAdmin.from("sports_odds_live").select("at, odds").eq("key", k).maybeSingle();
+    const { data } = await Promise.race([
+      supabaseAdmin.from("sports_odds_live").select("at, odds").eq("key", k).maybeSingle(),
+      new Promise<{ data: null }>((resolve) => setTimeout(() => resolve({ data: null }), 700)),
+    ]);
     if (data) remote = { at: Number(data.at), odds: data.odds as unknown as OriOdds };
   } catch {
     /* shared store unavailable */
@@ -153,7 +156,10 @@ async function writeShared(s: string, e: string, v: Shared) {
   localShared.set(k, v);
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.rpc("put_sports_odds", { _key: k, _at: v.at, _odds: v.odds as never });
+    await Promise.race([
+      supabaseAdmin.rpc("put_sports_odds", { _key: k, _at: v.at, _odds: v.odds as never }),
+      new Promise((resolve) => setTimeout(resolve, 700)),
+    ]);
   } catch {
     /* shared store unavailable */
   }
@@ -167,8 +173,27 @@ export async function oriOdds(sportId: string, exEventId: string): Promise<OriOd
     void warmOddsStream(sportId, exEventId);
     return { ...shared.odds, stale: false };
   }
-  const own = await oriOddsInner(sportId, exEventId, shared);
-  return own;
+  // A cold exchange session can take longer than the browser's request limit.
+  // Bound the whole feed attempt, not just its individual socket promises.
+  const own = await Promise.race([
+    oriOddsInner(sportId, exEventId, shared).catch(() => null),
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), 3_200)),
+  ]);
+  if (own) return own;
+  if (shared) return { ...shared.odds, stale: true };
+  const rest = await jget<Envelope<{ data?: RawMarkets }>>(
+    `sports/${encodeURIComponent(sportId)}/${encodeURIComponent(exEventId)}/markets`, 900,
+  );
+  const raw = rest?.data?.data;
+  if (!raw) return null;
+  return {
+    exEventId, sportId, inPlay: false, isScore: Boolean(raw.isScore),
+    betDelay: 0, totalMatched: 0, updatedAt: "", stale: true,
+    matchOdds: bySequence(live(raw.matchOddsData)),
+    bookmakers: bySequence(live(raw.bookmakersData)),
+    fancy: bySequence(live(raw.fancyData)),
+    sportsbook: bySequence(live(raw.sportsbookData)),
+  };
 }
 
 async function warmOddsStream(sportId: string, exEventId: string, meta?: { competitionId: string; sport: string; inPlay: boolean }) {
@@ -188,11 +213,14 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
   // newest frame wins. The long-poll gateway can silently drop a match, while
   // the WebSocket keeps streaming it (and vice versa).
   const [liveFrame, aura] = await Promise.all([
-    ucasSportsOdds(sportId, exEventId, shared ? 300 : 1500).catch(() => null),
+    Promise.race([
+      ucasSportsOdds(sportId, exEventId, shared ? 100 : 700),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 1900)),
+    ]).catch(() => null),
     import("./aura.server")
       .then((m) => Promise.race([
         m.auraOdds(sportId, exEventId),
-        new Promise<null>((r) => setTimeout(() => r(null), 5200)),
+        new Promise<null>((r) => setTimeout(() => r(null), 1900)),
       ]))
       .catch(() => null),
   ]);
@@ -207,7 +235,7 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
     return { ...shared.odds, stale: Date.now() - shared.at > 5_000 };
   }
   if (shared && hasPrices(shared.odds) && !liveFrame && Date.now() - shared.at <= 5_000) {
-    return { ...shared.odds, stale: false };
+    return { ...shared.odds, stale: Date.now() - shared.at > 5_000 };
   }
   let raw: RawMarkets | undefined;
   let fromRest = !liveFrame;
@@ -263,7 +291,7 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
     // timestamp for a price update.
     // REST has no market-tick timestamp. Keep the last known exchange tick
     // when available; a fetched snapshot is useful but cannot claim freshness.
-    updatedAt: new Date(fromRest ? shared?.at ?? Date.now() : liveFrame?.receivedAt ?? Date.now()).toISOString(),
+    updatedAt: fromRest ? shared?.odds.updatedAt ?? "" : new Date(liveFrame?.receivedAt ?? 0).toISOString(),
     stale: fromRest,
     matchOdds,
     bookmakers,

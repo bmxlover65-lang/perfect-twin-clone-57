@@ -141,9 +141,9 @@ function ingest(text: string) {
          // The exchange timestamp is the actual market tick. Replayed packets
          // after reconnecting must not become a fresh frame on receipt.
          const tick = Number(a["updatedAt"]);
-         const at = Number.isFinite(tick) && tick > 1_600_000_000_000 && tick < Date.now() + 5_000
-           ? tick : Date.now();
-         if (at >= (sportsFrames.get(id)?.at ?? 0)) sportsFrames.set(id, { at, data: a });
+          if (!Number.isFinite(tick) || tick < 1_600_000_000_000 || tick > Date.now() + 5_000) continue;
+          const at = tick;
+          if (at > (sportsFrames.get(id)?.at ?? 0)) sportsFrames.set(id, { at, data: a });
        }
       continue;
     }
@@ -293,7 +293,7 @@ function sportsSub(sportId: string, ev: string) {
 }
 
 /** Live sports odds frame (same stream the reference board uses). */
-export async function ucasSportsOdds(sportId: string, exEventId: string, waitMs = 1500, meta?: SportsMeta): Promise<{
+export async function ucasSportsOdds(sportId: string, exEventId: string, waitMs = 700, meta?: SportsMeta): Promise<{
   data: Record<string, unknown>;
   receivedAt: number;
 } | null> {

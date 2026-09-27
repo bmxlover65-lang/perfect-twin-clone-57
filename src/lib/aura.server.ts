@@ -118,6 +118,9 @@ function handleOddsUpdate(payload: AnyRec) {
   if (!odds) return;
   const id = String(odds["eventId"] ?? "");
   if (!id) return;
+  const tick = num(odds["updatedAt"]);
+  if (tick < 1_600_000_000_000 || tick > Date.now() + 5_000) return;
+  if (tick < num(oddsByMatch.get(id)?.data["updatedAt"])) return;
   oddsByMatch.set(id, { at: Date.now(), data: odds });
 }
 
@@ -223,7 +226,9 @@ export async function auraEvents(sportId: string): Promise<AnyRec[]> {
     wantedSports.add(sportId);
     if (namespaceReady) subscribeSport(sportId);
   }
-  const deadline = Date.now() + 5000;
+  // The request has a six-second browser deadline; don't leave a socket waiter
+  // running after the parent has already switched to a fallback source.
+  const deadline = Date.now() + 1900;
   while (!(matchesBySport.get(sportId)?.size ?? 0) && Date.now() < deadline) {
     await new Promise((r) => setTimeout(r, 100));
   }
@@ -324,7 +329,7 @@ export async function auraOdds(sportId: string, exEventId: string): Promise<AnyR
     await new Promise((r) => setTimeout(r, 100));
     hit = oddsByMatch.get(exEventId);
   }
-  if (!hit) return null;
+  if (!hit || !hasMarkets(hit.data) || (needNewer && hit.at <= prevAt)) return null;
   const o = hit.data;
   const runnersData = (matchesBySport.get(meta.sportId)?.get(exEventId)?.["runnersData"] ??
     null) as Record<string, string> | null;
@@ -353,7 +358,7 @@ export async function auraOdds(sportId: string, exEventId: string): Promise<AnyR
     isScore: Boolean(o["isScore"]),
     betDelay: num(o["betDelay"]),
     totalMatched: num(o["totalMatched"]),
-    updatedAt: new Date(num(o["updatedAt"]) || Date.now()).toISOString(),
+    updatedAt: new Date(num(o["updatedAt"])).toISOString(),
     matchOdds: pick("betfair"),
     bookmakers: pick("bookmakers").filter((m) => !isFinished(m)),
     fancy,
