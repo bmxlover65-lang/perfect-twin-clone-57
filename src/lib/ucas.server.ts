@@ -141,8 +141,8 @@ function ingest(text: string) {
          // The exchange timestamp is the actual market tick. Replayed packets
          // after reconnecting must not become a fresh frame on receipt.
          const tick = Number(a["updatedAt"]);
-         const at = Number.isFinite(tick) && tick > 1_600_000_000_000 && tick < Date.now() + 5_000
-           ? tick : Date.now();
+          if (!Number.isFinite(tick) || tick < 1_600_000_000_000 || tick > Date.now() + 5_000) continue;
+          const at = tick;
          if (at >= (sportsFrames.get(id)?.at ?? 0)) sportsFrames.set(id, { at, data: a });
        }
       continue;

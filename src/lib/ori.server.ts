@@ -136,7 +136,10 @@ async function readShared(s: string, e: string): Promise<Shared | null> {
   let remote: Shared | null = null;
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data } = await supabaseAdmin.from("sports_odds_live").select("at, odds").eq("key", k).maybeSingle();
+    const { data } = await Promise.race([
+      supabaseAdmin.from("sports_odds_live").select("at, odds").eq("key", k).maybeSingle(),
+      new Promise<{ data: null }>((resolve) => setTimeout(() => resolve({ data: null }), 700)),
+    ]);
     if (data) remote = { at: Number(data.at), odds: data.odds as unknown as OriOdds };
   } catch {
     /* shared store unavailable */
@@ -153,7 +156,10 @@ async function writeShared(s: string, e: string, v: Shared) {
   localShared.set(k, v);
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.rpc("put_sports_odds", { _key: k, _at: v.at, _odds: v.odds as never });
+    await Promise.race([
+      supabaseAdmin.rpc("put_sports_odds", { _key: k, _at: v.at, _odds: v.odds as never }),
+      new Promise((resolve) => setTimeout(resolve, 700)),
+    ]);
   } catch {
     /* shared store unavailable */
   }
@@ -188,11 +194,14 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
   // newest frame wins. The long-poll gateway can silently drop a match, while
   // the WebSocket keeps streaming it (and vice versa).
   const [liveFrame, aura] = await Promise.all([
-    ucasSportsOdds(sportId, exEventId, shared ? 300 : 1500).catch(() => null),
+    Promise.race([
+      ucasSportsOdds(sportId, exEventId, shared ? 100 : 700),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 1900)),
+    ]).catch(() => null),
     import("./aura.server")
       .then((m) => Promise.race([
         m.auraOdds(sportId, exEventId),
-        new Promise<null>((r) => setTimeout(() => r(null), 5200)),
+        new Promise<null>((r) => setTimeout(() => r(null), 1900)),
       ]))
       .catch(() => null),
   ]);
@@ -207,7 +216,7 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
     return { ...shared.odds, stale: Date.now() - shared.at > 5_000 };
   }
   if (shared && hasPrices(shared.odds) && !liveFrame && Date.now() - shared.at <= 5_000) {
-    return { ...shared.odds, stale: false };
+    return { ...shared.odds, stale: Date.now() - shared.at > 5_000 };
   }
   let raw: RawMarkets | undefined;
   let fromRest = !liveFrame;
