@@ -244,7 +244,7 @@ function matchRunner(label: string, runners: RunnerOutcome[]): boolean | null {
     const n = stripParens(r.name);
     return n === as;
   });
-  if (loose.length === 1) return loose[0]!.won;
+  if (loose.length) return loose.every((r) => r.won === loose[0]?.won) ? loose[0]?.won ?? null : null;
   return null;
 }
 

@@ -12,6 +12,8 @@ type ResultRow = {
 const normal = (name: string) => name.trim().toLowerCase().replace(/\s+/g, " ");
 
 function outcomeFor(row: ResultRow, selection: string, market: string | null): boolean | null {
+  const side = /\s+(lay|no)$/i.test(selection) ? "lay" : "back";
+  const runner = selection.replace(/\s+(back|lay|yes|no)$/i, "").trim();
   const outcomes: boolean[] = [];
   for (const m of row.results ?? []) {
     if (market && normal(m.marketName ?? "") !== normal(market)) continue;
@@ -20,9 +22,9 @@ function outcomeFor(row: ResultRow, selection: string, market: string | null): b
       ? m.runners.map((r) => [r.selectionId, r.result ?? ""] as const)
       : Object.entries(m.runners ?? {});
     for (const [id, res] of list) {
-      if (normal(names[id] ?? "") !== normal(selection)) continue;
-      if (/^WINNER$/i.test(String(res))) outcomes.push(true);
-      if (/^LOSER$/i.test(String(res))) outcomes.push(false);
+      if (normal(names[id] ?? "") !== normal(runner)) continue;
+      if (/^WINNER$/i.test(String(res))) outcomes.push(side === "back");
+      if (/^LOSER$/i.test(String(res))) outcomes.push(side === "lay");
     }
   }
   // Identically named runners in different markets can disagree. Without a
