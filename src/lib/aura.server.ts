@@ -226,7 +226,9 @@ export async function auraEvents(sportId: string): Promise<AnyRec[]> {
     wantedSports.add(sportId);
     if (namespaceReady) subscribeSport(sportId);
   }
-  const deadline = Date.now() + 5000;
+  // The request has a six-second browser deadline; don't leave a socket waiter
+  // running after the parent has already switched to a fallback source.
+  const deadline = Date.now() + 1900;
   while (!(matchesBySport.get(sportId)?.size ?? 0) && Date.now() < deadline) {
     await new Promise((r) => setTimeout(r, 100));
   }

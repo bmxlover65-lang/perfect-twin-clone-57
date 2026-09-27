@@ -131,7 +131,7 @@ async function readShared(s: string, e: string): Promise<Shared | null> {
   // Worker instances do not share memory. A 15-second local shortcut served
   // yesterday's *generation* to one client while another isolate had already
   // received the next exchange frame. Check the shared watermark once the
-  // local frame is a second old, but coalesce simultaneous reads in an isolate.
+  // local frame is 200ms old, but coalesce simultaneous reads in an isolate.
   if (local && Date.now() - local.at < 200) return local;
   let remote: Shared | null = null;
   try {

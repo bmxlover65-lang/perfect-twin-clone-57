@@ -4,7 +4,7 @@
 - [x] Feed reconnecting screenshot: reconnect stalled exchange subscriptions and preserve stale-frame warning; tennis preview verified without warning
 - [x] Hungary–Ukraine screenshot: subscribe with complete exchange match metadata, reject replayed tick timestamps; mobile preview rates update without reconnecting warning (live publish not requested)
 - [x] Tennis screenshot (Joa Aguilar Cardozo v Jua Varillas): bypass zero-only socket snapshots with exchange market prices, preserve stale warning and actual last-tick age; preview mobile checked (live publish pending)
-- [ ] Live rates: bound stalled requests, reject replayed exchange frames and stale cross-worker sports frames; verify on published site against Dukex on the same live match (release pending)
+- [ ] Live rates: preview now bounds stalled requests, rejects replayed exchange frames and cross-worker stale prices (Zimbabwe W v West Indies W: 12 checks, ~0.3–1.3s frame age, prices changed). Publish and compare same live match with authenticated Dukex (public Dukex API returns 401; exact price parity not yet proven).
 - [ ] Swaraj247: their developer must enable the supplied WebSocket authority and deploy the integration; verify against Dukex after rollout
 - [ ] Dream Catcher (88.0020): Dukex compare — winner fan overlay done, side-by-side photo pending (in progress)
 - [ ] Ball by Ball (dukex.biz/ballByBall/3035): ab live — Dukex se compare, side-by-side photo, board match

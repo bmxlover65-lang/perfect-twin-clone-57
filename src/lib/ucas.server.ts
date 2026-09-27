@@ -293,7 +293,7 @@ function sportsSub(sportId: string, ev: string) {
 }
 
 /** Live sports odds frame (same stream the reference board uses). */
-export async function ucasSportsOdds(sportId: string, exEventId: string, waitMs = 1500, meta?: SportsMeta): Promise<{
+export async function ucasSportsOdds(sportId: string, exEventId: string, waitMs = 700, meta?: SportsMeta): Promise<{
   data: Record<string, unknown>;
   receivedAt: number;
 } | null> {
