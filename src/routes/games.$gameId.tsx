@@ -3153,7 +3153,7 @@ function GamePage() {
       } catch {
         // storage full or blocked — caching is only an optimisation
       }
-      setAge(0);
+      setAge(Math.floor((s?.freshnessMs ?? 0) / 1000));
       setError(null);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to load live state";
@@ -3331,7 +3331,7 @@ function GamePage() {
 
   const d = state?.data ?? null;
   const status = (d?.status ?? "").toUpperCase();
-  const suspended = status ? roundSuspended : false;
+  const suspended = Boolean(state?.stale || age > 5) || (status ? roundSuspended : false);
   const markets = d?.marketArr ?? [];
   const coinWinner = (() => {
     if (gameId !== "88.0021") return null;
@@ -3385,7 +3385,10 @@ function GamePage() {
   // Otherwise prefer the live feed whenever it sends a card slot for this round
   // (even a face-down "0"), so the table never shows the previous round's card.
   const rawCards = resultIsThisRound
-    ? resultCards
+    ? Object.fromEntries([...new Set([...Object.keys(liveCards), ...Object.keys(resultCards)])].map((key) => [
+        key,
+        { ...(liveCards[key] ?? {}), ...(resultCards[key] ?? {}) },
+      ]))
     : liveHasRealCard || Object.keys(liveCards).length || !Object.keys(resultCards).length
       ? liveCards
       : resultCards;

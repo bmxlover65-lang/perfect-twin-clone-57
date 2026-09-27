@@ -1098,7 +1098,7 @@ function EventPage() {
         round={eventId}
         exposureLayout="sports"
       >
-        <div>
+        <div data-nobet={feedReconnecting ? "" : undefined}>
            {matchOdds.filter(pick).map((m) => <Board key={m.marketId} market={m} levels={1} race={sportId === "7" || sportId === "4339"} />)}
            {bookmakers.filter(pick).map((m) => <Board key={m.marketId} market={m} book levels={1} />)}
           {visibleToss.map((m) => <TossBoard key={m.marketId} market={m} />)}

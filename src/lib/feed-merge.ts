@@ -45,6 +45,12 @@ function isDead(m: Market): boolean {
   });
 }
 
+function terminal(m: Market): boolean {
+  const flags = m as Market & { isSettlement?: number; isVoid?: number; isClosed?: number };
+  return Boolean(flags.isSettlement || flags.isVoid || flags.isClosed) ||
+    /CLOSE|SETTLE|RESULT|REMOVED/.test(String(m.oddsData?.status ?? "").toUpperCase());
+}
+
 
 export function mergeFeed(state: FeedState, payload: OddsResponse): OddsResponse {
   const now = Date.now();
@@ -56,6 +62,21 @@ export function mergeFeed(state: FeedState, payload: OddsResponse): OddsResponse
   if (frameAt && frameAt < state.latestFrameAt) {
     // A delayed response from another worker may carry stale:true. It must
     // neither replace newer prices nor mark a still-fresh board disconnected.
+    const out: OddsResponse = {
+      ...payload,
+      updatedAt: new Date(state.latestFrameAt).toISOString(),
+      stale: now - state.latestFrameAt > 5_000,
+    };
+    for (const g of GROUPS) {
+      const rows = [...state.markets].filter(([key]) => key.startsWith(`${g}|`)).map(([, slot]) => slot);
+      rows.sort((a, b) => a.order - b.order);
+      out[g] = rows.map((slot) => slot.market);
+    }
+    return out;
+  }
+  // A REST snapshot with no exchange tick cannot establish that its market
+  // membership or prices are newer than a ticked live frame.
+  if (!frameAt && state.latestFrameAt) {
     const out: OddsResponse = {
       ...payload,
       updatedAt: new Date(state.latestFrameAt).toISOString(),
@@ -91,6 +112,10 @@ export function mergeFeed(state: FeedState, payload: OddsResponse): OddsResponse
     list.forEach((market, i) => {
       const key = keyOf(g, market);
       if (!key.endsWith("|")) {
+        if (terminal(market)) {
+          state.markets.delete(key);
+          return;
+        }
         present.add(key);
         const prev = state.markets.get(key);
         const matched = matchedOf(market);
