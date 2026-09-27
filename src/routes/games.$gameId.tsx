@@ -3153,7 +3153,7 @@ function GamePage() {
       } catch {
         // storage full or blocked — caching is only an optimisation
       }
-      setAge(0);
+      setAge(Math.floor((s?.freshnessMs ?? 0) / 1000));
       setError(null);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to load live state";

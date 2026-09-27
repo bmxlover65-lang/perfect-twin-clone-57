@@ -38,16 +38,15 @@ export async function autoSettleCasino(origin: string) {
     .eq("status", "open")
     .limit(1000);
 
-  const groups = new Map<string, { operatorId: string; gameId: string; roundId: string; at: number; bets: typeof bets }>();
+  type OpenBet = NonNullable<typeof bets>[number];
+  const groups = new Map<string, { operatorId: string; gameId: string; roundId: string; bets: OpenBet[] }>();
   for (const b of bets ?? []) {
     if (!/^\d+\.\d/.test(b.game_id)) continue;
     const k = `${b.operator_id}|${b.game_id}|${b.round_id}`;
-    const at = new Date(b.created_at).getTime();
     const g = groups.get(k);
     if (g) {
-      g.at = Math.min(g.at, at);
-      g.bets?.push(b);
-    } else groups.set(k, { operatorId: b.operator_id, gameId: b.game_id, roundId: b.round_id, at, bets: [b] });
+      g.bets.push(b);
+    } else groups.set(k, { operatorId: b.operator_id, gameId: b.game_id, roundId: b.round_id, bets: [b] });
   }
 
   const byGame = new Map<string, ResultRow[]>();
@@ -62,7 +61,7 @@ export async function autoSettleCasino(origin: string) {
       byGame.set(g.gameId, json?.data ?? []);
     }
     const row = byGame.get(g.gameId)?.find((r) => String(r.roundId) === String(g.roundId));
-    for (const bet of g.bets ?? []) {
+    for (const bet of g.bets) {
       const outcome = row ? outcomeFor(row, bet.selection, bet.market) : null;
       const voided = outcome === null && Date.now() - new Date(bet.created_at).getTime() > 30 * 60_000;
       if (outcome === null && !voided) continue;

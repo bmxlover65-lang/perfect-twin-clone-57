@@ -252,7 +252,8 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
     return result;
   }
   if (shared && hasPrices(shared.odds) && liveFrame && liveFrame.receivedAt < shared.at) {
-    return { ...shared.odds, stale: Date.now() - shared.at > 3_000 };
+    const fallback = { ...shared.odds, stale: Date.now() - shared.at > 3_000 };
+    return fallback.stale ? reconcileStaleMarkets(sportId, exEventId, fallback) : fallback;
   }
   if (shared && hasPrices(shared.odds) && !liveFrame && Date.now() - shared.at <= 3_000) {
     return { ...shared.odds, stale: Date.now() - shared.at > 3_000 };
