@@ -277,7 +277,7 @@ function Board({
       : cols === 2
         ? race
           ? "grid-cols-[minmax(0,1fr)_79px_79px]"
-           : "grid-cols-[minmax(0,1fr)_60px_60px] sm:grid-cols-[minmax(0,1fr)_76px_76px]"
+           : "grid-cols-[minmax(0,1fr)_76px_76px]"
         : "grid-cols-[minmax(0,1fr)_90px]";
   const backOrder = levels === 3 ? [2, 1, 0] : [0];
   const layOrder = levels === 3 ? [0, 1, 2] : [0];
@@ -285,7 +285,7 @@ function Board({
   const max = market.max && market.max > 0 ? market.max : book ? 200000 : 10000;
 
   return (
-    <article className="mb-3 bg-dx-page max-sm:mb-4">
+    <article className="mb-3 bg-dx-page">
       <MarketTitle name={market.marketName} matched={odds?.totalMatched} race={race} />
       <div className="relative">
       {race ? (
@@ -302,7 +302,7 @@ function Board({
       ) : (
       <div className={`grid h-[26px] border-b border-dx-rule text-[0.72rem] text-dx-ink ${grid}`}>
         <div className="flex items-center px-1.5">
-          <span className="w-full whitespace-nowrap rounded-[3px] bg-dx-minmax px-1 py-[1px] text-center text-[0.56rem] font-semibold text-dx-title">
+          <span className="whitespace-nowrap rounded-[3px] bg-dx-minmax px-1 py-[1px] text-[0.56rem] font-semibold text-dx-title">
             Min/Max&nbsp; {min} - {max}
           </span>
         </div>
@@ -327,7 +327,7 @@ function Board({
           <Fragment key={String(r.selectionId)}>
           <div
             data-runner-row
-             className={`relative grid ${race ? "min-h-[50px]" : "min-h-[42px]"} items-stretch border-b border-dx-rule ${
+             className={`relative grid ${race ? "min-h-[50px]" : "min-h-[48px]"} items-stretch border-b border-dx-rule ${
               book ? "bg-dx-book" : "bg-dx-page"
             } ${grid}`}
           >
@@ -424,7 +424,7 @@ function FancyRow({ market }: { market: Market }) {
   return (
     <div
       data-runner-row
-       className="relative grid min-h-[44px] grid-cols-[minmax(0,1fr)_60px_60px] border-b border-dx-rule bg-dx-page sm:grid-cols-[minmax(0,1fr)_79px_79px]"
+       className="relative grid min-h-[44px] grid-cols-[minmax(0,1fr)_79px_79px] border-b border-dx-rule bg-dx-page"
     >
       <span className="flex min-w-0 items-center gap-1 px-1.5 text-[0.72rem] font-bold leading-tight text-dx-ink">
         <span className="min-w-0 flex-1">{market.marketName.trim()}</span>
@@ -433,7 +433,7 @@ function FancyRow({ market }: { market: Market }) {
       <Cell label={`${market.marketName.trim()} @${no?.price ?? 0} No`} betOdds={no?.size ? 1 + no.size / 100 : undefined} price={no?.price} size={no?.size} side="lay" dim={dim} />
       <Cell label={`${market.marketName.trim()} @${yes?.price ?? 0} Yes`} betOdds={yes?.size ? 1 + yes.size / 100 : undefined} price={yes?.price} size={yes?.size} side="back" dim={dim} />
       {dim ? (
-         <div data-suspended="true" className="absolute inset-y-0 right-0 z-10 flex w-[120px] items-center justify-center border border-ex-suspend bg-dx-page/75 sm:w-[158px]">
+         <div data-suspended="true" className="absolute inset-y-0 right-0 z-10 flex w-[158px] items-center justify-center border border-ex-suspend bg-dx-page/75">
           <span className="text-[0.85rem] font-bold uppercase text-ex-suspend">{label}</span>
         </div>
       ) : null}
@@ -573,7 +573,7 @@ function FancySection({ markets, sportsbook }: { markets: Market[]; sportsbook: 
       {head === "fancy" ? (
         <>
           <FilterBar tabs={FANCY_TABS} active={active} onPick={setTab} tone="bg-dx-fancy-bar" />
-           <div className="grid h-[22px] grid-cols-[minmax(0,1fr)_60px_60px] text-[0.66rem] font-semibold text-dx-ink sm:grid-cols-[minmax(0,1fr)_79px_79px]">
+           <div className="grid h-[22px] grid-cols-[minmax(0,1fr)_79px_79px] text-[0.66rem] font-semibold text-dx-ink">
             <span />
             <span className="flex items-center justify-center bg-dx-lay1">No</span>
             <span className="flex items-center justify-center bg-dx-back1">Yes</span>
