@@ -504,7 +504,8 @@ async function oriResponse(splat: string, search: string): Promise<Response | nu
     // (e.g. "49 Over Runs" after the innings ended). The exchange's own
     // market list is authoritative for which markets still exist.
     type Rows = Record<string, unknown>[];
-    let rest: { matchOddsData?: Rows; bookmakersData?: Rows; fancyData?: Rows; sportsbookData?: Rows; isScore?: boolean } | null = null;
+    type RestM = { matchOddsData?: Rows; bookmakersData?: Rows; fancyData?: Rows; sportsbookData?: Rows; isScore?: boolean };
+    let rest = null as RestM | null;
     if (!data || data.stale) {
       try {
         const r = await fetch(`https://ori.exchange24x7.live/api/sports/${encodeURIComponent(sid)}/${encodeURIComponent(eid)}/markets`, {
@@ -512,7 +513,7 @@ async function oriResponse(splat: string, search: string): Promise<Response | nu
           cache: "no-store",
           signal: AbortSignal.timeout(1500),
         });
-        if (r.ok) rest = ((await r.json()) as { data?: { data?: typeof rest } })?.data?.data ?? null;
+        if (r.ok) rest = ((await r.json()) as { data?: { data?: RestM } })?.data?.data ?? null;
       } catch { /* keep live frame */ }
     }
     if (!data && !rest) return null;
