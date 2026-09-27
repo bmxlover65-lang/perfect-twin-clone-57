@@ -143,7 +143,7 @@ function ingest(text: string) {
          const tick = Number(a["updatedAt"]);
           if (!Number.isFinite(tick) || tick < 1_600_000_000_000 || tick > Date.now() + 5_000) continue;
           const at = tick;
-         if (at >= (sportsFrames.get(id)?.at ?? 0)) sportsFrames.set(id, { at, data: a });
+          if (at > (sportsFrames.get(id)?.at ?? 0)) sportsFrames.set(id, { at, data: a });
        }
       continue;
     }

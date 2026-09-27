@@ -132,7 +132,7 @@ async function readShared(s: string, e: string): Promise<Shared | null> {
   // yesterday's *generation* to one client while another isolate had already
   // received the next exchange frame. Check the shared watermark once the
   // local frame is a second old, but coalesce simultaneous reads in an isolate.
-  if (local && Date.now() - local.at < 1_000) return local;
+  if (local && Date.now() - local.at < 200) return local;
   let remote: Shared | null = null;
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -173,8 +173,27 @@ export async function oriOdds(sportId: string, exEventId: string): Promise<OriOd
     void warmOddsStream(sportId, exEventId);
     return { ...shared.odds, stale: false };
   }
-  const own = await oriOddsInner(sportId, exEventId, shared);
-  return own;
+  // A cold exchange session can take longer than the browser's request limit.
+  // Bound the whole feed attempt, not just its individual socket promises.
+  const own = await Promise.race([
+    oriOddsInner(sportId, exEventId, shared).catch(() => null),
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), 3_200)),
+  ]);
+  if (own) return own;
+  if (shared) return { ...shared.odds, stale: true };
+  const rest = await jget<Envelope<{ data?: RawMarkets }>>(
+    `sports/${encodeURIComponent(sportId)}/${encodeURIComponent(exEventId)}/markets`, 900,
+  );
+  const raw = rest?.data?.data;
+  if (!raw) return null;
+  return {
+    exEventId, sportId, inPlay: false, isScore: Boolean(raw.isScore),
+    betDelay: 0, totalMatched: 0, updatedAt: "", stale: true,
+    matchOdds: bySequence(live(raw.matchOddsData)),
+    bookmakers: bySequence(live(raw.bookmakersData)),
+    fancy: bySequence(live(raw.fancyData)),
+    sportsbook: bySequence(live(raw.sportsbookData)),
+  };
 }
 
 async function warmOddsStream(sportId: string, exEventId: string, meta?: { competitionId: string; sport: string; inPlay: boolean }) {
@@ -272,7 +291,7 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
     // timestamp for a price update.
     // REST has no market-tick timestamp. Keep the last known exchange tick
     // when available; a fetched snapshot is useful but cannot claim freshness.
-    updatedAt: new Date(fromRest ? shared?.at ?? Date.now() : liveFrame?.receivedAt ?? Date.now()).toISOString(),
+    updatedAt: fromRest ? shared?.odds.updatedAt ?? "" : new Date(liveFrame?.receivedAt ?? 0).toISOString(),
     stale: fromRest,
     matchOdds,
     bookmakers,
