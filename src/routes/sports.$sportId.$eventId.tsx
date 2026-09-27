@@ -703,9 +703,7 @@ function EventPage() {
   // A single timed-out HTTP poll is not a disconnected exchange when the
   // socket has already delivered a newer tick. Never hide a genuinely stale
   // frame, even if the last request itself succeeded.
-  const feedReconnecting = data
-    ? tickAge > 5_000 && (data.stale || Boolean(error) || tickAge > 5_000)
-    : Boolean(error);
+  const feedReconnecting = data ? tickAge > 5_000 : Boolean(error);
 
 
   const load = useCallback(async () => {
