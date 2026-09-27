@@ -2,42 +2,52 @@
  * Settles open operator casino bets from the live round results, so partner
  * sites never need a page refresh (or a manual result call) to pay out.
  */
-import { settleOperatorRound } from "./operator-settle.server";
+import { settleOperatorBet } from "./operator-settle.server";
 
 type ResultRow = {
   roundId: string;
-  results?: { runners?: { selectionId: string; result?: string }[] | Record<string, string>; runnersName?: Record<string, string> }[];
+  results?: { marketName?: string; runners?: { selectionId: string; result?: string }[] | Record<string, string>; runnersName?: Record<string, string> }[];
 };
 
-function winnersOf(row: ResultRow): string[] {
-  const out: string[] = [];
+const normal = (name: string) => name.trim().toLowerCase().replace(/\s+/g, " ");
+
+function outcomeFor(row: ResultRow, selection: string, market: string | null): boolean | null {
+  const outcomes: boolean[] = [];
   for (const m of row.results ?? []) {
+    if (market && normal(m.marketName ?? "") !== normal(market)) continue;
     const names = m.runnersName ?? {};
     const list = Array.isArray(m.runners)
       ? m.runners.map((r) => [r.selectionId, r.result ?? ""] as const)
       : Object.entries(m.runners ?? {});
     for (const [id, res] of list) {
-      if (/WIN/i.test(String(res)) && names[id]) out.push(names[id]!);
+      if (normal(names[id] ?? "") !== normal(selection)) continue;
+      if (/^WINNER$/i.test(String(res))) outcomes.push(true);
+      if (/^LOSER$/i.test(String(res))) outcomes.push(false);
     }
   }
-  return out;
+  // Identically named runners in different markets can disagree. Without a
+  // market identifier do not guess a payout; refund unresolved bets later.
+  return outcomes.length && outcomes.every((value) => value === outcomes[0]) ? outcomes[0] ?? null : null;
 }
 
 export async function autoSettleCasino(origin: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: bets } = await supabaseAdmin
     .from("bets")
-    .select("operator_id, game_id, round_id, created_at")
+    .select("id, operator_id, game_id, round_id, market, selection, created_at")
     .eq("status", "open")
     .limit(1000);
 
-  const groups = new Map<string, { operatorId: string; gameId: string; roundId: string; at: number }>();
+  const groups = new Map<string, { operatorId: string; gameId: string; roundId: string; at: number; bets: typeof bets }>();
   for (const b of bets ?? []) {
     if (!/^\d+\.\d/.test(b.game_id)) continue;
     const k = `${b.operator_id}|${b.game_id}|${b.round_id}`;
     const at = new Date(b.created_at).getTime();
     const g = groups.get(k);
-    if (!g || at < g.at) groups.set(k, { operatorId: b.operator_id, gameId: b.game_id, roundId: b.round_id, at });
+    if (g) {
+      g.at = Math.min(g.at, at);
+      g.bets?.push(b);
+    } else groups.set(k, { operatorId: b.operator_id, gameId: b.game_id, roundId: b.round_id, at, bets: [b] });
   }
 
   const byGame = new Map<string, ResultRow[]>();
@@ -51,19 +61,17 @@ export async function autoSettleCasino(origin: string) {
       const json = (await res?.json().catch(() => null)) as { data?: ResultRow[] } | null;
       byGame.set(g.gameId, json?.data ?? []);
     }
-    const row = byGame.get(g.gameId)!.find((r) => String(r.roundId) === String(g.roundId));
-    try {
-      if (row) {
-        const winners = winnersOf(row);
-        await settleOperatorRound({ ...g, winners, voidRound: winners.length === 0 });
+    const row = byGame.get(g.gameId)?.find((r) => String(r.roundId) === String(g.roundId));
+    for (const bet of g.bets ?? []) {
+      const outcome = row ? outcomeFor(row, bet.selection, bet.market) : null;
+      const voided = outcome === null && Date.now() - new Date(bet.created_at).getTime() > 30 * 60_000;
+      if (outcome === null && !voided) continue;
+      try {
+        await settleOperatorBet({ operatorId: g.operatorId, betId: bet.id, outcome: voided ? "void" : outcome ? "won" : "lost" });
         settled++;
-      } else if (Date.now() - g.at > 30 * 60_000) {
-        // Round never produced a result in 30 min — refund.
-        await settleOperatorRound({ ...g, winners: [], voidRound: true });
-        settled++;
+      } catch {
+        /* try again next tick */
       }
-    } catch {
-      /* try again next tick */
     }
   }
   return { casinoRounds: settled };
