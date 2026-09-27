@@ -720,7 +720,7 @@ function EventPage() {
       if (currentRequest !== requestId.current) return;
       setError(e instanceof Error ? e.message : "Failed to load odds");
     } finally {
-      inFlight.current = false;
+      if (currentRequest === requestId.current) inFlight.current = false;
     }
   }, [sportId, eventId]);
 
