@@ -698,6 +698,12 @@ function EventPage() {
   const lastSocketMessage = useRef(0);
   const feed = useRef(createFeedState());
   const [age, setAge] = useState(0);
+  const exchangeTick = data?.updatedAt ? Date.parse(data.updatedAt) : NaN;
+  const tickAge = Number.isFinite(exchangeTick) ? Date.now() - exchangeTick : Infinity;
+  // A single timed-out HTTP poll is not a disconnected exchange when the
+  // socket has already delivered a newer tick. Never hide a genuinely stale
+  // frame, even if the last request itself succeeded.
+  const feedReconnecting = data ? tickAge > 5_000 : Boolean(error);
 
 
   const load = useCallback(async () => {
@@ -720,7 +726,7 @@ function EventPage() {
       if (currentRequest !== requestId.current) return;
       setError(e instanceof Error ? e.message : "Failed to load odds");
     } finally {
-      inFlight.current = false;
+      if (currentRequest === requestId.current) inFlight.current = false;
     }
   }, [sportId, eventId]);
 
@@ -1042,7 +1048,7 @@ function EventPage() {
       </div>
       </>)}
 
-      {(error || data?.stale || (data?.updatedAt && age > 5 && Date.now() - Date.parse(data.updatedAt) > 5_000)) ? (
+      {feedReconnecting ? (
         <p className="px-2 py-1 text-[0.7rem] text-ex-suspend">Feed reconnecting… showing last prices</p>
       ) : null}
 

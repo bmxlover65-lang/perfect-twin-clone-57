@@ -54,7 +54,13 @@ export function mergeFeed(state: FeedState, payload: OddsResponse): OddsResponse
   // HTTP and WebSocket can arrive out of order from different workers. A
   // replayed older snapshot must never overwrite even a single newer market.
   if (frameAt && frameAt < state.latestFrameAt) {
-    const out: OddsResponse = { ...payload, updatedAt: new Date(state.latestFrameAt).toISOString() };
+    // A delayed response from another worker may carry stale:true. It must
+    // neither replace newer prices nor mark a still-fresh board disconnected.
+    const out: OddsResponse = {
+      ...payload,
+      updatedAt: new Date(state.latestFrameAt).toISOString(),
+      stale: now - state.latestFrameAt > 5_000,
+    };
     for (const g of GROUPS) {
       const rows = [...state.markets].filter(([key]) => key.startsWith(`${g}|`)).map(([, slot]) => slot);
       rows.sort((a, b) => a.order - b.order);
