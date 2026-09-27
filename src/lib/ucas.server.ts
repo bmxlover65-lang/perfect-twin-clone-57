@@ -320,7 +320,7 @@ export async function ucasSportsOdds(sportId: string, exEventId: string, waitMs 
   }
   const fresh = () => {
     const f = sportsFrames.get(exEventId);
-    return f && Date.now() - f.at < 15_000 ? f : null;
+    return f && Date.now() - f.at < 3_000 ? f : null;
   };
   // A connected relay must answer from its current frame immediately. Waiting
   // for a newer frame here added up to 900ms to every request even though the
