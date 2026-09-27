@@ -74,6 +74,21 @@ export function mergeFeed(state: FeedState, payload: OddsResponse): OddsResponse
     }
     return out;
   }
+  // A REST snapshot with no exchange tick cannot establish that its market
+  // membership or prices are newer than a ticked live frame.
+  if (!frameAt && state.latestFrameAt) {
+    const out: OddsResponse = {
+      ...payload,
+      updatedAt: new Date(state.latestFrameAt).toISOString(),
+      stale: now - state.latestFrameAt > 5_000,
+    };
+    for (const g of GROUPS) {
+      const rows = [...state.markets].filter(([key]) => key.startsWith(`${g}|`)).map(([, slot]) => slot);
+      rows.sort((a, b) => a.order - b.order);
+      out[g] = rows.map((slot) => slot.market);
+    }
+    return out;
+  }
   if (frameAt) state.latestFrameAt = frameAt;
 
   let score = 0;

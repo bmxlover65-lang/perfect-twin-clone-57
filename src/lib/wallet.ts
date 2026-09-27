@@ -238,11 +238,11 @@ function matchRunner(label: string, runners: RunnerOutcome[]): boolean | null {
   const a = norm(label);
   if (!a || !runners.length) return null;
   const exact = runners.filter((r) => norm(r.name) === a);
-  if (exact.length) return exact.some((r) => r.won);
+  if (exact.length) return exact.every((r) => r.won === exact[0]?.won) ? exact[0]?.won ?? null : null;
   const as = stripParens(label);
   const loose = runners.filter((r) => {
     const n = stripParens(r.name);
-    return n === as || (as.length >= 3 && n.startsWith(as));
+    return n === as;
   });
   if (loose.length === 1) return loose[0]!.won;
   return null;
@@ -265,7 +265,7 @@ export function settleRound(
     const exact = resolveFromRunners(b.label, runners);
     // Unknown selection (no runner match and not a plain winner label): keep it
     // open rather than guess — it is refunded later if it never resolves.
-    if (exact == null && !sideOf(b.label) && !outcomeKey(b.label)) return b;
+    if (exact == null && !sideOf(b.label)) return b;
     touched = true;
     const won = exact ?? isWin(b.label, winner);
     const payout = won ? Math.round(b.stake * b.odds) : 0;
