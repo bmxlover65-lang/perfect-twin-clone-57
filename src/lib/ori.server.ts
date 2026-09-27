@@ -97,6 +97,24 @@ function bySequence(rows: RawMarket[]): RawMarket[] {
   return [...rows].sort((a, b) => Number(a["sequence"] ?? 0) - Number(b["sequence"] ?? 0));
 }
 
+/** REST lists current market membership, but has no trustworthy tick time. */
+async function reconcileStaleMarkets(sportId: string, exEventId: string, previous: OriOdds): Promise<OriOdds> {
+  const json = await jget<Envelope<{ data?: RawMarkets }>>(
+    `sports/${encodeURIComponent(sportId)}/${encodeURIComponent(exEventId)}/markets`, 1500,
+  );
+  const raw = json?.data?.data;
+  if (!raw) return { ...previous, fancy: [], stale: true };
+  return {
+    ...previous,
+    matchOdds: bySequence(live(raw.matchOddsData)),
+    bookmakers: bySequence(live(raw.bookmakersData)),
+    fancy: bySequence(live(raw.fancyData)),
+    sportsbook: bySequence(live(raw.sportsbookData)),
+    isScore: Boolean(raw.isScore),
+    stale: true,
+  };
+}
+
 export type OriOdds = {
   exEventId: string;
   eventName?: string;
@@ -179,8 +197,8 @@ export async function oriOdds(sportId: string, exEventId: string): Promise<OriOd
     oriOddsInner(sportId, exEventId, shared).catch(() => null),
     new Promise<null>((resolve) => setTimeout(() => resolve(null), 3_200)),
   ]);
-  if (own) return own;
-  if (shared) return { ...shared.odds, stale: true };
+  if (own) return own.stale ? reconcileStaleMarkets(sportId, exEventId, own) : own;
+  if (shared) return reconcileStaleMarkets(sportId, exEventId, shared.odds);
   const rest = await jget<Envelope<{ data?: RawMarkets }>>(
     `sports/${encodeURIComponent(sportId)}/${encodeURIComponent(exEventId)}/markets`, 900,
   );
@@ -267,14 +285,14 @@ async function oriOddsInner(sportId: string, exEventId: string, shared: Shared |
     );
     raw = json?.data?.data;
   }
-  if (!raw) return shared ? { ...shared.odds, stale: true } : null;
+  if (!raw) return shared ? { ...shared.odds, fancy: [], stale: true } : null;
 
   const matchOdds = bySequence(live(raw.matchOddsData));
   const bookmakers = bySequence(live(raw.bookmakersData));
   const fancy = bySequence(live(raw.fancyData));
   const sportsbook = bySequence(live(raw.sportsbookData));
   if (!matchOdds.length && !bookmakers.length && !fancy.length && !sportsbook.length) {
-    return shared ? { ...shared.odds, stale: true } : null;
+    return shared ? { ...shared.odds, fancy: [], stale: true } : null;
   }
 
   const head = matchOdds[0] ?? bookmakers[0];

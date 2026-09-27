@@ -115,10 +115,11 @@ export const Route = createFileRoute("/api/public/v1/bet")({
             | null;
           const d = live?.data;
           const closed =
-            d &&
+            !d || (live?.freshnessMs ?? Infinity) > 5000 ||
+            (
             ((d.roundId && String(d.roundId) !== b.roundId) ||
               /SUSPEND|CLOSE|RESULT/i.test(String(d.status ?? "")) ||
-              (typeof d.leftSec === "number" && d.leftSec <= 0));
+              (typeof d.leftSec === "number" && d.leftSec <= 0)));
           // Odds may never exceed the best rate currently on the live table.
           const prices: number[] = [];
           const walk = (v: unknown, k = "") => {

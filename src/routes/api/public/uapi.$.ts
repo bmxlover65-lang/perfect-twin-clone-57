@@ -517,12 +517,17 @@ async function oriResponse(splat: string, search: string): Promise<Response | nu
       } catch { /* keep live frame */ }
     }
     if (!data && !rest) return null;
-    const alive = (rows?: Rows) => (rows ?? []).filter((m) => Number(m["isSettlement"] ?? 0) !== 1 && Number(m["isVoid"] ?? 0) !== 1);
+    const alive = (rows?: Rows) => (rows ?? []).filter((m) =>
+      Number(m["isSettlement"] ?? 0) !== 1 && Number(m["isVoid"] ?? 0) !== 1 &&
+      Number(m["isClosed"] ?? 0) !== 1 &&
+      !/CLOSE|SETTLE|RESULT|REMOVED/i.test(String((m["oddsData"] as { status?: string } | undefined)?.status ?? "")));
     return jsonOut({
       data: {
         matchOddsData: rest ? alive(rest.matchOddsData) : data!.matchOdds,
         bookmakersData: rest ? alive(rest.bookmakersData) : data!.bookmakers,
-        fancyData: rest ? alive(rest.fancyData) : data!.fancy,
+        // A failed membership check must never advertise an expired session
+        // from an old exchange frame as an active fancy market.
+        fancyData: rest ? alive(rest.fancyData) : data?.stale ? [] : alive(data?.fancy as Rows[] | undefined),
         sportsbookData: rest ? alive(rest.sportsbookData) : data!.sportsbook,
         isScore: rest ? Boolean(rest.isScore) : data!.isScore,
       },
