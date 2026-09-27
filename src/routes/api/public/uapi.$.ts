@@ -491,6 +491,27 @@ async function oriResponse(splat: string, search: string): Promise<Response | nu
     return data ? jsonOut(data) : null;
   }
 
+  // Integrators poll the exchange-compatible /markets path. It used to fall
+  // through to the slow upstream chain and hang, which left partner sites
+  // (e.g. Swaraj247) serving old rates. Answer it from the same live frame
+  // as /odds, in the exchange envelope shape.
+  const mk = /^sports\/([^/]+)\/([^/]+)\/markets$/.exec(splat);
+  if (mk) {
+    const data = await oriOdds(decodeURIComponent(mk[1]!), decodeURIComponent(mk[2]!));
+    if (!data) return null;
+    return jsonOut({
+      data: {
+        matchOddsData: data.matchOdds,
+        bookmakersData: data.bookmakers,
+        fancyData: data.fancy,
+        sportsbookData: data.sportsbook,
+        isScore: data.isScore,
+      },
+      updatedAt: data.updatedAt,
+      stale: data.stale,
+    });
+  }
+
   return null;
 }
 
