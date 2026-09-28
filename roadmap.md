@@ -1,5 +1,6 @@
 # Roadmap
 
+- [x] Lucky 7: confirmed bet amount stays directly below its selected rate; 20-20 Teen Patti uses its dedicated two-player market board
 - [ ] Sports: correct open/suspended market status and remove finished-session fancy rates from partner and match views
 - [x] Casino: old table frames (>5s) and timer-over forced to SUSPEND; dead provider no longer hangs casino pages (3s cap)
 - [x] Uploaded Girona comparison: preserve exchange-frame age and warn on stale sports frames; preview verified on the same Girona match (live Dukex recheck after publishing remains open below)

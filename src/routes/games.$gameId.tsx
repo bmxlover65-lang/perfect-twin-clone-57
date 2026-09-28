@@ -3952,8 +3952,14 @@ function GamePage() {
           <CardRacePanel markets={markets} suspended={suspended} />
         ) : gameId === "99.0005" && markets.length ? (
           <AAAPanel markets={markets} suspended={suspended} />
-        ) : ["99.0030", "99.0010", "99.0019"].includes(gameId) && markets.length ? (
-          // Reference MarketPanel (grid layout) — shared by Lucky 7, 20-20 Teen Patti, 20-20 Dragon Tiger.
+        ) : gameId === "99.0010" && markets.length ? (
+          <div className="mx-auto w-full max-w-[430px]">
+            {markets.map((m, i) => (
+              <TP20Board key={`${m.marketId}-${i}`} market={m} suspended={suspended} />
+            ))}
+          </div>
+        ) : ["99.0030", "99.0019"].includes(gameId) && markets.length ? (
+          // Reference MarketPanel grid used by Lucky 7 and 20-20 Dragon Tiger.
           <div className={`lucky7-board${gameId === "99.0019" ? " is-dt20" : ""}`}>
             {markets.map((m, i) => (
               <Lucky7Board key={`${m.marketId}-${i}`} market={m} suspended={suspended} />

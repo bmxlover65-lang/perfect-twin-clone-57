@@ -305,6 +305,16 @@
   min-width: 0;
 }
 
+/* A confirmed bet prints its amount immediately below the selected plate.
+   Reserve that space on the runner itself so the next market row cannot cover it. */
+.lucky7-runner:has(.lucky7-runner-box[data-has-exposure="true"]) {
+  padding-bottom: 24px;
+}
+
+.lucky7-runner-box[data-has-exposure="true"] {
+  margin-bottom: 0;
+}
+
 .lucky7-runner.is-wide {
   width: 100%;
 }
