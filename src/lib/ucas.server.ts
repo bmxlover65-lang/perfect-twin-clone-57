@@ -365,7 +365,10 @@ export async function ucasState(eventId: string): Promise<{ data: unknown; fresh
     new Promise<null>((r) => setTimeout(() => r(null), 3500)),
   ]);
   if (capped) return capped.v;
-  const shared = states.get(eventId) ?? (await sharedGet(eventId));
+  const local = states.get(eventId);
+  const fromDb = await sharedGet(eventId);
+  const shared = fromDb && (!local || (fromDb.at > local.at && !olderRound(fromDb.data, local.data))) ? fromDb : local;
+  if (shared && shared !== local) states.set(eventId, shared);
   return shared ? { data: withRoundClock(eventId, shared.data), freshnessMs: Date.now() - shared.at } : null;
 }
 
