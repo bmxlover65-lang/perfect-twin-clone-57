@@ -1,7 +1,7 @@
 # Roadmap
 
 - [ ] Sports: correct open/suspended market status and remove finished-session fancy rates from partner and match views
-- [ ] Casino: align card opening, suspended state, and settlement with live round results
+- [x] Casino: old table frames (>5s) and timer-over forced to SUSPEND; dead provider no longer hangs casino pages (3s cap)
 - [x] Uploaded Girona comparison: preserve exchange-frame age and warn on stale sports frames; preview verified on the same Girona match (live Dukex recheck after publishing remains open below)
 - [x] Feed reconnecting screenshot: reconnect stalled exchange subscriptions and preserve stale-frame warning; tennis preview verified without warning
 - [x] Hungary–Ukraine screenshot: subscribe with complete exchange match metadata, reject replayed tick timestamps; mobile preview rates update without reconnecting warning (live publish not requested)

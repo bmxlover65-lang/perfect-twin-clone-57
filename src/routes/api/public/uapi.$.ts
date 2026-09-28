@@ -601,7 +601,9 @@ export async function proxy(splat: string, search: string, body?: string, origin
         // Timer over = card is coming out: the board must show suspended even
         // if the table's own status frame is a moment late.
         let data = live.data as { leftSec?: number; status?: string; marketArr?: { runners?: { status?: string }[] | undefined }[] | undefined };
-        if (typeof data.leftSec === "number" && data.leftSec <= 0 && !/SUSPEND/i.test(String(data.status ?? ""))) {
+        // A table frame older than 5s is not live: never let players bet on it.
+        const timerOver = typeof data.leftSec === "number" && data.leftSec <= 0;
+        if ((timerOver || live.freshnessMs > 5000) && !/SUSPEND/i.test(String(data.status ?? ""))) {
           data = {
             ...data,
             status: "SUSPEND",
@@ -626,7 +628,10 @@ export async function proxy(splat: string, search: string, body?: string, origin
       }
     }
 
-    let token = await getToken().catch(() => "");
+    let token = await Promise.race([
+      getToken().catch(() => ""),
+      new Promise<string>((r) => setTimeout(() => r(""), 2000)),
+    ]);
     const preMatch = /^games\/([^/]+)\/results$/.exec(splat);
     if (preMatch) {
       const eventId = decodeURIComponent(preMatch[1]!);
@@ -646,7 +651,30 @@ export async function proxy(splat: string, search: string, body?: string, origin
         );
       }
     }
-    let res = await upstream(splat, search, token, body);
+    // The old casino provider sometimes hangs for 10s+; never let a casino
+    // page wait on it. Answer from the last good copy (or a clear error) fast.
+    let res: Response;
+    if (/^games(\/|$)/.test(splat) && body === undefined) {
+      const timed = await Promise.race([
+        upstream(splat, search, token, body).catch(() => null),
+        new Promise<null>((r) => setTimeout(() => r(null), 3000)),
+      ]);
+      if (!timed) {
+        const snap = snapshotResponse(snapshotKey, 504);
+        if (snap) return snap;
+        return Response.json(
+          stateMatch
+            ? { eventId: decodeURIComponent(stateMatch[1]!), stale: true, data: { status: "SUSPEND", marketArr: [] } }
+            : splat === "games"
+              ? { games: [], stale: true, upstreamStatus: 504 }
+              : { data: [], stale: true, upstreamStatus: 504 },
+          { status: 200, headers: { "cache-control": "no-store" } },
+        );
+      }
+      res = timed;
+    } else {
+      res = await upstream(splat, search, token, body);
+    }
 
     if (res.status === 401 || res.status === 403) {
       token = await getToken(true);
