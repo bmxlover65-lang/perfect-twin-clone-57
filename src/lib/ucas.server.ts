@@ -164,17 +164,26 @@ function ingest(text: string) {
 }
 
 let looping = false;
+let loopBeat = 0;
+let loopGen = 0;
 
 /** Keep one long-poll loop alive so frames land continuously, not per-request. */
 function startLoop(id: string) {
-  if (looping) return;
+  // The edge runtime can freeze a background loop when the request that
+  // started it ends; its promise then never settles. A loop without a beat
+  // for 35s is dead: start a fresh one instead of trusting the flag forever.
+  if (looping && Date.now() - loopBeat < 35_000) return;
   looping = true;
+  loopBeat = Date.now();
+  const gen = ++loopGen;
   void (async () => {
     try {
       let current = id;
       // Runs for the lifetime of the worker; each poll returns as soon as the
       // gateway pushes a frame, so this is an always-fresh stream.
       for (;;) {
+        if (gen !== loopGen) return;
+        loopBeat = Date.now();
         try {
            // A stale subscription may have forced a fresh handshake in a
            // different request. Never keep polling the orphaned session.
@@ -208,9 +217,20 @@ function startLoop(id: string) {
         }
       }
     } finally {
-      looping = false;
+      if (gen === loopGen) looping = false;
     }
   })();
+}
+
+/** One poll inside the current request, so a table never waits on a frozen loop. */
+async function pollNow(id: string, ms: number) {
+  const res = await call(`/socket.io/?EIO=4&transport=polling&sid=${id}`, undefined, ms).catch(() => null);
+  if (!res) return;
+  if (res.status >= 400) {
+    if (sid === id) sid = null;
+    return;
+  }
+  ingest(await res.text().catch(() => ""));
 }
 
 /**
@@ -266,6 +286,31 @@ async function waitFor(check: () => boolean, ms: number) {
 
 /** Latest live frame for a casino event, or null when the gateway is silent. */
 const noState = new Map<string, number>();
+const sharedPutAt = new Map<string, number>();
+
+async function sharedGet(eventId: string): Promise<Frame | null> {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const q = supabaseAdmin.from("sports_odds_live").select("at, odds").eq("key", `casino:${eventId}`).maybeSingle();
+    const r = await Promise.race([q, new Promise<null>((res) => setTimeout(() => res(null), 800))]);
+    const row = r && "data" in r ? r.data : null;
+    return row ? { at: Number(row.at), data: row.odds } : null;
+  } catch {
+    return null;
+  }
+}
+
+async function sharedPut(eventId: string, f: Frame) {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await Promise.race([
+      supabaseAdmin.rpc("put_sports_odds", { _key: `casino:${eventId}`, _at: f.at, _odds: f.data as never }),
+      new Promise((res) => setTimeout(res, 800)),
+    ]);
+  } catch {
+    /* sharing is best effort */
+  }
+}
 
 // Tables send leftSec once per round and then repeat it; frames arrive only
 // every 5-15s. Anchor each round's end time on first sight and count down
@@ -279,7 +324,14 @@ function withRoundClock(eventId: string, raw: unknown): unknown {
   const round = String(d.roundId);
   const c = roundClocks.get(eventId);
   if (!c || c.round !== round || c.feed !== d.leftSec) {
-    roundClocks.set(eventId, { round, feed: d.leftSec, endAt: now + d.leftSec * 1000 });
+    // updatedAt is the round's start on the table; anchoring on it keeps
+    // every server instance on the same clock instead of "first seen here".
+    const started = Date.parse(String((d as { updatedAt?: unknown }).updatedAt ?? ""));
+    const fromStart = Number.isFinite(started) ? started + d.leftSec * 1000 : NaN;
+    const endAt = Number.isFinite(fromStart) && fromStart <= now + d.leftSec * 1000 && fromStart > now - 120_000
+      ? fromStart
+      : now + d.leftSec * 1000;
+    roundClocks.set(eventId, { round, feed: d.leftSec, endAt });
   }
   const left = Math.max(0, Math.ceil((roundClocks.get(eventId)!.endAt - now) / 1000));
   if (left > 0 || /SUSPEND/i.test(String(d.status ?? ""))) return { ...d, leftSec: left };
@@ -291,17 +343,57 @@ function withRoundClock(eventId: string, raw: unknown): unknown {
   };
 }
 
-export async function ucasState(eventId: string): Promise<{
+/** Never let a table request hang on a slow reconnect: cap it at 3.5s. */
+export async function ucasState(eventId: string): Promise<{ data: unknown; freshnessMs: number } | null> {
+  const capped = await Promise.race([
+    ucasStateInner(eventId).then((v) => ({ v })),
+    new Promise<null>((r) => setTimeout(() => r(null), 3500)),
+  ]);
+  if (capped) return capped.v;
+  const shared = states.get(eventId) ?? (await sharedGet(eventId));
+  return shared ? { data: withRoundClock(eventId, shared.data), freshnessMs: Date.now() - shared.at } : null;
+}
+
+async function ucasStateInner(eventId: string): Promise<{
   data: unknown;
   freshnessMs: number;
 } | null> {
   // Tables the socket never serves (e.g. Ball by Ball) must not make every
   // open wait 4.5s. Remember them for a minute and answer at once.
   if (!states.has(eventId) && (noState.get(eventId) ?? 0) > Date.now()) return null;
-  const id = await ensure(eventId);
+  const prev = states.get(eventId);
+  if (prev && Date.now() - prev.at > 8000) {
+    // Table went quiet: this worker's subscription was probably lost. Re-subscribe
+    // and poll right now so the board recovers without waiting for anyone.
+    subscribed.delete(eventId);
+  }
+  let id = await ensure(eventId);
   if (!id) return null;
-  await waitFor(() => states.has(eventId), 2500);
-  const last = states.get(eventId);
+  if (!prev || Date.now() - prev.at > 8000) {
+    const before = states.get(eventId)?.at ?? 0;
+    await pollNow(id, 2500);
+    if ((states.get(eventId)?.at ?? 0) === before && prev) {
+      // Still nothing: the session itself is dead. Rotate it once.
+      sid = null;
+      const next = await ensure(eventId);
+      if (next) { id = next; await pollNow(id, 2500); }
+    }
+  }
+  await waitFor(() => states.has(eventId), prev ? 0 : 1500);
+  let last = states.get(eventId);
+  // Share table frames across server instances: a cold or quiet instance
+  // reads the newest frame another instance received, so every request
+  // (board, bet check, settlement) sees the same round.
+  if (!last || Date.now() - last.at > 3000) {
+    const shared = await sharedGet(eventId);
+    if (shared && shared.at > (last?.at ?? 0)) {
+      states.set(eventId, shared);
+      last = shared;
+    }
+  } else if (last.at > (sharedPutAt.get(eventId) ?? 0)) {
+    sharedPutAt.set(eventId, last.at);
+    await sharedPut(eventId, last);
+  }
   if (!last) noState.set(eventId, Date.now() + 60_000);
   return last ? { data: withRoundClock(eventId, last.data), freshnessMs: Date.now() - last.at } : null;
 }
