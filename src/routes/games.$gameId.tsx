@@ -1175,7 +1175,7 @@ function TP20Board({ market, suspended }: { market: CasinoMarket; suspended: boo
             const p = r.price?.back?.[0];
             const open = !suspended && isOpenStatus(r.status ?? "ONLINE") && Boolean(p?.price);
             return (
-              <div key={String(r.selectionId)} data-market-option="" className="min-w-0">
+              <div key={String(r.selectionId)} data-market-option="" className="tp20-option min-w-0">
                 <div className="truncate pb-1 text-center text-[0.8rem] font-bold uppercase text-[#16324F]">
                   {label}
                 </div>

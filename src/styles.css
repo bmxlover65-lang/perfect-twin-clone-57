@@ -315,6 +315,14 @@
   margin-bottom: 0;
 }
 
+.tp20-option:has([data-has-exposure="true"]) {
+  padding-bottom: 20px;
+}
+
+.tp20-option [data-has-exposure="true"] {
+  margin-bottom: 0;
+}
+
 .lucky7-runner.is-wide {
   width: 100%;
 }
