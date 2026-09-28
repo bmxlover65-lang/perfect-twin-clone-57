@@ -7,6 +7,7 @@
 - [x] Hungary–Ukraine screenshot: subscribe with complete exchange match metadata, reject replayed tick timestamps; mobile preview rates update without reconnecting warning (live publish not requested)
 - [x] Tennis screenshot (Joa Aguilar Cardozo v Jua Varillas): bypass zero-only socket snapshots with exchange market prices, preserve stale warning and actual last-tick age; preview mobile checked (live publish pending)
 - [ ] Live rates: Zimbabwe screenshot proves bookmaker/fancy mismatch; reject >3s exchange frames as live, shorten stale Aura waits, and compare exact same-second frames with authenticated Dukex before claiming parity. Continuous relay still needed if serverless socket falls behind.
+- [ ] Relay server on Render: always-on exchange socket pushes frames to /api/public/relay/ingest (blocked: user deploys on Render + sets RELAY_SECRET).
 - [ ] Swaraj247: their developer must enable the supplied WebSocket authority and deploy the integration; verify against Dukex after rollout
 - [ ] Dream Catcher (88.0020): Dukex compare — winner fan overlay done, side-by-side photo pending (in progress)
 - [ ] Ball by Ball (dukex.biz/ballByBall/3035): ab live — Dukex se compare, side-by-side photo, board match

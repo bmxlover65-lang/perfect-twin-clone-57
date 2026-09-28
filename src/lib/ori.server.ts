@@ -185,8 +185,21 @@ async function writeShared(s: string, e: string, v: Shared) {
   }
 }
 
+/** Relay ingest: store a frame pushed by the always-on relay server. */
+export async function putRelayFrame(sportId: string, exEventId: string, odds: OriOdds) {
+  const at = Date.parse(odds.updatedAt) || 0;
+  if (!at || at > Date.now() + 5_000) return false;
+  await writeShared(sportId, exEventId, { at, odds: { ...odds, stale: false, relayed: true } as OriOdds });
+  return true;
+}
+
 export async function oriOdds(sportId: string, exEventId: string): Promise<OriOdds | null> {
   const shared = await readShared(sportId, exEventId);
+  // Frames pushed by the always-on relay are trusted while the exchange tick
+  // itself is under 3s old; no per-isolate socket warm-up is needed.
+  if (shared && hasPrices(shared.odds) && (shared.odds as { relayed?: boolean }).relayed && Date.now() - shared.at < 3_000) {
+    return { ...shared.odds, stale: false };
+  }
   // Cold worker instances can answer from the newest shared exchange frame
   // immediately while their own subscription warms in the background.
   if (shared && hasPrices(shared.odds) && Date.now() - shared.at < 500) {

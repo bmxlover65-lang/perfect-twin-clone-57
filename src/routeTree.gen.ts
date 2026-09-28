@@ -28,6 +28,7 @@ import { Route as WsSportsRouteImport } from './routes/ws.sports'
 import { Route as SportsSportIdEventIdRouteImport } from './routes/sports.$sportId.$eventId'
 import { Route as ApiPublicCronCasinoSettleRouteImport } from './routes/api/public/cron/casino-settle'
 import { Route as ApiPublicCronSportsSettleRouteImport } from './routes/api/public/cron/sports-settle'
+import { Route as ApiPublicRelayIngestRouteImport } from './routes/api/public/relay.ingest'
 import { Route as ApiPublicUapiSplatRouteImport } from './routes/api/public/uapi.$'
 import { Route as ApiPublicV1BalanceRouteImport } from './routes/api/public/v1/balance'
 import { Route as ApiPublicV1BetRouteImport } from './routes/api/public/v1/bet'
@@ -137,6 +138,11 @@ const ApiPublicCronSportsSettleRoute =
     path: '/api/public/cron/sports-settle',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicRelayIngestRoute = ApiPublicRelayIngestRouteImport.update({
+  id: '/api/public/relay/ingest',
+  path: '/api/public/relay/ingest',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicUapiSplatRoute = ApiPublicUapiSplatRouteImport.update({
   id: '/api/public/uapi/$',
   path: '/api/public/uapi/$',
@@ -212,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/sports/$sportId/$eventId': typeof SportsSportIdEventIdRoute
   '/api/public/cron/casino-settle': typeof ApiPublicCronCasinoSettleRoute
   '/api/public/cron/sports-settle': typeof ApiPublicCronSportsSettleRoute
+  '/api/public/relay/ingest': typeof ApiPublicRelayIngestRoute
   '/api/public/uapi/$': typeof ApiPublicUapiSplatRoute
   '/api/public/v1/balance': typeof ApiPublicV1BalanceRoute
   '/api/public/v1/bet': typeof ApiPublicV1BetRoute
@@ -243,6 +250,7 @@ export interface FileRoutesByTo {
   '/sports/$sportId/$eventId': typeof SportsSportIdEventIdRoute
   '/api/public/cron/casino-settle': typeof ApiPublicCronCasinoSettleRoute
   '/api/public/cron/sports-settle': typeof ApiPublicCronSportsSettleRoute
+  '/api/public/relay/ingest': typeof ApiPublicRelayIngestRoute
   '/api/public/uapi/$': typeof ApiPublicUapiSplatRoute
   '/api/public/v1/balance': typeof ApiPublicV1BalanceRoute
   '/api/public/v1/bet': typeof ApiPublicV1BetRoute
@@ -276,6 +284,7 @@ export interface FileRoutesById {
   '/sports/$sportId/$eventId': typeof SportsSportIdEventIdRoute
   '/api/public/cron/casino-settle': typeof ApiPublicCronCasinoSettleRoute
   '/api/public/cron/sports-settle': typeof ApiPublicCronSportsSettleRoute
+  '/api/public/relay/ingest': typeof ApiPublicRelayIngestRoute
   '/api/public/uapi/$': typeof ApiPublicUapiSplatRoute
   '/api/public/v1/balance': typeof ApiPublicV1BalanceRoute
   '/api/public/v1/bet': typeof ApiPublicV1BetRoute
@@ -309,6 +318,7 @@ export interface FileRouteTypes {
     | '/sports/$sportId/$eventId'
     | '/api/public/cron/casino-settle'
     | '/api/public/cron/sports-settle'
+    | '/api/public/relay/ingest'
     | '/api/public/uapi/$'
     | '/api/public/v1/balance'
     | '/api/public/v1/bet'
@@ -340,6 +350,7 @@ export interface FileRouteTypes {
     | '/sports/$sportId/$eventId'
     | '/api/public/cron/casino-settle'
     | '/api/public/cron/sports-settle'
+    | '/api/public/relay/ingest'
     | '/api/public/uapi/$'
     | '/api/public/v1/balance'
     | '/api/public/v1/bet'
@@ -372,6 +383,7 @@ export interface FileRouteTypes {
     | '/sports/$sportId/$eventId'
     | '/api/public/cron/casino-settle'
     | '/api/public/cron/sports-settle'
+    | '/api/public/relay/ingest'
     | '/api/public/uapi/$'
     | '/api/public/v1/balance'
     | '/api/public/v1/bet'
@@ -402,6 +414,7 @@ export interface RootRouteChildren {
   SportsSportIdEventIdRoute: typeof SportsSportIdEventIdRoute
   ApiPublicCronCasinoSettleRoute: typeof ApiPublicCronCasinoSettleRoute
   ApiPublicCronSportsSettleRoute: typeof ApiPublicCronSportsSettleRoute
+  ApiPublicRelayIngestRoute: typeof ApiPublicRelayIngestRoute
   ApiPublicUapiSplatRoute: typeof ApiPublicUapiSplatRoute
   ApiPublicV1BalanceRoute: typeof ApiPublicV1BalanceRoute
   ApiPublicV1BetRoute: typeof ApiPublicV1BetRoute
@@ -549,6 +562,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronSportsSettleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/relay/ingest': {
+      id: '/api/public/relay/ingest'
+      path: '/api/public/relay/ingest'
+      fullPath: '/api/public/relay/ingest'
+      preLoaderRoute: typeof ApiPublicRelayIngestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/uapi/$': {
       id: '/api/public/uapi/$'
       path: '/api/public/uapi/$'
@@ -673,6 +693,7 @@ const rootRouteChildren: RootRouteChildren = {
   SportsSportIdEventIdRoute: SportsSportIdEventIdRoute,
   ApiPublicCronCasinoSettleRoute: ApiPublicCronCasinoSettleRoute,
   ApiPublicCronSportsSettleRoute: ApiPublicCronSportsSettleRoute,
+  ApiPublicRelayIngestRoute: ApiPublicRelayIngestRoute,
   ApiPublicUapiSplatRoute: ApiPublicUapiSplatRoute,
   ApiPublicV1BalanceRoute: ApiPublicV1BalanceRoute,
   ApiPublicV1BetRoute: ApiPublicV1BetRoute,

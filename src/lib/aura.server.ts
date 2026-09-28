@@ -330,10 +330,17 @@ export async function auraOdds(sportId: string, exEventId: string): Promise<AnyR
     hit = oddsByMatch.get(exEventId);
   }
   if (!hit || !hasMarkets(hit.data) || (needNewer && hit.at <= prevAt)) return null;
-  const o = hit.data;
   const runnersData = (matchesBySport.get(meta.sportId)?.get(exEventId)?.["runnersData"] ??
     null) as Record<string, string> | null;
+  return buildAuraOdds(hit.data, { exEventId, sportId: meta.sportId, eventName: meta.eventName }, runnersData);
+}
 
+/** Shape one raw auraMarketOdds frame like the app's OddsResponse (also used by the relay ingest). */
+export function buildAuraOdds(
+  o: AnyRec,
+  meta: { exEventId: string; sportId: string; eventName: string },
+  runnersData: Record<string, string> | null,
+) {
   const pick = (key: string) =>
     (Array.isArray(o[key]) ? (o[key] as AnyRec[]) : []).map((m) => toMarket(m, runnersData));
   const sportsbookAll = [...pick("sportsbook"), ...pick("sportsBook")];
@@ -344,13 +351,11 @@ export async function auraOdds(sportId: string, exEventId: string): Promise<AnyR
     seen.add(key);
     return true;
   });
-  // Finished sessions (over already bowled, market settled or voided) are
-  // dropped here so they can never linger on the board.
   const fancy = pick("fancy")
     .filter((m) => !isFinished(m))
     .sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
   return {
-    exEventId,
+    exEventId: meta.exEventId,
     eventName: meta.eventName,
     sportId: meta.sportId,
     inPlay: Boolean(o["inPlay"]),
@@ -364,7 +369,6 @@ export async function auraOdds(sportId: string, exEventId: string): Promise<AnyR
     fancy,
     sportsbook,
   };
-
 }
 
 // Warm the socket + match subscriptions as soon as the server module loads so
