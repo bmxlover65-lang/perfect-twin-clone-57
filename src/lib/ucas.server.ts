@@ -265,14 +265,20 @@ async function waitFor(check: () => boolean, ms: number) {
 }
 
 /** Latest live frame for a casino event, or null when the gateway is silent. */
+const noState = new Map<string, number>();
+
 export async function ucasState(eventId: string): Promise<{
   data: unknown;
   freshnessMs: number;
 } | null> {
+  // Tables the socket never serves (e.g. Ball by Ball) must not make every
+  // open wait 4.5s. Remember them for a minute and answer at once.
+  if (!states.has(eventId) && (noState.get(eventId) ?? 0) > Date.now()) return null;
   const id = await ensure(eventId);
   if (!id) return null;
-  await waitFor(() => states.has(eventId), 4500);
+  await waitFor(() => states.has(eventId), 2500);
   const last = states.get(eventId);
+  if (!last) noState.set(eventId, Date.now() + 60_000);
   return last ? { data: last.data, freshnessMs: Date.now() - last.at } : null;
 }
 

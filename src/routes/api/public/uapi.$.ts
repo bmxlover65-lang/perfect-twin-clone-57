@@ -630,7 +630,7 @@ export async function proxy(splat: string, search: string, body?: string, origin
 
     let token = await Promise.race([
       getToken().catch(() => ""),
-      new Promise<string>((r) => setTimeout(() => r(""), 2000)),
+      new Promise<string>((r) => setTimeout(() => r(""), /^games(\/|$)/.test(splat) ? 400 : 2000)),
     ]);
     const preMatch = /^games\/([^/]+)\/results$/.exec(splat);
     if (preMatch) {
@@ -657,7 +657,7 @@ export async function proxy(splat: string, search: string, body?: string, origin
     if (/^games(\/|$)/.test(splat) && body === undefined) {
       const timed = await Promise.race([
         upstream(splat, search, token, body).catch(() => null),
-        new Promise<null>((r) => setTimeout(() => r(null), 3000)),
+        new Promise<null>((r) => setTimeout(() => r(null), stateMatch ? 1200 : 3000)),
       ]);
       if (!timed) {
         const snap = snapshotResponse(snapshotKey, 504);
