@@ -180,3 +180,63 @@ export async function settleOperatorBet(input: {
   const r = await closeBet(operator, bet as BetRow, input.outcome, input.multiplier);
   return { ok: true, ...r };
 }
+
+/**
+ * A settle run can be cut off after it closed a winning bet but before the
+ * wallet credit went out. Find such bets (won/void, nothing paid, no credit
+ * on record) and pay them now. The reference is the same as the original
+ * payout, so an operator wallet can never pay twice.
+ */
+export async function repairUnpaidBets() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { walletCall } = await import("./callback-wallet.server");
+  const since = new Date(Date.now() - 24 * 3600_000).toISOString();
+  const { data: bets } = await supabaseAdmin
+    .from("bets")
+    .select("id, operator_id, operator_user_id, selection, odds, stake, reference, game_id, round_id, status, settled_at")
+    .in("status", ["won", "void"])
+    .eq("payout", 0)
+    .gte("settled_at", since)
+    .lte("settled_at", new Date(Date.now() - 20_000).toISOString())
+    .limit(200);
+  let repaired = 0;
+  for (const bet of bets ?? []) {
+    const outcome = bet.status as "won" | "void";
+    const kind = outcome === "void" ? "rollback" : "credit";
+    const { data: done } = await supabaseAdmin
+      .from("transactions")
+      .select("id")
+      .eq("bet_id", bet.id)
+      .eq("kind", kind)
+      .limit(1);
+    if (done?.length) continue;
+    const payout = outcome === "won" ? Math.round(Number(bet.stake) * Number(bet.odds)) : Math.round(Number(bet.stake));
+    if (!(payout > 0)) continue;
+    const operator = await loadOperator(bet.operator_id);
+    if (!operator) continue;
+    const reference = `${bet.reference ?? bet.id}-${outcome}`;
+    const res = await walletCall(operator, kind, {
+      userId: bet.operator_user_id,
+      amount: payout,
+      reference,
+      gameId: bet.game_id,
+      roundId: bet.round_id,
+      betId: bet.id,
+    });
+    await supabaseAdmin.from("transactions").insert({
+      operator_id: operator.id,
+      bet_id: bet.id,
+      operator_user_id: bet.operator_user_id,
+      kind,
+      amount: payout,
+      balance_after: res.ok ? res.balance : null,
+      status: res.ok ? "done" : "failed",
+      reference,
+    });
+    if (res.ok) {
+      await supabaseAdmin.from("bets").update({ payout }).eq("id", bet.id);
+      repaired++;
+    }
+  }
+  return repaired;
+}

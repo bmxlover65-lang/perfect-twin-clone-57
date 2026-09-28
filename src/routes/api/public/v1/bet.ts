@@ -162,7 +162,7 @@ export const Route = createFileRoute("/api/public/v1/bet")({
               odds: b.odds,
               stake: b.stake,
               code: "round_closed",
-              message: "Betting is closed for this round",
+              message: `Betting is closed for this round [live round ${String(d?.roundId ?? "none")}, ${String(d?.status ?? "no state")}, ${String(d?.leftSec ?? "-")}s left, ${live ? Math.round(live.freshnessMs / 1000) : "-"}s old]`,
               ip: auth.ip,
             });
             return Response.json(

@@ -118,6 +118,17 @@ async function session(): Promise<string | null> {
   return connecting;
 }
 
+function roundNum(d: unknown): bigint | null {
+  const r = (d as { roundId?: unknown } | null)?.roundId;
+  if (r == null || !/^\d+$/.test(String(r))) return null;
+  return BigInt(String(r));
+}
+function olderRound(next: unknown, prev: unknown): boolean {
+  const a = roundNum(next);
+  const b = roundNum(prev);
+  return a !== null && b !== null && a < b;
+}
+
 function ingest(text: string) {
   for (const packet of text.split(SEP)) {
     if (!packet) continue;
@@ -150,6 +161,10 @@ function ingest(text: string) {
     const eventId = typeof payload?.["eventId"] === "string" ? (payload["eventId"] as string) : "";
     if (!eventId) continue;
     if (name === "game:state" && payload?.["data"]) {
+      // The gateway interleaves frames of the previous round with the live
+      // one. An older round must never replace the current round, or the
+      // table flips open/closed and bets are wrongly refused or accepted.
+      if (olderRound(payload["data"], states.get(eventId)?.data)) continue;
       states.set(eventId, { at: Date.now(), data: payload["data"] });
     } else if (name === "game:results") {
       const raw = payload?.["data"];
@@ -386,7 +401,7 @@ async function ucasStateInner(eventId: string): Promise<{
   // (board, bet check, settlement) sees the same round.
   if (!last || Date.now() - last.at > 3000) {
     const shared = await sharedGet(eventId);
-    if (shared && shared.at > (last?.at ?? 0)) {
+    if (shared && shared.at > (last?.at ?? 0) && !olderRound(shared.data, last?.data)) {
       states.set(eventId, shared);
       last = shared;
     }

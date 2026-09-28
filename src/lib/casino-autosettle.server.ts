@@ -2,7 +2,7 @@
  * Settles open operator casino bets from the live round results, so partner
  * sites never need a page refresh (or a manual result call) to pay out.
  */
-import { settleOperatorBet } from "./operator-settle.server";
+import { repairUnpaidBets, settleOperatorBet } from "./operator-settle.server";
 
 type ResultRow = {
   roundId: string;
@@ -34,6 +34,7 @@ function outcomeFor(row: ResultRow, selection: string, market: string | null): b
 
 export async function autoSettleCasino(origin: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  await repairUnpaidBets().catch(() => 0);
   const { data: bets } = await supabaseAdmin
     .from("bets")
     .select("id, operator_id, game_id, round_id, market, selection, created_at")
