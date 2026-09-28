@@ -69,7 +69,7 @@ async function flush() {
 
 function connect() {
   ready = false;
-  ws = new WebSocket(WS_URL, { headers: { origin: "https://dukex.biz" } });
+  ws = new WebSocket(WS_URL);
   ws.onmessage = (ev) => {
     const raw = String(ev.data);
     if (raw === "2") return ws.send("3");
