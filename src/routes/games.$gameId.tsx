@@ -3331,7 +3331,7 @@ function GamePage() {
 
   const d = state?.data ?? null;
   const status = (d?.status ?? "").toUpperCase();
-  const suspended = Boolean(state?.stale || age > 5) || (status ? roundSuspended : false);
+  const suspended = Boolean(state?.stale || age > 30) || (status ? roundSuspended : false);
   const markets = d?.marketArr ?? [];
   const coinWinner = (() => {
     if (gameId !== "88.0021") return null;
@@ -3683,7 +3683,7 @@ function GamePage() {
               )}
               roundId={d?.roundId ? String(d.roundId) : undefined}
               suspended={suspended}
-              leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
+              leftSec={Math.max(0, (d?.leftSec ?? 0))}
             />
           </div>
         ) : gameId === "88.0020" ? (
@@ -3700,7 +3700,7 @@ function GamePage() {
             )}
             roundId={d?.roundId ? String(d.roundId) : undefined}
             suspended={suspended}
-            leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
+            leftSec={Math.max(0, (d?.leftSec ?? 0))}
           />
 
         ) : gameId === "88.0021" ? (
@@ -3708,7 +3708,7 @@ function GamePage() {
             winner={coinWinner}
             roundId={d?.roundId ? String(d.roundId) : undefined}
             suspended={suspended}
-            leftSec={Math.min(20, Math.max(0, (d?.leftSec ?? 0) - age))}
+            leftSec={Math.min(20, Math.max(0, (d?.leftSec ?? 0)))}
           />
 
         ) : (
@@ -3719,7 +3719,7 @@ function GamePage() {
             roundId={d?.roundId ? String(d.roundId) : undefined}
             suspended={suspended}
             status={status}
-            leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
+            leftSec={Math.max(0, (d?.leftSec ?? 0))}
           />
         )}
 
@@ -3884,7 +3884,7 @@ function GamePage() {
 
 
         <RoundTimer
-          leftSec={Math.max(0, (d?.leftSec ?? 0) - age)}
+          leftSec={Math.max(0, (d?.leftSec ?? 0))}
           suspended={suspended}
           className="absolute right-1 top-1 z-20 sm:right-2 sm:top-2"
           size="h-9 w-9 sm:h-14 sm:w-14"

@@ -603,7 +603,7 @@ export async function proxy(splat: string, search: string, body?: string, origin
         let data = live.data as { leftSec?: number; status?: string; marketArr?: { runners?: { status?: string }[] | undefined }[] | undefined };
         // A table frame older than 5s is not live: never let players bet on it.
         const timerOver = typeof data.leftSec === "number" && data.leftSec <= 0;
-        if ((timerOver || live.freshnessMs > 5000) && !/SUSPEND/i.test(String(data.status ?? ""))) {
+        if ((timerOver || live.freshnessMs > 30000) && !/SUSPEND/i.test(String(data.status ?? ""))) {
           data = {
             ...data,
             status: "SUSPEND",
@@ -616,7 +616,7 @@ export async function proxy(splat: string, search: string, body?: string, origin
         const payload = {
           eventId,
           freshnessMs: live.freshnessMs,
-          stale: live.freshnessMs > 5000,
+          stale: live.freshnessMs > 30000,
           data,
         };
         const text = JSON.stringify(payload);

@@ -267,6 +267,30 @@ async function waitFor(check: () => boolean, ms: number) {
 /** Latest live frame for a casino event, or null when the gateway is silent. */
 const noState = new Map<string, number>();
 
+// Tables send leftSec once per round and then repeat it; frames arrive only
+// every 5-15s. Anchor each round's end time on first sight and count down
+// from it, so the timer runs, the board suspends exactly at 0, and an open
+// round is not suspended just because the next frame is a few seconds away.
+const roundClocks = new Map<string, { round: string; feed: number; endAt: number }>();
+function withRoundClock(eventId: string, raw: unknown): unknown {
+  const d = raw as { roundId?: unknown; leftSec?: unknown; status?: unknown; marketArr?: { runners?: { status?: string }[] }[] } | null;
+  if (!d || d.roundId == null || typeof d.leftSec !== "number") return raw;
+  const now = Date.now();
+  const round = String(d.roundId);
+  const c = roundClocks.get(eventId);
+  if (!c || c.round !== round || c.feed !== d.leftSec) {
+    roundClocks.set(eventId, { round, feed: d.leftSec, endAt: now + d.leftSec * 1000 });
+  }
+  const left = Math.max(0, Math.ceil((roundClocks.get(eventId)!.endAt - now) / 1000));
+  if (left > 0 || /SUSPEND/i.test(String(d.status ?? ""))) return { ...d, leftSec: left };
+  return {
+    ...d,
+    leftSec: 0,
+    status: "SUSPEND",
+    marketArr: d.marketArr?.map((m) => ({ ...m, runners: m.runners?.map((r) => ({ ...r, status: "SUSPEND" })) })),
+  };
+}
+
 export async function ucasState(eventId: string): Promise<{
   data: unknown;
   freshnessMs: number;
@@ -279,7 +303,7 @@ export async function ucasState(eventId: string): Promise<{
   await waitFor(() => states.has(eventId), 2500);
   const last = states.get(eventId);
   if (!last) noState.set(eventId, Date.now() + 60_000);
-  return last ? { data: last.data, freshnessMs: Date.now() - last.at } : null;
+  return last ? { data: withRoundClock(eventId, last.data), freshnessMs: Date.now() - last.at } : null;
 }
 
 /** Recent round results for a casino event. */

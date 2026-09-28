@@ -115,7 +115,7 @@ export const Route = createFileRoute("/api/public/v1/bet")({
             | null;
           const d = live?.data;
           const closed =
-            !d || (live?.freshnessMs ?? Infinity) > 5000 ||
+            !d || (live?.freshnessMs ?? Infinity) > 30000 ||
             (
             ((d.roundId && String(d.roundId) !== b.roundId) ||
               /SUSPEND|CLOSE|RESULT/i.test(String(d.status ?? "")) ||
